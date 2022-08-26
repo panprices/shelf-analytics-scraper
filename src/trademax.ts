@@ -10,13 +10,17 @@ import {
   puppeteerUtils,
 } from "crawlee";
 import { scheduleNextPage } from "./utils";
+import {CustomRequestQueue} from "./custom_request_queue";
 
 const BASE_URL = "https://www.trademax.se";
 
 // const pageLoaded;
 
 const getTrademaxCrawler = async (maxRequestsPerCrawl: number) => {
+  const requestQueue = await CustomRequestQueue.open()
+
   return new PlaywrightCrawler({
+    requestQueue,
     headless: true,
     maxRequestsPerCrawl: maxRequestsPerCrawl,
     maxRequestsPerMinute: 60,
