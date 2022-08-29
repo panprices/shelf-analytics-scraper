@@ -1,4 +1,8 @@
-const { CloudTasksClient } = require("@google-cloud/tasks");
+import {CloudTasksClient} from "@google-cloud/tasks";
+import {google} from "@google-cloud/tasks/build/protos/protos";
+import ICreateTaskRequest = google.cloud.tasks.v2.ICreateTaskRequest;
+import ITask = google.cloud.tasks.v2.ITask;
+import ITimestamp = google.protobuf.ITimestamp;
 // Instantiates a client.
 const client = new CloudTasksClient();
 
@@ -15,24 +19,24 @@ export const scheduleNextPage = async (url: string, inSeconds: number) => {
     url: url,
   };
 
-  const task = {
+  const task: ITask = {
     httpRequest: {
       httpMethod: "POST",
       url: destinationUrl,
-      scheduleTime: {
-        seconds: inSeconds + Date.now() / 1000,
-      },
       headers: {
         "Content-Type": "application/json",
       },
       body: Buffer.from(JSON.stringify(payload)).toString("base64"),
+    },
+    scheduleTime: <ITimestamp>{
+      seconds: inSeconds + Date.now() / 1000,
     },
   };
 
   // Send create task request.
   console.log("Sending task:");
   console.log(task);
-  const request = { parent: parent, task: task };
+  const request: ICreateTaskRequest = { parent: parent, task: task };
   const [response] = await client.createTask(request);
   console.log(`Created task ${response.name}`);
 };

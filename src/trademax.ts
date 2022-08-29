@@ -1,16 +1,7 @@
 // For more information, see https://crawlee.dev/
-import {
-  CheerioCrawler,
-  PlaywrightCrawler,
-  Dataset,
-  EnqueueStrategy,
-  RequestQueue,
-  PlaywrightCrawlerOptions,
-  Configuration,
-  puppeteerUtils,
-} from "crawlee";
-import { scheduleNextPage } from "./utils";
-import {CustomRequestQueue} from "./custom_request_queue";
+import {Dataset, PlaywrightCrawler,} from "crawlee";
+import {scheduleNextPage} from "./utils.js";
+import {CustomRequestQueue} from "./custom_request_queue.js";
 
 const BASE_URL = "https://www.trademax.se";
 
@@ -69,17 +60,7 @@ const getTrademaxCrawler = async (maxRequestsPerCrawl: number) => {
         await Dataset.pushData(offer);
       } else {
         await page.waitForSelector(".P0CGX a");
-        await page.waitForSelector("a[aria-label='Next']");
         // await page.waitForFunction();
-
-        // TEST
-        const productLinks = await page
-          .locator(".P0CGX a")
-          .evaluateAll((list) =>
-            list.map((element) => element.getAttribute("src"))
-          );
-        log.info("productLinks: " + productLinks.length);
-        // END TEST
 
         // Enque link to the product pages
         await enqueueLinks({
@@ -87,14 +68,19 @@ const getTrademaxCrawler = async (maxRequestsPerCrawl: number) => {
           label: "DETAIL",
         });
 
+        await enqueueLinks({
+          selector: "//div[@data-cy='pagination_controls']/a",
+          label: "LIST"
+        })
+
         // Schedule next page to scrape
-        const nextPageUrl =
-          BASE_URL +
-          (await page.locator("a[aria-label='Next']").getAttribute("href"));
-        log.info("Next page: " + nextPageUrl);
-        if (nextPageUrl) {
-          await scheduleNextPage(nextPageUrl, 60);
-        }
+        // const nextPageUrl =
+        //   BASE_URL +
+        //   (await page.locator("a[aria-label='Next']").getAttribute("href"));
+        // log.info("Next page: " + nextPageUrl);
+        // if (nextPageUrl) {
+        //   await scheduleNextPage(nextPageUrl, 60);
+        // }
 
         // await enqueueLinks({
         //   selector: "a[aria-label='Next']",
