@@ -65,7 +65,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         }
     }
 
-    async extractCardProductInfo__BrowserFunction(categoryUrl: string, productCard: ElementHandle): Promise<ProductInfo>  {
+    async extractCardProductInfo(categoryUrl: string, productCard: ElementHandle): Promise<ProductInfo>  {
         const extractProperty = async (path: string, extractor: (node: ElementHandle) => Promise<string | null>) => {
             const tag = await productCard.$(path)
             return tag ? extractor(tag) : null
