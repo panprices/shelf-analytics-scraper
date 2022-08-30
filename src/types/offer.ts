@@ -20,7 +20,7 @@ interface Category {
 // TODO: create 2 product models: one scraped from detail page and one scraped from listings
 
 interface ProductInfo {
-    brand: string | null
+    brand?: string | null
     name: string | null
     description?: string | null
     url: string
@@ -28,7 +28,7 @@ interface ProductInfo {
     price: number
     currency: string
     isDiscounted: boolean
-    popularityIndex: number
+    popularityIndex?: number
     images?: string[]
     categoryTree?: Category[]
 

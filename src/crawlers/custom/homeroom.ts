@@ -1,5 +1,5 @@
-import {ElementHandle, Locator, Page} from "playwright";
-import {Dataset, log, PlaywrightCrawlingContext, sleep} from "crawlee";
+import {Locator, Page} from "playwright";
+import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
 import {AbstractCrawlerDefinition} from "../abstract.js";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
@@ -66,34 +66,18 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ProductInfo>  {
-        const extractProperty = async (path: string, extractor: (node: Locator) => Promise<string | null>) => {
-            const tag = await productCard.locator(path)
-            const elementExists = (await tag.count()) > 0
-            if (!elementExists) {
-                return null
-            }
-
-            return tag ? extractor(tag) : null
-        }
-
-        const brand = await extractProperty("..//b[contains(@class, 'brand')]",
+        const brand = await this.extractProperty(productCard,"..//b[contains(@class, 'brand')]",
                 node => node.textContent())
-        const name = await extractProperty("..//span[contains(@class, 'name')]",
+        const name = await this.extractProperty(productCard,"..//span[contains(@class, 'name')]",
                 node => node.textContent())
-        const priceString = <string>await extractProperty("..//span[contains(@class, 'price-point')]",
+        const priceString = <string>await this.extractProperty(productCard, "..//span[contains(@class, 'price-point')]",
                 node => node.textContent())
-        const originalPriceString = await extractProperty("..//s[contains(./span/@class, 'currency')]",
+        const originalPriceString = await this.extractProperty(productCard, "..//s[contains(./span/@class, 'currency')]",
                 node => node.textContent())
-        const imageUrl = await extractProperty("..//picture/source[0]", async (node: Locator) => {
-            const srcset = await node.getAttribute('srcset')
-            if (!srcset) {
-                return null
-            }
-            return srcset.split(',')[0].split(' ')[0]
-        })
-        const sku = await extractProperty("button",
+        const imageUrl = await this.extractProperty(productCard, "..//picture/source[1]", this.extractImageFromSrcSet)
+        const sku = await this.extractProperty(productCard, "button",
                 node => node.getAttribute("data-sku"))
-        const url = <string> await extractProperty("a", node => node.getAttribute("href"))
+        const url = <string> await this.extractProperty(productCard, "a", node => node.getAttribute("href"))
 
         const currentProductInfo: ProductInfo = {
             brand, name, url, images: [<string>imageUrl], sku,

@@ -120,7 +120,7 @@ export abstract class AbstractCrawlerDefinition {
      */
     handleFoundProductFromCard (url: string, product: Object): number {
         if (this.productInfos.has(url)) {
-            return this.productInfos.get(url)!.popularityIndex;
+            return <number>this.productInfos.get(url)!.popularityIndex;
         }
 
         const convertedProduct = <ProductInfo> product
@@ -184,6 +184,28 @@ export abstract class AbstractCrawlerDefinition {
         // for infinite scroll pages
         await page.evaluate(() =>
             window.scrollTo(0, document.body.scrollHeight - (window.innerHeight + 100)))
+    }
+
+    async extractProperty(
+        rootElement: Locator,
+        path: string,
+        extractor: (node: Locator) => Promise<string | null>
+    ): Promise<string | null> {
+        const tag = await rootElement.locator(path)
+        const elementExists = (await tag.count()) > 0
+        if (!elementExists) {
+            return null
+        }
+
+        return tag ? extractor(tag) : null
+    }
+
+    async extractImageFromSrcSet(node: Locator): Promise<string | null> {
+        const srcset = await node.getAttribute('srcset')
+        if (!srcset) {
+            return null
+        }
+        return srcset.split(',')[0].split(' ')[0]
     }
 
     /**

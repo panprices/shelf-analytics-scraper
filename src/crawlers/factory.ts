@@ -1,6 +1,7 @@
 import {log, PlaywrightCrawler, PlaywrightCrawlerOptions} from "crawlee";
 import {CustomRequestQueue} from "../custom_request_queue.js";
 import {HomeroomCrawlerDefinition} from "./custom/homeroom.js";
+import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
 
 /**
  * This class knows which crawler to create depending on the root URL that is being targeted.
@@ -20,12 +21,21 @@ export class CrawlerFactory {
             ...overrides
         }
 
+        let definition
         switch (url) {
-            case "https://www.homeroom.se/":
-                const definition = await HomeroomCrawlerDefinition.create()
+            case "https://www.homeroom.se":
+                definition = await HomeroomCrawlerDefinition.create()
                 options = {
                     ...options,
                     requestHandler: definition.router
+                }
+                return new PlaywrightCrawler(options)
+            case "https://www.trademax.se":
+                definition = await TrademaxCrawlerDefinition.create()
+                options = {
+                    ...options,
+                    requestHandler: definition.router,
+                    maxConcurrency: 1
                 }
                 return new PlaywrightCrawler(options)
         }
