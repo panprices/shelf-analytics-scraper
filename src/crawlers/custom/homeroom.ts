@@ -74,10 +74,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
                 node => node.textContent())
         const originalPriceString = await this.extractProperty(productCard, "..//s[contains(./span/@class, 'currency')]",
                 node => node.textContent())
-        const imageUrl = await this.extractProperty(productCard, "..//picture/source[1]", this.extractImageFromSrcSet)
+        const imageUrl = await this.extractProperty(productCard, "xpath=(..//picture/source)[1]", this.extractImageFromSrcSet)
         const sku = await this.extractProperty(productCard, "button",
                 node => node.getAttribute("data-sku"))
-        const url = <string> await this.extractProperty(productCard, "a", node => node.getAttribute("href"))
+        const url = <string> await this.extractProperty(productCard, "xpath=./a[1]", node => node.getAttribute("href"))
 
         const currentProductInfo: ProductInfo = {
             brand, name, url, images: [<string>imageUrl], sku,
@@ -103,7 +103,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         return new HomeroomCrawlerDefinition({
             detailsDataset, listingDataset,
             listingUrlSelector: "//div[contains(text(), 'Impossible to match selector, no pagination')]",
-            detailsUrlSelector: "//article[contains(@class, 'product-card') and .//b = 'Venture Home']//a",
+            detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
             productCardSelector: "//article[contains(@class, 'product-card')]"
         })
     }
