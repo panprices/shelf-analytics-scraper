@@ -1,5 +1,5 @@
 import {createPlaywrightRouter, Dataset, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
-import {ElementHandle, Locator, Page} from "playwright";
+import {Locator, Page} from "playwright";
 
 
 export interface CrawlerDefinitionOptions {
@@ -29,16 +29,6 @@ export interface CrawlerDefinitionOptions {
     productCardSelector: string
 }
 
-interface ScrollerArgs {
-    currentScroll: number
-
-    /**
-     * Fields passed to the scroller function from the general parameters described above
-     */
-    detailsUrlSelector: string
-    productCardSelector: string
-}
-
 /**
  * General definition of what we need to do to create a new custom implementation for a given website.
  *
@@ -46,8 +36,8 @@ interface ScrollerArgs {
  */
 export abstract class AbstractCrawlerDefinition {
     private readonly _router: RouterHandler<PlaywrightCrawlingContext>
-    private readonly detailsDataset: Dataset
-    private readonly listingDataset: Dataset
+    private readonly _detailsDataset: Dataset
+    private readonly _listingDataset: Dataset
 
     private readonly detailsUrlSelector: string
     private readonly listingUrlSelector: string
@@ -63,8 +53,8 @@ export abstract class AbstractCrawlerDefinition {
         this._router.addHandler("LIST", async (ctx: PlaywrightCrawlingContext) =>
             await crawlerDefinition.crawlListPage(ctx))
 
-        this.detailsDataset = options.detailsDataset
-        this.listingDataset = options.listingDataset
+        this._detailsDataset = options.detailsDataset
+        this._listingDataset = options.listingDataset
 
         this.detailsUrlSelector = options.detailsUrlSelector
         this.listingUrlSelector = options.listingUrlSelector
@@ -82,7 +72,7 @@ export abstract class AbstractCrawlerDefinition {
         const productDetails = await this.extractProductDetails(ctx.page)
         const request = ctx.request
 
-        await this.detailsDataset.pushData({
+        await this._detailsDataset.pushData({
             ...request.userData,
             ...productDetails
         })
@@ -191,7 +181,7 @@ export abstract class AbstractCrawlerDefinition {
     }
 
     async extractProperty(
-        rootElement: Locator,
+        rootElement: Locator | Page,
         path: string,
         extractor: (node: Locator) => Promise<string | null>
     ): Promise<string | null> {
@@ -224,5 +214,9 @@ export abstract class AbstractCrawlerDefinition {
 
     get router(): RouterHandler<PlaywrightCrawlingContext> {
         return this._router
+    }
+
+    get detailsDataset(): Dataset {
+        return this._detailsDataset
     }
 }

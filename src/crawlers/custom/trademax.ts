@@ -41,24 +41,36 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
           .evaluateAll((list: HTMLElement[]) =>
             list.map((element) => <string>element.getAttribute("src"))
           );
-        const thumbnails = await page
-          .locator(".ProductInfoSliderNavigation__global img")
-          .evaluateAll((list: HTMLElement[]) =>
-            list.map((element) => element.getAttribute("src"))
-          );
+        const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a")
+        const breadcrumbCount = await breadcrumbLocator.count()
+        const categoryTree = []
+        for (let i = 1; i < breadcrumbCount; i++) {
+            const name = (<string>await breadcrumbLocator.nth(i).textContent()).trim()
+            const url = <string>await breadcrumbLocator.nth(i).getAttribute("href")
+
+            categoryTree.push({
+                name, url
+            })
+        }
+
+        const brand = await this.extractProperty(page, "//span[contains(strong/text(), ('Varumärke'))]/span/a",
+            node => node.textContent())
+        const originalPriceString = await this.extractProperty(page,
+            "xpath=(//div[contains(@class, 'productInfoContent--buySectionBlock')]//div[@data-cy = 'original-price'])[1]",
+            node => node.textContent())
 
         // TODO
         const description = null;
         return {
-          name: product_name,
-          price,
-          currency: "SEK",
-          images,
-          description,
-          url: page.url(),
-          brand: null,
-          // TODO: check if the product is discounted
-          isDiscounted: false
+            name: product_name,
+            price,
+            currency: "SEK",
+            images,
+            description,
+            url: page.url(),
+            isDiscounted: originalPriceString !== null,
+            brand,
+            categoryTree
         };
     }
 

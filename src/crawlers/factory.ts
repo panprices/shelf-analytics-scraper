@@ -1,7 +1,8 @@
 import {log, PlaywrightCrawler, PlaywrightCrawlerOptions, RequestQueue} from "crawlee";
-import {CustomRequestQueue} from "../custom_crawlee/custom_request_queue";
+import {CustomRequestQueue} from "../custom_crawlee/custom_request_queue.js";
 import {HomeroomCrawlerDefinition} from "./custom/homeroom.js";
 import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
+import {AbstractCrawlerDefinition} from "./abstract";
 
 
 export interface CrawlerFactoryArgs {
@@ -20,7 +21,7 @@ export class CrawlerFactory {
     static async buildCrawlerForRootUrl(
         args: CrawlerFactoryArgs,
         overrides?: PlaywrightCrawlerOptions
-    ): Promise<PlaywrightCrawler> {
+    ): Promise<[PlaywrightCrawler, AbstractCrawlerDefinition]> {
         if (args.useCustomQueue === undefined) { // use custom queue by default
             args.useCustomQueue = true
         }
@@ -43,14 +44,14 @@ export class CrawlerFactory {
                     ...options,
                     requestHandler: definition.router
                 }
-                return new PlaywrightCrawler(options)
+                return [new PlaywrightCrawler(options), definition]
             case "https://www.trademax.se":
                 definition = await TrademaxCrawlerDefinition.create()
                 options = {
                     ...options,
                     requestHandler: definition.router
                 }
-                return new PlaywrightCrawler(options)
+                return [new PlaywrightCrawler(options), definition]
         }
 
         log.warning(`Asked for unknown root url: ${url}`)
