@@ -1,5 +1,5 @@
-import {ElementHandle, Page} from "playwright";
-import {Dataset, log, sleep} from "crawlee";
+import {ElementHandle, Locator, Page} from "playwright";
+import {Dataset, log, PlaywrightCrawlingContext, sleep} from "crawlee";
 import {AbstractCrawlerDefinition} from "../abstract.js";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
@@ -65,21 +65,26 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         }
     }
 
-    async extractCardProductInfo(categoryUrl: string, productCard: ElementHandle): Promise<ProductInfo>  {
-        const extractProperty = async (path: string, extractor: (node: ElementHandle) => Promise<string | null>) => {
-            const tag = await productCard.$(path)
+    async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ProductInfo>  {
+        const extractProperty = async (path: string, extractor: (node: Locator) => Promise<string | null>) => {
+            const tag = await productCard.locator(path)
+            const elementExists = (await tag.count()) > 0
+            if (!elementExists) {
+                return null
+            }
+
             return tag ? extractor(tag) : null
         }
 
-        const brand = await extractProperty("b.brand",
+        const brand = await extractProperty("..//b[contains(@class, 'brand')]",
                 node => node.textContent())
-        const name = await extractProperty("span.name",
+        const name = await extractProperty("..//span[contains(@class, 'name')]",
                 node => node.textContent())
-        const priceString = <string>await extractProperty("span.price-point",
+        const priceString = <string>await extractProperty("..//span[contains(@class, 'price-point')]",
                 node => node.textContent())
-        const originalPriceString = await extractProperty("s",
+        const originalPriceString = await extractProperty("..//s[contains(./span/@class, 'currency')]",
                 node => node.textContent())
-        const imageUrl = await extractProperty("source", async (node: ElementHandle) => {
+        const imageUrl = await extractProperty("..//picture/source[0]", async (node: Locator) => {
             const srcset = await node.getAttribute('srcset')
             if (!srcset) {
                 return null
@@ -119,10 +124,12 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         })
     }
 
-    override async scrollToBottom(page: Page): Promise<void> {
+    override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
+        const page = ctx.page
+
         let buttonVisible = false
         do {
-            await super.scrollToBottom(page);
+            await super.scrollToBottom(ctx);
 
             // wait for consistency
             await new Promise(f => setTimeout(f, 100))
