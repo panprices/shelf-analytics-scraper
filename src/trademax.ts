@@ -1,7 +1,7 @@
 // For more information, see https://crawlee.dev/
 import {Dataset, PlaywrightCrawler,} from "crawlee";
 import {scheduleNextPage} from "./utils.js";
-import {CustomRequestQueue} from "./custom_request_queue.js";
+import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
 
 const BASE_URL = "https://www.trademax.se";
 

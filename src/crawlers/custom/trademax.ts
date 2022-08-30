@@ -16,11 +16,11 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
                 node => node.getAttribute("href"))
 
         const result: ProductInfo = {
-            name, images: [imageUrl], price: Number(priceText.replace(/\\s/g, '')), isDiscounted, url,
+            name, images: [imageUrl], price: Number(priceText.replace(/\s/g, '')), isDiscounted, url,
             currency: 'SEK', categoryUrl
         }
         if (isDiscounted) {
-            result.originalPrice = Number(originalPriceText.replace(/\\s/g, ''))
+            result.originalPrice = Number(originalPriceText.replace(/\s/g, ''))
         }
 
         return result

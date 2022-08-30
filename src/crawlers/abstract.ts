@@ -80,8 +80,12 @@ export abstract class AbstractCrawlerDefinition {
      */
     async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
         const productDetails = await this.extractProductDetails(ctx.page)
+        const request = ctx.request
 
-        await this.detailsDataset.pushData(productDetails)
+        await this.detailsDataset.pushData({
+            ...request.userData,
+            ...productDetails
+        })
     }
 
     /**

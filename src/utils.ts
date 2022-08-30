@@ -40,3 +40,8 @@ export const scheduleNextPage = async (url: string, inSeconds: number) => {
   const [response] = await client.createTask(request);
   console.log(`Created task ${response.name}`);
 };
+
+export function extractRootUrl(url: string): string {
+    const parsedUrl = new URL(url)
+    return `${parsedUrl.protocol}//${parsedUrl.host}`
+}

@@ -1,10 +1,12 @@
 import express, { Request, Response } from 'express';
 import bodyParser from "body-parser";
 
-import { scrapeCategoryPage } from "./trademax";
+import {exploreCategory, scrapeDetails} from "./service.js"
+import { scrapeCategoryPage } from "./trademax.js";
+import {RequestListOptions, RequestOptions} from "crawlee";
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: "50mb"}));
 
 app.get("/", (_: any, res: Response) => {
   const name = process.env.NAME || "World";
@@ -27,6 +29,21 @@ app.post("/trademax", async (req: Request, res: Response) => {
 
   res.status(204).send("OK");
 });
+
+app.post("/exploreCategory", async (req: Request, res: Response) => {
+  const body = <RequestOptions>req.body
+
+  await exploreCategory(body.url)
+  res.status(204).send("OK")
+})
+
+app.post("/scrapeDetails", async (req: Request, res: Response) => {
+  const body = <RequestOptions[]>req.body
+
+  await scrapeDetails(body)
+
+  res.status(204).send("OK")
+})
 
 const port = parseInt(<string>process.env.PORT) || 8080;
 app.listen(port, () => {

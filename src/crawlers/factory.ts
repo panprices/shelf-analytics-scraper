@@ -1,7 +1,14 @@
-import {log, PlaywrightCrawler, PlaywrightCrawlerOptions} from "crawlee";
-import {CustomRequestQueue} from "../custom_request_queue.js";
+import {log, PlaywrightCrawler, PlaywrightCrawlerOptions, RequestQueue} from "crawlee";
+import {CustomRequestQueue} from "../custom_crawlee/custom_request_queue";
 import {HomeroomCrawlerDefinition} from "./custom/homeroom.js";
 import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
+
+
+export interface CrawlerFactoryArgs {
+    url: string
+    useCustomQueue?: boolean
+}
+
 
 /**
  * This class knows which crawler to create depending on the root URL that is being targeted.
@@ -10,9 +17,16 @@ import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
  * to interact with the various sources.
  */
 export class CrawlerFactory {
-    static async buildCrawlerForRootUrl(url: string,
-                                        overrides?: PlaywrightCrawlerOptions): Promise<PlaywrightCrawler> {
-        const requestQueue = await CustomRequestQueue.open()
+    static async buildCrawlerForRootUrl(
+        args: CrawlerFactoryArgs,
+        overrides?: PlaywrightCrawlerOptions
+    ): Promise<PlaywrightCrawler> {
+        if (args.useCustomQueue === undefined) { // use custom queue by default
+            args.useCustomQueue = true
+        }
+
+        const url = args.url
+        const requestQueue = args.useCustomQueue ? await CustomRequestQueue.open(): await RequestQueue.open()
         let options: PlaywrightCrawlerOptions = {
             requestQueue,
             headless: true,
@@ -34,13 +48,12 @@ export class CrawlerFactory {
                 definition = await TrademaxCrawlerDefinition.create()
                 options = {
                     ...options,
-                    requestHandler: definition.router,
-                    maxConcurrency: 1
+                    requestHandler: definition.router
                 }
                 return new PlaywrightCrawler(options)
         }
 
         log.warning(`Asked for unknown root url: ${url}`)
-        return new PlaywrightCrawler()
+        throw Error("Asked for unknown root url: ${url}")
     }
 }
