@@ -18,8 +18,9 @@ steps:
       - europe-west1
       - --platform
       - managed
-      - --memory=2Gi
-      - --concurrency=1
-      - --timeout=600s
+      - --cpu=1
+      - --memory=1Gi
+      - --concurrency=1  # should only run 1 scraper at a time
+      - --timeout=3600s  # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
 images:
 - gcr.io/panprices/test-crawlee
