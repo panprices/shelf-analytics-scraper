@@ -14,7 +14,7 @@ async function debugMain() {
             label: "DETAIL"
         }
     }
-    await scrapeDetails([dummyRequest], {headless: false}, true)
+    await scrapeDetails([dummyRequest], {headless: false})
 }
 
 await debugMain()

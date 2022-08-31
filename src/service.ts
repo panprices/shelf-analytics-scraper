@@ -57,7 +57,7 @@ export async function scrapeDetails(detailedPages: RequestOptions[],
 
     await bigquery
       .dataset("b2b_brand_product_index")
-      .table("retailer_offers")
+      .table("retailer_offerings")
       .insert(stringifyDeep(savedItems.items), {
           ignoreUnknownValues: true
       });
