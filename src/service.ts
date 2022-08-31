@@ -33,7 +33,7 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
     log.info(JSON.stringify(detailedPages))
 }
 
-export async function scrapeDetails(detailedPages: RequestOptions[]): Promise<void> {
+export async function scrapeDetails(detailedPages: RequestOptions[], skipBigQuery: boolean = false): Promise<void> {
     if (detailedPages.length === 0) {
         return
     }
@@ -43,9 +43,14 @@ export async function scrapeDetails(detailedPages: RequestOptions[]): Promise<vo
     const [crawler, crawlerDefinition] = await CrawlerFactory.buildCrawlerForRootUrl({
         url: rootUrl,
         useCustomQueue: false
+    }, {
+        headless: false
     })
 
     await crawler.run(detailedPages)
+    if (skipBigQuery) {
+        return
+    }
 
     const savedItems = await crawlerDefinition.detailsDataset.getData()
     const bigquery = new BigQuery()

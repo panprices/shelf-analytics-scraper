@@ -17,23 +17,49 @@ interface Category {
     url: string
 }
 
+interface IndividualReview {
+    score: number
+    content: string
+}
+
+interface ProductReviews {
+    reviewCount: number,
+    averageReview: number,
+    recentReviews: IndividualReview[]
+}
+
 // TODO: create 2 product models: one scraped from detail page and one scraped from listings
 
-interface ProductInfo {
-    brand?: string | null
-    name: string | null
-    description?: string | null
+interface BaseProductInfo {
+    brand?: string
+    name: string
+    description?: string
     url: string
-    categoryUrl?: string
     price: number
     currency: string
     isDiscounted: boolean
     popularityIndex?: number
-    images?: string[]
-    categoryTree?: Category[]
 
     originalPrice?: number
-    sku?: string | null
+    sku?: string
+    articleNumber?: string
     metadata?: OfferMetadata
-    specifications?: Specification[]
+}
+
+interface ListingProductInfo extends BaseProductInfo {
+    previewImageUrl: string
+    popularityIndex: number
+    categoryUrl: string
+}
+
+interface DetailedProductInfo extends BaseProductInfo {
+    description: string
+
+    images: string[]
+    categoryTree: Category[]
+
+    reviews: ProductReviews | "unavailable"
+
+    // if not applicable return an empty array
+    specifications: Specification[]
 }

@@ -3,7 +3,7 @@ import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
 import {AbstractCrawlerDefinition} from "../abstract.js";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
-    async extractProductDetails(page: Page): Promise<ProductInfo> {
+    async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
         const productName = (<string>await page.locator("h1.product-title").textContent()).trim()
 
         const metadata: OfferMetadata = {}
@@ -38,8 +38,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
             images.push(imageUrl)
         }
 
-        const description = await page.locator("//div[contains(@class, 'long-description')]//p/span[1]").textContent()
-        const brand = await page.locator("//h2[contains(@class, 'long-description-title')]/a[2]").textContent()
+        const description = <string>await page.locator("//div[contains(@class, 'long-description')]//p/span[1]").textContent()
+        const brand = await this.extractProperty(page,
+            "//h2[contains(@class, 'long-description-title')]/a[2]",
+            node => node.textContent())
         const schemaOrgString = <string>await page.locator(
             "//script[@type='application/ld+json' and contains(text(), 'schema.org')]"
         ).textContent()
@@ -61,14 +63,15 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
 
         return {
             name: productName, price, currency, images, description, categoryTree, sku, metadata,
-            specifications: specArray, brand, isDiscounted, url: page.url(), popularityIndex: -1
+            specifications: specArray, brand, isDiscounted, url: page.url(), popularityIndex: -1,
+            reviews: "unavailable"
         }
     }
 
-    async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ProductInfo>  {
+    async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ListingProductInfo>  {
         const brand = await this.extractProperty(productCard,"..//b[contains(@class, 'brand')]",
                 node => node.textContent())
-        const name = await this.extractProperty(productCard,"..//span[contains(@class, 'name')]",
+        const name = <string>await this.extractProperty(productCard,"..//span[contains(@class, 'name')]",
                 node => node.textContent())
         const priceString = <string>await this.extractProperty(productCard, "..//span[contains(@class, 'price-point')]",
                 node => node.textContent())
@@ -79,8 +82,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
                 node => node.getAttribute("data-sku"))
         const url = <string> await this.extractProperty(productCard, "xpath=./a[1]", node => node.getAttribute("href"))
 
-        const currentProductInfo: ProductInfo = {
-            brand, name, url, images: [<string>imageUrl], sku,
+        const currentProductInfo: ListingProductInfo = {
+            brand, name, url, previewImageUrl: <string> imageUrl, sku,
             popularityIndex: -1,
             isDiscounted: originalPriceString !== null,
             price: Number(priceString.trim().split('\n')[0].replace(/\s/g, '')),
@@ -104,7 +107,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
             detailsDataset, listingDataset,
             listingUrlSelector: "//div[contains(text(), 'Impossible to match selector, no pagination')]",
             detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
-            productCardSelector: "//article[contains(@class, 'product-card')]"
+            productCardSelector: "//article[contains(@class, 'product-card')]",
+            cookieConsentSelector: 'a.cta-ok'
         })
     }
 
@@ -120,11 +124,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
             const loadMoreButton = page.locator('div.load-more-button')
 
             log.info(`Button: ${loadMoreButton}`)
-            const cookieConsentButton = page.locator('a.cta-ok').first()
-            const receivedCookieConsent = await cookieConsentButton.isVisible()
-            if (receivedCookieConsent) {
-                await cookieConsentButton.click()
-            }
+            await this.handleCookieConsent(page)
             buttonVisible = await loadMoreButton.isVisible()
             if (!buttonVisible) {
                 break

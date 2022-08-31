@@ -27,6 +27,11 @@ export interface CrawlerDefinitionOptions {
      * Selector for individual product cards to be scraped for information available as part of the listings
      */
     productCardSelector: string
+
+    /**
+     * Selector for the cookie consent button
+     */
+    cookieConsentSelector?: string
 }
 
 /**
@@ -42,8 +47,9 @@ export abstract class AbstractCrawlerDefinition {
     private readonly detailsUrlSelector: string
     private readonly listingUrlSelector: string
     private readonly productCardSelector: string
+    private readonly cookieConsentSelector?: string
 
-    private readonly productInfos: Map<string, ProductInfo>
+    private readonly productInfos: Map<string, ListingProductInfo>
 
     protected constructor(options: CrawlerDefinitionOptions) {
         this._router = createPlaywrightRouter()
@@ -59,7 +65,9 @@ export abstract class AbstractCrawlerDefinition {
         this.detailsUrlSelector = options.detailsUrlSelector
         this.listingUrlSelector = options.listingUrlSelector
         this.productCardSelector = options.productCardSelector
-        this.productInfos = new Map<string, ProductInfo>()
+        this.cookieConsentSelector = options.cookieConsentSelector
+
+        this.productInfos = new Map<string, ListingProductInfo>()
     }
 
     /**
@@ -84,7 +92,7 @@ export abstract class AbstractCrawlerDefinition {
      * This method has to be implemented for each of the sources we want to scrape
      * @param page
      */
-    abstract extractProductDetails(page: Page): Promise<ProductInfo>;
+    abstract extractProductDetails(page: Page): Promise<DetailedProductInfo>;
 
     /**
      * Entry point for the listing pages logic.
@@ -112,15 +120,14 @@ export abstract class AbstractCrawlerDefinition {
      * @param url
      * @param product
      */
-    handleFoundProductFromCard (url: string, product: Object): number {
+    handleFoundProductFromCard (url: string, product: ListingProductInfo): number {
         if (this.productInfos.has(url)) {
             return <number>this.productInfos.get(url)!.popularityIndex;
         }
 
-        const convertedProduct = <ProductInfo> product
-        convertedProduct.popularityIndex = this.productInfos.size
-        this.productInfos.set(url, convertedProduct)
-        return convertedProduct.popularityIndex
+        product.popularityIndex = this.productInfos.size
+        this.productInfos.set(url, product)
+        return product.popularityIndex
     }
 
     /**
@@ -184,14 +191,15 @@ export abstract class AbstractCrawlerDefinition {
         rootElement: Locator | Page,
         path: string,
         extractor: (node: Locator) => Promise<string | null>
-    ): Promise<string | null> {
+    ): Promise<string | undefined> {
         const tag = await rootElement.locator(path)
         const elementExists = (await tag.count()) > 0
         if (!elementExists) {
-            return null
+            return undefined
         }
 
-        return tag ? extractor(tag) : null
+        const intermediateResult: string | null = tag ? await extractor(tag) : null
+        return intermediateResult !== null ? intermediateResult : undefined
     }
 
     async extractImageFromSrcSet(node: Locator): Promise<string | null> {
@@ -202,6 +210,18 @@ export abstract class AbstractCrawlerDefinition {
         return srcset.split(',')[0].split(' ')[0]
     }
 
+    async handleCookieConsent(page: Page): Promise<void> {
+        if (this.cookieConsentSelector === undefined) {
+            return
+        }
+
+        const cookieConsentButton = page.locator(this.cookieConsentSelector).first()
+        const receivedCookieConsent = await cookieConsentButton.isVisible()
+        if (receivedCookieConsent) {
+            await cookieConsentButton.click()
+        }
+    }
+
     /**
      * Extracts the information about a product from a product card.
      *
@@ -210,7 +230,7 @@ export abstract class AbstractCrawlerDefinition {
      * @param categoryUrl
      * @param productCard
      */
-    abstract extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ProductInfo>
+    abstract extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ListingProductInfo>
 
     get router(): RouterHandler<PlaywrightCrawlingContext> {
         return this._router
