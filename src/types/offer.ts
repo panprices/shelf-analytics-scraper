@@ -1,3 +1,5 @@
+import {RequestOptions} from "crawlee";
+
 interface OfferMetadata {
     originalPrice?: number
     schemaOrg?: SchemaOrg
@@ -61,4 +63,8 @@ interface DetailedProductInfo extends BaseProductInfo {
 
     // if not applicable return an empty array
     specifications: Specification[]
+}
+
+export interface RequestBatch {
+    productDetails: RequestOptions[]
 }

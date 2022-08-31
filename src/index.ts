@@ -1,9 +1,10 @@
-import express, { Request, Response } from 'express';
+import express, {Request, Response} from 'express';
 import bodyParser from "body-parser";
 
 import {exploreCategory, scrapeDetails} from "./service.js"
-import { scrapeCategoryPage } from "./trademax.js";
-import {RequestListOptions, RequestOptions} from "crawlee";
+import {scrapeCategoryPage} from "./trademax.js";
+import {RequestOptions} from "crawlee";
+import {RequestBatch} from "./types/offer.js";
 
 const app = express();
 app.use(bodyParser.json({limit: "50mb"}));
@@ -38,9 +39,9 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
 })
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
-  const body = <RequestOptions[]>req.body
+  const body = <RequestBatch>req.body
 
-  await scrapeDetails(body)
+  await scrapeDetails(body.productDetails)
 
   res.status(204).send("OK")
 })

@@ -1,8 +1,10 @@
 import {CrawlerFactory} from "./crawlers/factory.js";
 import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue.js";
-import {Dictionary, log, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
+import {Dictionary, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
 import {extractRootUrl} from "./utils.js";
 import {BigQuery} from "@google-cloud/bigquery";
+import {RequestBatch} from "./types/offer";
+import fetch from "node-fetch";
 
 
 export async function exploreCategory(targetUrl: string): Promise<void> {
@@ -18,10 +20,12 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
 
     const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue
 
-    const detailedPages = []
+    const maxBatchSize = 40
+    let detailedPages = []
     while (true) {
         const request = await inWaitQueue.fetchNextRequest()
         if (request === null) {
+            await sendRequestBatch(detailedPages)
             break
         }
 
@@ -29,8 +33,23 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
             url: request.url,
             userData: request.userData
         })
+        if (detailedPages.length >= maxBatchSize) {
+            await sendRequestBatch(detailedPages)
+            detailedPages = []
+        }
     }
-    log.info(JSON.stringify(detailedPages))
+}
+
+async function sendRequestBatch(detailedPages: RequestOptions[]) {
+    const batchRequest: RequestBatch = {
+        productDetails: detailedPages
+    }
+
+    await fetch('https://europe-west1-panprices.cloudfunctions.net/schedule_product_scrapes', {
+        method: 'post',
+        body: JSON.stringify(batchRequest),
+        headers: {'Content-Type': 'application/json'}
+    });
 }
 
 export async function scrapeDetails(detailedPages: RequestOptions[],

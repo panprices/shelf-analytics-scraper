@@ -11,7 +11,8 @@
     "playwright": "*",
     "playwright-core": "*",
     "body-parser": "^1.20.0",
-    "@google-cloud/bigquery": "^6.0.2"
+    "@google-cloud/bigquery": "^6.0.2",
+    "node-fetch": "^3.2.10"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
