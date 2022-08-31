@@ -3,7 +3,7 @@ import {exploreCategory, scrapeDetails} from "./service.js";
 
 
 async function debugMain() {
-    const targetUrl = 'https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-penally-stolar/1577643-01'
+    const targetUrl = 'https://www.trademax.se/m%C3%B6bler/s%C3%A4ngar/kontinentals%C3%A4ngar/charm-komplett-s%C3%A4ngpaket-140x200-m%C3%B6rkgr%C3%A5-p401294-v401333'
     const dummyRequest = {
         url: targetUrl,
         userData: {
