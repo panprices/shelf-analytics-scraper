@@ -28,14 +28,12 @@ interface ProductReviews {
     recentReviews: IndividualReview[]
 }
 
-// TODO: create 2 product models: one scraped from detail page and one scraped from listings
-
 interface BaseProductInfo {
     brand?: string
     name: string
     description?: string
     url: string
-    price: number
+    price: number | "unavailable"
     currency: string
     isDiscounted: boolean
     popularityIndex?: number
@@ -54,6 +52,7 @@ interface ListingProductInfo extends BaseProductInfo {
 
 interface DetailedProductInfo extends BaseProductInfo {
     description: string
+    inStock: boolean
 
     images: string[]
     categoryTree: Category[]

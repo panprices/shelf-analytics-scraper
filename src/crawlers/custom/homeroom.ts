@@ -19,9 +19,19 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
             })
         }
 
-        const priceString = (<string>await page.locator("div.price > p").first().textContent()).trim()
-        const price = Number(priceString.split("\n")[0].replace(/\s/g, ''))
-        const currency = priceString.split("\n")[1].trim()
+        let priceString = <string>await page.locator("div.price > p").first().textContent()
+        priceString = priceString.trim().replace(/\s+/g, ' ')
+        let price: number | "unavailable", currency
+        if (priceString !== 'Slutsåld!') {
+            const parts = priceString.split(" ")
+            currency = parts[parts.length -1].trim()
+            price = Number(priceString.replace(currency, '').replace(/\s/g, ''))
+        } else {
+            price = "unavailable"
+            currency = "SEK"
+        }
+
+
         const isDiscounted = (await page.locator("p.original-price").count()) > 0
         if (isDiscounted) {
             metadata.originalPrice = Number((<string>await page.locator("p.original-price").textContent()).replace(/\s/g, ''))
@@ -60,11 +70,13 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
                 value: spec.split('\n')[1]
             })
         }
+        const buyButtonLocator = page.locator("//button/span[text() = 'Handla']")
+        const inStock = (await buyButtonLocator.count()) > 0
 
         return {
             name: productName, price, currency, images, description, categoryTree, sku, metadata,
             specifications: specArray, brand, isDiscounted, url: page.url(), popularityIndex: -1,
-            reviews: "unavailable"
+            reviews: "unavailable", inStock
         }
     }
 
@@ -73,8 +85,11 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
                 node => node.textContent())
         const name = <string>await this.extractProperty(productCard,"..//span[contains(@class, 'name')]",
                 node => node.textContent())
-        const priceString = <string>await this.extractProperty(productCard, "..//span[contains(@class, 'price-point')]",
+        let priceString = <string>await this.extractProperty(productCard, "..//span[contains(@class, 'price-point')]",
                 node => node.textContent())
+        if (!priceString) {
+            priceString = "0\nSEK"
+        }
         const originalPriceString = await this.extractProperty(productCard, "..//s[contains(./span/@class, 'currency')]",
                 node => node.textContent())
         const imageUrl = await this.extractProperty(productCard, "xpath=(..//picture/source)[1]", this.extractImageFromSrcSet)

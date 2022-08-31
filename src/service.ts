@@ -1,6 +1,6 @@
 import {CrawlerFactory} from "./crawlers/factory.js";
 import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue.js";
-import {Dictionary, log, RequestOptions} from "crawlee";
+import {Dictionary, log, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
 import {extractRootUrl} from "./utils.js";
 import {BigQuery} from "@google-cloud/bigquery";
 
@@ -33,7 +33,9 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
     log.info(JSON.stringify(detailedPages))
 }
 
-export async function scrapeDetails(detailedPages: RequestOptions[], skipBigQuery: boolean = false): Promise<void> {
+export async function scrapeDetails(detailedPages: RequestOptions[],
+                                    overrides?: PlaywrightCrawlerOptions,
+                                    skipBigQuery: boolean = false): Promise<void> {
     if (detailedPages.length === 0) {
         return
     }
@@ -43,9 +45,7 @@ export async function scrapeDetails(detailedPages: RequestOptions[], skipBigQuer
     const [crawler, crawlerDefinition] = await CrawlerFactory.buildCrawlerForRootUrl({
         url: rootUrl,
         useCustomQueue: false
-    }, {
-        headless: false
-    })
+    }, overrides)
 
     await crawler.run(detailedPages)
     if (skipBigQuery) {

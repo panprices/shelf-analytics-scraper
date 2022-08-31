@@ -3,18 +3,18 @@ import {exploreCategory, scrapeDetails} from "./service.js";
 
 
 async function debugMain() {
-    const targetUrl = 'https://www.trademax.se/m%C3%B6bler/s%C3%A4ngar/kontinentals%C3%A4ngar/divine-kontinentals%C3%A4ng-120x200-m%C3%B6rkgr%C3%A5-fler-val-p1355168-v798087'
-
+    const targetUrl = 'https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-penally-stolar/1577643-01'
     const dummyRequest = {
         url: targetUrl,
         userData: {
             url: targetUrl,
+            brand: 'Venture Home',
             popularityIndex: 1,
-            name: "Divine Kontinentalsäng",
+            name: "Matgrupp Polar bord med 4st Penally stolar",
             label: "DETAIL"
         }
     }
-    await scrapeDetails([dummyRequest], true)
+    await scrapeDetails([dummyRequest], {headless: false}, true)
 }
 
 await debugMain()

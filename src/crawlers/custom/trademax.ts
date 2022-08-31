@@ -30,6 +30,12 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
         await page.waitForSelector("h1[data-cy='product_title']")
         await this.handleCookieConsent(page)
 
+        const metadata: OfferMetadata = {}
+        const schemaOrgString = <string>await page.locator(
+            "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
+        ).textContent()
+        metadata.schemaOrg = JSON.parse(schemaOrgString)
+
         const product_name = await page
           .locator("h1[data-cy='product_title']")
           .textContent();
@@ -144,7 +150,9 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
                 recentReviews
             },
             articleNumber,
-            specifications: specArray
+            specifications: specArray,
+            metadata,
+            inStock: true
         };
     }
 
