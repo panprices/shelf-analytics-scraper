@@ -1,7 +1,13 @@
 import {AbstractCrawlerDefinition} from "../abstract.js";
 import {errors, Locator, Page} from "playwright";
 import {Dataset, log} from "crawlee";
-import TimeoutError = errors.TimeoutError;
+import {
+    DetailedProductInfo,
+    IndividualReview,
+    ListingProductInfo,
+    OfferMetadata,
+    ProductReviews
+} from "../../types/offer.js";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
     async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ListingProductInfo> {

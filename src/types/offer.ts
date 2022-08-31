@@ -1,36 +1,36 @@
 import {RequestOptions} from "crawlee";
 
-interface OfferMetadata {
+export interface OfferMetadata {
     originalPrice?: number
     schemaOrg?: SchemaOrg
 }
 
-interface SchemaOrg {
+export interface SchemaOrg {
     sku?: string
 }
 
-interface Specification {
+export interface Specification {
     key: string
     value: string
 }
 
-interface Category {
+export interface Category {
     name: string
     url: string
 }
 
-interface IndividualReview {
+export interface IndividualReview {
     score: number
     content: string
 }
 
-interface ProductReviews {
+export interface ProductReviews {
     reviewCount: number,
     averageReview: number,
     recentReviews: IndividualReview[]
 }
 
-interface BaseProductInfo {
+export interface BaseProductInfo {
     brand?: string
     name: string
     description?: string
@@ -46,13 +46,13 @@ interface BaseProductInfo {
     metadata?: OfferMetadata
 }
 
-interface ListingProductInfo extends BaseProductInfo {
+export interface ListingProductInfo extends BaseProductInfo {
     previewImageUrl: string
     popularityIndex: number
     categoryUrl: string
 }
 
-interface DetailedProductInfo extends BaseProductInfo {
+export interface DetailedProductInfo extends BaseProductInfo {
     description: string
     inStock: boolean
 
