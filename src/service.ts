@@ -1,0 +1,115 @@
+import {CrawlerFactory} from "./crawlers/factory.js";
+import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue.js";
+import {Dictionary, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
+import {extractRootUrl} from "./utils.js";
+import {BigQuery} from "@google-cloud/bigquery";
+import {RequestBatch} from "./types/offer";
+import fetch from "node-fetch";
+
+
+export async function exploreCategory(targetUrl: string): Promise<void> {
+    const rootUrl = extractRootUrl(targetUrl)
+
+    const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl({url: rootUrl},{
+        maxConcurrency: 1
+    })
+    await crawler.run([{
+        url: targetUrl,
+        label: 'LIST'
+    }])
+
+    const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue
+
+    const maxBatchSize = 40
+    let detailedPages = []
+    while (true) {
+        const request = await inWaitQueue.fetchNextRequest()
+        if (request === null) {
+            await sendRequestBatch(detailedPages)
+            break
+        }
+
+        detailedPages.push({
+            url: request.url,
+            userData: request.userData
+        })
+        if (detailedPages.length >= maxBatchSize) {
+            await sendRequestBatch(detailedPages)
+            detailedPages = []
+        }
+    }
+}
+
+async function sendRequestBatch(detailedPages: RequestOptions[]) {
+    const batchRequest: RequestBatch = {
+        productDetails: detailedPages
+    }
+
+    await fetch('https://europe-west1-panprices.cloudfunctions.net/schedule_product_scrapes', {
+        method: 'post',
+        body: JSON.stringify(batchRequest),
+        headers: {'Content-Type': 'application/json'}
+    });
+}
+
+export async function scrapeDetails(detailedPages: RequestOptions[],
+                                    overrides?: PlaywrightCrawlerOptions,
+                                    skipBigQuery: boolean = false): Promise<void> {
+    if (detailedPages.length === 0) {
+        return
+    }
+
+    const sampleUrl = detailedPages[0].url
+    const rootUrl = extractRootUrl(sampleUrl)
+    const [crawler, crawlerDefinition] = await CrawlerFactory.buildCrawlerForRootUrl({
+        url: rootUrl,
+        useCustomQueue: false
+    }, overrides)
+
+    await crawler.run(detailedPages)
+    if (skipBigQuery) {
+        return
+    }
+
+    const savedItems = await crawlerDefinition.detailsDataset.getData()
+    const bigquery = new BigQuery()
+
+    await bigquery
+      .dataset("b2b_brand_product_index")
+      .table("retailer_offerings")
+      .insert(stringifyDeep(savedItems.items), {
+          ignoreUnknownValues: true
+      });
+}
+
+function stringifyDeep(items: Dictionary<any>[]): Dictionary<any>[] {
+    const reduceToSimpleTypes = (e: any) => {
+        const currentType = typeof e
+
+        switch (currentType) {
+            case "boolean":
+            case "number":
+            case "string":
+                return e
+            case "object":
+                return JSON.stringify(e)
+            default:
+                return undefined
+        }
+    }
+
+    return items.map(
+        i => {
+            for (let key in i) {
+                if (Array.isArray(i[key])) {
+                    i[key] = Array.from(i[key]).map(reduceToSimpleTypes)
+
+                    continue
+                }
+                i[key] = reduceToSimpleTypes(i[key])
+            }
+
+            return i
+        }
+    )
+}
