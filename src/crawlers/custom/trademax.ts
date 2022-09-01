@@ -8,6 +8,7 @@ import {
     OfferMetadata,
     ProductReviews
 } from "../../types/offer.js";
+import {extractRootUrl} from "../../utils.js";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
 
@@ -215,9 +216,18 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
     }
 
     async crawlIntermediateLowerCategoryPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        const rootUrl = extractRootUrl(ctx.page.url())
+        const subCategoryLocator = "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]"
+
+        const subCategoryUrls = await ctx.page.locator(subCategoryLocator).evaluateAll(
+            (list: HTMLElement[]) => list.map(e => e.getAttribute("href"))
+        )
+        const isLeafCategory = subCategoryUrls.map(u => `${rootUrl}${u}`).some(u => ctx.page.url() == u)
+        const label = isLeafCategory ? "LIST": "INTERMEDIATE_LOWER_CATEGORY"
+
         await ctx.enqueueLinks({
-            selector: "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]",
-            label: "LIST"
+            selector: subCategoryLocator,
+            label
         })
     }
 

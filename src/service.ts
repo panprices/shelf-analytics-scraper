@@ -69,7 +69,7 @@ export async function extractLeafCategories(targetUrl: string) {
                 captureLabels: ["LIST"]
             }
         },{
-            maxConcurrency: 1
+            headless: false
         }
     )
     await crawler.run([{
