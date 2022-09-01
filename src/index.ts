@@ -2,10 +2,10 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import pino from "pino";
 
-import { exploreCategory, scrapeDetails } from "./service.js";
-import { scrapeCategoryPage } from "./trademax.js";
-import { RequestOptions } from "crawlee";
-import { RequestBatch } from "./types/offer.js";
+import {exploreCategory, scrapeDetails} from "./service.js"
+import {scrapeCategoryPage} from "./trademax.js";
+import {RequestOptions} from "crawlee";
+import {RequestBatch} from "./types/offer.js";
 
 const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -42,19 +42,19 @@ app.post("/trademax", async (req: Request, res: Response) => {
 });
 
 app.post("/exploreCategory", async (req: Request, res: Response) => {
-  const body = <RequestOptions>req.body;
+  const body = <RequestOptions>req.body
 
-  await exploreCategory(body.url);
-  res.status(204).send("OK");
-});
+  await exploreCategory(body.url)
+  res.status(204).send("OK")
+})
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
-  const body = <RequestBatch>req.body;
+  const body = <RequestBatch>req.body
 
-  await scrapeDetails(body.productDetails);
+  await scrapeDetails(body.productDetails)
 
-  res.status(204).send("OK");
-});
+  res.status(204).send("OK")
+})
 
 const port = parseInt(<string>process.env.PORT) || 8080;
 app.listen(port, () => {

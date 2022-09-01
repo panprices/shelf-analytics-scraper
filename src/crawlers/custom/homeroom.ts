@@ -1,7 +1,7 @@
 import {Locator, Page} from "playwright";
 import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
-import {AbstractCrawlerDefinition} from "../abstract.js";
-import {DetailedProductInfo, ListingProductInfo, OfferMetadata, SchemaOrg} from "../../types/offer.js";
+import {AbstractCrawlerDefinition} from "../abstract";
+import {DetailedProductInfo, ListingProductInfo, OfferMetadata, SchemaOrg} from "../../types/offer";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     async extractProductDetails(page: Page): Promise<DetailedProductInfo> {

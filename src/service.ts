@@ -1,7 +1,7 @@
-import {CrawlerFactory} from "./crawlers/factory.js";
-import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue.js";
+import {CrawlerFactory} from "./crawlers/factory";
+import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
 import {PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
-import {extractRootUrl} from "./utils.js";
+import {extractRootUrl} from "./utils";
 import {persistProductsToDatabase, sendRequestBatch} from "./publishing";
 
 

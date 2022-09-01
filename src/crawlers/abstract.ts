@@ -1,6 +1,6 @@
 import {createPlaywrightRouter, Dataset, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
 import {Locator, Page} from "playwright";
-import {DetailedProductInfo, ListingProductInfo} from "../types/offer.js";
+import {DetailedProductInfo, ListingProductInfo} from "../types/offer";
 
 
 export interface CrawlerDefinitionOptions {

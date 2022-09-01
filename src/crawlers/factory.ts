@@ -1,5 +1,5 @@
 import {log, PlaywrightCrawler, PlaywrightCrawlerOptions, RequestQueue} from "crawlee";
-import {CustomQueueSettings, CustomRequestQueue} from "../custom_crawlee/custom_request_queue.js";
+import {CustomRequestQueue} from "../custom_crawlee/custom_request_queue.js";
 import {HomeroomCrawlerDefinition} from "./custom/homeroom.js";
 import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
 import {AbstractCrawlerDefinition} from "./abstract";
