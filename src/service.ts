@@ -1,10 +1,8 @@
 import {CrawlerFactory} from "./crawlers/factory.js";
 import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue.js";
-import {Dictionary, log, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
+import {PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
 import {extractRootUrl} from "./utils.js";
-import {BigQuery} from "@google-cloud/bigquery";
-import {RequestBatch} from "./types/offer";
-import {PubSub} from "@google-cloud/pubsub";
+import {persistProductsToDatabase, sendRequestBatch} from "./publishing";
 
 
 export async function exploreCategory(targetUrl: string, overrides?: PlaywrightCrawlerOptions): Promise<void> {
@@ -25,11 +23,10 @@ export async function exploreCategory(targetUrl: string, overrides?: PlaywrightC
     const maxBatchSize = 40
     let detailedPages = []
 
-    const pubSubClient = new PubSub();
     while (true) {
         const request = await inWaitQueue.fetchNextRequest()
         if (request === null) {
-            await sendRequestBatch(pubSubClient, detailedPages)
+            await sendRequestBatch(detailedPages)
             break
         }
 
@@ -40,25 +37,9 @@ export async function exploreCategory(targetUrl: string, overrides?: PlaywrightC
         await inWaitQueue.markRequestHandled(request)
 
         if (detailedPages.length >= maxBatchSize) {
-            await sendRequestBatch(pubSubClient, detailedPages)
+            await sendRequestBatch(detailedPages)
             detailedPages = []
         }
-    }
-}
-
-async function sendRequestBatch(pubSubClient: PubSub, detailedPages: RequestOptions[]) {
-    log.info(`Sending a request batch with ${detailedPages.length} requests`)
-    const batchRequest: RequestBatch = {
-        productDetails: detailedPages
-    }
-
-    try {
-        const messageId = await pubSubClient
-            .topic("trigger_schedule_product_scrapes")
-            .publishMessage({json: batchRequest});
-      log.info(`Message ${messageId} published.`);
-    } catch (error) {
-      log.error(`Received error while publishing: ${error}`);
     }
 }
 
@@ -114,44 +95,5 @@ export async function scrapeDetails(detailedPages: RequestOptions[],
     }
 
     const savedItems = await crawlerDefinition.detailsDataset.getData()
-    const bigquery = new BigQuery()
-
-    await bigquery
-      .dataset("b2b_brand_product_index")
-      .table("retailer_offerings")
-      .insert(stringifyDeep(savedItems.items), {
-          ignoreUnknownValues: true
-      });
-}
-
-function stringifyDeep(items: Dictionary<any>[]): Dictionary<any>[] {
-    const reduceToSimpleTypes = (e: any) => {
-        const currentType = typeof e
-
-        switch (currentType) {
-            case "boolean":
-            case "number":
-            case "string":
-                return e
-            case "object":
-                return JSON.stringify(e)
-            default:
-                return undefined
-        }
-    }
-
-    return items.map(
-        i => {
-            for (let key in i) {
-                if (Array.isArray(i[key])) {
-                    i[key] = Array.from(i[key]).map(reduceToSimpleTypes)
-
-                    continue
-                }
-                i[key] = reduceToSimpleTypes(i[key])
-            }
-
-            return i
-        }
-    )
+    await persistProductsToDatabase(savedItems)
 }
