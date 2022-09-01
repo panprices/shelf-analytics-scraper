@@ -1,6 +1,6 @@
 import {CrawlerFactory} from "./crawlers/factory.js";
 import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue.js";
-import {Dictionary, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
+import {Dictionary, log, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
 import {extractRootUrl} from "./utils.js";
 import {BigQuery} from "@google-cloud/bigquery";
 import {RequestBatch} from "./types/offer";
@@ -33,6 +33,7 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
             url: request.url,
             userData: request.userData
         })
+
         if (detailedPages.length >= maxBatchSize) {
             await sendRequestBatch(detailedPages)
             detailedPages = []
@@ -41,15 +42,18 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
 }
 
 async function sendRequestBatch(detailedPages: RequestOptions[]) {
+    log.info(`Sending a request batch with ${detailedPages.length} requests`)
     const batchRequest: RequestBatch = {
         productDetails: detailedPages
     }
 
-    await fetch('https://europe-west1-panprices.cloudfunctions.net/schedule_product_scrapes', {
+    const response = await fetch('https://europe-west1-panprices.cloudfunctions.net/schedule_product_scrapes', {
         method: 'post',
         body: JSON.stringify(batchRequest),
         headers: {'Content-Type': 'application/json'}
     });
+
+    log.info(`Received scheduler response: ${response.status}  ${response.statusText}`)
 }
 
 export async function scrapeDetails(detailedPages: RequestOptions[],

@@ -17,4 +17,9 @@ async function debugMain() {
     await scrapeDetails([dummyRequest], {headless: false})
 }
 
-await debugMain()
+async function debugCategoryExploration() {
+    const targetUrl = 'https://www.homeroom.se/utemobler-tradgard/parasoller-solskydd/parasoller'
+    await exploreCategory(targetUrl)
+}
+
+await debugCategoryExploration()
