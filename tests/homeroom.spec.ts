@@ -1,7 +1,7 @@
 import {scrapeDetails} from "../src/service";
 import {persistProductsToDatabase} from "../src/publishing";
 
-jest.mock("../publishing")
+jest.mock("../src/publishing")
 
 describe("Homeroom details page", () => {
     test("Mock publishing to database", () => {
