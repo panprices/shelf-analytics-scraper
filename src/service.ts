@@ -4,7 +4,7 @@ import {Dictionary, log, PlaywrightCrawlerOptions, RequestOptions} from "crawlee
 import {extractRootUrl} from "./utils.js";
 import {BigQuery} from "@google-cloud/bigquery";
 import {RequestBatch} from "./types/offer";
-import fetch from "node-fetch";
+import {PubSub} from "@google-cloud/pubsub";
 
 
 export async function exploreCategory(targetUrl: string): Promise<void> {
@@ -22,10 +22,12 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
 
     const maxBatchSize = 40
     let detailedPages = []
+
+    const pubSubClient = new PubSub();
     while (true) {
         const request = await inWaitQueue.fetchNextRequest()
         if (request === null) {
-            await sendRequestBatch(detailedPages)
+            await sendRequestBatch(pubSubClient, detailedPages)
             break
         }
 
@@ -35,25 +37,26 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
         })
 
         if (detailedPages.length >= maxBatchSize) {
-            await sendRequestBatch(detailedPages)
+            await sendRequestBatch(pubSubClient, detailedPages)
             detailedPages = []
         }
     }
 }
 
-async function sendRequestBatch(detailedPages: RequestOptions[]) {
+async function sendRequestBatch(pubSubClient: PubSub, detailedPages: RequestOptions[]) {
     log.info(`Sending a request batch with ${detailedPages.length} requests`)
     const batchRequest: RequestBatch = {
         productDetails: detailedPages
     }
 
-    const response = await fetch('https://europe-west1-panprices.cloudfunctions.net/schedule_product_scrapes', {
-        method: 'post',
-        body: JSON.stringify(batchRequest),
-        headers: {'Content-Type': 'application/json'}
-    });
-
-    log.info(`Received scheduler response: ${response.status}  ${response.statusText}`)
+    try {
+        const messageId = await pubSubClient
+            .topic("trigger_schedule_product_scrapes")
+            .publishMessage({json: batchRequest});
+      log.info(`Message ${messageId} published.`);
+    } catch (error) {
+      log.error(`Received error while publishing: ${error}`);
+    }
 }
 
 export async function scrapeDetails(detailedPages: RequestOptions[],
