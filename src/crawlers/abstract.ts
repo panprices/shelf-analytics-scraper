@@ -41,7 +41,7 @@ export interface CrawlerDefinitionOptions {
  * It defines the way in which both listing and individual pages should be scraped to gain information.
  */
 export abstract class AbstractCrawlerDefinition {
-    private readonly _router: RouterHandler<PlaywrightCrawlingContext>
+    protected readonly _router: RouterHandler<PlaywrightCrawlingContext>
     private readonly _detailsDataset: Dataset
     private readonly _listingDataset: Dataset
 
@@ -55,10 +55,9 @@ export abstract class AbstractCrawlerDefinition {
     protected constructor(options: CrawlerDefinitionOptions) {
         this._router = createPlaywrightRouter()
         const crawlerDefinition = this
-        this._router.addHandler("DETAIL", async (ctx: PlaywrightCrawlingContext) =>
-            await crawlerDefinition.crawlDetailPage(ctx))
-        this._router.addHandler("LIST", async (ctx: PlaywrightCrawlingContext) =>
-            await crawlerDefinition.crawlListPage(ctx))
+        this._router.addHandler("DETAIL", crawlerDefinition.crawlDetailPage)
+        this._router.addHandler("LIST", crawlerDefinition.crawlListPage)
+        this._router.addHandler("INTERMEDIATE_CATEGORY", crawlerDefinition.crawlIntermediateCategoryPage)
 
         this._detailsDataset = options.detailsDataset
         this._listingDataset = options.listingDataset
@@ -111,6 +110,10 @@ export abstract class AbstractCrawlerDefinition {
             selector: this.listingUrlSelector,
             label: "LIST"
         })
+    }
+
+    async crawlIntermediateCategoryPage(_: PlaywrightCrawlingContext): Promise<void> {
+        throw new Error("Intermediate category crawling not implemented for the given website")
     }
 
     /**

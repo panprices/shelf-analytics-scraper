@@ -12,11 +12,15 @@ import {
 } from "crawlee";
 import {BatchAddRequestsResult} from "@crawlee/types";
 
+export interface CustomQueueSettings {
+    captureLabels: string[]
+}
+
 /**
  * A custom implementation of crawlee's `RequestQueue`
  *
- * We withold `DETAIL` pages and keep them to synchronize later to our services, so we can start other crawlers to
- * handle them. This is done for 2 reasons:
+ * We withold pages with labels included in the `captureLabels` field and keep them to synchronize later to our services,
+ * so we can start other crawlers to handle them. This is done for 2 reasons:
  * - we execute the crawlers on Google Cloud Run, which has a time limit of 10 minutes, so we need to restrict the
  * work done by a single worker
  * - we want to scale and schedule the crawling with ease. We want to spread the work across different workers and also
@@ -26,14 +30,19 @@ export class CustomRequestQueue extends RequestQueue {
     inWaitQueue: RequestQueue
     syncedQueue: RequestQueue
 
+    private readonly captureLabels: string[]
+
     constructor(options: RequestQueueOptions,
                 inWaitQueue: RequestQueue,
                 syncedQueue: RequestQueue,
-                config?: Configuration) {
+                config?: Configuration,
+                customSettings?: CustomQueueSettings) {
         super(options, config);
 
         this.inWaitQueue = inWaitQueue
         this.syncedQueue = syncedQueue
+
+        this.captureLabels = customSettings ? customSettings.captureLabels: ["DETAIL"]
     }
 
     override async addRequest(
@@ -52,9 +61,9 @@ export class CustomRequestQueue extends RequestQueue {
 
         const result = await super.addRequest(requestLike, options);
         /**
-         * We only care about overriding the normal behaviour for `DETAIL` pages
+         * We only care about overriding the normal behaviour for pages with a capture label
          */
-        if (requestLike.label !== 'DETAIL') {
+        if (requestLike.label && !this.captureLabels.includes(requestLike.label)) {
             return result
         }
 
@@ -87,10 +96,8 @@ export class CustomRequestQueue extends RequestQueue {
             }
 
             const request = requestsLike.filter(r => r.uniqueKey == unprocessed.uniqueKey)[0]
-            if (
-                (request instanceof Request && request.userData.label !== 'DETAIL') &&
-                (<RequestOptions> request).label !== 'DETAIL'
-            ) {
+            const label = request instanceof Request ? request.userData.label: (<RequestOptions> request).label
+            if (label && !this.captureLabels.includes(label)) {
                 continue
             }
 
@@ -122,7 +129,11 @@ export class CustomRequestQueue extends RequestQueue {
         return alreadyKnownRequest !== null
     }
 
-    static override async open(queueIdOrName?: string | null, options: StorageManagerOptions = {}): Promise<RequestQueue> {
+    static override async open(
+        queueIdOrName?: string | null,
+        options: StorageManagerOptions = {},
+        customSettings?: CustomQueueSettings,
+    ): Promise<RequestQueue> {
         await purgeDefaultStorages();
         const manager = StorageManager.getManager(RequestQueue, options.config);
 
@@ -140,6 +151,6 @@ export class CustomRequestQueue extends RequestQueue {
             id: wrappedQueue.id,
             name: wrappedQueue.name
         },
-        inWaitQueue, syncedQueue)
+        inWaitQueue, syncedQueue, undefined, customSettings)
     }
 }

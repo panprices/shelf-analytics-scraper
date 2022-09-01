@@ -1,6 +1,6 @@
-import {AbstractCrawlerDefinition} from "../abstract.js";
-import {errors, Locator, Page} from "playwright";
-import {Dataset, log} from "crawlee";
+import {AbstractCrawlerDefinition, CrawlerDefinitionOptions} from "../abstract.js";
+import {Locator, Page} from "playwright";
+import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
 import {
     DetailedProductInfo,
     IndividualReview,
@@ -10,6 +10,13 @@ import {
 } from "../../types/offer.js";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
+
+    constructor(options: CrawlerDefinitionOptions) {
+        super(options)
+
+        this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", this.crawlIntermediateLowerCategoryPage)
+    }
+
     async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ListingProductInfo> {
         const imageUrl = <string>await this.extractProperty(productCard, "xpath=(..//img)[1]", this.extractImageFromSrcSet)
         const name = <string>await this.extractProperty(productCard, "..//h3[contains(@class, 'ProductCardTitle__global')]",
@@ -106,7 +113,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
             log.info(`Specification not found for product with url: ${page.url()}`)
         }
 
-        let description = undefined
+        let description
         try {
             const descriptionExpander = page.locator(
                 "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
@@ -198,6 +205,20 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
         }
 
         return intermediateResult
+    }
+
+    override async crawlIntermediateCategoryPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        await ctx.enqueueLinks({
+            selector: "//div[contains(@class, 'subCategories-enter-done')]//a[not(contains(@aria-label, 'Kampanj'))]",
+            label: "INTERMEDIATE_LOWER_CATEGORY"
+        })
+    }
+
+    async crawlIntermediateLowerCategoryPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        await ctx.enqueueLinks({
+            selector: "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]",
+            label: "LIST"
+        })
     }
 
     static async create(): Promise<TrademaxCrawlerDefinition> {

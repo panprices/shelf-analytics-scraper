@@ -1,5 +1,5 @@
 import {log, PlaywrightCrawler, PlaywrightCrawlerOptions, RequestQueue} from "crawlee";
-import {CustomRequestQueue} from "../custom_crawlee/custom_request_queue.js";
+import {CustomQueueSettings, CustomRequestQueue} from "../custom_crawlee/custom_request_queue.js";
 import {HomeroomCrawlerDefinition} from "./custom/homeroom.js";
 import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
 import {AbstractCrawlerDefinition} from "./abstract";
@@ -8,6 +8,7 @@ import {AbstractCrawlerDefinition} from "./abstract";
 export interface CrawlerFactoryArgs {
     url: string
     useCustomQueue?: boolean
+    customQueueSettings?: CustomQueueSettings
 }
 
 
@@ -27,7 +28,9 @@ export class CrawlerFactory {
         }
 
         const url = args.url
-        const requestQueue = args.useCustomQueue ? await CustomRequestQueue.open(): await RequestQueue.open()
+        const requestQueue = args.useCustomQueue ?
+            await CustomRequestQueue.open(null, {}, args.customQueueSettings):
+            await RequestQueue.open()
         let options: PlaywrightCrawlerOptions = {
             requestQueue,
             headless: true,

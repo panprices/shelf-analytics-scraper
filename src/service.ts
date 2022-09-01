@@ -59,6 +59,38 @@ async function sendRequestBatch(pubSubClient: PubSub, detailedPages: RequestOpti
     }
 }
 
+export async function extractLeafCategories(targetUrl: string) {
+    const rootUrl = extractRootUrl(targetUrl)
+
+    const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl(
+        {
+            url: rootUrl,
+            customQueueSettings: {
+                captureLabels: ["LIST"]
+            }
+        },{
+            maxConcurrency: 1
+        }
+    )
+    await crawler.run([{
+        url: targetUrl,
+        label: 'INTERMEDIATE_CATEGORY'
+    }])
+
+    const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue
+    const categoryUrls = []
+    while(true) {
+        const nextRequest = await inWaitQueue.fetchNextRequest()
+        if (!nextRequest) {
+            break
+        }
+
+        categoryUrls.push(nextRequest.url)
+    }
+
+    categoryUrls.forEach(u => log.info(u))
+}
+
 export async function scrapeDetails(detailedPages: RequestOptions[],
                                     overrides?: PlaywrightCrawlerOptions,
                                     skipBigQuery: boolean = false): Promise<void> {
