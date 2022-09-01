@@ -32,7 +32,8 @@ export class CrawlerFactory {
             requestQueue,
             headless: true,
             maxRequestsPerMinute: 60,
-            maxConcurrency: 10,
+            maxConcurrency: 5,
+            navigationTimeoutSecs: 150,
             ...overrides
         }
 

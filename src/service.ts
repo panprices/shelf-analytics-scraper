@@ -7,11 +7,13 @@ import {RequestBatch} from "./types/offer";
 import {PubSub} from "@google-cloud/pubsub";
 
 
-export async function exploreCategory(targetUrl: string): Promise<void> {
+export async function exploreCategory(targetUrl: string, overrides?: PlaywrightCrawlerOptions): Promise<void> {
     const rootUrl = extractRootUrl(targetUrl)
 
     const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl({url: rootUrl},{
-        maxConcurrency: 1
+        ...overrides,
+        maxConcurrency: 1,
+        requestHandlerTimeoutSecs: 3600
     })
     await crawler.run([{
         url: targetUrl,
@@ -35,6 +37,7 @@ export async function exploreCategory(targetUrl: string): Promise<void> {
             url: request.url,
             userData: request.userData
         })
+        await inWaitQueue.markRequestHandled(request)
 
         if (detailedPages.length >= maxBatchSize) {
             await sendRequestBatch(pubSubClient, detailedPages)
