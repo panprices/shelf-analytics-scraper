@@ -50,6 +50,15 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
           .locator("div#productInfoPrice div[data-cy='current-price']")
           .textContent();
         const price = Number(price_text?.replace(" ", ""));
+
+        const imagesPreviewLocator = await page.locator(
+            "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]")
+        const imagesCount = await imagesPreviewLocator.count()
+        for (let i = 0; i < imagesCount; i++) {
+            const currentImagePreview = imagesPreviewLocator.nth(i)
+            await currentImagePreview.click()
+        }
+
         const images = await page
           .locator("div#productInfoImage figure img")
           .evaluateAll((list: HTMLElement[]) =>
