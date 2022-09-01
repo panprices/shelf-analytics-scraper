@@ -15,7 +15,8 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
     constructor(options: CrawlerDefinitionOptions) {
         super(options)
 
-        this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", this.crawlIntermediateLowerCategoryPage)
+        this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY",
+                _ => this.crawlIntermediateLowerCategoryPage(_))
     }
 
     async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ListingProductInfo> {

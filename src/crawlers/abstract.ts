@@ -55,9 +55,10 @@ export abstract class AbstractCrawlerDefinition {
     protected constructor(options: CrawlerDefinitionOptions) {
         this._router = createPlaywrightRouter()
         const crawlerDefinition = this
-        this._router.addHandler("DETAIL", crawlerDefinition.crawlDetailPage)
-        this._router.addHandler("LIST", crawlerDefinition.crawlListPage)
-        this._router.addHandler("INTERMEDIATE_CATEGORY", crawlerDefinition.crawlIntermediateCategoryPage)
+        this._router.addHandler("DETAIL", _ => crawlerDefinition.crawlDetailPage(_))
+        this._router.addHandler("LIST", _ => crawlerDefinition.crawlListPage(_))
+        this._router.addHandler("INTERMEDIATE_CATEGORY",
+                _ => crawlerDefinition.crawlIntermediateCategoryPage(_))
 
         this._detailsDataset = options.detailsDataset
         this._listingDataset = options.listingDataset
