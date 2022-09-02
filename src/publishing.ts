@@ -27,12 +27,21 @@ export async function persistProductsToDatabase(savedItems: DetailedProductInfo[
     await bigquery
       .dataset("b2b_brand_product_index")
       .table("retailer_listings")
-      .insert(stringifyDeep(savedItems), {
+      .insert(prepareForBigQuery(savedItems), {
           ignoreUnknownValues: true
       });
 }
 
-function stringifyDeep(items: any[]): Dictionary<any>[] {
+/**
+ * We transform objects held deeper in the structure to their JSON version.
+ *
+ * Arrays will be transformed to arrays of JSON strings.
+ *
+ * Field names are converted to camel_case to keep consistency with the analysis in python
+ *
+ * @param items
+ */
+export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     const reduceToSimpleTypes = (e: any) => {
         const currentType = typeof e
 
@@ -48,15 +57,28 @@ function stringifyDeep(items: any[]): Dictionary<any>[] {
         }
     }
 
+    const convertToSnakeCase = (key: string) => {
+        const wordBreaks = key.match(/[A-Z]/g)
+        if (!wordBreaks) {
+            return key
+        }
+
+        for (let capitalLetter of wordBreaks) {
+            key = key.replace(capitalLetter, `_${capitalLetter.toLocaleLowerCase()}`)
+        }
+
+        return key
+    }
+
     return items.map(
         i => {
             for (let key in i) {
                 if (Array.isArray(i[key])) {
-                    i[key] = Array.from(i[key]).map(reduceToSimpleTypes)
+                    i[convertToSnakeCase(key)] = Array.from(i[key]).map(reduceToSimpleTypes)
 
                     continue
                 }
-                i[key] = reduceToSimpleTypes(i[key])
+                i[convertToSnakeCase(key)] = reduceToSimpleTypes(i[key])
             }
 
             return i

@@ -14,7 +14,8 @@
     "node-fetch": "^3.2.10",
     "pino": "^8.4.2",
     "playwright": "*",
-    "playwright-core": "*"
+    "playwright-core": "*",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
@@ -30,7 +31,7 @@
   },
   "scripts": {
     "start": "npm run start:dev",
-    "start:prod": "node dist/index.js",
+    "start:prod": "node --experimental-specifier-resolution=node dist/index.js",
     "start:dev": "ts-node-esm -T src/index.ts",
     "run-main": "ts-node-esm -T src/main.ts",
     "build": "tsc",
