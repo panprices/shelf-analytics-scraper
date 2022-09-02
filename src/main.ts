@@ -1,5 +1,5 @@
 import {log} from "crawlee";
-import {exploreCategory, scrapeDetails} from "./service.js";
+import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service.js";
 
 
 async function debugMain() {
@@ -20,6 +20,11 @@ async function debugMain() {
 async function debugCategoryExploration() {
     const targetUrl = 'https://www.homeroom.se/utemobler-tradgard/parasoller-solskydd/parasoller'
     await exploreCategory(targetUrl)
+}
+
+async function debugLeafCategoryExtraction() {
+    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler'
+    await extractLeafCategories(targetUrl)
 }
 
 await debugCategoryExploration()

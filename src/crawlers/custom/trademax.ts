@@ -1,6 +1,6 @@
-import {AbstractCrawlerDefinition} from "../abstract.js";
-import {errors, Locator, Page} from "playwright";
-import {Dataset, log} from "crawlee";
+import {AbstractCrawlerDefinition, CrawlerDefinitionOptions} from "../abstract.js";
+import {Locator, Page} from "playwright";
+import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
 import {
     DetailedProductInfo,
     IndividualReview,
@@ -8,8 +8,17 @@ import {
     OfferMetadata,
     ProductReviews
 } from "../../types/offer.js";
+import {extractRootUrl} from "../../utils.js";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
+
+    constructor(options: CrawlerDefinitionOptions) {
+        super(options)
+
+        this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY",
+                _ => this.crawlIntermediateLowerCategoryPage(_))
+    }
+
     async extractCardProductInfo(categoryUrl: string, productCard: Locator): Promise<ListingProductInfo> {
         const imageUrl = <string>await this.extractProperty(productCard, "xpath=(..//img)[1]", this.extractImageFromSrcSet)
         const name = <string>await this.extractProperty(productCard, "..//h3[contains(@class, 'ProductCardTitle__global')]",
@@ -106,7 +115,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
             log.info(`Specification not found for product with url: ${page.url()}`)
         }
 
-        let description = undefined
+        let description
         try {
             const descriptionExpander = page.locator(
                 "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
@@ -198,6 +207,29 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
         }
 
         return intermediateResult
+    }
+
+    override async crawlIntermediateCategoryPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        await ctx.enqueueLinks({
+            selector: "//div[contains(@class, 'subCategories-enter-done')]//a[not(contains(@aria-label, 'Kampanj'))]",
+            label: "INTERMEDIATE_LOWER_CATEGORY"
+        })
+    }
+
+    async crawlIntermediateLowerCategoryPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        const rootUrl = extractRootUrl(ctx.page.url())
+        const subCategoryLocator = "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]"
+
+        const subCategoryUrls = await ctx.page.locator(subCategoryLocator).evaluateAll(
+            (list: HTMLElement[]) => list.map(e => e.getAttribute("href"))
+        )
+        const isLeafCategory = subCategoryUrls.map(u => `${rootUrl}${u}`).some(u => ctx.page.url() == u)
+        const label = isLeafCategory ? "LIST": "INTERMEDIATE_LOWER_CATEGORY"
+
+        await ctx.enqueueLinks({
+            selector: subCategoryLocator,
+            label
+        })
     }
 
     static async create(): Promise<TrademaxCrawlerDefinition> {
