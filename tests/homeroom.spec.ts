@@ -15,7 +15,8 @@ describe("Homeroom details page", () => {
                 brand: 'Venture Home',
                 popularityIndex: 1,
                 name: "Matgrupp Polar bord med 4st Penally stolar",
-                label: "DETAIL"
+                label: "DETAIL",
+                fetchedAt: "9/2/2022, 4:51:26 PM"
             }
         }
 

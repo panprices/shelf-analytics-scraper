@@ -26,7 +26,7 @@ export async function persistProductsToDatabase(savedItems: DetailedProductInfo[
 
     await bigquery
       .dataset("b2b_brand_product_index")
-      .table("retailer_offerings")
+      .table("retailer_listings")
       .insert(stringifyDeep(savedItems), {
           ignoreUnknownValues: true
       });

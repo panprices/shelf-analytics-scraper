@@ -1,8 +1,8 @@
 import {CrawlerFactory} from "./crawlers/factory";
 import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
-import {PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
+import {log, PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
 import {extractRootUrl} from "./utils";
-import {persistProductsToDatabase, sendRequestBatch} from "./publishing";
+import {sendRequestBatch} from "./publishing";
 import {DetailedProductInfo} from "./types/offer";
 
 

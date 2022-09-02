@@ -2,8 +2,8 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import pino from "pino";
 
-import {exploreCategory, scrapeDetails} from "./service.js"
-import {scrapeCategoryPage} from "./trademax.js";
+import {exploreCategory, scrapeDetails} from "./service"
+import {scrapeCategoryPage} from "./trademax";
 import {RequestOptions} from "crawlee";
 import {RequestBatch} from "./types/offer";
 import {persistProductsToDatabase} from "./publishing";

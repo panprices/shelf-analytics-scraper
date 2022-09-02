@@ -1,5 +1,5 @@
 import {log} from "crawlee";
-import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service.js";
+import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service";
 
 
 async function debugMain() {

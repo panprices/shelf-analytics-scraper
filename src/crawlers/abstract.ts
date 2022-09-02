@@ -1,6 +1,7 @@
 import {createPlaywrightRouter, Dataset, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
 import {Locator, Page} from "playwright";
 import {DetailedProductInfo, ListingProductInfo} from "../types/offer";
+import {extractRootUrl} from "../utils";
 
 
 export interface CrawlerDefinitionOptions {
@@ -81,7 +82,9 @@ export abstract class AbstractCrawlerDefinition {
         const productDetails = await this.extractProductDetails(ctx.page)
         const request = ctx.request
 
-        await this._detailsDataset.pushData({
+        await this._detailsDataset.pushData(<DetailedProductInfo>{
+            fetchedAt: new Date().toLocaleString(),
+            retailerDomain: extractRootUrl(ctx.page.url()),
             ...request.userData,
             ...productDetails
         })
