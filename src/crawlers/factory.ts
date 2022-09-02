@@ -1,7 +1,7 @@
 import {log, PlaywrightCrawler, PlaywrightCrawlerOptions, RequestQueue} from "crawlee";
-import {CustomQueueSettings, CustomRequestQueue} from "../custom_crawlee/custom_request_queue.js";
-import {HomeroomCrawlerDefinition} from "./custom/homeroom.js";
-import {TrademaxCrawlerDefinition} from "./custom/trademax.js";
+import {CustomQueueSettings, CustomRequestQueue} from "../custom_crawlee/custom_request_queue";
+import {HomeroomCrawlerDefinition} from "./custom/homeroom";
+import {TrademaxCrawlerDefinition} from "./custom/trademax";
 import {AbstractCrawlerDefinition} from "./abstract";
 
 
@@ -46,7 +46,7 @@ export class CrawlerFactory {
                 definition = await HomeroomCrawlerDefinition.create()
                 options = {
                     ...options,
-                    requestHandler: definition.router
+                    requestHandler: definition.router,
                 }
                 return [new PlaywrightCrawler(options), definition]
             case "https://www.trademax.se":

@@ -1,4 +1,4 @@
-import {AbstractCrawlerDefinition, CrawlerDefinitionOptions} from "../abstract.js";
+import {AbstractCrawlerDefinition, CrawlerDefinitionOptions} from "../abstract";
 import {Locator, Page} from "playwright";
 import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
 import {
@@ -7,8 +7,8 @@ import {
     ListingProductInfo,
     OfferMetadata,
     ProductReviews
-} from "../../types/offer.js";
-import {extractRootUrl} from "../../utils.js";
+} from "../../types/offer";
+import {extractRootUrl} from "../../utils";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
 

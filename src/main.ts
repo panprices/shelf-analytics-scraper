@@ -1,5 +1,5 @@
 import {log} from "crawlee";
-import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service.js";
+import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service";
 
 
 async function debugMain() {
@@ -14,7 +14,8 @@ async function debugMain() {
             label: "DETAIL"
         }
     }
-    await scrapeDetails([dummyRequest], {headless: false})
+    const detailedItems = await scrapeDetails([dummyRequest], {headless: false})
+    log.info(JSON.stringify(detailedItems))
 }
 
 async function debugCategoryExploration() {

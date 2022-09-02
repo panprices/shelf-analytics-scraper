@@ -55,6 +55,8 @@ export interface ListingProductInfo extends BaseProductInfo {
 export interface DetailedProductInfo extends BaseProductInfo {
     description: string
     inStock: boolean
+    fetchedAt?: string
+    retailerDomain?: string
 
     images: string[]
     categoryTree: Category[]
