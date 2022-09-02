@@ -5,7 +5,8 @@ import pino from "pino";
 import {exploreCategory, scrapeDetails} from "./service.js"
 import {scrapeCategoryPage} from "./trademax.js";
 import {RequestOptions} from "crawlee";
-import {RequestBatch} from "./types/offer.js";
+import {RequestBatch} from "./types/offer";
+import {persistProductsToDatabase} from "./publishing";
 
 const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -51,7 +52,8 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const body = <RequestBatch>req.body
 
-  await scrapeDetails(body.productDetails)
+  const result = await scrapeDetails(body.productDetails)
+  await persistProductsToDatabase(result)
 
   res.status(204).send("OK")
 })

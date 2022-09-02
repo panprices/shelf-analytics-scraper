@@ -46,7 +46,7 @@ export class CrawlerFactory {
                 definition = await HomeroomCrawlerDefinition.create()
                 options = {
                     ...options,
-                    requestHandler: definition.router
+                    requestHandler: definition.router,
                 }
                 return [new PlaywrightCrawler(options), definition]
             case "https://www.trademax.se":

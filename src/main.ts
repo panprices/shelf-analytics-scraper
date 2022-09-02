@@ -14,7 +14,8 @@ async function debugMain() {
             label: "DETAIL"
         }
     }
-    await scrapeDetails([dummyRequest], {headless: false})
+    const detailedItems = await scrapeDetails([dummyRequest], {headless: false})
+    log.info(JSON.stringify(detailedItems))
 }
 
 async function debugCategoryExploration() {

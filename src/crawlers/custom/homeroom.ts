@@ -1,7 +1,14 @@
 import {Locator, Page} from "playwright";
 import {Dataset, log, PlaywrightCrawlingContext} from "crawlee";
 import {AbstractCrawlerDefinition} from "../abstract";
-import {DetailedProductInfo, ListingProductInfo, OfferMetadata, SchemaOrg} from "../../types/offer";
+import {
+    DetailedProductInfo,
+    IndividualReview,
+    ListingProductInfo,
+    OfferMetadata,
+    ProductReviews,
+    SchemaOrg
+} from "../../types/offer";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -49,10 +56,11 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
             images.push(imageUrl)
         }
 
-        const description = <string>await page.locator("//div[contains(@class, 'long-description')]//p/span[1]").textContent()
-        const brand = await this.extractProperty(page,
+        const description = <string>await page.locator("//div[contains(@class, 'long-description')]//p/span[1]")
+            .textContent()
+        const brand = (await this.extractProperty(page,
             "//h2[contains(@class, 'long-description-title')]/a[2]",
-            node => node.textContent())
+            node => node.textContent()))!.trim()
         const schemaOrgString = <string>await page.locator(
             "//script[@type='application/ld+json' and contains(text(), 'schema.org')]"
         ).textContent()
@@ -64,20 +72,65 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         const specificationsCount = await specifications.count()
         const specArray = []
         for (let i = 0; i < specificationsCount; i++) {
-            const spec = <string> await specifications.nth(i).textContent()
+            const spec = <string> await specifications.nth(i).textContent().then(s => s!.trim())
 
             specArray.push({
-                key: spec.split('\n')[0],
-                value: spec.split('\n')[1]
+                key: (<string>spec.split('\n')[0]).trim(),
+                value: (<string>spec.split('\n')[1]).trim()
             })
         }
         const buyButtonLocator = page.locator("//button/span[text() = 'Handla']")
         const inStock = (await buyButtonLocator.count()) > 0
 
+        const reviewsSectionAvailable = await page.locator("//div[@class = 'reviews-container']").isVisible()
+        let reviews: ProductReviews | "unavailable"
+        if (reviewsSectionAvailable) {
+            const reviewSelector = page.locator("//ul[@class = 'review-list']/li")
+            const visibleReviewCount = await reviewSelector.count()
+            const recentReviews: IndividualReview[] = []
+            for (let i = 0; i < visibleReviewCount; i++) {
+                const reviewLocator = reviewSelector.nth(i)
+
+                const reviewTitle = await this.extractProperty(reviewLocator,
+                    ".review-title", node => node.textContent())
+                const reviewText = await this.extractProperty(reviewLocator,
+                    ".review-text", node => node.textContent())
+
+                const reviewValue = await this.extractProperty(reviewLocator,
+                    ".stars-filled", node => node.getAttribute("style")).then(s =>
+                        Number(/width:(\d+)%;/g.exec(s!)![1])
+                ).then(v => v / 100 * 5)
+
+                recentReviews.push({
+                    content: reviewTitle + '\n' + reviewText,
+                    score: reviewValue
+                })
+            }
+
+            reviews = {
+                reviewCount: Number(
+                    await this.extractProperty(
+                        page,
+                        "//div[@class = 'product-info']//span[contains(@class, 'product-rating')]/a/span",
+                        node => node.textContent())
+                ),
+                averageReview: Number(
+                    (<string>await this.extractProperty(
+                        page,
+                        "//div[contains(@class, 'ratings')]/p/strong",
+                        node => node.textContent().then(s => s!.replace("av 5", "").trim())
+                    ))?.trim()
+                ),
+                recentReviews
+            }
+        } else {
+            reviews = "unavailable"
+        }
+
         return {
             name: productName, price, currency, images, description, categoryTree, sku, metadata,
-            specifications: specArray, brand, isDiscounted, url: page.url(), popularityIndex: -1,
-            reviews: "unavailable", inStock
+            specifications: specArray, brand, isDiscounted, url: page.url(),
+            reviews, inStock
         }
     }
 

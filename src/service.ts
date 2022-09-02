@@ -3,6 +3,7 @@ import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
 import {PlaywrightCrawlerOptions, RequestOptions} from "crawlee";
 import {extractRootUrl} from "./utils";
 import {persistProductsToDatabase, sendRequestBatch} from "./publishing";
+import {DetailedProductInfo} from "./types/offer";
 
 
 export async function exploreCategory(targetUrl: string, overrides?: PlaywrightCrawlerOptions): Promise<void> {
@@ -76,10 +77,9 @@ export async function extractLeafCategories(targetUrl: string) {
 }
 
 export async function scrapeDetails(detailedPages: RequestOptions[],
-                                    overrides?: PlaywrightCrawlerOptions,
-                                    skipBigQuery: boolean = false): Promise<void> {
+                                    overrides?: PlaywrightCrawlerOptions): Promise<DetailedProductInfo[]> {
     if (detailedPages.length === 0) {
-        return
+        return []
     }
 
     const sampleUrl = detailedPages[0].url
@@ -90,10 +90,6 @@ export async function scrapeDetails(detailedPages: RequestOptions[],
     }, overrides)
 
     await crawler.run(detailedPages)
-    if (skipBigQuery) {
-        return
-    }
 
-    const savedItems = await crawlerDefinition.detailsDataset.getData()
-    await persistProductsToDatabase(savedItems)
+    return (await crawlerDefinition.detailsDataset.getData()).items.map(i => <DetailedProductInfo> i)
 }

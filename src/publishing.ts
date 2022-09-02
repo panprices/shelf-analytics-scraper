@@ -1,6 +1,6 @@
-import {DatasetContent, Dictionary, log, RequestOptions} from "crawlee";
+import {Dictionary, log, RequestOptions} from "crawlee";
 import {PubSub} from "@google-cloud/pubsub";
-import {RequestBatch} from "./types/offer";
+import {DetailedProductInfo, RequestBatch} from "./types/offer";
 import {BigQuery} from "@google-cloud/bigquery";
 
 
@@ -21,18 +21,18 @@ export async function sendRequestBatch(detailedPages: RequestOptions[]) {
     }
 }
 
-export async function persistProductsToDatabase(savedItems: DatasetContent<any>) {
+export async function persistProductsToDatabase(savedItems: DetailedProductInfo[]) {
     const bigquery = new BigQuery()
 
     await bigquery
       .dataset("b2b_brand_product_index")
       .table("retailer_offerings")
-      .insert(stringifyDeep(savedItems.items), {
+      .insert(stringifyDeep(savedItems), {
           ignoreUnknownValues: true
       });
 }
 
-function stringifyDeep(items: Dictionary<any>[]): Dictionary<any>[] {
+function stringifyDeep(items: any[]): Dictionary<any>[] {
     const reduceToSimpleTypes = (e: any) => {
         const currentType = typeof e
 

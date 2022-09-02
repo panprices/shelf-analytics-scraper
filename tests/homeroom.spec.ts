@@ -1,27 +1,12 @@
 import {scrapeDetails} from "../src/service";
-import {persistProductsToDatabase} from "../src/publishing";
+import {BrowserLaunchContext, log, PlaywrightCrawlingContext} from "crawlee";
+import {BrowserContext} from "playwright-core";
+import * as fs from "fs";
 
-jest.mock("../src/publishing")
+jest.setTimeout(50000)
 
 describe("Homeroom details page", () => {
-    test("Mock publishing to database", () => {
-        const mockedPublishing = jest.mocked(persistProductsToDatabase, true)
-
-        persistProductsToDatabase({
-            total: 10,
-            count: 1,
-            offset: 0,
-            limit: 1,
-            items: [
-                {
-                    field: "dummy"
-                }
-            ]
-        })
-        expect(mockedPublishing.mock).toBeDefined()
-        expect(mockedPublishing.mock.calls).toHaveLength(1)
-    })
-    test("Basic information is retrieved correctly", () => {
+    test("Basic information is retrieved correctly", async () => {
         const targetUrl = "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01"
         const dummyRequest = {
             url: targetUrl,
@@ -33,8 +18,29 @@ describe("Homeroom details page", () => {
                 label: "DETAIL"
             }
         }
-        const mockedPublishing = jest.mocked(persistProductsToDatabase, true)
 
-        scrapeDetails([dummyRequest])
+        const testResourcesDir = 'tests/resources/homeroom/simple_detailed_page'
+
+        const expectedResult = JSON.parse(fs.readFileSync(`${testResourcesDir}/result.json`, 'utf-8'))
+        const result = await scrapeDetails([dummyRequest], {
+            launchContext: {
+                // launchOptions: <any>{
+                //     recordHar: {
+                //         path: "example.har"
+                //     }
+                // }
+                // experimentalContainers: true,
+                // launcher:
+            },
+            preNavigationHooks: [
+                async (ctx: PlaywrightCrawlingContext) => {
+                    await ctx.browserController.browser.contexts()[0].routeFromHAR(`${testResourcesDir}/recording.har`)
+                }
+            ]
+        })
+
+        expect(result).toBeDefined()
+        expect(result).toHaveLength(1)
+        expect(result).toEqual(expectedResult)
     })
 })
