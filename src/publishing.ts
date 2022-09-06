@@ -29,7 +29,7 @@ export async function persistProductsToDatabase(savedItems: DetailedProductInfo[
           .table("retailer_listings")
           .insert(prepareForBigQuery(savedItems));
     } catch (error) {
-      log.error(`Received error while persisting to BigQuery: ${error}`);
+      log.error(`Received error while persisting to BigQuery: }`, JSON.parse(JSON.stringify(error)));
     }
 
 }
