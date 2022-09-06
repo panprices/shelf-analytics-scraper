@@ -1,9 +1,10 @@
 import {log} from "crawlee";
 import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service";
+import {persistProductsToDatabase} from "./publishing";
 
 
-async function debugMain() {
-    const targetUrl = 'https://www.trademax.se/m%C3%B6bler/s%C3%A4ngar/kontinentals%C3%A4ngar/charm-komplett-s%C3%A4ngpaket-140x200-m%C3%B6rkgr%C3%A5-p401294-v401333'
+async function debugMain(publish: boolean = false) {
+    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus/h%C3%A4ngstol-tiger-110x110xh200-cm-m%C3%B6rkgr%C3%A5-rotting-p735079'
     const dummyRequest = {
         url: targetUrl,
         userData: {
@@ -16,6 +17,12 @@ async function debugMain() {
     }
     const detailedItems = await scrapeDetails([dummyRequest], {headless: false})
     log.info(JSON.stringify(detailedItems))
+
+    if (publish) {
+        await persistProductsToDatabase(detailedItems).then(_ => {
+            log.info("Persisted to database")
+        })
+    }
 }
 
 async function debugCategoryExploration() {
@@ -28,4 +35,4 @@ async function debugLeafCategoryExtraction() {
     await extractLeafCategories(targetUrl)
 }
 
-await debugCategoryExploration()
+await debugMain(true)

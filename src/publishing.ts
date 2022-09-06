@@ -2,6 +2,7 @@ import {Dictionary, log, RequestOptions} from "crawlee";
 import {PubSub} from "@google-cloud/pubsub";
 import {DetailedProductInfo, RequestBatch} from "./types/offer";
 import {BigQuery} from "@google-cloud/bigquery";
+import {InsertRowsResponse} from "@google-cloud/bigquery/build/src/table";
 
 
 export async function sendRequestBatch(detailedPages: RequestOptions[]) {
@@ -15,23 +16,22 @@ export async function sendRequestBatch(detailedPages: RequestOptions[]) {
         const messageId = await pubSubClient
             .topic("trigger_schedule_product_scrapes")
             .publishMessage({json: batchRequest});
-      log.info(`Message ${messageId} published.`);
+        log.info(`Message ${messageId} published.`);
     } catch (error) {
-      log.error(`Received error while publishing: ${error}`);
+        log.error(`Received error while publishing: ${error}`);
     }
 }
 
 export async function persistProductsToDatabase(savedItems: DetailedProductInfo[]) {
     const bigquery = new BigQuery()
-    try {
-        await bigquery
-          .dataset("b2b_brand_product_index")
-          .table("retailer_listings")
-          .insert(prepareForBigQuery(savedItems));
-    } catch (error) {
-      log.error(`Received error while persisting to BigQuery: }`, JSON.parse(JSON.stringify(error)));
-    }
-
+    const preprocessedItems = prepareForBigQuery(savedItems)
+    await bigquery
+        .dataset("b2b_brand_product_index")
+        .table("retailer_listings")
+        .insert(preprocessedItems)
+        .catch((response: InsertRowsResponse) => {
+            log.error(`BigQuery insertion response: ${JSON.stringify(response)}`)
+        })
 }
 
 /**
@@ -99,17 +99,21 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
         'images',
         'is_discounted',
         'original_price',
-        'price'
+        'price',
+        'currency',
+        'sku',
+        'metadata',
+        'specifications',
+        'in_stock',
+        'reviews'
     ]
 
-    const result = stringifiedSnakeCased.map(product => {
+    return stringifiedSnakeCased.map(product => {
         const filteredProduct = {}
         for (let f of bigqueryFields) {
             filteredProduct[f] = product[f]
         }
         return filteredProduct
     })
-    log.info(JSON.stringify(result))
-    return result
 }
 
