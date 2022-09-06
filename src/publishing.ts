@@ -23,13 +23,15 @@ export async function sendRequestBatch(detailedPages: RequestOptions[]) {
 
 export async function persistProductsToDatabase(savedItems: DetailedProductInfo[]) {
     const bigquery = new BigQuery()
+    try {
+        await bigquery
+          .dataset("b2b_brand_product_index")
+          .table("retailer_listings")
+          .insert(prepareForBigQuery(savedItems));
+    } catch (error) {
+      log.error(`Received error while persisting to BigQuery: ${error}`);
+    }
 
-    await bigquery
-      .dataset("b2b_brand_product_index")
-      .table("retailer_listings")
-      .insert(prepareForBigQuery(savedItems), {
-          ignoreUnknownValues: true
-      });
 }
 
 /**
@@ -70,19 +72,44 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
         return key
     }
 
-    return items.map(
+    const stringifiedSnakeCased = items.map(
         i => {
+            const transformed = {}
             for (let key in i) {
                 if (Array.isArray(i[key])) {
-                    i[convertToSnakeCase(key)] = Array.from(i[key]).map(reduceToSimpleTypes)
+                    transformed[convertToSnakeCase(key)] = Array.from(i[key]).map(reduceToSimpleTypes)
 
                     continue
                 }
-                i[convertToSnakeCase(key)] = reduceToSimpleTypes(i[key])
+                transformed[convertToSnakeCase(key)] = reduceToSimpleTypes(i[key])
             }
 
-            return i
+            return transformed
         }
     )
+    const bigqueryFields = [
+        'name',
+        'fetched_at',
+        'retailer_domain',
+        'url',
+        'brand',
+        'description',
+        'popularity_index',
+        'category_tree',
+        'images',
+        'is_discounted',
+        'original_price',
+        'price'
+    ]
+
+    const result = stringifiedSnakeCased.map(product => {
+        const filteredProduct = {}
+        for (let f of bigqueryFields) {
+            filteredProduct[f] = product[f]
+        }
+        return filteredProduct
+    })
+    log.info(JSON.stringify(result))
+    return result
 }
 
