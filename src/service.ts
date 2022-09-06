@@ -44,6 +44,25 @@ export async function exploreCategory(targetUrl: string, overrides?: PlaywrightC
     }
 }
 
+export async function exploreCategoryNoCapture(targetUrl: string, overrides: PlaywrightCrawlerOptions) {
+    const rootUrl = extractRootUrl(targetUrl)
+
+    const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl({
+        url: rootUrl,
+        customQueueSettings: {
+            captureLabels: []
+        }
+    },{
+        ...overrides,
+        maxConcurrency: 1,
+        requestHandlerTimeoutSecs: 3600
+    })
+    await crawler.run([{
+        url: targetUrl,
+        label: 'LIST'
+    }])
+}
+
 export async function extractLeafCategories(targetUrl: string) {
     const rootUrl = extractRootUrl(targetUrl)
 
@@ -54,7 +73,8 @@ export async function extractLeafCategories(targetUrl: string) {
                 captureLabels: ["LIST"]
             }
         },{
-            headless: false
+            headless: false,
+            maxConcurrency: 4
         }
     )
     await crawler.run([{

@@ -1,5 +1,5 @@
 import {log} from "crawlee";
-import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service";
+import {exploreCategory, extractLeafCategories, scrapeDetails, exploreCategoryNoCapture} from "./service";
 import {persistProductsToDatabase} from "./publishing";
 
 
@@ -25,8 +25,15 @@ async function debugMain(publish: boolean = false) {
 }
 
 async function debugCategoryExploration() {
-    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus'
+    const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
     await exploreCategory(targetUrl, {
+        headless: false
+    })
+}
+
+async function debugCategoryExplorationNoCapture() {
+    const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
+    await exploreCategoryNoCapture(targetUrl, {
         headless: false
     })
 }
