@@ -19,7 +19,7 @@ steps:
       - --platform
       - managed
       - --cpu=1
-      - --memory=2Gi
+      - --memory=4Gi
       - --concurrency=1  # should only run 1 scraper at a time
       - --timeout=3600s  # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
 images:
