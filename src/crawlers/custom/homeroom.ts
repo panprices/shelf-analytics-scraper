@@ -9,6 +9,7 @@ import {
     ProductReviews,
     SchemaOrg
 } from "../../types/offer";
+import {v4 as uuidv4} from "uuid";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -169,8 +170,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     static async create(): Promise<HomeroomCrawlerDefinition> {
-        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset")
-        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset")
+        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4())
+        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset_" + uuidv4())
 
         return new HomeroomCrawlerDefinition({
             detailsDataset, listingDataset,

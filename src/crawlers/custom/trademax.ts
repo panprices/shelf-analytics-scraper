@@ -9,6 +9,7 @@ import {
     ProductReviews
 } from "../../types/offer";
 import {extractRootUrl} from "../../utils";
+import {v4 as uuidv4} from "uuid";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
 
@@ -233,8 +234,8 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
     }
 
     static async create(): Promise<TrademaxCrawlerDefinition> {
-        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset")
-        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset")
+        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4())
+        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset" + uuidv4())
 
         return new TrademaxCrawlerDefinition({
             detailsDataset, listingDataset,

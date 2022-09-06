@@ -10,6 +10,7 @@ import {
     StorageManager,
     StorageManagerOptions
 } from "crawlee";
+import {v4 as uuidv4} from "uuid";
 import {BatchAddRequestsResult} from "@crawlee/types";
 
 export interface CustomQueueSettings {
@@ -137,14 +138,18 @@ export class CustomRequestQueue extends RequestQueue {
         await purgeDefaultStorages();
         const manager = StorageManager.getManager(RequestQueue, options.config);
 
+        if(!queueIdOrName) {
+            queueIdOrName = "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4()
+        }
+
         const wrappedQueue: RequestQueue = await manager.openStorage(queueIdOrName);
 
         /**
          * The prefix `__CRAWLEE_TEMPORARY_` tells crawlee that we want these datasets to be purged (deleted) at the
          * beginning of every run.
          */
-        const inWaitQueue = await RequestQueue.open("__CRAWLEE_TEMPORARY_inWaitQueue", options)
-        const syncedQueue = await RequestQueue.open("__CRAWLEE_TEMPORARY_syncedQueue", options)
+        const inWaitQueue = await RequestQueue.open("__CRAWLEE_TEMPORARY_inWaitQueue_" + uuidv4(), options)
+        const syncedQueue = await RequestQueue.open("__CRAWLEE_TEMPORARY_syncedQueue_" + uuidv4(), options)
 
         return new CustomRequestQueue({
             client: Configuration.getStorageClient(),

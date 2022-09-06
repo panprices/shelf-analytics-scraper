@@ -15,7 +15,8 @@
     "pino": "^8.4.2",
     "playwright": "*",
     "playwright-core": "*",
-    "moment": "^2.29.4"
+    "moment": "^2.29.4",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@apify/tsconfig": "^0.1.0",
