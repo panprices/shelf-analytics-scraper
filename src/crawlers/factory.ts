@@ -59,6 +59,6 @@ export class CrawlerFactory {
         }
 
         log.warning(`Asked for unknown root url: ${url}`)
-        throw Error("Asked for unknown root url: ${url}")
+        throw Error(`Asked for unknown root url: ${url}`)
     }
 }
