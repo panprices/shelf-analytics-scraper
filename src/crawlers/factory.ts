@@ -3,6 +3,7 @@ import {CustomQueueSettings, CustomRequestQueue} from "../custom_crawlee/custom_
 import {HomeroomCrawlerDefinition} from "./custom/homeroom";
 import {TrademaxCrawlerDefinition} from "./custom/trademax";
 import {AbstractCrawlerDefinition} from "./abstract";
+import {v4 as uuidv4} from "uuid";
 
 
 export interface CrawlerFactoryArgs {
@@ -29,8 +30,11 @@ export class CrawlerFactory {
 
         const url = args.url
         const requestQueue = args.useCustomQueue ?
-            await CustomRequestQueue.open(null, {}, args.customQueueSettings):
-            await RequestQueue.open()
+            await CustomRequestQueue.open(
+                "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4(),
+                {},
+                args.customQueueSettings):
+            await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4())
         let options: PlaywrightCrawlerOptions = {
             requestQueue,
             headless: true,

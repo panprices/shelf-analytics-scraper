@@ -138,10 +138,6 @@ export class CustomRequestQueue extends RequestQueue {
         await purgeDefaultStorages();
         const manager = StorageManager.getManager(RequestQueue, options.config);
 
-        if(!queueIdOrName) {
-            queueIdOrName = "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4()
-        }
-
         const wrappedQueue: RequestQueue = await manager.openStorage(queueIdOrName);
 
         /**
