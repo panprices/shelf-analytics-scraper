@@ -173,6 +173,14 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
         }
     }
 
+    override async crawlIntermediateCategoryPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        await ctx.page.locator("//div[@class = 'subcategories']/a").nth(0).waitFor()
+        await ctx.enqueueLinks({
+            selector: "//div[@class = 'subcategories']/a",
+            label: "LIST"
+        })
+    }
+
     static async create(): Promise<VentureDesignCrawlerDefinition> {
         const [detailsDataset, listingDataset] = await AbstractCrawlerDefinition.openDatasets()
         return new VentureDesignCrawlerDefinition({
