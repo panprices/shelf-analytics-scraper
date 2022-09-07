@@ -1,13 +1,13 @@
 // For more information, see https://crawlee.dev/
-import {Dataset, PlaywrightCrawler,} from "crawlee";
-import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
+import { Dataset, PlaywrightCrawler } from "crawlee";
+import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 
 const BASE_URL = "https://www.trademax.se";
 
 // const pageLoaded;
 
 const getTrademaxCrawler = async (maxRequestsPerCrawl: number) => {
-  const requestQueue = await CustomRequestQueue.open()
+  const requestQueue = await CustomRequestQueue.open();
 
   return new PlaywrightCrawler({
     requestQueue,
@@ -69,8 +69,8 @@ const getTrademaxCrawler = async (maxRequestsPerCrawl: number) => {
 
         await enqueueLinks({
           selector: "//div[@data-cy='pagination_controls']/a",
-          label: "LIST"
-        })
+          label: "LIST",
+        });
 
         // Schedule next page to scrape
         // const nextPageUrl =

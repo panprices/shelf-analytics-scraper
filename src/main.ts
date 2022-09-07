@@ -24,7 +24,7 @@ async function debugMain() {
 }
 
 async function debugCategoryExploration() {
-    const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
+    const targetUrl = 'https://www.nordiskarum.se/utemobler/matbord-utan-stolar/soffbord.html'
     await exploreCategory(targetUrl, {
         headless: false
     })
@@ -43,4 +43,4 @@ async function debugLeafCategoryExtraction() {
     await extractLeafCategories(targetUrl)
 }
 
-await debugMain()
+await debugCategoryExploration()
