@@ -5,6 +5,7 @@ import {TrademaxCrawlerDefinition} from "./custom/trademax";
 import {AbstractCrawlerDefinition} from "./abstract";
 import {VentureDesignCrawlerDefinition} from "./custom/venture-design";
 import {v4 as uuidv4} from "uuid";
+import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 
 
 export interface CrawlerFactoryArgs {
@@ -63,6 +64,13 @@ export class CrawlerFactory {
                 return [new PlaywrightCrawler(options), definition]
             case "https://www.venturedesign.se":
                 definition = await VentureDesignCrawlerDefinition.create()
+                options = {
+                    ...options,
+                    requestHandler: definition.router
+                }
+                return [new PlaywrightCrawler(options), definition]
+            case "https://www.nordiskarum.se":
+                definition = await NordiskaRumCrawlerDefinition.create();
                 options = {
                     ...options,
                     requestHandler: definition.router
