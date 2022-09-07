@@ -111,7 +111,9 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     return stringifiedSnakeCased.map(product => {
         const filteredProduct = {}
         for (let f of bigqueryFields) {
-            filteredProduct[f] = product[f]
+            if (f in product) {
+                filteredProduct[f] = product[f]
+            }
         }
         return filteredProduct
     })

@@ -4,7 +4,7 @@ import {persistProductsToDatabase} from "./publishing";
 
 
 async function debugMain(publish: boolean = false) {
-    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus/h%C3%A4ngstol-tiger-110x110xh200-cm-m%C3%B6rkgr%C3%A5-rotting-p735079'
+    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus/california-h%C3%A4ngstol-amazonas-p1630420-v692365'
     const dummyRequest = {
         url: targetUrl,
         userData: {
@@ -16,7 +16,6 @@ async function debugMain(publish: boolean = false) {
         }
     }
     const detailedItems = await scrapeDetails([dummyRequest], {headless: false})
-    log.info(JSON.stringify(detailedItems))
 
     if (publish) {
         await persistProductsToDatabase(detailedItems).then(_ => {

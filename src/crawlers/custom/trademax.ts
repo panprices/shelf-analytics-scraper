@@ -37,7 +37,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
             currency: 'SEK', categoryUrl, popularityIndex: -1
         }
         if (isDiscounted) {
-            result.originalPrice = Number(originalPriceText?.replace(/\s/g, ''))
+            result.originalPrice = Number(originalPriceText!.replace(/\s/g, ''))
         }
 
         return result
