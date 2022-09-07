@@ -162,7 +162,7 @@ export abstract class AbstractCrawlerDefinition {
         const scrollHeight = await page.evaluate(() => document.body.scrollHeight)
         for (let i = currentScroll; i < scrollHeight; i += 400) {
             await page.evaluate((scrollPosition: number) => window.scrollTo(0, scrollPosition), i)
-            await new Promise(f => setTimeout(f, 1500))
+            await new Promise(f => setTimeout(f, 10))
 
             const articlesLocator = page.locator(productCardSelector)
             const articlesCount = await articlesLocator.count()
