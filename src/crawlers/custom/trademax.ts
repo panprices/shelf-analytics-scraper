@@ -75,16 +75,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
             list.map((element) => <string>element.getAttribute("src"))
           );
         const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a")
-        const breadcrumbCount = await breadcrumbLocator.count()
-        const categoryTree = []
-        for (let i = 1; i < breadcrumbCount; i++) {
-            const name = (<string>await breadcrumbLocator.nth(i).textContent()).trim()
-            const url = <string>await breadcrumbLocator.nth(i).getAttribute("href")
-
-            categoryTree.push({
-                name, url
-            })
-        }
+        const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1)
 
         const brand = await this.extractProperty(page, "//span[contains(strong/text(), ('Varumärke'))]/span/a",
             node => node.textContent())

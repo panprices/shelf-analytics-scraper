@@ -17,23 +17,14 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
 
         const metadata: OfferMetadata = {}
         const breadcrumbLocator = page.locator("ul.breadcrumbs > li > a")
-        const breadcrumbCount = await breadcrumbLocator.count()
-        const categoryTree = []
-        for (let i = 0; i < breadcrumbCount; i++) {
-            const name = (<string>await breadcrumbLocator.nth(i).textContent()).trim()
-            const url = <string>await breadcrumbLocator.nth(i).getAttribute("href")
-
-            categoryTree.push({
-                name, url
-            })
-        }
+        const categoryTree = await this.extractCategoryTree(breadcrumbLocator)
 
         let priceString = <string>await page.locator("div.price > p").first().textContent()
         priceString = priceString.trim().replace(/\s+/g, ' ')
         let price: number, currency
         if (priceString !== 'Slutsåld!') {
             const parts = priceString.split(" ")
-            currency = parts[parts.length -1].trim()
+            currency = (<string>parts[parts.length -1]).trim()
             price = Number(priceString.replace(currency, '').replace(/\s/g, ''))
         } else {
             price = 0
@@ -175,7 +166,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
 
         return new HomeroomCrawlerDefinition({
             detailsDataset, listingDataset,
-            listingUrlSelector: "//div[contains(text(), 'Impossible to match selector, no pagination')]",
             detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
             productCardSelector: "//article[contains(@class, 'product-card')]",
             cookieConsentSelector: 'a.cta-ok'

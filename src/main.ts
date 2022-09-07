@@ -1,10 +1,10 @@
 import {log} from "crawlee";
-import {exploreCategory, extractLeafCategories, scrapeDetails} from "./service";
+import {exploreCategory, exploreCategoryNoCapture, extractLeafCategories, scrapeDetails} from "./service";
 import {persistProductsToDatabase} from "./publishing";
 
 
-async function debugMain(publish: boolean = false) {
-    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus/california-h%C3%A4ngstol-amazonas-p1630420-v692365'
+async function debugMain() {
+    const targetUrl = 'https://www.venturedesign.se/products/parma-hylla-125x55x-svart-gra-9293-408'
     const dummyRequest = {
         url: targetUrl,
         userData: {
@@ -16,18 +16,25 @@ async function debugMain(publish: boolean = false) {
         }
     }
     const detailedItems = await scrapeDetails([dummyRequest], {headless: false})
+    log.info(JSON.stringify(detailedItems))
 
-    if (publish) {
-        await persistProductsToDatabase(detailedItems).then(_ => {
-            log.info("Persisted to database")
-        })
-    }
+    log.info("Persisting in BigQuery");
+    await persistProductsToDatabase(detailedItems);
+    log.info("Published to BigQuery")
 }
 
 async function debugCategoryExploration() {
-    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus'
+    const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
     await exploreCategory(targetUrl, {
         headless: false
+    })
+}
+
+async function debugCategoryExplorationNoCapture() {
+    const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
+    await exploreCategoryNoCapture(targetUrl, {
+        headless: false,
+        maxConcurrency: 5
     })
 }
 
@@ -36,4 +43,4 @@ async function debugLeafCategoryExtraction() {
     await extractLeafCategories(targetUrl)
 }
 
-await debugCategoryExploration()
+await debugCategoryExplorationNoCapture()

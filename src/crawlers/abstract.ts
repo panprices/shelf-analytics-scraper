@@ -1,7 +1,7 @@
 import {createPlaywrightRouter, Dataset, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
 import moment from "moment";
 import {Locator, Page} from "playwright";
-import {DetailedProductInfo, ListingProductInfo} from "../types/offer";
+import {Category, DetailedProductInfo, ListingProductInfo} from "../types/offer";
 import {extractRootUrl} from "../utils";
 
 
@@ -24,7 +24,7 @@ export interface CrawlerDefinitionOptions {
     /**
      * Selector for next pages within the product listing / category
      */
-    listingUrlSelector: string
+    listingUrlSelector?: string
 
     /**
      * Selector for individual product cards to be scraped for information available as part of the listings
@@ -47,10 +47,10 @@ export abstract class AbstractCrawlerDefinition {
     private readonly _detailsDataset: Dataset
     private readonly _listingDataset: Dataset
 
-    private readonly detailsUrlSelector: string
-    private readonly listingUrlSelector: string
-    private readonly productCardSelector: string
-    private readonly cookieConsentSelector?: string
+    protected readonly detailsUrlSelector: string
+    protected readonly listingUrlSelector?: string
+    protected readonly productCardSelector: string
+    protected readonly cookieConsentSelector?: string
 
     private readonly productInfos: Map<string, ListingProductInfo>
 
@@ -60,7 +60,7 @@ export abstract class AbstractCrawlerDefinition {
         this._router.addHandler("DETAIL", _ => crawlerDefinition.crawlDetailPage(_))
         this._router.addHandler("LIST", _ => crawlerDefinition.crawlListPage(_))
         this._router.addHandler("INTERMEDIATE_CATEGORY",
-                _ => crawlerDefinition.crawlIntermediateCategoryPage(_))
+            _ => crawlerDefinition.crawlIntermediateCategoryPage(_))
 
         this._detailsDataset = options.detailsDataset
         this._listingDataset = options.listingDataset
@@ -113,10 +113,12 @@ export abstract class AbstractCrawlerDefinition {
 
         await this.scrollToBottom(ctx)
 
-        await ctx.enqueueLinks({
-            selector: this.listingUrlSelector,
-            label: "LIST"
-        })
+        if (this.listingUrlSelector) {
+            await ctx.enqueueLinks({
+                selector: this.listingUrlSelector,
+                label: "LIST"
+            })
+        }
     }
 
     async crawlIntermediateCategoryPage(_: PlaywrightCrawlingContext): Promise<void> {
@@ -131,7 +133,7 @@ export abstract class AbstractCrawlerDefinition {
      * @param url
      * @param product
      */
-    handleFoundProductFromCard (url: string, product: ListingProductInfo): number {
+    handleFoundProductFromCard(url: string, product: ListingProductInfo): number {
         if (this.productInfos.has(url)) {
             return <number>this.productInfos.get(url)!.popularityIndex;
         }
@@ -151,7 +153,7 @@ export abstract class AbstractCrawlerDefinition {
         const page = ctx.page
         const enqueueLinks = ctx.enqueueLinks
 
-        const currentScroll = await page.evaluate(async() => {
+        const currentScroll = await page.evaluate(async () => {
             return window.scrollY + window.innerHeight
         })
         const productCardSelector = this.productCardSelector
@@ -233,6 +235,21 @@ export abstract class AbstractCrawlerDefinition {
         }
     }
 
+    async extractCategoryTree(breadcrumbLocator: Locator, startingIndex: number = 0): Promise<Category[]> {
+        const breadcrumbCount = await breadcrumbLocator.count()
+        const categoryTree = []
+        for (let i = startingIndex; i < breadcrumbCount; i++) {
+            const name = (<string>await breadcrumbLocator.nth(i).textContent()).trim()
+            const url = <string>await breadcrumbLocator.nth(i).getAttribute("href")
+
+            categoryTree.push({
+                name, url
+            })
+        }
+
+        return categoryTree
+    }
+
     /**
      * Extracts the information about a product from a product card.
      *
@@ -250,4 +267,12 @@ export abstract class AbstractCrawlerDefinition {
     get detailsDataset(): Dataset {
         return this._detailsDataset
     }
+
+    static async openDatasets(): Promise<[Dataset, Dataset]> {
+        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset")
+        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset")
+
+        return [detailsDataset, listingDataset]
+    }
 }
+
