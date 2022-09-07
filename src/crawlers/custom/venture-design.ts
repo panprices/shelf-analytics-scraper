@@ -116,8 +116,10 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-        const noScrollSliderLocator = page.locator(".v-no-slide")
-        const useInfiniteScrollStrategy = !await noScrollSliderLocator.isVisible()
+        await page.locator("div.v-slider").waitFor()
+
+        const scrollButtonLocator = page.locator("button.slick-next")
+        const useInfiniteScrollStrategy = await scrollButtonLocator.isVisible()
 
         const images = useInfiniteScrollStrategy ?
             await this.extractImagesWithInfiniteScrollSlider(page):

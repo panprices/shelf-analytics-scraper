@@ -4,7 +4,7 @@ import {persistProductsToDatabase} from "./publishing";
 
 
 async function debugMain() {
-    const targetUrl = 'https://www.venturedesign.se/products/parma-hylla-125x55x-svart-gra-9293-408'
+    const targetUrl = 'https://www.venturedesign.se/products/dipp-matbord-180x90-wrinkles-matstolar-gra-gr20631'
     const dummyRequest = {
         url: targetUrl,
         userData: {
@@ -39,8 +39,8 @@ async function debugCategoryExplorationNoCapture() {
 }
 
 async function debugLeafCategoryExtraction() {
-    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler'
+    const targetUrl = 'https://www.venturedesign.se/furniture-fashion'
     await extractLeafCategories(targetUrl)
 }
 
-await debugCategoryExplorationNoCapture()
+await debugMain()
