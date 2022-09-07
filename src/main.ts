@@ -25,8 +25,10 @@ async function debugMain(publish: boolean = false) {
 }
 
 async function debugCategoryExploration() {
-    const targetUrl = 'https://www.homeroom.se/utemobler-tradgard/parasoller-solskydd/parasoller'
-    await exploreCategory(targetUrl)
+    const targetUrl = 'https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/h%C3%A4ngstol-utomhus'
+    await exploreCategory(targetUrl, {
+        headless: false
+    })
 }
 
 async function debugLeafCategoryExtraction() {
@@ -34,4 +36,4 @@ async function debugLeafCategoryExtraction() {
     await extractLeafCategories(targetUrl)
 }
 
-await debugMain(true)
+await debugCategoryExploration()
