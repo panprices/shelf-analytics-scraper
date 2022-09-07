@@ -52,13 +52,31 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
         };
     }
 
-    async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-        // await new Promise(f => setTimeout(f, 2000))
+    async extractImagesNoScrollSlider(page: Page): Promise<string[]> {
+        const slideLocator = page.locator(".slide")
+        await slideLocator.nth(0).waitFor()
 
+        const images = []
+        const slideCount = await slideLocator.count()
+
+        for (let i = 0; i < slideCount; i++) {
+            await slideLocator.nth(i).click()
+
+            const fullImageUrl = <string>await this.extractProperty(page,
+                "div.article-detail-image >> div.v-thumb >> img",
+                node => node.getAttribute("src"))
+            images.push(fullImageUrl)
+        }
+
+        return images
+    }
+
+    async extractImagesWithInfiniteScrollSlider(page: Page): Promise<string[]> {
         const previewImageSet = new Set<string>()
         const sliderLocator = page.locator(
             "//div[contains(@class, 'article-detail-image')]//div[contains(@class, 'slick-active')]//img")
         await sliderLocator.nth(0).waitFor()
+
         const images = []
         // TODO: when there are less images than required for the slider, a different view is show
         // Example: https://www.venturedesign.se/products/parma-hylla-125x55x-svart-gra-9293-408
@@ -91,7 +109,16 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
             const arrowSelector = page.locator("div.article-detail-image >> button.slick-next")
             await arrowSelector.click()
         }
+        return images
+    }
 
+    async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+        const noScrollSliderLocator = page.locator(".v-no-slide")
+        const useInfiniteScrollStrategy = await noScrollSliderLocator.isVisible()
+
+        const images = useInfiniteScrollStrategy ?
+            await this.extractImagesWithInfiniteScrollSlider(page):
+            await this.extractImagesNoScrollSlider(page)
         const description = <string>await this.extractProperty(page,
             "//div[contains(@class, 'container') " +
             "and contains(./div[contains(@class, 'label')]/text(), 'BESKRIVNING')]/div[contains(@class, 'content')]",
