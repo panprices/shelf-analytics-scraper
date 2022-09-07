@@ -30,14 +30,14 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
 
         let priceString = <string>await page.locator("div.price > p").first().textContent()
         priceString = priceString.trim().replace(/\s+/g, ' ')
-        let price: number | "unavailable", currency
+        let price: number, currency
         if (priceString !== 'Slutsåld!') {
             const parts = priceString.split(" ")
             currency = parts[parts.length -1].trim()
             price = Number(priceString.replace(currency, '').replace(/\s/g, ''))
         } else {
-            price = "unavailable"
-            currency = "SEK"
+            price = 0
+            currency = "unavailable"
         }
 
 

@@ -35,7 +35,7 @@ export interface BaseProductInfo {
     name: string
     description?: string
     url: string
-    price: number | "unavailable"
+    price: number
     currency: string
     isDiscounted: boolean
     popularityIndex?: number
