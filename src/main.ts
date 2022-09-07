@@ -33,7 +33,8 @@ async function debugCategoryExploration() {
 async function debugCategoryExplorationNoCapture() {
     const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
     await exploreCategoryNoCapture(targetUrl, {
-        headless: false
+        headless: false,
+        maxConcurrency: 5
     })
 }
 
@@ -42,4 +43,4 @@ async function debugLeafCategoryExtraction() {
     await extractLeafCategories(targetUrl)
 }
 
-await debugMain()
+await debugCategoryExplorationNoCapture()

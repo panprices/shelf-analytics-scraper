@@ -59,7 +59,12 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
         const images = []
         const slideCount = await slideLocator.count()
 
-        for (let i = 0; i < slideCount; i++) {
+        const fullImageUrl = <string>await this.extractProperty(page,
+            "div.article-detail-image >> div.v-thumb >> img",
+            node => node.getAttribute("src"))
+        images.push(fullImageUrl)
+
+        for (let i = 1; i < slideCount; i++) {
             await slideLocator.nth(i).click()
 
             const fullImageUrl = <string>await this.extractProperty(page,
@@ -78,8 +83,6 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
         await sliderLocator.nth(0).waitFor()
 
         const images = []
-        // TODO: when there are less images than required for the slider, a different view is show
-        // Example: https://www.venturedesign.se/products/parma-hylla-125x55x-svart-gra-9293-408
         while (true) {
             let allPicturesSeen = true
             const visiblePicturesCount = await sliderLocator.count()
@@ -114,7 +117,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
 
     async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
         const noScrollSliderLocator = page.locator(".v-no-slide")
-        const useInfiniteScrollStrategy = await noScrollSliderLocator.isVisible()
+        const useInfiniteScrollStrategy = !await noScrollSliderLocator.isVisible()
 
         const images = useInfiniteScrollStrategy ?
             await this.extractImagesWithInfiniteScrollSlider(page):
