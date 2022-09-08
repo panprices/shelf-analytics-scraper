@@ -3,7 +3,7 @@ import moment from "moment";
 import {Locator, Page} from "playwright";
 import {Category, DetailedProductInfo, ListingProductInfo} from "../types/offer";
 import {extractRootUrl} from "../utils";
-
+import {v4 as uuidv4} from "uuid"
 
 export interface CrawlerDefinitionOptions {
     /**
@@ -269,8 +269,8 @@ export abstract class AbstractCrawlerDefinition {
     }
 
     static async openDatasets(): Promise<[Dataset, Dataset]> {
-        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset")
-        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset")
+        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4())
+        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset_" + uuidv4())
 
         return [detailsDataset, listingDataset]
     }
