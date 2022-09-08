@@ -139,12 +139,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         const originalPriceString = await this.extractProperty(productCard, "..//s[contains(./span/@class, 'currency')]",
                 node => node.textContent())
         const imageUrl = await this.extractProperty(productCard, "xpath=(..//picture/source)[1]", this.extractImageFromSrcSet)
-        const sku = await this.extractProperty(productCard, "button",
-                node => node.getAttribute("data-sku"))
         const url = <string> await this.extractProperty(productCard, "xpath=./a[1]", node => node.getAttribute("href"))
 
         const currentProductInfo: ListingProductInfo = {
-            brand, name, url, previewImageUrl: <string> imageUrl, sku,
+            brand, name, url, previewImageUrl: <string> imageUrl,
             popularityIndex: -1,
             isDiscounted: originalPriceString !== null,
             price: Number(priceString.trim().split('\n')[0].replace(/\s/g, '')),
