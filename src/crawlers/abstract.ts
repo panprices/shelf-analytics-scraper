@@ -1,4 +1,4 @@
-import {createPlaywrightRouter, Dataset, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
+import {createPlaywrightRouter, Dataset, log, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
 import moment from "moment";
 import {Locator, Page} from "playwright";
 import {Category, DetailedProductInfo, ListingProductInfo} from "../types/offer";
@@ -80,6 +80,7 @@ export abstract class AbstractCrawlerDefinition {
      * @param ctx
      */
     async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+        log.info(`Looking at product with url ${ctx.page.url()}`)
         const productDetails = await this.extractProductDetails(ctx.page)
         const request = ctx.request
 
