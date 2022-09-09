@@ -7,6 +7,7 @@ import {scrapeCategoryPage} from "./trademax";
 import {RequestOptions} from "crawlee";
 import {RequestBatch} from "./types/offer";
 import {persistProductsToDatabase} from "./publishing";
+import { log } from "crawlee"
 
 const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -42,15 +43,30 @@ app.post("/trademax", async (req: Request, res: Response) => {
   res.status(204).send("OK");
 });
 
+const configLogTracing = (cloudTrace?: string) => {
+  const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
+  if (cloudTrace && project) {
+    const [trace] = cloudTrace.split("/");
+    log.setOptions({
+      "data": {"logging.googleapis.com/trace": `projects/${project}/traces/${trace}`},
+  })}
+}
+
 app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestOptions>req.body
 
+  const cloudTrace = req.get("X-Cloud-Trace-Context");
+  configLogTracing(cloudTrace);
+
   await exploreCategory(body.url)
   res.status(204).send("OK")
-})
+});
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const body = <RequestBatch>req.body
+
+  const cloudTrace = req.get("X-Cloud-Trace-Context");
+  configLogTracing(cloudTrace);
 
   const result = await scrapeDetails(body.productDetails)
   await persistProductsToDatabase(result)
