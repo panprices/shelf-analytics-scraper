@@ -4,7 +4,7 @@ import {persistProductsToDatabase} from "./publishing";
 
 
 async function debugMain() {
-    const targetUrl = 'https://www.venturedesign.se/products/dipp-matbord-180x90-wrinkles-matstolar-gra-gr20631'
+    const targetUrl = 'https://www.venturedesign.se/products/estes-dining-chair-grey-smoked-black-wood'
     const dummyRequest = {
         url: targetUrl,
         userData: {

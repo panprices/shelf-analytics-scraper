@@ -1,7 +1,7 @@
 import {AbstractCrawlerDefinition} from "../abstract";
 import {Locator, Page} from "playwright";
 import {DetailedProductInfo, ListingProductInfo} from "../../types/offer";
-import {PlaywrightCrawlingContext} from "crawlee";
+import {log, PlaywrightCrawlingContext} from "crawlee";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -116,14 +116,25 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-        await page.locator("div.v-slider").waitFor()
+        let oneImageOnly = false
+        await page.locator("div.v-slider").waitFor({timeout: 5000}).catch(_ => {
+            log.warning("Product only shows one image")
+            oneImageOnly = true
+        })
 
-        const scrollButtonLocator = page.locator("button.slick-next")
-        const useInfiniteScrollStrategy = await scrollButtonLocator.isVisible()
+        let images: string[]
+        if (oneImageOnly) {
+            const imageUrl = <string>await this.extractProperty(page, "div.v-thumb >> img",
+                    node => node.getAttribute("src"))
+            images = [imageUrl]
+        } else {
+            const scrollButtonLocator = page.locator("button.slick-next")
+            const useInfiniteScrollStrategy = await scrollButtonLocator.isVisible()
 
-        const images = useInfiniteScrollStrategy ?
-            await this.extractImagesWithInfiniteScrollSlider(page):
-            await this.extractImagesNoScrollSlider(page)
+            images = useInfiniteScrollStrategy ?
+                await this.extractImagesWithInfiniteScrollSlider(page):
+                await this.extractImagesNoScrollSlider(page)
+        }
         const description = <string>await this.extractProperty(page,
             "//div[contains(@class, 'container') " +
             "and contains(./div[contains(@class, 'label')]/text(), 'BESKRIVNING')]/div[contains(@class, 'content')]",
