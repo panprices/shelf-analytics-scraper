@@ -17,22 +17,55 @@ import {
 
 export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const productName = (await page
+      .locator("h1.page-title")
+      .textContent())!.trim();
+    const description = (await page
+      .locator("div[itemprop='description']")
+      .textContent())!.trim();
+
+    const allPricesLocators = await page.locator(
+      ".product-info-price span.price-wrapper"
+    );
+    const nrPriceLocators = await allPricesLocators.count();
+    const allPrices = [];
+    for (let i = 0; i < nrPriceLocators; i++) {
+      const priceString =
+        (await allPricesLocators.nth(i).getAttribute("data-price-amount")) ||
+        "";
+      allPrices.push(parseInt(priceString));
+    }
+    const isDiscounted = allPrices.length === 2;
+    const price = Math.min(...allPrices);
+    const originalPrice = isDiscounted ? Math.max(...allPrices) : undefined;
+
+    // TODO: HOW DO I CLICK THE ARROW FOR IT TO LOAD THE NEXT IMAGE???
+    const imageThumbnailCount = await page.locator("div.fotorama__nav__shaft img").count();
+    const clickNextImage = () => {page.locator()}
+    Array(imageThumbnailCount).forEach(() => {
+      page.
+    })
+    const images = await page.locator("div.fotorama__stage img").
+
+    const stock = ...;
+    const 
+
     // return {
-    //     name: productName,
-    //     price,
-    //     currency,
-    //     images,
-    //     description,
-    //     categoryTree,
-    //     sku,
-    //     metadata,
-    //     specifications: specArray,
-    //     brand,
-    //     isDiscounted,
-    //     url: page.url(),
-    //     reviews,
-    //     inStock,
-    //   };
+    //   // brand:,
+    //   name: productName,
+    //   description: ,
+    //   price,
+    //   currency: "SEK",
+    //   //     images,
+    //   //     categoryTree,
+    //   //     sku,
+    //   //     metadata,
+    //   //     specifications: specArray,
+    //   //     isDiscounted,
+    //   //     url: page.url(),
+    //   //     reviews: "unavailable",
+    //   //     inStock,
+    // };
     return {};
   }
 
@@ -44,7 +77,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     //   return window.innerHeight > 100;
     // });
 
-    const name = (await productCard
+    const productName = (await productCard
       .locator(".product-item-name")
       .textContent())!.trim();
     const url = <string>(
@@ -63,7 +96,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
         "";
       allPrices.push(parseInt(priceString));
     }
-
     const isDiscounted = allPrices.length === 2;
     const price = Math.min(...allPrices);
     const originalPrice = isDiscounted ? Math.max(...allPrices) : undefined;
@@ -74,7 +106,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const currentProductInfo: ListingProductInfo = {
       //   brand,
-      name,
+      name: productName,
       url,
       price,
       currency: "SEK",
