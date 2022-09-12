@@ -24,12 +24,19 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     await page.waitForTimeout(100);
 
     const brand = await this.extractBrandFromProductDetailsPage(page);
-    const productName = (await page
-      .locator("h1.page-title")
-      .textContent())!.trim();
-    const description = (await page
-      .locator("div[itemprop='description']")
-      .textContent())!.trim();
+    // const productName = (await page
+    //   .locator("h1.page-title")
+    //   .textContent())!.trim();
+    const productName = await this.extractProperty(
+      page,
+      "h1.page-title",
+      (node) => node.textContent()
+    ).then((text) => text!.trim());
+    const description = await this.extractProperty(
+      page,
+      "div[itemprop='description']",
+      (node) => node.textContent()
+    ).then((text) => text!.trim());
 
     const allPricesLocators = await page.locator(
       ".product-info-price span.price-wrapper"
@@ -92,29 +99,8 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductImagesFromProductDetailsPage(page: Page) {
-    // TODO: HOW DO I CLICK THE ARROW FOR IT TO LOAD THE NEXT IMAGE???
     const thumbnailsLocator = page.locator("div.fotorama__nav__shaft img");
     const thumbnailsCount = await thumbnailsLocator.count();
-
-    const clickNextImage = () => {
-      page.locator("div.fotorama__nav__frame--thumb");
-    };
-
-    // const images: string[] = [];
-    // Array(imageThumbnailCount).forEach(async () => {
-    //   clickNextImage();
-    //   const imagesSelector = page.locator("div.fotorama__stage img");
-    //   const imageCount = await imagesSelector.count();
-    //   log.info("image count:" + imageCount);
-    //   for (let i = 0; i < imageCount; i++) {
-    //     const imageUrl = await imagesSelector
-    //       .nth(i)
-    //       .getAttribute("src")
-    //       .then((url) => url!);
-
-    //     images.push(imageUrl);
-    //   }
-    // });
 
     const images: string[] = [];
     for (let i = 0; i < thumbnailsCount; ++i) {
