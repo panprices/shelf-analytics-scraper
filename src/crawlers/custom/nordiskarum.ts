@@ -106,7 +106,10 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const imagesSelector = page.locator("div.fotorama__stage__frame img");
     for (let i = 0; i < thumbnailsCount; i++) {
       const imageCount = await imagesSelector.count();
-      for (let i = 0; i < imageCount; i++) {
+      // Only extract up to the 4th image since we frequently get errors from
+      // images 5 and 6, which are also unnecessary.
+      const maxImagesToGrab = Math.min(imageCount, 4);
+      for (let i = 0; i < maxImagesToGrab; i++) {
         const imageUrl = await imagesSelector
           .nth(i)
           .getAttribute("src")
@@ -114,6 +117,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
         images.push(imageUrl);
       }
 
+      // Click button to open next image
       const nextImageButton = page.locator("div.fotorama__arr--next");
       // Use force: true to prevent error: "subtree intercepts pointer events"
       await nextImageButton.click({ force: true });
