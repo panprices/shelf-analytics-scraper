@@ -4,8 +4,8 @@ import {HomeroomCrawlerDefinition} from "./custom/homeroom";
 import {TrademaxCrawlerDefinition} from "./custom/trademax";
 import {AbstractCrawlerDefinition} from "./abstract";
 import {VentureDesignCrawlerDefinition} from "./custom/venture-design";
+import {NordiskaRumCrawlerDefinition} from "./custom/nordiskarum";
 import {v4 as uuidv4} from "uuid";
-import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 
 
 export interface CrawlerFactoryArgs {
