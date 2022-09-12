@@ -103,22 +103,21 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const thumbnailsCount = await thumbnailsLocator.count();
 
     const images: string[] = [];
-    for (let i = 0; i < thumbnailsCount; ++i) {
-      const nextImageButton = page.locator("div.fotorama__arr--next");
-      // Use force: true to prevent error: "subtree intercepts pointer events"
-      await nextImageButton.click({ force: true });
-      await page.waitForTimeout(500); // to make sure images has been loaded
-
-      const imagesSelector = page.locator("div.fotorama__stage__frame img");
+    const imagesSelector = page.locator("div.fotorama__stage__frame img");
+    for (let i = 0; i < thumbnailsCount; i++) {
       const imageCount = await imagesSelector.count();
       for (let i = 0; i < imageCount; i++) {
         const imageUrl = await imagesSelector
           .nth(i)
           .getAttribute("src")
           .then((url) => url!);
-
         images.push(imageUrl);
       }
+
+      const nextImageButton = page.locator("div.fotorama__arr--next");
+      // Use force: true to prevent error: "subtree intercepts pointer events"
+      await nextImageButton.click({ force: true });
+      await page.waitForTimeout(1500); // to make sure images has been loaded
     }
 
     const imagesDeduplicated = [...new Set(images)];
