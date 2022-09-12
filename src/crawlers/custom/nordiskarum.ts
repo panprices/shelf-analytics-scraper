@@ -104,9 +104,11 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const images: string[] = [];
     for (let i = 0; i < thumbnailsCount; ++i) {
-      await page.locator("div.fotorama__arr--next").click();
-      await page.waitForTimeout(500);
-      // thumbnailsLocator.nth(i).click();
+      const nextImageButton = page.locator("div.fotorama__arr--next");
+      // Use force: true to prevent error: "subtree intercepts pointer events"
+      await nextImageButton.click({ force: true });
+      await page.waitForTimeout(500); // to make sure images has been loaded
+
       const imagesSelector = page.locator("div.fotorama__stage__frame img");
       const imageCount = await imagesSelector.count();
       for (let i = 0; i < imageCount; i++) {
