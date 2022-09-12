@@ -9,9 +9,9 @@ async function debugMain() {
         url: targetUrl,
         userData: {
             url: targetUrl,
-            brand: 'Venture Home',
+            // brand: 'Venture Design',
             popularityIndex: 1,
-            name: "Matgrupp Polar bord med 4st Penally stolar",
+            name: "Panama matbord 152/210*90 svart alu/teak",
             label: "DETAIL"
         }
     }
@@ -24,7 +24,7 @@ async function debugMain() {
 }
 
 async function debugCategoryExploration() {
-    const targetUrl = 'https://www.venturedesign.se/utemobler/bord-utemobler'
+    const targetUrl = 'https://www.nordiskarum.se/utemobler/matbord-utan-stolar/soffbord.html'
     await exploreCategory(targetUrl, {
         headless: false
     })
@@ -44,3 +44,4 @@ async function debugLeafCategoryExtraction() {
 }
 
 await debugMain()
+// await debugCategoryExploration()

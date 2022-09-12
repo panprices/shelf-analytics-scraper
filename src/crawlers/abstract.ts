@@ -171,6 +171,7 @@ export abstract class AbstractCrawlerDefinition {
                 const currentProductCard = articlesLocator.nth(j)
 
                 const currentProductInfo = await this.extractCardProductInfo(page.url(), currentProductCard)
+
                 if (currentProductInfo.url.startsWith("/")) {
                     const currentUrl = new URL(page.url())
 
