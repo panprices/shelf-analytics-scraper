@@ -4,7 +4,7 @@ import {persistProductsToDatabase} from "./publishing";
 
 
 async function debugMain() {
-    const targetUrl = 'https://www.nordiskarum.se/panama-matbord-152-210-90-svart-alu-teak.html'
+    const targetUrl = 'https://www.venturedesign.se/products/estes-dining-chair-grey-smoked-black-wood'
     const dummyRequest = {
         url: targetUrl,
         userData: {
