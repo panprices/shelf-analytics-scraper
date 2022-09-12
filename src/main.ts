@@ -4,14 +4,14 @@ import {persistProductsToDatabase} from "./publishing";
 
 
 async function debugMain() {
-    const targetUrl = 'https://www.venturedesign.se/products/dipp-matbord-180x90-wrinkles-matstolar-gra-gr20631'
+    const targetUrl = 'https://www.nordiskarum.se/panama-matbord-152-210-90-svart-alu-teak.html'
     const dummyRequest = {
         url: targetUrl,
         userData: {
             url: targetUrl,
-            brand: 'Venture Home',
+            // brand: 'Venture Design',
             popularityIndex: 1,
-            name: "Matgrupp Polar bord med 4st Penally stolar",
+            name: "Panama matbord 152/210*90 svart alu/teak",
             label: "DETAIL"
         }
     }
@@ -43,4 +43,5 @@ async function debugLeafCategoryExtraction() {
     await extractLeafCategories(targetUrl)
 }
 
-await debugCategoryExploration()
+await debugMain()
+// await debugCategoryExploration()
