@@ -182,6 +182,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
             categoryTree,
             name,
             gtin,
+            sku: articleNumber,
             articleNumber
         }
     }
