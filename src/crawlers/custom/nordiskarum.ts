@@ -64,7 +64,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const specifications: Specification[] = [];
 
     return {
-      // brand:,
+      brand,
       name: productName,
       description,
       price,
@@ -88,7 +88,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       .locator("img[alt='brand']")
       .getAttribute("src");
     if (!brandImageUrl) {
-      return null;
+      return undefined;
     }
     const tokens = brandImageUrl!.split("/");
     const brand = tokens[tokens.length - 1]
