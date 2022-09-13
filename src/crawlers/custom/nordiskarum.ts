@@ -98,26 +98,45 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     return brand;
   }
 
-  async extractProductImagesFromProductDetailsPage(page: Page) {
-    const thumbnailsLocator = page.locator("div.fotorama__nav__shaft img");
-    const thumbnailsCount = await thumbnailsLocator.count();
-
+  async extractProductImagesFromProductDetailsPage(
+    page: Page
+  ): Promise<string[]> {
     const images: string[] = [];
-    const imagesSelector = page.locator("div.fotorama__stage__frame img");
-    for (let i = 0; i < thumbnailsCount; i++) {
-      const imageCount = await imagesSelector.count();
+    const imageLocator = page.locator("div.fotorama__stage__frame img");
+
+    const extractProductImagesOnPage = async (imageLocator: Locator) => {
+      const images: string[] = [];
+      const imageCount = await imageLocator.count();
       // Only extract up to the 4th image since we frequently get errors from
       // images 5 and 6, which are also unnecessary.
       const maxImagesToGrab = Math.min(imageCount, 4);
       for (let i = 0; i < maxImagesToGrab; i++) {
-        const imageUrl = await imagesSelector
-          .nth(i)
-          .getAttribute("src")
-          .then((url) => url!);
-        images.push(imageUrl);
+        const imageUrl = await imageLocator.nth(i).getAttribute("src");
+        if (imageUrl) {
+          images.push(imageUrl);
+        }
       }
+      return images;
+    };
 
-      // Click button to open next image
+    const thumbnailsLocator = page.locator("div.fotorama__nav__shaft img");
+    const thumbnailsCount = await thumbnailsLocator.count();
+
+    if (thumbnailsCount == 0) {
+      log.debug("No thumbnails found, product only have 1 image!");
+      const images = await extractProductImagesOnPage(imageLocator);
+      const imagesDeduplicated = [...new Set(images)];
+      return imagesDeduplicated;
+    }
+
+    // NOTE: Not all images are present in the HTML at the same time.
+    // Therefore we try to
+    // (1) grab all product images on page and
+    // (2) click button to cycle to the next image, and repeat (1)
+    for (let i = 0; i < thumbnailsCount; i++) {
+      const foundImages = await extractProductImagesOnPage(imageLocator);
+      images.push(...foundImages);
+
       const nextImageButton = page.locator("div.fotorama__arr--next");
       // Use force: true to prevent error: "subtree intercepts pointer events"
       await nextImageButton.click({ force: true });
@@ -125,7 +144,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     const imagesDeduplicated = [...new Set(images)];
-
     if (imagesDeduplicated.length !== thumbnailsCount) {
       log.error("Number of images and number of thumbnails mismatch", {
         imagesCount: imagesDeduplicated.length,
