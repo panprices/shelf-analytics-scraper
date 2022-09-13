@@ -111,6 +111,8 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     "specifications",
     "in_stock",
     "reviews",
+    "article_number",
+    "gtin",
   ];
 
   return stringifiedSnakeCased.map((product) => {
