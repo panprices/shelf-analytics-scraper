@@ -1,5 +1,4 @@
 import {createPlaywrightRouter, Dataset, log, PlaywrightCrawlingContext, RequestOptions, RouterHandler} from "crawlee";
-import moment from "moment";
 import {Locator, Page} from "playwright";
 import {Category, DetailedProductInfo, ListingProductInfo} from "../types/offer";
 import {extractRootUrl} from "../utils";
