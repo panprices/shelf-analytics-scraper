@@ -41,17 +41,14 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     ).then((text) => text?.trim());
     if (!description) throw new Error("Cannot extract description");
 
-    const originalPriceString = await page
-      .locator("div.product-page__top-info .price-view__before-discount")
-      .textContent();
-    const originalPrice = originalPriceString
-      ? extractNumberFromText(originalPriceString)
+    const originalPriceLocator = page.locator(
+      "div.product-page__top-info .price-view__before-discount"
+    );
+    const isDiscounted = (await originalPriceLocator.count()) > 0;
+    const originalPrice = isDiscounted
+      ? extractNumberFromText((await originalPriceLocator.textContent())!)
       : undefined;
-    const isDiscounted = originalPriceString ? true : false;
 
-    const priceString = page
-      .locator("div.product-page__top-info .price-view__sale-price-container")
-      .textContent();
     const price = await this.extractProperty(
       page,
       "div.product-page__top-info .price-view__sale-price-container",
