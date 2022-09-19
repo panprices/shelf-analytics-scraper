@@ -96,7 +96,18 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     // TODO: Implement this
     const specifications: Specification[] = [];
 
-    const categoryTree: Category[] = [];
+    const categoriesATags = await page.locator(
+      "div.product-page__breadcrumbs a"
+    );
+    const categoriesATagsCount = await categoriesATags.count();
+    const categories = [];
+    for (let i = 0; i < categoriesATagsCount; ++i) {
+      const category = {
+        name: <string>await categoriesATags.nth(i).textContent(),
+        url: <string>await categoriesATags.nth(i).getAttribute("href"),
+      };
+      categories.push(category);
+    }
 
     const reviewCount = await this.extractProperty(
       page,
@@ -135,7 +146,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       gtin: ean,
       // metadata,
       inStock,
-      categoryTree,
+      categoryTree: categories,
       specifications,
       reviews,
     };
