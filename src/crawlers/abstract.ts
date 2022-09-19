@@ -35,6 +35,8 @@ export interface CrawlerDefinitionOptions {
      * Selector for the cookie consent button
      */
     cookieConsentSelector?: string
+
+    dynamicProductCardLoading?: boolean
 }
 
 /**
@@ -51,6 +53,7 @@ export abstract class AbstractCrawlerDefinition {
     protected readonly listingUrlSelector?: string
     protected readonly productCardSelector: string
     protected readonly cookieConsentSelector?: string
+    protected readonly dynamicProductCardLoading: boolean
 
     private readonly productInfos: Map<string, ListingProductInfo>
 
@@ -69,6 +72,7 @@ export abstract class AbstractCrawlerDefinition {
         this.listingUrlSelector = options.listingUrlSelector
         this.productCardSelector = options.productCardSelector
         this.cookieConsentSelector = options.cookieConsentSelector
+        this.dynamicProductCardLoading = options.dynamicProductCardLoading ?? true
 
         this.productInfos = new Map<string, ListingProductInfo>()
     }
@@ -152,54 +156,65 @@ export abstract class AbstractCrawlerDefinition {
      */
     async scrollToBottom(ctx: PlaywrightCrawlingContext) {
         const page = ctx.page
-        const enqueueLinks = ctx.enqueueLinks
 
-        const currentScroll = await page.evaluate(async () => {
+        const startY = await page.evaluate(async () => {
             return window.scrollY + window.innerHeight
         })
-        const productCardSelector = this.productCardSelector
-        const detailsUrlSelector = this.detailsUrlSelector
 
         const scrollHeight = await page.evaluate(() => document.body.scrollHeight)
-        for (let i = currentScroll; i < scrollHeight; i += 400) {
-            await page.evaluate((scrollPosition: number) => window.scrollTo(0, scrollPosition), i)
+
+        for (let currentScrollY = startY; currentScrollY < scrollHeight; currentScrollY += 400) {
+            await page.evaluate((scrollPosition: number) => window.scrollTo(0, scrollPosition), currentScrollY)
             await new Promise(f => setTimeout(f, 10))
 
-            const articlesLocator = page.locator(productCardSelector)
-            const articlesCount = await articlesLocator.count()
-            for (let j = 0; j < articlesCount; j++) {
-                const currentProductCard = articlesLocator.nth(j)
-
-                const currentProductInfo = await this.extractCardProductInfo(page.url(), currentProductCard)
-
-                if (currentProductInfo.url.startsWith("/")) {
-                    const currentUrl = new URL(page.url())
-
-                    currentProductInfo.url = `${currentUrl.protocol}//${currentUrl.host}${currentProductInfo.url}`
-                }
-
-                currentProductInfo.popularityIndex = this.handleFoundProductFromCard(
-                    currentProductInfo.url, currentProductInfo)
-
-                await enqueueLinks({
-                    selector: detailsUrlSelector,
-                    label: 'DETAIL',
-                    userData: currentProductInfo,
-                    transformRequestFunction: (original: RequestOptions) => {
-                        if (original.url !== currentProductInfo.url) {
-                            return false
-                        }
-
-                        return original
-                    }
-                })
+            if (this.dynamicProductCardLoading) {
+                await this.registerProductCards(ctx);
             }
         }
+        await this.registerProductCards(ctx);
+        
 
         // Scroll slightly up. This is needed to avoid the view staying at the bottom after new elements are loaded
         // for infinite scroll pages
         await page.evaluate(() =>
             window.scrollTo(0, document.body.scrollHeight - (window.innerHeight + 100)))
+    }
+
+    async registerProductCards(ctx: PlaywrightCrawlingContext) {
+        const page = ctx.page
+        const enqueueLinks = ctx.enqueueLinks
+
+        const productCardSelector = this.productCardSelector
+        const detailsUrlSelector = this.detailsUrlSelector
+        const articlesLocator = page.locator(productCardSelector)
+        const articlesCount = await articlesLocator.count()
+        for (let j = 0; j < articlesCount; j++) {
+            const currentProductCard = articlesLocator.nth(j)
+
+            const currentProductInfo = await this.extractCardProductInfo(page.url(), currentProductCard)
+
+            if (currentProductInfo.url.startsWith("/")) {
+                const currentUrl = new URL(page.url())
+
+                currentProductInfo.url = `${currentUrl.protocol}//${currentUrl.host}${currentProductInfo.url}`
+            }
+
+            currentProductInfo.popularityIndex = this.handleFoundProductFromCard(
+                currentProductInfo.url, currentProductInfo)
+
+            await enqueueLinks({
+                selector: detailsUrlSelector,
+                label: 'DETAIL',
+                userData: currentProductInfo,
+                transformRequestFunction: (original: RequestOptions) => {
+                    if (original.url !== currentProductInfo.url) {
+                        return false
+                    }
+
+                    return original
+                }
+            })
+        }
     }
 
     async extractProperty(

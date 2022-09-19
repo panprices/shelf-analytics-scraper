@@ -226,6 +226,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       listingUrlSelector: "a[rel='next']",
       detailsUrlSelector: "article.product-list__card a.product-card",
       productCardSelector: "article.product-list__card",
+      dynamicProductCardLoading: false,
     });
   }
 
