@@ -221,7 +221,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     return new KrautaCrawlerDefinition({
       detailsDataset,
       listingDataset,
-      listingUrlSelector: "span.pagination__next",
+      listingUrlSelector: "a[rel='next']",
       detailsUrlSelector: "article.product-list__card a.product-card",
       productCardSelector: "article.product-list__card",
     });
