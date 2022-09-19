@@ -159,8 +159,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     static async create(): Promise<HomeroomCrawlerDefinition> {
-        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4())
-        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset_" + uuidv4())
+        const [detailsDataset, listingDataset] = await AbstractCrawlerDefinition.openDatasets();
 
         return new HomeroomCrawlerDefinition({
             detailsDataset, listingDataset,

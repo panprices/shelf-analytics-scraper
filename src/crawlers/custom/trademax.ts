@@ -225,8 +225,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition{
     }
 
     static async create(): Promise<TrademaxCrawlerDefinition> {
-        const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4())
-        const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset" + uuidv4())
+        const [detailsDataset, listingDataset] = await AbstractCrawlerDefinition.openDatasets();
 
         return new TrademaxCrawlerDefinition({
             detailsDataset, listingDataset,
