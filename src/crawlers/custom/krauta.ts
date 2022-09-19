@@ -111,23 +111,30 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       "div.testfreaks-reviews .tf-based span",
       (node) => node.first().textContent()
     ).then((reviewCountText) => {
-      if (!reviewCountText) throw new Error("Cannot extract number of reviews");
+      if (!reviewCountText) {
+        return 0;
+      }
       return extractNumberFromText(reviewCountText);
     });
-    const averageReview = await this.extractProperty(
-      page,
-      "div.testfreaks-reviews .tf-rating",
-      (node) => node.textContent()
-    ).then((ratingString) => {
-      if (!ratingString) throw new Error("Cannot extract average reviews");
-      return parseFloat(ratingString);
-    });
 
-    const reviews: ProductReviews = {
-      reviewCount,
-      averageReview,
-      recentReviews: [],
+    const extractReviews = async () => {
+      const averageReview = await this.extractProperty(
+        page,
+        "div.testfreaks-reviews .tf-rating",
+        (node) => node.textContent()
+      ).then((ratingString) => {
+        if (!ratingString) throw new Error("Cannot extract average reviews");
+        return parseFloat(ratingString);
+      });
+
+      const reviews: ProductReviews = {
+        reviewCount,
+        averageReview,
+        recentReviews: [],
+      };
+      return reviews;
     };
+    const reviews = reviewCount > 0 ? await extractReviews() : "unavailable";
 
     return {
       url: page.url(),
