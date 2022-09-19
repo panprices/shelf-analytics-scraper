@@ -271,6 +271,8 @@ export abstract class AbstractCrawlerDefinition {
     }
 
     static async openDatasets(): Promise<[Dataset, Dataset]> {
+        // Open a new dataset with unique name (using uuidv4) so that 
+        // each scraper instance has its own queue. 
         const detailsDataset = await Dataset.open("__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4())
         const listingDataset = await Dataset.open("__CRAWLEE_TEMPORARY_listingDataset_" + uuidv4())
 

@@ -5,6 +5,8 @@ import {
   log,
   PlaywrightCrawlingContext,
 } from "crawlee";
+import { v4 as uuidv4 } from "uuid";
+
 import { AbstractCrawlerDefinition } from "../abstract";
 import {
   Category,
@@ -215,12 +217,8 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   static async create(): Promise<KrautaCrawlerDefinition> {
-    const detailsDataset = await Dataset.open(
-      "__CRAWLEE_TEMPORARY_detailsDataset"
-    );
-    const listingDataset = await Dataset.open(
-      "__CRAWLEE_TEMPORARY_listingDataset"
-    );
+    const [detailsDataset, listingDataset] =
+      await AbstractCrawlerDefinition.openDatasets();
 
     return new KrautaCrawlerDefinition({
       detailsDataset,
