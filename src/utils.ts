@@ -1,4 +1,21 @@
 export function extractRootUrl(url: string): string {
-    const parsedUrl = new URL(url)
-    return `${parsedUrl.protocol}//${parsedUrl.host}`
+  const parsedUrl = new URL(url);
+  return `${parsedUrl.protocol}//${parsedUrl.host}`;
+}
+
+/**
+ * Extract a number from a text.
+ * Will throw an Error if there isn't exactly 1 number.
+ *
+ * Examples:
+ * "EAN code : 7350133233787" => 7350133233787
+ */
+export function extractNumberFromText(text: string): number {
+  const matches = text.replace(/ /g, "").match(/\d+/);
+  if (!matches) throw Error(`No number found in text: ${text}`);
+  if (matches.length > 1)
+    throw Error(`More than 1 number found in text: ${text}`);
+
+  const num = parseInt(matches[0]);
+  return num;
 }
