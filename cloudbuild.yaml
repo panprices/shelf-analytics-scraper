@@ -1,14 +1,14 @@
 steps:
-# Build the container image
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/panprices/test-crawlee', '.']
-# Push the container image to Container Registry
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/panprices/test-crawlee']
-# Deploy container image to Cloud Run
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
-  args:
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/panprices/test-crawlee", "."]
+  # Push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/panprices/test-crawlee"]
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
       - run
       - deploy
       - test-crawlee
@@ -20,7 +20,7 @@ steps:
       - managed
       - --cpu=1
       - --memory=4Gi
-      - --concurrency=1  # should only run 1 scraper at a time
-      - --timeout=3600s  # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
+      - --concurrency=1 # should only run 1 scraper at a time
+      - --timeout=3600s # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
 images:
-- gcr.io/panprices/test-crawlee
+  - gcr.io/panprices/test-crawlee

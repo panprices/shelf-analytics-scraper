@@ -1,19 +1,17 @@
 {
-    "extends": "@apify/tsconfig",
-    "compilerOptions": {
-        "module": "ES2022",
-        "target": "ES2022",
-        "outDir": "dist",
-        "noUnusedLocals": false,
-        "lib": ["DOM"],
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "noImplicitAny": true,
-        "suppressImplicitAnyIndexErrors": true,
-    },
-    "include": [
-        "./src/**/*.ts"
-    ],
+  "extends": "@apify/tsconfig",
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "outDir": "dist",
+    "noUnusedLocals": false,
+    "lib": ["DOM"],
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true
+  },
+  "include": ["./src/**/*.ts"]
 }

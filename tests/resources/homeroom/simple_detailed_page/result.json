@@ -1,148 +1,148 @@
 [
-	{
-		"fetchedAt": "9/2/2022, 4:51:26 PM",
-		"retailerDomain": "https://www.homeroom.se",
-		"url": "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01",
-		"brand": "Venture Home",
-		"popularityIndex": 1,
-		"name": "Matgrupp Polar bord med 4st Valleta stolar",
-		"label": "DETAIL",
-		"price": 4999,
-		"currency": "SEK",
-		"images": [
-			"https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_Fs&mw=380&fmt=webp",
-			"https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_Bs&mw=380&fmt=webp",
-			"https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_De_02&mw=380&fmt=webp",
-			"https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_De_03&mw=380&fmt=webp"
-		],
-		"description": "Polar matgrupp, ett stilrent bord med en svart bordsskiva i MDF och vinklade metall ben, som gör bordet robust och hållbart. Mått bord: diameter 100, höjd 75 cm. Matchas med 4st snygga stolar i manchester med metall ben. Stolens mått höjd 77, bredd 47, djup 48 cm. Sitthöjd 47 cm. Kräver enklare monteringArtikelnummer: 1577644-01-0",
-		"categoryTree": [
-			{
-				"name": "Möbler",
-				"url": "/mobler"
-			},
-			{
-				"name": "Matgrupper",
-				"url": "/mobler/matgrupper"
-			}
-		],
-		"sku": "1577644-01",
-		"metadata": {
-			"schemaOrg": {
-				"@context": "https://schema.org/",
-				"@type": "Product",
-				"name": "Matgrupp Polar bord med 4st Valleta stolar",
-				"color": "Svart beige",
-				"image": [
-					"https://assets.ellosgroup.com/i/ellos/ell_1577644-01_Fs",
-					"https://assets.ellosgroup.com/i/ellos/ell_1577644-01_Bs",
-					"https://assets.ellosgroup.com/i/ellos/ell_1577644-01_De_02",
-					"https://assets.ellosgroup.com/i/ellos/ell_1577644-01_De_02"
-				],
-				"description": "Polar matgrupp, ett stilrent bord med en svart bordsskiva i MDF och vinklade metall ben, som gör bordet robust och hållbart. Mått bord: diameter 100, höjd 75 cm. Matchas med 4st snygga stolar i manchester med metall ben. Stolens mått höjd 77, bredd 47, djup 48 cm. Sitthöjd 47 cm. Kräver enklare montering",
-				"sku": "1577644-01",
-				"offers": {
-					"@type": "Offer",
-					"url": "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01",
-					"priceCurrency": "SEK",
-					"price": 4999,
-					"availability": "https://schema.org/InStock"
-				},
-				"brand": {
-					"@type": "Brand",
-					"name": "Venture Home",
-					"url": "https://www.homeroom.se/brand/venture-home"
-				},
-				"aggregateRating": {
-					"@type": "AggregateRating",
-					"ratingValue": 3.5,
-					"reviewCount": 3
-				},
-				"review": [
-					{
-						"@type": "Review",
-						"author": {
-							"@type": "Person",
-							"name": "EmelieHeterjag"
-						},
-						"datePublished": "2021-04-16T19:58:57.000+00:00",
-						"description": "Bordsskivan är jättekänslig för fett och får repor super lätt och även som gropar in i bordet om man stöter emot. Stolarna är bra däremot!",
-						"name": "Bordskivan känslig",
-						"reviewRating": {
-							"@type": "Rating",
-							"bestRating": 5,
-							"ratingValue": 3,
-							"worstRating": 1
-						}
-					},
-					{
-						"@type": "Review",
-						"author": {
-							"@type": "Person",
-							"name": "Paula alex"
-						},
-						"datePublished": "2020-03-18T13:00:01.000+00:00",
-						"description": "Är mer än nöjd med matgruppen i sig. Den ända nackdelen är att bordsskivan Är väldigt känslig för repor och stötar.",
-						"name": "Prisvärd och väldigt fin matgrupp.",
-						"reviewRating": {
-							"@type": "Rating",
-							"bestRating": 5,
-							"ratingValue": 4,
-							"worstRating": 1
-						}
-					},
-					{
-						"@type": "Review",
-						"author": {
-							"@type": "Person",
-							"name": "Mickanooo"
-						},
-						"datePublished": "2020-01-30T18:05:53.000+00:00",
-						"description": "Fint och prisvärt. Enda negativa är att den svarta bordsskivan är otroligt känslig för repor!!",
-						"name": "Prisvärt",
-						"reviewRating": {
-							"@type": "Rating",
-							"bestRating": 5,
-							"ratingValue": 3,
-							"worstRating": 1
-						}
-					}
-				]
-			}
-		},
-		"specifications": [
-			{
-				"key": "Diameter",
-				"value": "100 cm"
-			},
-			{
-				"key": "Antal sittplatser",
-				"value": "4"
-			},
-			{
-				"key": "Form",
-				"value": "Rund"
-			}
-		],
-		"isDiscounted": false,
-		"reviews": {
-			"reviewCount": 3,
-			"averageReview": 3.5,
-			"recentReviews": [
-				{
-					"content": "Bordskivan känslig\nBordsskivan är jättekänslig för fett och får repor super lätt och även som gropar in i borde…",
-					"score": 3
-				},
-				{
-					"content": "Prisvärd och väldigt fin matgrupp.\nÄr mer än nöjd med matgruppen i sig. Den ända nackdelen är att bordsskivan Ä…",
-					"score": 4
-				},
-				{
-					"content": "Prisvärt\nFint och prisvärt. Enda negativa är att den svarta bordsskivan är otroligt känslig för repor!!",
-					"score": 3
-				}
-			]
-		},
-		"inStock": true
-	}
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.homeroom.se",
+    "url": "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matgrupp Polar bord med 4st Valleta stolar",
+    "label": "DETAIL",
+    "price": 4999,
+    "currency": "SEK",
+    "images": [
+      "https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_Fs&mw=380&fmt=webp",
+      "https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_Bs&mw=380&fmt=webp",
+      "https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_De_02&mw=380&fmt=webp",
+      "https://assets.ellosgroup.com/i/ellos/b?$hg$&$hm$&$hp$&$hd$&n=ell_1577644-01_De_03&mw=380&fmt=webp"
+    ],
+    "description": "Polar matgrupp, ett stilrent bord med en svart bordsskiva i MDF och vinklade metall ben, som gör bordet robust och hållbart. Mått bord: diameter 100, höjd 75 cm. Matchas med 4st snygga stolar i manchester med metall ben. Stolens mått höjd 77, bredd 47, djup 48 cm. Sitthöjd 47 cm. Kräver enklare monteringArtikelnummer: 1577644-01-0",
+    "categoryTree": [
+      {
+        "name": "Möbler",
+        "url": "/mobler"
+      },
+      {
+        "name": "Matgrupper",
+        "url": "/mobler/matgrupper"
+      }
+    ],
+    "sku": "1577644-01",
+    "metadata": {
+      "schemaOrg": {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "Matgrupp Polar bord med 4st Valleta stolar",
+        "color": "Svart beige",
+        "image": [
+          "https://assets.ellosgroup.com/i/ellos/ell_1577644-01_Fs",
+          "https://assets.ellosgroup.com/i/ellos/ell_1577644-01_Bs",
+          "https://assets.ellosgroup.com/i/ellos/ell_1577644-01_De_02",
+          "https://assets.ellosgroup.com/i/ellos/ell_1577644-01_De_02"
+        ],
+        "description": "Polar matgrupp, ett stilrent bord med en svart bordsskiva i MDF och vinklade metall ben, som gör bordet robust och hållbart. Mått bord: diameter 100, höjd 75 cm. Matchas med 4st snygga stolar i manchester med metall ben. Stolens mått höjd 77, bredd 47, djup 48 cm. Sitthöjd 47 cm. Kräver enklare montering",
+        "sku": "1577644-01",
+        "offers": {
+          "@type": "Offer",
+          "url": "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01",
+          "priceCurrency": "SEK",
+          "price": 4999,
+          "availability": "https://schema.org/InStock"
+        },
+        "brand": {
+          "@type": "Brand",
+          "name": "Venture Home",
+          "url": "https://www.homeroom.se/brand/venture-home"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 3.5,
+          "reviewCount": 3
+        },
+        "review": [
+          {
+            "@type": "Review",
+            "author": {
+              "@type": "Person",
+              "name": "EmelieHeterjag"
+            },
+            "datePublished": "2021-04-16T19:58:57.000+00:00",
+            "description": "Bordsskivan är jättekänslig för fett och får repor super lätt och även som gropar in i bordet om man stöter emot. Stolarna är bra däremot!",
+            "name": "Bordskivan känslig",
+            "reviewRating": {
+              "@type": "Rating",
+              "bestRating": 5,
+              "ratingValue": 3,
+              "worstRating": 1
+            }
+          },
+          {
+            "@type": "Review",
+            "author": {
+              "@type": "Person",
+              "name": "Paula alex"
+            },
+            "datePublished": "2020-03-18T13:00:01.000+00:00",
+            "description": "Är mer än nöjd med matgruppen i sig. Den ända nackdelen är att bordsskivan Är väldigt känslig för repor och stötar.",
+            "name": "Prisvärd och väldigt fin matgrupp.",
+            "reviewRating": {
+              "@type": "Rating",
+              "bestRating": 5,
+              "ratingValue": 4,
+              "worstRating": 1
+            }
+          },
+          {
+            "@type": "Review",
+            "author": {
+              "@type": "Person",
+              "name": "Mickanooo"
+            },
+            "datePublished": "2020-01-30T18:05:53.000+00:00",
+            "description": "Fint och prisvärt. Enda negativa är att den svarta bordsskivan är otroligt känslig för repor!!",
+            "name": "Prisvärt",
+            "reviewRating": {
+              "@type": "Rating",
+              "bestRating": 5,
+              "ratingValue": 3,
+              "worstRating": 1
+            }
+          }
+        ]
+      }
+    },
+    "specifications": [
+      {
+        "key": "Diameter",
+        "value": "100 cm"
+      },
+      {
+        "key": "Antal sittplatser",
+        "value": "4"
+      },
+      {
+        "key": "Form",
+        "value": "Rund"
+      }
+    ],
+    "isDiscounted": false,
+    "reviews": {
+      "reviewCount": 3,
+      "averageReview": 3.5,
+      "recentReviews": [
+        {
+          "content": "Bordskivan känslig\nBordsskivan är jättekänslig för fett och får repor super lätt och även som gropar in i borde…",
+          "score": 3
+        },
+        {
+          "content": "Prisvärd och väldigt fin matgrupp.\nÄr mer än nöjd med matgruppen i sig. Den ända nackdelen är att bordsskivan Ä…",
+          "score": 4
+        },
+        {
+          "content": "Prisvärt\nFint och prisvärt. Enda negativa är att den svarta bordsskivan är otroligt känslig för repor!!",
+          "score": 3
+        }
+      ]
+    },
+    "inStock": true
+  }
 ]

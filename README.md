@@ -7,4 +7,5 @@ You can find more examples and documentation at the following links:
 - [Step-by-step tutorial](https://crawlee.dev/docs/introduction) for Crawlee
 - `PlaywrightCrawler` [API documentation](https://crawlee.dev/api/playwright-crawler/class/PlaywrightCrawler)
 - Other [examples](https://crawlee.dev/docs/examples/playwright-crawler)
+
 # test-crawlee
