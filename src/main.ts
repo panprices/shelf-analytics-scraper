@@ -51,5 +51,5 @@ async function debugLeafCategoryExtraction() {
   await extractLeafCategories(targetUrl);
 }
 
-// await debugMain()
-await debugCategoryExploration();
+await debugMain();
+// await debugCategoryExploration();

@@ -92,8 +92,22 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
         : true
     );
 
-    // TODO: Implement this
-    const specifications: Specification[] = [];
+    const productSpecTableLocator = page
+      .locator("div.product-attributes div.product-attributes__content")
+      .first();
+    const specKeys = await productSpecTableLocator
+      .locator("dt")
+      .allTextContents();
+    const specVals = await productSpecTableLocator
+      .locator("dd")
+      .allTextContents();
+    const specCount = specKeys.length;
+    const specifications: Specification[] = [...Array(specCount).keys()].map(
+      (i) => ({
+        key: specKeys[i],
+        value: specVals[i],
+      })
+    );
 
     const categoriesATags = await page.locator(
       "div.product-page__breadcrumbs a"
