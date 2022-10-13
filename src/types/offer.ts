@@ -69,5 +69,6 @@ export interface DetailedProductInfo extends BaseProductInfo {
 }
 
 export interface RequestBatch {
+  jobId: string;
   productDetails: RequestOptions[];
 }
