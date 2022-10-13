@@ -31,18 +31,6 @@ app.get("/test", async (req: Request, res: Response) => {
   res.status(200).send("OK");
 });
 
-app.post("/trademax", async (req: Request, res: Response) => {
-  const body = await req.body;
-  console.log("Payload:" + JSON.stringify(body));
-
-  if (body.url) {
-    console.log(body.url);
-    await scrapeCategoryPage(body.url, 10);
-  }
-
-  res.status(204).send("OK");
-});
-
 const configLogTracing = (cloudTrace?: string) => {
   const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
   if (cloudTrace && project) {
