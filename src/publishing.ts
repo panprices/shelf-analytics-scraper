@@ -4,10 +4,14 @@ import { DetailedProductInfo, RequestBatch } from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
 import { InsertRowsResponse } from "@google-cloud/bigquery/build/src/table";
 
-export async function sendRequestBatch(detailedPages: RequestOptions[]) {
+export async function sendRequestBatch(
+  detailedPages: RequestOptions[],
+  jobId: string
+) {
   const pubSubClient = new PubSub();
   log.info(`Sending a request batch with ${detailedPages.length} requests`);
   const batchRequest: RequestBatch = {
+    jobId: jobId,
     productDetails: detailedPages,
   };
 

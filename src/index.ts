@@ -49,7 +49,7 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configLogTracing(cloudTrace);
 
-  await exploreCategory(body.url);
+  await exploreCategory(body.url, req.body.jobId);
   res.status(204).send("OK");
 });
 

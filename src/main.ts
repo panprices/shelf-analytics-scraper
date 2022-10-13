@@ -33,7 +33,7 @@ async function debugMain() {
 async function debugCategoryExploration() {
   const targetUrl =
     "https://www.homeroom.se/textilier/gardiner/julgardiner?intcmp=2238_homepage_themes_christmas-curtains";
-  await exploreCategory(targetUrl, {
+  await exploreCategory(targetUrl, "test_job_id", {
     headless: false,
   });
 }
@@ -51,5 +51,5 @@ async function debugLeafCategoryExtraction() {
   await extractLeafCategories(targetUrl);
 }
 
-await debugMain();
-// await debugCategoryExploration();
+await debugCategoryExploration();
+// await debugMain();

@@ -7,6 +7,7 @@ import { DetailedProductInfo } from "./types/offer";
 
 export async function exploreCategory(
   targetUrl: string,
+  jobId: string,
   overrides?: PlaywrightCrawlerOptions
 ): Promise<void> {
   const rootUrl = extractRootUrl(targetUrl);
@@ -34,18 +35,21 @@ export async function exploreCategory(
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
     if (request === null) {
-      await sendRequestBatch(detailedPages);
+      await sendRequestBatch(detailedPages, jobId);
       break;
     }
 
     detailedPages.push({
       url: request.url,
-      userData: request.userData,
+      userData: {
+        jobId: jobId,
+        ...request.userData,
+      },
     });
     await inWaitQueue.markRequestHandled(request);
 
     if (detailedPages.length >= maxBatchSize) {
-      await sendRequestBatch(detailedPages);
+      await sendRequestBatch(detailedPages, jobId);
       detailedPages = [];
     }
   }
