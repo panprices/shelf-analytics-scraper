@@ -12,6 +12,7 @@ describe("Homeroom details page", () => {
     const dummyRequest = {
       url: targetUrl,
       userData: {
+        jobId: "test_job_id",
         url: targetUrl,
         brand: "Venture Home",
         popularityIndex: 1,
