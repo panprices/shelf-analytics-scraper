@@ -54,7 +54,8 @@ export interface ListingProductInfo extends BaseProductInfo {
 
 export interface DetailedProductInfo extends BaseProductInfo {
   description: string;
-  inStock: boolean;
+  // inStock: boolean;  DEPRECATED
+  availability: string;
   fetchedAt?: string;
   retailerDomain?: string;
 

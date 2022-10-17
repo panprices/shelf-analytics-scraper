@@ -82,14 +82,14 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       }
     }
 
-    const inStock = await this.extractProperty(
+    const availability = await this.extractProperty(
       page,
       "span.availability__message",
       (node) => node.first().textContent()
     ).then((availabilityMessage) =>
       availabilityMessage?.toLocaleLowerCase().includes("ej tillgänglig")
-        ? false
-        : true
+        ? "out_of_stock"
+        : "in_stock"
     );
 
     const productSpecTableLocator = page
@@ -165,7 +165,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       sku,
       gtin: ean,
       // metadata,
-      inStock,
+      availability,
       categoryTree: categories,
       specifications,
       reviews,

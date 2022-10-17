@@ -58,7 +58,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const images = await this.extractProductImagesFromProductDetailsPage(page);
 
     const categoryTree: Category[] = [];
-    const inStock = true; // always in stock
+    const availability = "in_stock"; // always in stock
     const sku = (await page
       .locator("div[itemprop='sku']")
       .textContent())!.trim();
@@ -79,7 +79,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       isDiscounted,
       url: page.url(),
       reviews: "unavailable",
-      inStock,
+      availability,
     };
   }
 

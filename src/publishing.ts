@@ -110,13 +110,14 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     "original_price",
     "price",
     "currency",
-    "sku",
-    "metadata",
-    "specifications",
-    "in_stock",
-    "reviews",
-    "article_number",
     "gtin",
+    "sku",
+    "article_number", // DEPRECATED? potentially the same as sku, so use sku when possible
+    "specifications",
+    "availability",
+    "reviews",
+    "metadata",
+    "job_id",
   ];
 
   return stringifiedSnakeCased.map((product) => {
