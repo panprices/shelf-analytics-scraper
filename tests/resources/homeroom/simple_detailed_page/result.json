@@ -143,6 +143,6 @@
         }
       ]
     },
-    "inStock": true
+    "availability": "in_stock"
   }
 ]
