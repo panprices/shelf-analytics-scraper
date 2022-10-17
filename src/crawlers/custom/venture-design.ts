@@ -231,7 +231,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       currency: "unknown",
       isDiscounted: false,
       description,
-      inStock: false,
+      availability: "out_of_stock",
       reviews: "unavailable",
       specifications: specArray,
       categoryTree,

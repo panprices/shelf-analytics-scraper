@@ -96,7 +96,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       });
     }
     const buyButtonLocator = page.locator("//button/span[text() = 'Handla']");
-    const inStock = (await buyButtonLocator.count()) > 0;
+    const availability =
+      (await buyButtonLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
     const reviewsSectionAvailable = await page
       .locator("//div[@class = 'reviews-container']")
@@ -172,7 +173,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       isDiscounted,
       url: page.url(),
       reviews,
-      inStock,
+      availability,
     };
   }
 

@@ -254,7 +254,8 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     const addToCartLocator = page.locator("#A2C_ACTION");
-    const inStock = (await addToCartLocator.count()) > 0;
+    const availability =
+      (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
     const intermediateResult: DetailedProductInfo = {
       name: <string>product_name,
@@ -269,8 +270,8 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews: reviewSummary,
       articleNumber,
       specifications: specArray,
+      availability,
       metadata,
-      inStock,
     };
 
     if (originalPriceString) {

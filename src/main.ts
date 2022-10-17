@@ -13,6 +13,7 @@ async function debugMain() {
   const dummyRequest = {
     url: targetUrl,
     userData: {
+      jobId: "test_job_id",
       url: targetUrl,
       // brand: 'Venture Design',
       popularityIndex: 1,
@@ -51,5 +52,5 @@ async function debugLeafCategoryExtraction() {
   await extractLeafCategories(targetUrl);
 }
 
-await debugCategoryExploration();
-// await debugMain();
+// await debugCategoryExploration();
+await debugMain();
