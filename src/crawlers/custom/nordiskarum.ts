@@ -70,6 +70,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       name: productName,
       description,
       price,
+      originalPrice,
       currency: "SEK",
       images,
       categoryTree,
