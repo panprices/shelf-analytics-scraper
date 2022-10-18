@@ -3,9 +3,9 @@ import bodyParser from "body-parser";
 import pino from "pino";
 
 import { exploreCategory, scrapeDetails } from "./service";
-import { scrapeCategoryPage } from "./trademax";
 import { RequestOptions } from "crawlee";
 import { RequestBatch } from "./types/offer";
+import { postProcessProductDetails } from "./postprocessing";
 import { persistProductsToDatabase } from "./publishing";
 import { log } from "crawlee";
 
@@ -59,8 +59,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configLogTracing(cloudTrace);
 
-  const result = await scrapeDetails(body.productDetails);
-  await persistProductsToDatabase(result);
+  const products = await scrapeDetails(body.productDetails);
+  postProcessProductDetails(products);
+  await persistProductsToDatabase(products);
 
   res.status(204).send("OK");
 });

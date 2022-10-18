@@ -1,4 +1,5 @@
 import { scrapeDetails } from "../src/service";
+import { postProcessProductDetails } from "../src/postprocessing";
 import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
@@ -45,6 +46,8 @@ describe("Homeroom details page", () => {
         },
       ],
     });
+
+    postProcessProductDetails(result);
 
     expect(result).toBeDefined();
     expect(result).toHaveLength(1);
