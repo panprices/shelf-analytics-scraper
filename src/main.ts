@@ -1,4 +1,4 @@
-import { log } from "crawlee";
+import { log, LoggerJson } from "crawlee";
 import {
   exploreCategory,
   exploreCategoryNoCapture,
@@ -34,7 +34,7 @@ async function debugMain() {
 
 async function debugCategoryExploration() {
   const targetUrl =
-    "https://www.homeroom.se/textilier/gardiner/julgardiner?intcmp=2238_homepage_themes_christmas-curtains";
+    "https://www.nordiskarum.se/utemobler/matbord-utan-stolar/matbord.html";
   await exploreCategory(targetUrl, "test_job_id", {
     headless: false,
   });
@@ -53,5 +53,5 @@ async function debugLeafCategoryExtraction() {
   await extractLeafCategories(targetUrl);
 }
 
-// await debugCategoryExploration();
-await debugMain();
+await debugCategoryExploration();
+// await debugMain();

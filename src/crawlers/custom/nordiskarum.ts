@@ -57,7 +57,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const images = await this.extractProductImagesFromProductDetailsPage(page);
 
-    const categoryTree: Category[] = [];
     const availability = "in_stock"; // always in stock
     const sku = (await page
       .locator("div[itemprop='sku']")
@@ -73,7 +72,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       originalPrice,
       currency: "SEK",
       images,
-      categoryTree,
+      categoryTree: [], // this will be replaced later by value from when we scrape category
       sku,
       metadata,
       specifications,
@@ -191,6 +190,12 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       await productCard.locator(".product-item-photo img").getAttribute("src")
     );
 
+    // Need to scrape category tree here since we can't do that in Product Page.
+    // See docs/ folder for more details.
+    const categoryTree = await this.extractCategoryTreeOfCategorypage(
+      productCard.page()
+    );
+
     const currentProductInfo: ListingProductInfo = {
       //   brand,
       name: productName,
@@ -202,10 +207,39 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       previewImageUrl,
       popularityIndex: -1, // this will be overwritten later
       categoryUrl,
+      categoryTree,
     };
     // console.log(currentProductInfo);
 
     return currentProductInfo;
+  }
+
+  async extractCategoryTreeOfCategorypage(page: Page): Promise<Category[]> {
+    const breadcrumbLocator = page.locator("div.breadcrumbs li");
+    const breadcrumbCount = await breadcrumbLocator.count();
+    const categoryTree = [];
+    const startingIndex = 1; // ignore 1st breadcrum which is the homepage
+
+    for (let i = startingIndex; i < breadcrumbCount; i++) {
+      const name = (<string>(
+        await breadcrumbLocator.nth(i).textContent()
+      )).trim();
+
+      const url =
+        i === breadcrumbCount - 1
+          ? page.url()
+          : <string>(
+              await breadcrumbLocator.nth(i).locator("a").getAttribute("href")
+            );
+
+      categoryTree.push({
+        name,
+        url,
+      });
+    }
+
+    console.log(categoryTree);
+    return categoryTree;
   }
 
   static async create(): Promise<NordiskaRumCrawlerDefinition> {
@@ -250,8 +284,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
             .getAttribute("href")) || ""
         );
       }
-      console.log(allImgUrls.length);
-      console.log(allImgUrls);
       if (allImgUrls.every((url) => url.includes("http"))) {
         break;
       }

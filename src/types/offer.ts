@@ -39,6 +39,7 @@ export interface BaseProductInfo {
   currency: string;
   isDiscounted: boolean;
   popularityIndex?: number;
+  categoryTree?: Category[];
 
   originalPrice?: number;
   sku?: string;
