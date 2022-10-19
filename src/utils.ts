@@ -1,3 +1,27 @@
+import { log, LoggerJson } from "crawlee";
+
+export function configCrawleeLogger(cloudTrace?: string) {
+  if (
+    !process.env.PANPRICES_ENVIRONMENT ||
+    process.env.PANPRICES_ENVIRONMENT === "local"
+  )
+    return; // use default setting for local development
+
+  // Production setting:
+  log.setOptions({
+    logger: new LoggerJson(),
+  });
+  const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
+  if (cloudTrace && project) {
+    const [trace] = cloudTrace.split("/");
+    log.setOptions({
+      data: {
+        "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
+      },
+    });
+  }
+}
+
 export function extractRootUrl(url: string): string {
   const parsedUrl = new URL(url);
   return `${parsedUrl.protocol}//${parsedUrl.host}`;

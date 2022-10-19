@@ -6,7 +6,8 @@ import { exploreCategory, scrapeDetails } from "./service";
 import { RequestOptions } from "crawlee";
 import { RequestBatch } from "./types/offer";
 import { persistProductsToDatabase } from "./publishing";
-import { log } from "crawlee";
+import { log, LoggerJson as CrawleeLoggerJson } from "crawlee";
+import { configCrawleeLogger } from "./utils";
 
 const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -30,23 +31,11 @@ app.get("/test", async (req: Request, res: Response) => {
   res.status(200).send("OK");
 });
 
-const configLogTracing = (cloudTrace?: string) => {
-  const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
-  if (cloudTrace && project) {
-    const [trace] = cloudTrace.split("/");
-    log.setOptions({
-      data: {
-        "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
-      },
-    });
-  }
-};
-
 app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestOptions>req.body;
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
-  configLogTracing(cloudTrace);
+  configCrawleeLogger(cloudTrace);
 
   await exploreCategory(body.url, req.body.jobId);
   res.status(204).send("OK");
@@ -56,7 +45,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const body = <RequestBatch>req.body;
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
-  configLogTracing(cloudTrace);
+  configCrawleeLogger(cloudTrace);
 
   const products = await scrapeDetails(body.productDetails);
   await persistProductsToDatabase(products);
