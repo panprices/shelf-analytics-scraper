@@ -9,16 +9,27 @@ import { persistProductsToDatabase } from "./publishing";
 
 async function debugMain() {
   const targetUrl =
-    "https://www.k-rauta.se/produkt/matbord-kalmar-diameter-120-cm/6438313610830";
+    "https://www.nordiskarum.se/ringsj%C3%B6%20matbord%20d180cm%20teak/sten-4211101004.html";
   const dummyRequest = {
     url: targetUrl,
     userData: {
       jobId: "test_job_id",
       url: targetUrl,
       // brand: 'Venture Design',
-      popularityIndex: 1,
+      popularityIndex: 3,
       name: "Hillmond HPL 238/297x100 vit/n",
       label: "DETAIL",
+      categoryTree: [
+        { name: "Utemöbler", url: "https://www.nordiskarum.se/utemobler" },
+        {
+          name: "Utebord",
+          url: "https://www.nordiskarum.se/utemobler/matbord-utan-stolar",
+        },
+        {
+          name: "Matbord",
+          url: "https://www.nordiskarum.se/utemobler/matbord-utan-stolar/matbord.html",
+        },
+      ],
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
@@ -53,5 +64,5 @@ async function debugLeafCategoryExtraction() {
   await extractLeafCategories(targetUrl);
 }
 
-await debugCategoryExploration();
-// await debugMain();
+// await debugCategoryExploration();
+await debugMain();

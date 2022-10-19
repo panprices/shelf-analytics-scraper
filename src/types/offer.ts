@@ -61,7 +61,7 @@ export interface DetailedProductInfo extends BaseProductInfo {
   retailerDomain?: string;
 
   images: string[];
-  categoryTree: Category[];
+  // categoryTree: Category[];
 
   reviews: ProductReviews | "unavailable";
 

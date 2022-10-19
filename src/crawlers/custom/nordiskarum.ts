@@ -72,7 +72,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       originalPrice,
       currency: "SEK",
       images,
-      categoryTree: [], // this will be replaced later by value from when we scrape category
+      // categoryTree: [], // this will be replaced later by value from when we scrape category
       sku,
       metadata,
       specifications,
@@ -238,7 +238,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       });
     }
 
-    console.log(categoryTree);
     return categoryTree;
   }
 
