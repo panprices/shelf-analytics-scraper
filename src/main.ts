@@ -6,7 +6,6 @@ import {
   scrapeDetails,
 } from "./service";
 import { persistProductsToDatabase } from "./publishing";
-import { postProcessProductDetails } from "./postprocessing";
 
 async function debugMain() {
   const targetUrl =
@@ -26,7 +25,6 @@ async function debugMain() {
     headless: false,
   });
 
-  postProcessProductDetails(detailedItems);
   log.info(JSON.stringify(detailedItems));
 
   log.info("Persisting in BigQuery");

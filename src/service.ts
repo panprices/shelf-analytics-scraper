@@ -139,7 +139,22 @@ export async function scrapeDetails(
 
   await crawler.run(detailedPages);
 
-  return (await crawlerDefinition.detailsDataset.getData()).items.map(
+  const products = (await crawlerDefinition.detailsDataset.getData()).items.map(
     (i) => <DetailedProductInfo>i
   );
+  postProcessProductDetails(products);
+  return products;
+}
+
+function postProcessProductDetails(products: DetailedProductInfo[]) {
+  products.forEach((p) => {
+    switch (p.currency) {
+      // SEK, USD, EUR
+      default: {
+        p.price = p.price * 100;
+      }
+    }
+  });
+
+  return products;
 }
