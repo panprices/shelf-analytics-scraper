@@ -148,6 +148,11 @@ export async function scrapeDetails(
 
 function postProcessProductDetails(products: DetailedProductInfo[]) {
   products.forEach((p) => {
+    p.currency = p.currency.toUpperCase();
+    if (p.currency.length !== 3) {
+      throw Error(`Unknown currency '${p.currency}'`);
+    }
+
     switch (p.currency) {
       // SEK, USD, EUR
       default: {
