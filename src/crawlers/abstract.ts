@@ -296,7 +296,15 @@ export abstract class AbstractCrawlerDefinition {
       const name = (<string>(
         await breadcrumbLocator.nth(i).textContent()
       )).trim();
-      const url = <string>await breadcrumbLocator.nth(i).getAttribute("href");
+      const url = <string>await breadcrumbLocator
+        .nth(i)
+        .getAttribute("href")
+        .then((url) => {
+          if (url?.endsWith("/")) {
+            return url?.slice(0, -1);
+          }
+          return url;
+        });
 
       categoryTree.push({
         name,
