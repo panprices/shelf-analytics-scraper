@@ -1,20 +1,11 @@
 import { Locator, Page } from "playwright";
-import {
-  browserCrawlerEnqueueLinks,
-  Dataset,
-  log,
-  PlaywrightCrawlingContext,
-} from "crawlee";
-import { v4 as uuidv4 } from "uuid";
+import { log } from "crawlee";
 
 import { AbstractCrawlerDefinition } from "../abstract";
 import {
-  Category,
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
   OfferMetadata,
-  ProductReviews,
   SchemaOrg,
   Specification,
 } from "../../types/offer";
@@ -45,7 +36,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().textContent()
     );
     if (!priceString) throw new Error("Cannot find 'price' of productCard");
-    console.log(priceString);
     const price = parseInt(priceString.replace(" ", ""));
 
     const campaignBannerText = await this.extractProperty(
@@ -74,7 +64,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       categoryUrl,
       popularityIndex: -1, // this will be overwritten later
     };
-    console.log(productInfo);
     return productInfo;
   }
 
