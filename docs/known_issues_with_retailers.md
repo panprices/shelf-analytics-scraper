@@ -14,4 +14,4 @@
 
 - Multiple categories per product.
 - Does not show original price despite being on campaign.
-- Sometimes they add a letter "S" to the end of the article number from Venture Design. For example they changed `GR14001 -> GR14001S` [here](https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-valentina-stolar-sammet/p-1117252).
+- Sometimes they add a suffix "S" or "SF" to the end of the article number from Venture Design. For example they changed `GR14001 -> GR14001S` [here](https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-valentina-stolar-sammet/p-1117252).
