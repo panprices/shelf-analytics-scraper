@@ -15,6 +15,7 @@ import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
 import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 import { v4 as uuidv4 } from "uuid";
 import { KrautaCrawlerDefinition } from "./custom/krauta";
+import { BygghemmaCrawlerDefinition } from "./custom/bygghemma";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -87,6 +88,14 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://www.k-rauta.se":
         definition = await KrautaCrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+
+      case "https://www.bygghemma.se":
+        definition = await BygghemmaCrawlerDefinition.create();
         options = {
           ...options,
           requestHandler: definition.router,
