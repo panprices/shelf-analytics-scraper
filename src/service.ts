@@ -148,6 +148,8 @@ export async function scrapeDetails(
 
 function postProcessProductDetails(products: DetailedProductInfo[]) {
   products.forEach((p) => {
+    p.gtin = p.gtin?.padStart(14, "0");
+
     p.currency = p.currency.toUpperCase();
     if (p.currency.length !== 3) {
       throw Error(`Unknown currency '${p.currency}'`);

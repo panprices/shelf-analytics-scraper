@@ -9,34 +9,23 @@ import { persistProductsToDatabase } from "./publishing";
 
 async function debugMain() {
   const targetUrl =
-    "https://www.nordiskarum.se/ringsj%C3%B6%20matbord%20d180cm%20teak/sten-4211101004.html";
+    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505";
   const dummyRequest = {
     url: targetUrl,
     userData: {
       jobId: "test_job_id",
       url: targetUrl,
       // brand: 'Venture Design',
-      popularityIndex: 3,
-      name: "Hillmond HPL 238/297x100 vit/n",
+      popularityIndex: -10,
+      name: "Disa",
       label: "DETAIL",
-      categoryTree: [
-        { name: "Utemöbler", url: "https://www.nordiskarum.se/utemobler" },
-        {
-          name: "Utebord",
-          url: "https://www.nordiskarum.se/utemobler/matbord-utan-stolar",
-        },
-        {
-          name: "Matbord",
-          url: "https://www.nordiskarum.se/utemobler/matbord-utan-stolar/matbord.html",
-        },
-      ],
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
     headless: false,
   });
 
-  log.info(JSON.stringify(detailedItems));
+  log.info(JSON.stringify(detailedItems, null, 2));
 
   log.info("Persisting in BigQuery");
   await persistProductsToDatabase(detailedItems);
@@ -45,7 +34,7 @@ async function debugMain() {
 
 async function debugCategoryExploration() {
   const targetUrl =
-    "https://www.nordiskarum.se/utemobler/matbord-utan-stolar/matbord.html";
+    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/?page=2";
   await exploreCategory(targetUrl, "test_job_id", {
     headless: false,
   });
