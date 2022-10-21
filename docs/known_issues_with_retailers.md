@@ -12,6 +12,7 @@
 
 ### Bygghemma
 
+- Multiple categories per product.
 - Does not show original price despite being on campaign.
 - For a leaf category, pressing the "next" button will go to the next page using
   JS. But the a.href points to the next page of the 2nd-to-last category instead.
