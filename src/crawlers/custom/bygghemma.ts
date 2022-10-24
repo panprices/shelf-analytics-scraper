@@ -41,16 +41,16 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
    */
   async waitForImagesToChange(
     ctx: PlaywrightCrawlingContext,
-    currentImages: string[]
+    currentImages: string[],
+    timeout: number = 5000 // ms
   ) {
-    const TIMEOUT = 2000; /* 2000ms */
     const startTime = Date.now();
 
     let newImages = await this.extractImages(ctx.page);
     while (JSON.stringify(newImages) === JSON.stringify(currentImages)) {
-      if (Date.now() - startTime > TIMEOUT) {
+      if (Date.now() - startTime > timeout) {
         throw new Error(
-          `Wait for images to change takes too long. Timeout: ${TIMEOUT} ms.`
+          `Wait for images to change takes too long. Timeout: ${timeout} ms. Url: ${ctx.page.url()}`
         );
       }
       currentImages = await this.extractImages(ctx.page);
