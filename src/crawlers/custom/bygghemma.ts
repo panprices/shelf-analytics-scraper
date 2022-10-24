@@ -1,7 +1,8 @@
 import { Locator, Page } from "playwright";
-import { log } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
 import { AbstractCrawlerDefinition } from "../abstract";
+import { extractRootUrl } from "../../utils";
 import {
   DetailedProductInfo,
   ListingProductInfo,
@@ -11,6 +12,22 @@ import {
 } from "../../types/offer";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    const chooseColorButtons = ctx.page.locator("ul.xr_zG li");
+    const chooseColorButtonsCount = await chooseColorButtons.count();
+
+    if (chooseColorButtonsCount == 0) {
+      await super.crawlDetailPage(ctx);
+    } else {
+      for (let i = 0; i < chooseColorButtonsCount; i++) {
+        await chooseColorButtons.nth(i).click();
+        await super.crawlDetailPage(ctx);
+      }
+    }
+  }
+
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator

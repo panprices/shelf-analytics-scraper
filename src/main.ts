@@ -9,7 +9,9 @@ import { persistProductsToDatabase } from "./publishing";
 
 async function debugMain() {
   const targetUrl =
+    // "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/u-soffa/u-soffa-venture-home-zanzibar/p-1407920";
     "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505";
+
   const dummyRequest = {
     url: targetUrl,
     userData: {
@@ -26,6 +28,11 @@ async function debugMain() {
   });
 
   log.info(JSON.stringify(detailedItems, null, 2));
+  log.info("Item found", {
+    nrItems: detailedItems.length,
+    urls: detailedItems.map((item) => item.url),
+    nrImages: detailedItems.map((item) => item.images.length),
+  });
 
   log.info("Persisting in BigQuery");
   await persistProductsToDatabase(detailedItems);
@@ -34,7 +41,7 @@ async function debugMain() {
 
 async function debugCategoryExploration() {
   const targetUrl =
-    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/?page=2";
+    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/?page=2";
   await exploreCategory(targetUrl, "test_job_id", {
     headless: false,
   });
