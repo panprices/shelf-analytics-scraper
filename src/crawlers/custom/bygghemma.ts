@@ -12,6 +12,10 @@ import {
 } from "../../types/offer";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
+  /**
+   * Need to override this so that since 1 product may have multiple colour variants
+   * => Multiple products from 1 original url, each has their own GTIN/SKU.
+   */
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
@@ -21,11 +25,39 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     if (chooseColorButtonsCount == 0) {
       await super.crawlDetailPage(ctx);
     } else {
+      let currentImages = await this.extractImages(ctx.page);
+      // console.log(currentImages);
+
       for (let i = 0; i < chooseColorButtonsCount; i++) {
         await chooseColorButtons.nth(i).click();
+        currentImages = await this.waitForImagesToChange(ctx, currentImages);
         await super.crawlDetailPage(ctx);
       }
     }
+  }
+
+  /**
+   * Wait for images to change, and return the new list of images.
+   */
+  async waitForImagesToChange(
+    ctx: PlaywrightCrawlingContext,
+    currentImages: string[]
+  ) {
+    const TIMEOUT = 2000; /* 2000ms */
+    const startTime = Date.now();
+
+    let newImages = await this.extractImages(ctx.page);
+    while (JSON.stringify(newImages) === JSON.stringify(currentImages)) {
+      if (Date.now() - startTime > TIMEOUT) {
+        throw new Error(
+          `Wait for images to change takes too long. Timeout: ${TIMEOUT} ms.`
+        );
+      }
+      currentImages = await this.extractImages(ctx.page);
+      // console.log(currentImages);
+    }
+
+    return newImages;
   }
 
   async extractCardProductInfo(
@@ -113,15 +145,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     const isDiscounted = campaignBannerText?.trim() ? true : false;
     const originalPrice = undefined; // cannot find original price even if on campaign
 
-    const imagesSelector = page.locator("img.vGPfg");
-    const imageCount = await imagesSelector.count();
-    const images = [];
-    for (let i = 0; i < imageCount; i++) {
-      const imgUrl = await imagesSelector.nth(i).getAttribute("src");
-      if (imgUrl) {
-        images.push(cleanImageUrl(imgUrl));
-      }
-    }
+    const images = await this.extractImages(page);
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("a.PMDfl"),
@@ -193,6 +217,20 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
+  async extractImages(page: Page): Promise<string[]> {
+    const imagesSelector = page.locator("img.vGPfg");
+    const imageCount = await imagesSelector.count();
+    const images = [];
+    for (let i = 0; i < imageCount; i++) {
+      const imgUrl = await imagesSelector.nth(i).getAttribute("src");
+      if (imgUrl) {
+        images.push(cleanImageUrl(imgUrl));
+      }
+    }
+
+    return images;
+  }
+
   static async create(): Promise<BygghemmaCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
@@ -208,6 +246,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       listingUrlSelector: "link[rel='next']",
       detailsUrlSelector: "div.xqHsK >div.FSL6m > a",
       productCardSelector: "div.xqHsK",
+      cookieConsentSelector: "button#ccc-notify-accept",
       dynamicProductCardLoading: false,
     });
   }
