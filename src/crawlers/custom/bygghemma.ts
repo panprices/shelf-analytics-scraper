@@ -218,11 +218,21 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractImages(page: Page): Promise<string[]> {
-    const imagesSelector = page.locator("img.vGPfg");
-    const imageCount = await imagesSelector.count();
     const images = [];
-    for (let i = 0; i < imageCount; i++) {
+
+    // Take thumbnail images:
+    const imagesSelector = page.locator("img.vGPfg");
+    const imagesCount = await imagesSelector.count();
+    for (let i = 0; i < imagesCount; i++) {
       const imgUrl = await imagesSelector.nth(i).getAttribute("src");
+      if (imgUrl) {
+        images.push(cleanImageUrl(imgUrl));
+      }
+    }
+
+    // If no thumbnail images found => product only have 1 image => take it
+    if (images.length === 0) {
+      const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
       if (imgUrl) {
         images.push(cleanImageUrl(imgUrl));
       }
