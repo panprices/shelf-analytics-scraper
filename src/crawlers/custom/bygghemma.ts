@@ -25,18 +25,22 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     if (chooseColorButtonsCount == 0) {
       await super.crawlDetailPage(ctx);
     } else {
-      let currentImages = await this.extractImages(ctx.page);
+      // let currentImages = await this.extractImages(ctx.page);
       // console.log(currentImages);
 
       for (let i = 0; i < chooseColorButtonsCount; i++) {
         await chooseColorButtons.nth(i).click();
-        currentImages = await this.waitForImagesToChange(ctx, currentImages);
+        // Doesn't work well. Use timeout instead.
+        // currentImages = await this.waitForImagesToChange(ctx, currentImages);
+
+        await ctx.page.waitForTimeout(1000);
         await super.crawlDetailPage(ctx);
       }
     }
   }
 
   /**
+   * DEPRECATED. Remove this before Dec. 2022
    * Wait for images to change, and return the new list of images.
    */
   async waitForImagesToChange(
