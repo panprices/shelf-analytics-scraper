@@ -25,7 +25,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     const chooseTypeDropdownButton = ctx.page.locator("div.DcdG0 button");
     const selectableOptions = ctx.page.locator("div.DcdG0 li:not(.WYoRt)");
 
-    if (chooseColorButtonsCount == 0 && !chooseTypeDropdownButton) {
+    if (chooseColorButtonsCount == 0) {
       await super.crawlDetailPage(ctx);
     } else {
       let currentImages = await this.extractImages(ctx.page);
@@ -36,7 +36,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
         await colorButton.click();
         await ctx.page.waitForTimeout(1000);
 
-        if (!chooseTypeDropdownButton) {
+        if ((await chooseTypeDropdownButton.count()) === 0) {
           try {
             currentImages = await this.waitForChanges(ctx, currentImages);
             await super.crawlDetailPage(ctx);
