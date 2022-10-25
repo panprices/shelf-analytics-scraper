@@ -22,44 +22,87 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     const chooseColorButtons = ctx.page.locator("ul.xr_zG li");
     const chooseColorButtonsCount = await chooseColorButtons.count();
 
-    if (chooseColorButtonsCount == 0) {
+    const chooseTypeDropdownButton = ctx.page.locator("div.DcdG0 button");
+    const selectableOptions = ctx.page.locator("div.DcdG0 li:not(.WYoRt)");
+
+    if (chooseColorButtonsCount == 0 && !chooseTypeDropdownButton) {
       await super.crawlDetailPage(ctx);
     } else {
-      // let currentImages = await this.extractImages(ctx.page);
+      let currentImages = await this.extractImages(ctx.page);
       // console.log(currentImages);
 
       for (let i = 0; i < chooseColorButtonsCount; i++) {
-        await chooseColorButtons.nth(i).click();
-        // Doesn't work well. Use timeout instead.
-        // currentImages = await this.waitForImagesToChange(ctx, currentImages);
-
+        const colorButton = chooseColorButtons.nth(i);
+        await colorButton.click();
         await ctx.page.waitForTimeout(1000);
-        await super.crawlDetailPage(ctx);
+
+        if (!chooseTypeDropdownButton) {
+          try {
+            currentImages = await this.waitForChanges(ctx, currentImages);
+            await super.crawlDetailPage(ctx);
+          } catch (error) {
+            // Ignore this product variant and continue to scrape others
+            if (error instanceof Error) log.warning(error.message);
+          }
+        } else {
+          await chooseTypeDropdownButton.click();
+          await ctx.page.waitForTimeout(1000);
+          const selectableOptionsCount = await selectableOptions.count();
+          await chooseTypeDropdownButton.click(); // close the dropdown so it doesn't interfere with clicking
+          await ctx.page.waitForTimeout(1000);
+          // console.log("Types: ", selectableOptionsCount);
+
+          for (let j = 0; j < selectableOptionsCount; j++) {
+            await chooseTypeDropdownButton.click();
+            await ctx.page.waitForTimeout(1000);
+            const optionButton = selectableOptions.nth(j);
+            await optionButton.click();
+            await ctx.page.waitForTimeout(1000);
+
+            try {
+              currentImages = await this.waitForChanges(ctx, currentImages);
+              await super.crawlDetailPage(ctx);
+            } catch (error) {
+              if (error instanceof Error) log.warning(error.message);
+              // Ignore this variant and continue to scraper other variances
+            }
+          }
+        }
       }
     }
   }
 
-  /**
-   * DEPRECATED. Remove this before Dec. 2022
-   * Wait for images to change, and return the new list of images.
-   */
-  async waitForImagesToChange(
+  async waitForChanges(
     ctx: PlaywrightCrawlingContext,
     currentImages: string[],
-    timeout: number = 5000 // ms
+    timeout: number = 10000 // ms
   ) {
+    log.info("Wait for images to change...");
     const startTime = Date.now();
 
-    let newImages = await this.extractImages(ctx.page);
-    while (JSON.stringify(newImages) === JSON.stringify(currentImages)) {
+    let newImages;
+    do {
       if (Date.now() - startTime > timeout) {
         throw new Error(
           `Wait for images to change takes too long. Timeout: ${timeout} ms. Url: ${ctx.page.url()}`
         );
       }
-      currentImages = await this.extractImages(ctx.page);
-      // console.log(currentImages);
-    }
+
+      // newImages = await this.extractImages(ctx.page);
+      try {
+        newImages = await this.extractImages(ctx.page);
+      } catch (error) {
+        // Page changed during image extraction => just try again
+      }
+    } while (
+      !newImages ||
+      JSON.stringify(newImages) === JSON.stringify(currentImages)
+    );
+    // console.log(currentImages);
+
+    console.log(currentImages.length, newImages.length);
+    console.log(currentImages);
+    console.log(newImages);
 
     return newImages;
   }
@@ -225,20 +268,32 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     const images = [];
 
     // Take thumbnail images:
-    const imagesSelector = page.locator("img.vGPfg");
-    const imagesCount = await imagesSelector.count();
-    for (let i = 0; i < imagesCount; i++) {
-      const imgUrl = await imagesSelector.nth(i).getAttribute("src");
-      if (imgUrl) {
-        images.push(cleanImageUrl(imgUrl));
-      }
+    const thumbnailImagesSelector = page.locator("img.vGPfg");
+    let hasThumbnails;
+    try {
+      await thumbnailImagesSelector.nth(0).waitFor({ timeout: 2000 });
+      hasThumbnails = true;
+    } catch {
+      hasThumbnails = false;
     }
 
-    // If no thumbnail images found => product only have 1 image => take it
-    if (images.length === 0) {
-      const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
-      if (imgUrl) {
-        images.push(cleanImageUrl(imgUrl));
+    if (hasThumbnails) {
+      const imagesCount = await thumbnailImagesSelector.count();
+      for (let i = 0; i < imagesCount; i++) {
+        const imgUrl = await thumbnailImagesSelector
+          .nth(i)
+          .getAttribute("src", { timeout: 200 });
+        if (imgUrl) {
+          images.push(cleanImageUrl(imgUrl));
+        }
+      }
+    } else {
+      // No thumbnail images found => product only have 1 image => take it
+      if (images.length === 0) {
+        const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
+        if (imgUrl) {
+          images.push(cleanImageUrl(imgUrl));
+        }
       }
     }
 

@@ -9,8 +9,11 @@ import { persistProductsToDatabase } from "./publishing";
 
 async function debugMain() {
   const targetUrl =
-    // "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/u-soffa/u-soffa-venture-home-zanzibar/p-1407920";
-    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505";
+    // "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505"; // normal images
+    // "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/u-soffa/u-soffa-venture-home-zanzibar/p-1407920"; // multiple colours
+    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433"; // colors + dropdown spec
+
+  // "https://www.bygghemma.se/verktyg-och-maskiner/elverktyg/slipmaskin/vaggslip-och-takslip/slipkit-mirka-leros-med-dammsugare-1230-m-afc-m-klass/p-1123039"; // only 1 main image, no thumbnails
 
   const dummyRequest = {
     url: targetUrl,
@@ -27,7 +30,7 @@ async function debugMain() {
     headless: false,
   });
 
-  log.info(JSON.stringify(detailedItems, null, 2));
+  // log.info(JSON.stringify(detailedItems, null, 2));
   log.info("Item found", {
     nrItems: detailedItems.length,
     urls: detailedItems.map((item) => item.url),
