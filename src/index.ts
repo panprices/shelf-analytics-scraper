@@ -5,7 +5,10 @@ import pino from "pino";
 import { exploreCategory, scrapeDetails } from "./service";
 import { RequestOptions } from "crawlee";
 import { RequestBatch } from "./types/offer";
-import { persistProductsToDatabase } from "./publishing";
+import {
+  persistProductsToDatabase,
+  publishMatchingProducts,
+} from "./publishing";
 import { log, LoggerJson as CrawleeLoggerJson } from "crawlee";
 import { configCrawleeLogger } from "./utils";
 
@@ -49,6 +52,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   const products = await scrapeDetails(body.productDetails);
   await persistProductsToDatabase(products);
+
+  const matchingProducts = products.filter((p) => p.matchingType === "match");
+  await publishMatchingProducts(matchingProducts);
 
   res.status(204).send("OK");
 });

@@ -130,3 +130,23 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     return filteredProduct;
   });
 }
+
+export async function publishMatchingProducts(products: DetailedProductInfo[]) {
+  const pubSubClient = new PubSub();
+  log.info(
+    `Publishing matching products to be updated. Number of products: ${products.length}.`
+  );
+
+  const payload = {
+    productDetails: products,
+  };
+
+  try {
+    const messageId = await pubSubClient
+      .topic("trigger_schedule_product_scrapes")
+      .publishMessage({ json: payload });
+    log.info(`Message ${messageId} published.`);
+  } catch (error) {
+    log.error(`Received error while publishing: ${error}`);
+  }
+}

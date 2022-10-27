@@ -68,6 +68,8 @@ export interface DetailedProductInfo extends BaseProductInfo {
   // if not applicable return an empty array
   specifications: Specification[];
   gtin?: string;
+
+  matchingType?: string; // {match, unknown}
 }
 
 export interface RequestBatch {
