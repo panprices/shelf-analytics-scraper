@@ -133,9 +133,9 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
 
 export async function publishMatchingProducts(products: DetailedProductInfo[]) {
   const pubSubClient = new PubSub();
-  log.info(
-    `Publishing matching products to be updated. Number of products: ${products.length}.`
-  );
+  log.info(`Publishing matching products to be updated.`, {
+    nrProducts: products.length,
+  });
 
   const payload = {
     productDetails: products,
@@ -143,7 +143,7 @@ export async function publishMatchingProducts(products: DetailedProductInfo[]) {
 
   try {
     const messageId = await pubSubClient
-      .topic("trigger_schedule_product_scrapes")
+      .topic("trigger_shelf_analytics_update_products")
       .publishMessage({ json: payload });
     log.info(`Message ${messageId} published.`);
   } catch (error) {

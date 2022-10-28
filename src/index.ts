@@ -54,7 +54,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   await persistProductsToDatabase(products);
 
   const matchingProducts = products.filter((p) => p.matchingType === "match");
-  await publishMatchingProducts(matchingProducts);
+  if (matchingProducts.length > 0) {
+    await publishMatchingProducts(matchingProducts);
+  }
 
   res.status(204).send("OK");
 });
