@@ -91,6 +91,8 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     metadata.schemaOrg = JSON.parse(schemaOrgString);
 
+    const sku = metadata.schemaOrg?.mpn;
+
     const product_name = await page
       .locator("h1[data-cy='product_title']")
       .textContent();
@@ -269,7 +271,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       categoryTree,
       reviews: reviewSummary,
       articleNumber,
-      sku: articleNumber,
+      sku,
       specifications: specArray,
       availability,
       metadata,

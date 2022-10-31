@@ -7,6 +7,7 @@ export interface OfferMetadata {
 
 export interface SchemaOrg {
   sku?: string;
+  mpn?: string;
 }
 
 export interface Specification {
