@@ -45,13 +45,13 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       await this.extractProperty(
         productCard,
         "..//div[@data-cy = 'current-price']",
-        (node) => node.textContent()
+        (node) => node.first().textContent()
       )
     );
     const originalPriceText = await this.extractProperty(
       productCard,
       "..//div[@data-cy = 'original-price']",
-      (node) => node.textContent()
+      (node) => node.first().textContent()
     );
     const isDiscounted = originalPriceText !== undefined;
     const url = <string>(
