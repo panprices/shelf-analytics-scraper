@@ -1,0 +1,96 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.k-rauta.se",
+    "jobId": "test_job_id",
+    "url": "https://www.k-rauta.se/produkt/badkar-naantali-med-tassar-vitt/5727419542413",
+    "brand": "MASTERJERO",
+    "popularityIndex": 1,
+    "name": "Badkar Naantali Med Tassar Vitt",
+    "label": "DETAIL",
+    "description": "Badkar Naantali är ett gediget och klassiskt badkar med lejontassar som är producerat i 100% sanitetsakryl. Vitt badkar med kromfärgade lejontassar. Storlek L 153 x B 70 X D 79 cm. Pop-up bottenventil och flexslang till avloppet ingår.",
+    "price": 629900,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "images": [
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24617760",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24617762"
+    ],
+    "sku": "501391569",
+    "gtin": "05727419542413",
+    "availability": "in_stock",
+    "categoryTree": [
+      {
+        "name": "Badrum & bastu",
+        "url": "/kategori/badrum-och-bastu"
+      },
+      {
+        "name": "Badkar & bubbelbadkar",
+        "url": "/kategori/badrum-och-bastu/badkar-och-bubbelbadkar"
+      },
+      {
+        "name": "Badkar",
+        "url": "/kategori/badrum-och-bastu/badkar-och-bubbelbadkar/badkar"
+      }
+    ],
+    "specifications": [
+      {
+        "key": "Vikt",
+        "value": "47 kg"
+      },
+      {
+        "key": "Djup för badvatten (cm)",
+        "value": "70"
+      },
+      {
+        "key": "Värmare/Kamin/Värmeelement",
+        "value": "Nej"
+      },
+      {
+        "key": "Höjd i cm",
+        "value": "43"
+      },
+      {
+        "key": "Inkludera mixern",
+        "value": "Nej"
+      },
+      {
+        "key": "Längd i cm",
+        "value": "150"
+      },
+      {
+        "key": "Massagesystem",
+        "value": "Nej"
+      },
+      {
+        "key": "Antal personer",
+        "value": "1"
+      },
+      {
+        "key": "Bredd i cm",
+        "value": "79"
+      },
+      {
+        "key": "Volym l",
+        "value": "150"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit"
+      },
+      {
+        "key": "Installation",
+        "value": "Fristående"
+      },
+      {
+        "key": "Material",
+        "value": "Akryl"
+      },
+      {
+        "key": "Typ",
+        "value": "Oval"
+      }
+    ],
+    "reviews": "unavailable"
+  }
+]

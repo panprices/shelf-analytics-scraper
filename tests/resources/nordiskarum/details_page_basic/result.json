@@ -1,0 +1,28 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.nordiskarum.se",
+    "jobId": "test_job_id",
+    "url": "https://www.nordiskarum.se/mexico-matbord-o140-svart-alu-teak.html",
+    "brand": "cottage-home",
+    "popularityIndex": 1,
+    "name": "Mexico matbord ø140 svart alu/teak",
+    "label": "DETAIL",
+    "description": "Runt matbord 140cm i diameter med snygg benställning i svart aluminium och bordsskiva i teak. Matchande stolar finns att köpa till.",
+    "price": 1099500,
+    "originalPrice": 1149500,
+    "currency": "SEK",
+    "images": [
+      "https://www.nordiskarum.se/media/catalog/product/cache/34f37c1cc18833430de52399c131c026/6/0/6061-520_8_o.jpg",
+      "https://www.nordiskarum.se/media/catalog/product/cache/34f37c1cc18833430de52399c131c026/6/0/6061-520_1_6049-520_6__11.jpg",
+      "https://www.nordiskarum.se/media/catalog/product/cache/34f37c1cc18833430de52399c131c026/s/_/s_6061-520__2.jpg",
+      "https://www.nordiskarum.se/media/catalog/product/cache/34f37c1cc18833430de52399c131c026/6/0/6061-520-1_6083-520-6_6__1.jpg",
+      "https://www.nordiskarum.se/media/catalog/product/cache/34f37c1cc18833430de52399c131c026/6/0/6061-520-1_6083-520-6.jpg"
+    ],
+    "sku": "6061-520",
+    "specifications": [],
+    "isDiscounted": true,
+    "reviews": "unavailable",
+    "availability": "in_stock"
+  }
+]
