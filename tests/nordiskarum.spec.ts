@@ -31,7 +31,15 @@ describe("Krauta details page", () => {
           fetchedAt: "9/2/2022, 4:51:26 PM",
         },
       };
-      const result = await scrapeDetails([dummyRequest]);
+      const result = await scrapeDetails([dummyRequest], {
+        preNavigationHooks: [
+          async (ctx: PlaywrightCrawlingContext) => {
+            await ctx.browserController.browser
+              .contexts()[0]
+              .routeFromHAR(`${testResourcesDir}/recording.har`);
+          },
+        ],
+      });
 
       expect(result).toBeDefined();
       expect(result).toHaveLength(1);

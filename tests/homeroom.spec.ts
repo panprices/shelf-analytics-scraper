@@ -39,16 +39,16 @@ describe("Homeroom details page", () => {
           //     path: "example.har",
           //   },
           // },
-          // experimentalContainers: true,
+          experimentalContainers: true,
           // launcher:
         },
-        // preNavigationHooks: [
-        //   async (ctx: PlaywrightCrawlingContext) => {
-        //     await ctx.browserController.browser
-        //       .contexts()[0]
-        //       .routeFromHAR(`${testResourcesDir}/recording.har`);
-        //   },
-        // ],
+        preNavigationHooks: [
+          async (ctx: PlaywrightCrawlingContext) => {
+            await ctx.browserController.browser
+              .contexts()[0]
+              .routeFromHAR(`${testResourcesDir}/recording.har`);
+          },
+        ],
       });
 
       expect(result).toBeDefined();
