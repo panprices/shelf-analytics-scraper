@@ -1,4 +1,25 @@
-import { log, LoggerJson } from "crawlee";
+import { log, LoggerJson, LogLevel } from "crawlee";
+
+export class CrawleeLoggerForGCP extends LoggerJson {
+  override _log(
+    level: LogLevel,
+    message: string,
+    data?: any,
+    exception?: any,
+    opts?: Record<string, any>
+  ): string {
+    return super._log(
+      level,
+      message,
+      {
+        ...data,
+        severity: level,
+      },
+      exception,
+      opts
+    );
+  }
+}
 
 export function configCrawleeLogger(cloudTrace?: string) {
   if (
@@ -9,7 +30,7 @@ export function configCrawleeLogger(cloudTrace?: string) {
 
   // Production setting:
   log.setOptions({
-    logger: new LoggerJson(),
+    logger: new CrawleeLoggerForGCP(),
   });
   const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
   if (cloudTrace && project) {
