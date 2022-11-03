@@ -13,6 +13,7 @@ export class CrawleeLoggerForGCP extends LoggerJson {
       message,
       {
         ...data,
+        level: undefined, // use severity instead
         severity: LogLevel[level],
       },
       exception,
