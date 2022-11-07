@@ -113,7 +113,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<ListingProductInfo> {
     const productName = await this.extractProperty(
       productCard,
-      "span.pQLY6",
+      "p.tBjFV",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName)
