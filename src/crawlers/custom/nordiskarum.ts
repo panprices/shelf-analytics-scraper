@@ -25,10 +25,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     await page.waitForSelector("div.fotorama__stage img");
     await page.waitForTimeout(100);
 
-    const brand = await this.extractBrandFromProductDetailsPage(page);
-    // const productName = (await page
-    //   .locator("h1.page-title")
-    //   .textContent())!.trim();
     const productName = await this.extractProperty(
       page,
       "h1.page-title",
@@ -61,9 +57,30 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const sku = (await page
       .locator("div[itemprop='sku']")
       .textContent())!.trim();
-    const metadata = undefined;
-    const specifications: Specification[] = [];
 
+    const specKeys = await page
+      .locator("table#product-attribute-specs-table th")
+      .allTextContents()
+      .then((textContents) => textContents.map((text) => text.trim()));
+    const specVals = await page
+      .locator("table#product-attribute-specs-table td")
+      .allTextContents()
+      .then((textContents) => textContents.map((text) => text.trim()));
+    if (specKeys.length !== specVals.length) {
+      throw new Error(
+        "Nordiskarum: Cannot extract specs: number of keys and vals mismatch."
+      );
+    }
+
+    const specifications: Specification[] = [];
+    for (let i = 0; i < specKeys.length; i++) {
+      specifications.push({ key: specKeys[i], value: specVals[i] });
+    }
+    const brand = specifications.find(
+      (spec) => spec.key === "Varumärke"
+    )?.value;
+
+    const metadata = undefined;
     return {
       brand,
       name: productName,
@@ -81,23 +98,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews: "unavailable",
       availability,
     };
-  }
-
-  async extractBrandFromProductDetailsPage(page: Page) {
-    // https://www.nordiskarum.se/media/attribute/swatch/c/o/cottage-home.jpg
-    // => cottage-home
-    const brandImageUrl = await page
-      .locator("img[alt='brand']")
-      .getAttribute("src");
-    if (!brandImageUrl) {
-      return undefined;
-    }
-    const tokens = brandImageUrl!.split("/");
-    const brand = tokens[tokens.length - 1]
-      .replace(".jpg", "")
-      .replace("png", "")
-      .replace("webp", "");
-    return brand;
   }
 
   async extractProductImagesFromProductDetailsPage(

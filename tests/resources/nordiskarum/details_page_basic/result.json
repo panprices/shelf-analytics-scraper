@@ -4,7 +4,7 @@
     "retailerDomain": "https://www.nordiskarum.se",
     "jobId": "job_test_1",
     "url": "https://www.nordiskarum.se/mexico-matbord-o140-svart-alu-teak.html",
-    "brand": "cottage-home",
+    "brand": "Cottage Home",
     "popularityIndex": 1,
     "name": "Mexico matbord ø140 svart alu/teak",
     "label": "DETAIL",
@@ -20,7 +20,36 @@
       "https://www.nordiskarum.se/media/catalog/product/cache/34f37c1cc18833430de52399c131c026/6/0/6061-520-1_6083-520-6.jpg"
     ],
     "sku": "6061-520",
-    "specifications": [],
+    "specifications": [
+      {
+        "key": "Färg",
+        "value": "Svart, Natur"
+      },
+      {
+        "key": "Material",
+        "value": "Teak/metall"
+      },
+      {
+        "key": "Form",
+        "value": "Rund"
+      },
+      {
+        "key": "Längd",
+        "value": "140cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "140cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75cm"
+      },
+      {
+        "key": "Varumärke",
+        "value": "Cottage Home"
+      }
+    ],
     "isDiscounted": true,
     "reviews": "unavailable",
     "availability": "in_stock"
