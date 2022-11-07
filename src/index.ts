@@ -8,6 +8,7 @@ import { RequestBatch } from "./types/offer";
 import {
   persistProductsToDatabase,
   publishMatchingProducts,
+  sendRequestBatch,
 } from "./publishing";
 import { log, LoggerJson as CrawleeLoggerJson } from "crawlee";
 import { configCrawleeLogger } from "./utils";
@@ -40,7 +41,9 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
 
-  await exploreCategory(body.url, req.body.jobId);
+  const detailedPages = await exploreCategory(body.url, req.body.jobId);
+  await sendRequestBatch(detailedPages, req.body.jobId);
+
   res.status(204).send("OK");
 });
 

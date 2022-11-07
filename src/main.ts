@@ -2,14 +2,14 @@ import { log, LoggerJson } from "crawlee";
 import fs from "fs";
 import {
   exploreCategory,
-  exploreCategoryNoCapture,
   extractLeafCategories,
   scrapeDetails,
 } from "./service";
-import { persistProductsToDatabase } from "./publishing";
+import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 
 async function debugScrapeDetails() {
-  const targetUrl = "https://www.nordiskarum.se/sangar/komplett-sangpaket.html";
+  const targetUrl =
+    "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/tradgardsgrupp/utemobler-matgrupp/matgrupp-venture-design-perla-152-och-210-med-4-stolar/p-1136735-1136736";
   // "https://www.bygghjemme.no/hage-och-utemiljo/grill/gassgrill/gassgrill-sunwind-vilja/p-918623";
   // "https://www.trademax.se/utem%C3%B6bler/utebord/matbord-utomhus/kenya-matbord-150-cm-svart-p1509844";
   // "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505"; // normal images
@@ -48,19 +48,11 @@ async function debugScrapeDetails() {
 
 async function debugCategoryExploration() {
   const targetUrl =
-    // "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/?page=2";
-    "https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/solstolar";
-  await exploreCategory(targetUrl, "job_test_1", {
+    "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/tradgardssoffa/tradgardsbank";
+  const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
     headless: false,
   });
-}
-
-async function debugCategoryExplorationNoCapture() {
-  const targetUrl = "https://www.venturedesign.se/utemobler/bord-utemobler";
-  await exploreCategoryNoCapture(targetUrl, {
-    headless: false,
-    maxConcurrency: 5,
-  });
+  // sendRequestBatch(detailedPages, "job_test_1");
 }
 
 async function debugLeafCategoryExtraction() {
@@ -99,6 +91,6 @@ async function captureHARForUnitTest() {
   fs.writeFileSync("result.json", JSON.stringify(detailedItems, null, 2));
 }
 
-// await debugCategoryExploration();
-await debugScrapeDetails();
+await debugCategoryExploration();
+// await debugScrapeDetails();
 // await captureHARForUnitTest();

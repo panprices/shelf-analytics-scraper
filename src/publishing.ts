@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Dictionary, log, RequestOptions } from "crawlee";
 import { PubSub } from "@google-cloud/pubsub";
 import { DetailedProductInfo, RequestBatch } from "./types/offer";
@@ -8,21 +9,25 @@ export async function sendRequestBatch(
   detailedPages: RequestOptions[],
   jobId: string
 ) {
+  const maxBatchSize = 40;
   const pubSubClient = new PubSub();
-  log.info(`Sending a request batch with ${detailedPages.length} requests`);
-  const batchRequest: RequestBatch = {
-    jobId: jobId,
-    productDetails: detailedPages,
-  };
 
-  try {
-    const messageId = await pubSubClient
-      .topic("trigger_schedule_product_scrapes")
-      .publishMessage({ json: batchRequest });
-    log.info(`Message ${messageId} published.`);
-  } catch (error) {
-    log.error(`Received error while publishing: ${error}`);
-  }
+  _.chunk(detailedPages, maxBatchSize).forEach(async (pages) => {
+    log.info(`Sending a request batch with ${pages.length} requests`);
+    const batchRequest: RequestBatch = {
+      jobId: jobId,
+      productDetails: pages,
+    };
+
+    try {
+      const messageId = await pubSubClient
+        .topic("trigger_schedule_product_scrapes")
+        .publishMessage({ json: batchRequest });
+      log.info(`Message ${messageId} published.`);
+    } catch (error) {
+      log.error(`Received error while publishing: ${error}`);
+    }
+  });
 }
 
 export async function persistProductsToDatabase(
