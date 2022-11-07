@@ -3,7 +3,7 @@ import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
 
-jest.setTimeout(50000);
+jest.setTimeout(30000);
 
 describe("Homeroom details page", () => {
   test.each([
@@ -22,7 +22,7 @@ describe("Homeroom details page", () => {
       const dummyRequest = {
         url: targetUrl,
         userData: {
-          jobId: "test_job_id",
+          jobId: "job_test_1",
           url: targetUrl,
           brand: "Venture Home",
           popularityIndex: 1,
@@ -39,7 +39,7 @@ describe("Homeroom details page", () => {
           //     path: "example.har",
           //   },
           // },
-          experimentalContainers: true,
+          // experimentalContainers: true,
           // launcher:
         },
         preNavigationHooks: [

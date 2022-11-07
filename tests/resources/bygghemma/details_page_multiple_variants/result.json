@@ -1,0 +1,1285 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1731476",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarSvart/Natur, 180 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/19888-4281__be44b855-b07d-4842-9ce1-625fa011d0f9.jpg",
+      "https://img.bygghemma.se/pimages/19888-4283__4e4cf0d4-d248-4744-9c32-894b58d525c6.jpg",
+      "https://img.bygghemma.se/pimages/19888-4282__9bc8186f-ca8e-489d-a89b-d37b3a15d98a.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 210700,
+    "isDiscounted": true,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "gtin": "07350107084230",
+    "sku": "19888-428",
+    "articleNumber": "19888-428",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19888-428"
+      },
+      {
+        "key": "Färg",
+        "value": "Svart, Trä/Natur "
+      },
+      {
+        "key": "Längd",
+        "value": "180 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "90 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Djup",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107084230 "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/19888-4281__be44b855-b07d-4842-9ce1-625fa011d0f9.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-4281__be44b855-b07d-4842-9ce1-625fa011d0f9.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4281__be44b855-b07d-4842-9ce1-625fa011d0f9.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4283__4e4cf0d4-d248-4744-9c32-894b58d525c6.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-4283__4e4cf0d4-d248-4744-9c32-894b58d525c6.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4283__4e4cf0d4-d248-4744-9c32-894b58d525c6.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4282__9bc8186f-ca8e-489d-a89b-d37b3a15d98a.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-4282__9bc8186f-ca8e-489d-a89b-d37b3a15d98a.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4282__9bc8186f-ca8e-489d-a89b-d37b3a15d98a.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1731476",
+        "mpn": "19888-428",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "2107.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1159435",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarValnöt, 180 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/19888-444__3__1b4d8580-4966-4c4f-8b5e-b6420db313b9.jpg",
+      "https://img.bygghemma.se/pimages/19888-444__1__4fde1835-cac8-410a-a1f1-cae217d02130.jpg",
+      "https://img.bygghemma.se/pimages/19888-444__4__e549df75-50c5-42ac-84fa-aa2b628bd9ff.jpg",
+      "https://img.bygghemma.se/pimages/19888-444__5__a48325e1-7af6-41bf-b9df-c03c016763b7.jpg",
+      "https://img.bygghemma.se/pimages/19888-444_1plus17701-448_6__10__91ef5abc-512f-42b8-a4c7-b1368da3a38b.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 219500,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "gtin": "07350107089730",
+    "sku": "19888-444",
+    "articleNumber": "19888-444",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19888-444"
+      },
+      {
+        "key": "Färg",
+        "value": "Valnöt "
+      },
+      {
+        "key": "Längd",
+        "value": "180 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "90 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107089730 "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/19888-444__3__1b4d8580-4966-4c4f-8b5e-b6420db313b9.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-444__3__1b4d8580-4966-4c4f-8b5e-b6420db313b9.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__3__1b4d8580-4966-4c4f-8b5e-b6420db313b9.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__1__4fde1835-cac8-410a-a1f1-cae217d02130.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-444__1__4fde1835-cac8-410a-a1f1-cae217d02130.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__1__4fde1835-cac8-410a-a1f1-cae217d02130.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__4__e549df75-50c5-42ac-84fa-aa2b628bd9ff.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-444__4__e549df75-50c5-42ac-84fa-aa2b628bd9ff.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__4__e549df75-50c5-42ac-84fa-aa2b628bd9ff.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__5__a48325e1-7af6-41bf-b9df-c03c016763b7.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-444__5__a48325e1-7af6-41bf-b9df-c03c016763b7.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444__5__a48325e1-7af6-41bf-b9df-c03c016763b7.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444_1plus17701-448_6__10__91ef5abc-512f-42b8-a4c7-b1368da3a38b.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-444_1plus17701-448_6__10__91ef5abc-512f-42b8-a4c7-b1368da3a38b.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-444_1plus17701-448_6__10__91ef5abc-512f-42b8-a4c7-b1368da3a38b.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1159435",
+        "mpn": "19888-444",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "2195.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-752938",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarVit, 120x80 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/matbord-pontus__c0e7e8ad-4a77-4f1d-89d1-4e577661f157.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 175500,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "sku": "19880-120",
+    "articleNumber": "19880-120",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19880-120"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit/Natur "
+      },
+      {
+        "key": "Längd",
+        "value": "120 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "80 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/matbord-pontus__c0e7e8ad-4a77-4f1d-89d1-4e577661f157.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/matbord-pontus__c0e7e8ad-4a77-4f1d-89d1-4e577661f157.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/matbord-pontus__c0e7e8ad-4a77-4f1d-89d1-4e577661f157.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-752938",
+        "mpn": "19880-120",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "1755.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-752937",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarVit, 180x90 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/matbord-pontus__00b34a38-4090-4b5d-b3f2-e8e437ce8c8b.jpg",
+      "https://img.bygghemma.se/pimages/matbord-pontus__98e9d39b-d144-4449-b1c9-1d655f1882b5.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 293000,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "sku": "19888-120",
+    "articleNumber": "19888-120",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19888-120"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit/Natur "
+      },
+      {
+        "key": "Längd",
+        "value": "180 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "90 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/matbord-pontus__00b34a38-4090-4b5d-b3f2-e8e437ce8c8b.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/matbord-pontus__00b34a38-4090-4b5d-b3f2-e8e437ce8c8b.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/matbord-pontus__00b34a38-4090-4b5d-b3f2-e8e437ce8c8b.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/matbord-pontus__98e9d39b-d144-4449-b1c9-1d655f1882b5.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/matbord-pontus__98e9d39b-d144-4449-b1c9-1d655f1882b5.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/matbord-pontus__98e9d39b-d144-4449-b1c9-1d655f1882b5.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-752937",
+        "mpn": "19888-120",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "2930.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1731513",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarVit/Svart, 120 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/19880-468__b0655d4a-b58d-4539-83b0-43bf77026c96.jpg",
+      "https://img.bygghemma.se/pimages/19880-4682__7a6ce404-3a2d-45b2-875b-00fa44a4e8a7.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 170500,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "gtin": "07350107084971",
+    "sku": "19880-468",
+    "articleNumber": "19880-468",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19880-468"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit/Svart "
+      },
+      {
+        "key": "Längd",
+        "value": "120 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "80 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Djup",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107084971 "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/19880-468__b0655d4a-b58d-4539-83b0-43bf77026c96.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-468__b0655d4a-b58d-4539-83b0-43bf77026c96.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-468__b0655d4a-b58d-4539-83b0-43bf77026c96.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-4682__7a6ce404-3a2d-45b2-875b-00fa44a4e8a7.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-4682__7a6ce404-3a2d-45b2-875b-00fa44a4e8a7.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-4682__7a6ce404-3a2d-45b2-875b-00fa44a4e8a7.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1731513",
+        "mpn": "19880-468",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "1705.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1731514",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarVit/Svart, 180 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/19888-468-1__26f21659-0be0-4721-b4ec-f1f824ef912c.jpg",
+      "https://img.bygghemma.se/pimages/19888-4683__268b3b08-b510-456c-aae6-c46959c8f1de.jpg",
+      "https://img.bygghemma.se/pimages/19888-4682__12e36d87-c934-4d73-91ad-3ae30f3cb8a2.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 244000,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "gtin": "07350107084988",
+    "sku": "19888-468",
+    "articleNumber": "19888-468",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19888-468"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit/Svart "
+      },
+      {
+        "key": "Längd",
+        "value": "180 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "90 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Djup",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107084988 "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/19888-468-1__26f21659-0be0-4721-b4ec-f1f824ef912c.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-468-1__26f21659-0be0-4721-b4ec-f1f824ef912c.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-468-1__26f21659-0be0-4721-b4ec-f1f824ef912c.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4683__268b3b08-b510-456c-aae6-c46959c8f1de.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-4683__268b3b08-b510-456c-aae6-c46959c8f1de.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4683__268b3b08-b510-456c-aae6-c46959c8f1de.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4682__12e36d87-c934-4d73-91ad-3ae30f3cb8a2.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-4682__12e36d87-c934-4d73-91ad-3ae30f3cb8a2.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-4682__12e36d87-c934-4d73-91ad-3ae30f3cb8a2.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1731514",
+        "mpn": "19888-468",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "2440.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1159436",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarVit, 120x80 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/19880-300__3__47fa4f50-7cba-47c4-a187-b5d245981df7.jpg",
+      "https://img.bygghemma.se/pimages/19880-300__1__261e9bb9-c2c5-4038-987a-d6eb7395054d.jpg",
+      "https://img.bygghemma.se/pimages/19880-300__4__198ecff9-59a9-49c5-8332-8eb294973b91.jpg",
+      "https://img.bygghemma.se/pimages/19880-300__5__b0bb48b7-091d-4130-a402-d41b0f37260a.jpg",
+      "https://img.bygghemma.se/pimages/19880-300__6__59568101-cb25-4134-8618-ca68844bf914.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 119500,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "gtin": "07350107089723",
+    "sku": "19880-300",
+    "articleNumber": "19880-300",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19880-300"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit/Vit "
+      },
+      {
+        "key": "Längd",
+        "value": "120 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "80 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107089723 "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/19880-300__3__47fa4f50-7cba-47c4-a187-b5d245981df7.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-300__3__47fa4f50-7cba-47c4-a187-b5d245981df7.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__3__47fa4f50-7cba-47c4-a187-b5d245981df7.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__1__261e9bb9-c2c5-4038-987a-d6eb7395054d.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-300__1__261e9bb9-c2c5-4038-987a-d6eb7395054d.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__1__261e9bb9-c2c5-4038-987a-d6eb7395054d.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__4__198ecff9-59a9-49c5-8332-8eb294973b91.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-300__4__198ecff9-59a9-49c5-8332-8eb294973b91.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__4__198ecff9-59a9-49c5-8332-8eb294973b91.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__5__b0bb48b7-091d-4130-a402-d41b0f37260a.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-300__5__b0bb48b7-091d-4130-a402-d41b0f37260a.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__5__b0bb48b7-091d-4130-a402-d41b0f37260a.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__6__59568101-cb25-4134-8618-ca68844bf914.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19880-300__6__59568101-cb25-4134-8618-ca68844bf914.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19880-300__6__59568101-cb25-4134-8618-ca68844bf914.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1159436",
+        "mpn": "19880-300",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "1195.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1159434",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matbord Venture HomePolarVit, 180x90 cm",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/19888-300__3__ad9f6a9b-3c30-41ab-9e03-92d4e701f906.jpg",
+      "https://img.bygghemma.se/pimages/19888-300__1__ceacf29f-365c-4e9b-87a5-e3186d43294f.jpg",
+      "https://img.bygghemma.se/pimages/19888-300__4__45788b0c-acfa-4c9b-811a-1e1749e29eae.jpg",
+      "https://img.bygghemma.se/pimages/19888-300__5__935e290f-28ec-43ae-982a-1c3fced6e0c1.jpg",
+      "https://img.bygghemma.se/pimages/19888-300__6__29860603-6019-44fd-89db-42f44e3dded7.jpg"
+    ],
+    "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+    "price": 219500,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matbord & köksbord",
+        "url": "/inredning-och-belysning/mobler/bord/matbord-och-koksbord"
+      }
+    ],
+    "gtin": "07350107089747",
+    "sku": "19888-300",
+    "articleNumber": "19888-300",
+    "availability": "out_of_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "19888-300"
+      },
+      {
+        "key": "Färg",
+        "value": "Vit/Vit "
+      },
+      {
+        "key": "Längd",
+        "value": "180 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "90 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Metall/MDF "
+      },
+      {
+        "key": "Typ",
+        "value": "Matbord "
+      },
+      {
+        "key": "Serie",
+        "value": "Polar "
+      },
+      {
+        "key": "Montering",
+        "value": "Ja - enklare "
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej "
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulärt "
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej "
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107089747 "
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matbord Venture Home Polar",
+        "image": [
+          "//img.bygghemma.se/pimages/19888-300__3__ad9f6a9b-3c30-41ab-9e03-92d4e701f906.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-300__3__ad9f6a9b-3c30-41ab-9e03-92d4e701f906.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__3__ad9f6a9b-3c30-41ab-9e03-92d4e701f906.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__1__ceacf29f-365c-4e9b-87a5-e3186d43294f.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-300__1__ceacf29f-365c-4e9b-87a5-e3186d43294f.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__1__ceacf29f-365c-4e9b-87a5-e3186d43294f.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__4__45788b0c-acfa-4c9b-811a-1e1749e29eae.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-300__4__45788b0c-acfa-4c9b-811a-1e1749e29eae.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__4__45788b0c-acfa-4c9b-811a-1e1749e29eae.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__5__935e290f-28ec-43ae-982a-1c3fced6e0c1.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-300__5__935e290f-28ec-43ae-982a-1c3fced6e0c1.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__5__935e290f-28ec-43ae-982a-1c3fced6e0c1.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__6__29860603-6019-44fd-89db-42f44e3dded7.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/19888-300__6__29860603-6019-44fd-89db-42f44e3dded7.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/19888-300__6__29860603-6019-44fd-89db-42f44e3dded7.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Polar från Venture Home är ett vackert rektangulärt matbord med ben i metall och bordsskiva i MDF.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433-1159434",
+        "mpn": "19888-300",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "2195.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/BackOrder",
+          "availabilityDate": "2022-11-21T00:00:00+01:00"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    }
+  }
+]

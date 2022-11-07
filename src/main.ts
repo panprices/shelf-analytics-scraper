@@ -8,9 +8,8 @@ import {
 } from "./service";
 import { persistProductsToDatabase } from "./publishing";
 
-async function debugMain() {
-  const targetUrl =
-    "https://www.homeroom.dk/house-nordic/spegel-madrid/1712799-01";
+async function debugScrapeDetails() {
+  const targetUrl = "https://www.nordiskarum.se/sangar/komplett-sangpaket.html";
   // "https://www.bygghjemme.no/hage-och-utemiljo/grill/gassgrill/gassgrill-sunwind-vilja/p-918623";
   // "https://www.trademax.se/utem%C3%B6bler/utebord/matbord-utomhus/kenya-matbord-150-cm-svart-p1509844";
   // "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505"; // normal images
@@ -22,7 +21,7 @@ async function debugMain() {
   const dummyRequest = {
     url: targetUrl,
     userData: {
-      jobId: "test_job_id",
+      jobId: "job_test_1",
       url: targetUrl,
       // brand: 'Venture Design',
       popularityIndex: -10,
@@ -51,7 +50,7 @@ async function debugCategoryExploration() {
   const targetUrl =
     // "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/?page=2";
     "https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/solstolar";
-  await exploreCategory(targetUrl, "test_job_id", {
+  await exploreCategory(targetUrl, "job_test_1", {
     headless: false,
   });
 }
@@ -71,11 +70,11 @@ async function debugLeafCategoryExtraction() {
 
 async function captureHARForUnitTest() {
   const targetUrl =
-    "https://www.k-rauta.se/produkt/badkar-naantali-med-tassar-vitt/5727419542413";
+    "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433";
   const dummyRequest = {
     url: targetUrl,
     userData: {
-      jobId: "test_job_id",
+      jobId: "job_test_1",
       url: targetUrl,
       brand: "Cottage Home",
       popularityIndex: 1,
@@ -101,5 +100,5 @@ async function captureHARForUnitTest() {
 }
 
 // await debugCategoryExploration();
-// await debugMain();
-await captureHARForUnitTest();
+await debugScrapeDetails();
+// await captureHARForUnitTest();

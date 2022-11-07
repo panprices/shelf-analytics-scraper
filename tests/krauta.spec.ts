@@ -3,18 +3,18 @@ import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
 
-jest.setTimeout(50000);
+jest.setTimeout(30000);
 
 describe("Krauta details page", () => {
   test.each([
     // Have all info
-    // [
-    //   "https://www.k-rauta.se/produkt/matbord-kalmar-diameter-120-cm/6438313610830",
-    //   "tests/resources/krauta/details_page_basic",
-    // ],
+    [
+      "https://www.k-rauta.se/produkt/matbord-kalmar-diameter-120-cm/6438313610830",
+      "tests/resources/krauta/details_page_basic",
+    ],
     // No reviews
     [
-      "https://www.k-rauta.se/produkt/badkar-naantali-med-tassar-vitt/5727419542413",
+      "https://www.k-rauta.se/produkt/bord-andro-vittgra-224324x100-cm/7350107082533",
       "tests/resources/krauta/details_page_no_reviews",
     ],
   ])(
@@ -27,7 +27,7 @@ describe("Krauta details page", () => {
       const dummyRequest = {
         url: targetUrl,
         userData: {
-          jobId: "test_job_id",
+          jobId: "job_test_1",
           url: targetUrl,
           brand: "CELLO",
           popularityIndex: 1,
