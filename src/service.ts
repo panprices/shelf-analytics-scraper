@@ -9,7 +9,7 @@ export async function exploreCategory(
   targetUrl: string,
   jobId: string,
   overrides?: PlaywrightCrawlerOptions
-): Promise<void> {
+): Promise<RequestOptions[]> {
   const rootUrl = extractRootUrl(targetUrl);
 
   const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl(
@@ -29,13 +29,10 @@ export async function exploreCategory(
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
 
-  const maxBatchSize = 40;
   let detailedPages = [];
-
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
     if (request === null) {
-      await sendRequestBatch(detailedPages, jobId);
       break;
     }
 
@@ -47,39 +44,13 @@ export async function exploreCategory(
       },
     });
     await inWaitQueue.markRequestHandled(request);
-
-    if (detailedPages.length >= maxBatchSize) {
-      await sendRequestBatch(detailedPages, jobId);
-      detailedPages = [];
-    }
   }
-}
 
-export async function exploreCategoryNoCapture(
-  targetUrl: string,
-  overrides: PlaywrightCrawlerOptions
-) {
-  const rootUrl = extractRootUrl(targetUrl);
-
-  const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl(
-    {
-      url: rootUrl,
-      customQueueSettings: {
-        captureLabels: [],
-      },
-    },
-    {
-      ...overrides,
-      maxConcurrency: 1,
-      requestHandlerTimeoutSecs: 3600,
-    }
-  );
-  await crawler.run([
-    {
-      url: targetUrl,
-      label: "LIST",
-    },
-  ]);
+  log.info(`Category explored`, {
+    url: targetUrl,
+    nrProductsFound: detailedPages.length,
+  });
+  return detailedPages;
 }
 
 export async function extractLeafCategories(targetUrl: string) {
@@ -148,13 +119,17 @@ export async function scrapeDetails(
 
 function postProcessProductDetails(products: DetailedProductInfo[]) {
   products.forEach((p) => {
-    p.gtin = p.gtin?.padStart(14, "0");
+    if (p.gtin) {
+      if (!isValidGTIN) {
+        throw Error(`GTIN not valid: '${p.gtin}'`);
+      }
+      p.gtin = p.gtin?.padStart(14, "0");
+    }
 
     p.currency = p.currency.toUpperCase();
     if (p.currency.length !== 3) {
       throw Error(`Unknown currency '${p.currency}'`);
     }
-
     switch (p.currency) {
       // SEK, USD, EUR
       default: {
@@ -167,4 +142,8 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
   });
 
   return products;
+}
+
+function isValidGTIN(gtin: string) {
+  return gtin.length >= 8 && gtin.length <= 14 && /^\d+$/.test(gtin);
 }
