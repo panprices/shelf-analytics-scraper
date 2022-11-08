@@ -10,6 +10,7 @@ import {
   SchemaOrg,
   Specification,
 } from "../../types/offer";
+import _ from "lodash";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -174,7 +175,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       "div._VQkc div.SonMi div.SonMi",
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
-    if (!description) throw new Error("Cannot extract description");
 
     const priceString = await this.extractProperty(
       page,

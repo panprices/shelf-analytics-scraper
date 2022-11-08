@@ -43,6 +43,7 @@ export interface BaseProductInfo {
   categoryTree?: Category[];
 
   originalPrice?: number;
+  gtin?: string;
   sku?: string;
   articleNumber?: string;
   metadata?: OfferMetadata;
@@ -55,20 +56,13 @@ export interface ListingProductInfo extends BaseProductInfo {
 }
 
 export interface DetailedProductInfo extends BaseProductInfo {
-  description: string;
-  // inStock: boolean;  DEPRECATED
   availability: string;
   fetchedAt?: string;
   retailerDomain?: string;
 
-  images: string[];
-  // categoryTree: Category[];
-
+  images: string[]; // if not applicable return an empty array
   reviews: ProductReviews | "unavailable";
-
-  // if not applicable return an empty array
-  specifications: Specification[];
-  gtin?: string;
+  specifications: Specification[]; // if not applicable return an empty array
 
   matchingType?: string; // {match, unknown}
 }
