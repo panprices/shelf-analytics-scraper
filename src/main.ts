@@ -2,6 +2,7 @@ import { log, LoggerJson } from "crawlee";
 import fs from "fs";
 import {
   exploreCategory,
+  exploreCategoryNoCapture,
   extractLeafCategories,
   scrapeDetails,
 } from "./service";
@@ -55,6 +56,14 @@ async function debugCategoryExploration() {
   // sendRequestBatch(detailedPages, "job_test_1");
 }
 
+async function debugCategoryExplorationNoCapture() {
+  const targetUrl = "https://www.venturedesign.se/utemobler/bord-utemobler";
+  await exploreCategoryNoCapture(targetUrl, {
+    headless: false,
+    maxConcurrency: 5,
+  });
+}
+
 async function debugLeafCategoryExtraction() {
   const targetUrl = "https://www.venturedesign.se/furniture-fashion";
   await extractLeafCategories(targetUrl);
@@ -91,6 +100,7 @@ async function captureHARForUnitTest() {
   fs.writeFileSync("result.json", JSON.stringify(detailedItems, null, 2));
 }
 
-await debugCategoryExploration();
+// await debugCategoryExploration();
+await debugCategoryExplorationNoCapture();
 // await debugScrapeDetails();
 // await captureHARForUnitTest();

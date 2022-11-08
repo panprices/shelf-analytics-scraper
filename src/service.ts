@@ -53,6 +53,36 @@ export async function exploreCategory(
   return detailedPages;
 }
 
+/**
+ * Explore the category page and goes into product pages.
+ */
+export async function exploreCategoryNoCapture(
+  targetUrl: string,
+  overrides: PlaywrightCrawlerOptions
+) {
+  const rootUrl = extractRootUrl(targetUrl);
+
+  const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl(
+    {
+      url: rootUrl,
+      customQueueSettings: {
+        captureLabels: [],
+      },
+    },
+    {
+      ...overrides,
+      maxConcurrency: 1,
+      requestHandlerTimeoutSecs: 3600,
+    }
+  );
+  await crawler.run([
+    {
+      url: targetUrl,
+      label: "LIST",
+    },
+  ]);
+}
+
 export async function extractLeafCategories(targetUrl: string) {
   const rootUrl = extractRootUrl(targetUrl);
 
