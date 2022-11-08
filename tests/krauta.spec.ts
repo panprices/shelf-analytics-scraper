@@ -2,6 +2,7 @@ import { scrapeDetails } from "../src/service";
 import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
+import { extractPriceFromText } from "../src/crawlers/custom/krauta";
 
 jest.setTimeout(30000);
 
@@ -51,4 +52,12 @@ describe("Krauta details page", () => {
       expect(result).toEqual(expectedResult);
     }
   );
+});
+
+test.each([
+  ["129 kr / par", 129],
+  ["59,95 kr / par", 59.95],
+  ["från19,95 kr / par", 19.95],
+])("Krauta extract price from text", (priceString, expected) => {
+  expect(extractPriceFromText(priceString)).toBe(expected);
 });

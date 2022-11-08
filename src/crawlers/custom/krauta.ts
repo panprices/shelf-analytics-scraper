@@ -51,16 +51,25 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       ? extractNumberFromText((await originalPriceLocator.textContent())!)
       : undefined;
 
-    const price = await this.extractProperty(
+    let priceString = await this.extractProperty(
       page,
       "div.product-page__top-info .price-view__sale-price-container",
       (node) => node.textContent()
-    ).then((priceString) => {
-      if (!priceString) {
-        throw new Error("Cannot extract price");
-      }
-      return extractNumberFromText(priceString);
-    });
+    );
+
+    // Another type of page layout. See https://www.k-rauta.se/produkt/handskar-nelson-garden-gentle-rodvit/573694
+    if (!priceString) {
+      priceString = await this.extractProperty(
+        page,
+        ".price-view--large .price-view__sale-price-container",
+        (node) => node.textContent()
+      );
+    }
+    if (!priceString) {
+      throw new Error("Cannot extract price");
+    }
+
+    const price = extractPriceFromText(priceString);
 
     const skuAndEanListItem = page.locator("ul.article-numbers li");
     if ((await skuAndEanListItem.count()) !== 2) {
@@ -71,7 +80,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     const ean = extractNumberFromText(skuAndEanText[1]).toString();
 
     const images = page.locator(
-      "div.product-images-and-videos div.carousel img"
+      "div.product-images-and-videos div.product-images-and-videos__thumbnails img"
     );
     const imageCount = await images.count();
     const imageUrls = [];
@@ -269,9 +278,21 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 }
 
-const extractPriceFromText = (priceString: string): number => {
+/**
+ * "49,95 kr/ par" -> 49.95
+ */
+export const extractPriceFromText = (priceString: string): number => {
   try {
-    const price = extractNumberFromText(priceString);
+    priceString = priceString
+      // .split("kr")[0]
+      .replace(",", ".")
+      .replace(/ /g, "");
+    // const price = extractNumberFromText(priceString);
+    let regex = /[+-]?\d+(\.\d+)?/g;
+    const matches = priceString.match(regex);
+    if (!matches || matches.length !== 1) throw new Error();
+
+    const price = parseFloat(matches[0]);
     return price;
   } catch (error) {
     log.error(`Cannot extract price from priceString: ${priceString}`);
