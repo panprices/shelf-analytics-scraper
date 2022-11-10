@@ -23,6 +23,38 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     );
   }
 
+  /**
+   * Need to override this so that since 1 product may have multiple colour variants
+   * => Multiple products from 1 original url, each has their own GTIN/SKU.
+   */
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    // Always scrape at least once:
+    await super.crawlDetailPage(ctx);
+
+    const chooseVariantButtons = ctx.page.locator(
+      "a[data-cy='product_variant_link']"
+    );
+    const chooseVariantButtonsCount = await chooseVariantButtons.count();
+    if (chooseVariantButtonsCount > 0) {
+      // Scrape more variants
+
+      for (let i = 0; i < chooseVariantButtonsCount; i++) {
+        const button = chooseVariantButtons.nth(i);
+        await button.click({ force: true });
+        await ctx.page.waitForTimeout(2000);
+
+        try {
+          await super.crawlDetailPage(ctx);
+        } catch (error) {
+          // Ignore this product variant and continue to scrape others
+          if (error instanceof Error) log.warning(error.message);
+        }
+      }
+    }
+  }
+
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
