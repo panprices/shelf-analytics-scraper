@@ -65,6 +65,8 @@ export interface DetailedProductInfo extends BaseProductInfo {
   specifications: Specification[]; // if not applicable return an empty array
 
   matchingType?: string; // {match, unknown}
+  productGroupUrl?: string;
+  variant?: number; // 0, 1, 2, 3, ...
 }
 
 export interface RequestBatch {

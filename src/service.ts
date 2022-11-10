@@ -143,6 +143,14 @@ export async function scrapeDetails(
   const products = (await crawlerDefinition.detailsDataset.getData()).items.map(
     (i) => <DetailedProductInfo>i
   );
+
+  // HACKY SOLUTION for Bygghemma products with multiple variants:
+  products.forEach((p) => {
+    if (p.variant === 0 && p.productGroupUrl) {
+      p.url = p.productGroupUrl;
+    }
+  });
+
   postProcessProductDetails(products);
   return products;
 }

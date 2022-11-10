@@ -56,7 +56,7 @@ export interface CrawlerDefinitionOptions {
  */
 export abstract class AbstractCrawlerDefinition {
   protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
-  private readonly _detailsDataset: Dataset;
+  protected readonly _detailsDataset: Dataset;
   private readonly _listingDataset: Dataset;
 
   protected readonly detailsUrlSelector: string;

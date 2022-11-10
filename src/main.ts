@@ -8,9 +8,7 @@ import {
 } from "./service";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 
-async function debugScrapeDetails() {
-  const targetUrl =
-    "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/tradgardsgrupp/utemobler-matgrupp/matgrupp-venture-design-perla-152-och-210-med-4-stolar/p-1136735-1136736";
+async function debugScrapeDetails(targetUrl: string) {
   // "https://www.bygghjemme.no/hage-och-utemiljo/grill/gassgrill/gassgrill-sunwind-vilja/p-918623";
   // "https://www.trademax.se/utem%C3%B6bler/utebord/matbord-utomhus/kenya-matbord-150-cm-svart-p1509844";
   // "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/soffbord/soffbord-venture-home-disa/p-1159505"; // normal images
@@ -42,14 +40,12 @@ async function debugScrapeDetails() {
     nrImages: detailedItems.map((item) => item.images.length),
   });
 
-  log.info("Persisting in BigQuery");
-  await persistProductsToDatabase(detailedItems);
-  log.info("Published to BigQuery");
+  // log.info("Persisting in BigQuery");
+  // await persistProductsToDatabase(detailedItems);
+  // log.info("Published to BigQuery");
 }
 
-async function debugCategoryExploration() {
-  const targetUrl =
-    "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/tradgardssoffa/tradgardsbank";
+async function debugCategoryExploration(targetUrl: string) {
   const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
     headless: false,
   });
@@ -69,7 +65,7 @@ async function debugLeafCategoryExtraction() {
   await extractLeafCategories(targetUrl);
 }
 
-async function captureHARForUnitTest() {
+async function debugScrapeDetailsRecordHARForTests() {
   const targetUrl =
     "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433";
   const dummyRequest = {
@@ -100,7 +96,27 @@ async function captureHARForUnitTest() {
   fs.writeFileSync("result.json", JSON.stringify(detailedItems, null, 2));
 }
 
-// await debugCategoryExploration();
-await debugCategoryExplorationNoCapture();
-// await debugScrapeDetails();
-// await captureHARForUnitTest();
+async function debugCategoryExplorationRecordHARForTests() {
+  const targetUrl =
+    "https://www.bygghemma.se/inredning-och-belysning/trappor/spiraltrappa/";
+  const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
+    launchContext: {
+      launchOptions: <any>{
+        recordHar: {
+          path: `recording.har`,
+        },
+      },
+      // experimentalContainers: true,
+    },
+  });
+}
+
+// await debugCategoryExploration(
+//   "https://www.k-rauta.se/kategori/verktyg-och-maskiner/arbetsklader-och-sakerhet/handskar/tradgardshandskar"
+// );
+// await debugCategoryExplorationNoCapture();
+await debugScrapeDetails(
+  "https://www.bygghemma.se/inredning-och-belysning/heminredning/poster/posters-venture-home-blue-swirl-beige/p-1730937"
+);
+// await debugScrapeDetailsCaptureHARForTests();
+// await debugCategoryExplorationRecordHARForTests();

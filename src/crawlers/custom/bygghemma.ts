@@ -20,6 +20,9 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    const productGroupUrl = ctx.page.url();
+    let variantCounter = 0;
+
     const chooseColorButtons = ctx.page.locator("ul.xr_zG li");
     const chooseColorButtonsCount = await chooseColorButtons.count();
 
@@ -29,32 +32,18 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     let currentImages;
     if (chooseColorButtonsCount == 0) {
       if ((await chooseTypeDropdownButton.count()) === 0) {
-        await super.crawlDetailPage(ctx);
+        await this.crawlSingleDetailPage(ctx, productGroupUrl, variantCounter);
+        variantCounter++;
       } else {
         currentImages = await this.extractImages(ctx.page);
-
-        await chooseTypeDropdownButton.click();
-        await ctx.page.waitForTimeout(1000);
-        const selectableOptionsCount = await selectableOptions.count();
-        await chooseTypeDropdownButton.click(); // close the dropdown so it doesn't interfere with clicking
-        await ctx.page.waitForTimeout(1000);
-        // console.log("Types: ", selectableOptionsCount);
-
-        for (let j = 0; j < selectableOptionsCount; j++) {
-          await chooseTypeDropdownButton.click();
-          await ctx.page.waitForTimeout(1000);
-          const optionButton = selectableOptions.nth(j);
-          await optionButton.click();
-          await ctx.page.waitForTimeout(1000);
-
-          try {
-            currentImages = await this.waitForChanges(ctx, currentImages);
-            await super.crawlDetailPage(ctx);
-          } catch (error) {
-            if (error instanceof Error) log.warning(error.message);
-            // Ignore this variant and continue to scraper other variances
-          }
-        }
+        variantCounter = await this.chooseDropdownOptionAndCrawlDetailpage(
+          ctx,
+          chooseTypeDropdownButton,
+          selectableOptions,
+          currentImages,
+          productGroupUrl,
+          variantCounter
+        );
       }
     } else {
       currentImages = await this.extractImages(ctx.page);
@@ -68,43 +57,88 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
         if ((await chooseTypeDropdownButton.count()) === 0) {
           try {
             currentImages = await this.waitForChanges(ctx, currentImages);
-            await super.crawlDetailPage(ctx);
+            await this.crawlSingleDetailPage(
+              ctx,
+              productGroupUrl,
+              variantCounter
+            );
+            variantCounter++;
           } catch (error) {
             // Ignore this product variant and continue to scrape others
             if (error instanceof Error) log.warning(error.message);
           }
         } else {
-          await chooseTypeDropdownButton.click();
-          await ctx.page.waitForTimeout(1000);
-          const selectableOptionsCount = await selectableOptions.count();
-          await chooseTypeDropdownButton.click(); // close the dropdown so it doesn't interfere with clicking
-          await ctx.page.waitForTimeout(1000);
-          // console.log("Types: ", selectableOptionsCount);
-
-          for (let j = 0; j < selectableOptionsCount; j++) {
-            await chooseTypeDropdownButton.click();
-            await ctx.page.waitForTimeout(1000);
-            const optionButton = selectableOptions.nth(j);
-            await optionButton.click();
-            await ctx.page.waitForTimeout(1000);
-
-            try {
-              currentImages = await this.waitForChanges(ctx, currentImages);
-              await super.crawlDetailPage(ctx);
-            } catch (error) {
-              if (error instanceof Error) log.warning(error.message);
-              // Ignore this variant and continue to scraper other variances
-            }
-          }
+          variantCounter = await this.chooseDropdownOptionAndCrawlDetailpage(
+            ctx,
+            chooseTypeDropdownButton,
+            selectableOptions,
+            currentImages,
+            productGroupUrl,
+            variantCounter
+          );
         }
       }
     }
   }
 
+  async chooseDropdownOptionAndCrawlDetailpage(
+    ctx: PlaywrightCrawlingContext,
+    chooseTypeDropdownButton: Locator,
+    selectableOptions: Locator,
+    currentImages: string[],
+    productGroupUrl: any,
+    variantCounter: number
+  ): Promise<number> {
+    await chooseTypeDropdownButton.click();
+    await ctx.page.waitForTimeout(1000);
+    const selectableOptionsCount = await selectableOptions.count();
+    await chooseTypeDropdownButton.click(); // close the dropdown so it doesn't interfere with clicking
+    await ctx.page.waitForTimeout(1000);
+    // console.log("Types: ", selectableOptionsCount);
+
+    for (let j = 0; j < selectableOptionsCount; j++) {
+      await chooseTypeDropdownButton.click();
+      await ctx.page.waitForTimeout(1000);
+      const optionButton = selectableOptions.nth(j);
+      await optionButton.click();
+      await ctx.page.waitForTimeout(1000);
+
+      try {
+        currentImages = await this.waitForChanges(ctx, currentImages);
+        await this.crawlSingleDetailPage(ctx, productGroupUrl, variantCounter);
+        variantCounter++;
+      } catch (error) {
+        if (error instanceof Error) log.warning(error.message);
+        // Ignore this variant and continue to scraper other variances
+      }
+    }
+    return variantCounter;
+  }
+
+  // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma solution
+  async crawlSingleDetailPage(
+    ctx: PlaywrightCrawlingContext,
+    productgroupUrl: string,
+    variant: number
+  ): Promise<void> {
+    log.info(`Looking at product with url ${ctx.page.url()}`);
+    const productDetails = await this.extractProductDetails(ctx.page);
+    const request = ctx.request;
+
+    await this._detailsDataset.pushData(<DetailedProductInfo>{
+      fetchedAt: new Date().toISOString(),
+      retailerDomain: extractRootUrl(ctx.page.url()),
+      ...request.userData,
+      ...productDetails,
+      productGroupUrl: productgroupUrl,
+      variant: variant,
+    });
+  }
+
   async waitForChanges(
     ctx: PlaywrightCrawlingContext,
     currentImages: string[],
-    timeout: number = 10000 // ms
+    timeout: number = 1000 // ms
   ) {
     log.info("Wait for images to change...");
     const startTime = Date.now();
