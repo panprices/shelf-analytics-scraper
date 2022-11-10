@@ -116,7 +116,7 @@ async function debugCategoryExplorationRecordHARForTests() {
 // );
 // await debugCategoryExplorationNoCapture();
 await debugScrapeDetails(
-  "https://www.bygghemma.se/inredning-och-belysning/heminredning/poster/posters-venture-home-blue-swirl-beige/p-1730937"
+  "https://www.chilli.se/m%C3%B6bler/soffor/u-soffa/u-soffa-haga-manchester-beige-p1697385-v708672"
 );
 // await debugScrapeDetailsCaptureHARForTests();
 // await debugCategoryExplorationRecordHARForTests();
