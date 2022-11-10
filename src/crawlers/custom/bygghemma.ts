@@ -26,10 +26,38 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     const chooseTypeDropdownButton = ctx.page.locator("div.DcdG0 button");
     const selectableOptions = ctx.page.locator("div.DcdG0 li:not(.WYoRt)");
 
+    let currentImages;
     if (chooseColorButtonsCount == 0) {
-      await super.crawlDetailPage(ctx);
+      if ((await chooseTypeDropdownButton.count()) === 0) {
+        await super.crawlDetailPage(ctx);
+      } else {
+        currentImages = await this.extractImages(ctx.page);
+
+        await chooseTypeDropdownButton.click();
+        await ctx.page.waitForTimeout(1000);
+        const selectableOptionsCount = await selectableOptions.count();
+        await chooseTypeDropdownButton.click(); // close the dropdown so it doesn't interfere with clicking
+        await ctx.page.waitForTimeout(1000);
+        // console.log("Types: ", selectableOptionsCount);
+
+        for (let j = 0; j < selectableOptionsCount; j++) {
+          await chooseTypeDropdownButton.click();
+          await ctx.page.waitForTimeout(1000);
+          const optionButton = selectableOptions.nth(j);
+          await optionButton.click();
+          await ctx.page.waitForTimeout(1000);
+
+          try {
+            currentImages = await this.waitForChanges(ctx, currentImages);
+            await super.crawlDetailPage(ctx);
+          } catch (error) {
+            if (error instanceof Error) log.warning(error.message);
+            // Ignore this variant and continue to scraper other variances
+          }
+        }
+      }
     } else {
-      let currentImages = await this.extractImages(ctx.page);
+      currentImages = await this.extractImages(ctx.page);
       // console.log(currentImages);
 
       for (let i = 0; i < chooseColorButtonsCount; i++) {
@@ -84,9 +112,9 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     let newImages;
     do {
       if (Date.now() - startTime > timeout) {
-        throw new Error(
-          `Wait for images to change takes too long. Timeout: ${timeout} ms. Url: ${ctx.page.url()}`
-        );
+        // Shouldn't throw error but just return result since it's likely that
+        // the image wasn't changed after choosing another option.
+        return currentImages;
       }
 
       // newImages = await this.extractImages(ctx.page);
@@ -314,7 +342,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       */
       listingUrlSelector: "link[rel='next']",
       detailsUrlSelector: "div.xqHsK >div.FSL6m > a",
-      productCardSelector: "div.xqHsK",
+      productCardSelector: "main div.xqHsK",
       cookieConsentSelector: "button#ccc-notify-accept",
       dynamicProductCardLoading: false,
     });
