@@ -146,7 +146,11 @@ export async function scrapeDetails(
 
   // HACKY SOLUTION for Bygghemma products with multiple variants:
   products.forEach((p) => {
-    if (p.variant === 0 && p.productGroupUrl) {
+    if (
+      p.retailerDomain?.includes("bygghemma") &&
+      p.variant === 0 &&
+      p.productGroupUrl
+    ) {
       p.url = p.productGroupUrl;
     }
   });
