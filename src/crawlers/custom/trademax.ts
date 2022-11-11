@@ -36,10 +36,33 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<void> {
     // Always scrape at least once:
     await super.crawlDetailPage(ctx);
+
+    // Enqueue the main variant group where you have a.href:
     await ctx.enqueueLinks({
       selector: "a[data-cy='product_variant_link']",
       label: "DETAIL",
     });
+
+    // Check for secondary variant group where you don't have a.href.
+    // Try to click buttons and enqueue new links:
+    const secondaryVariantButtons = ctx.page.locator(
+      "div[data-cy='product_variant_link']"
+    );
+    const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
+    console.log("Variant counts: " + secondaryVariantButtonsCount);
+    // Always have one button grayed out which is the current selected variant,
+    // so we only try to enqueue more if there are at least 1 more.
+    if (secondaryVariantButtonsCount >= 2) {
+      for (let i = 0; i < secondaryVariantButtonsCount; i++) {
+        await secondaryVariantButtons.nth(i).click();
+        await ctx.page.waitForTimeout(1500);
+
+        await ctx.enqueueLinks({
+          urls: [ctx.page.url()],
+          label: "DETAIL",
+        });
+      }
+    }
   }
 
   async extractCardProductInfo(
@@ -109,28 +132,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         .textContent()
     );
     metadata.schemaOrg = JSON.parse(schemaOrgString);
-
-    // Try using page.content() instead. Doesn't work, please remove later.
-
-    const html = await page.content();
-    fs.writeFile(v4() + ".html", html, (err) => {
-      if (err) {
-        console.error(err);
-      }
-      // file written successfully
-    });
-    // const dom = new jsdom.JSDOM(html);
-    // const doc = dom.window.document;
-    // // const doc = parser.parseFromString(html, "text/html");
-    // const scripts = doc.querySelectorAll("script[type='application/ld+json']");
-    // let productSchemaOrg = null;
-    // scripts.forEach((script) => {
-    //   if (script.textContent && script.textContent.includes("Product")) {
-    //     productSchemaOrg = JSON.parse(script.textContent);
-    //   }
-    // });
-    // console.log(productSchemaOrg);
-    // if (productSchemaOrg) metadata.schemaOrg = productSchemaOrg;
 
     const sku = metadata.schemaOrg?.mpn;
 
