@@ -2,7 +2,7 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
 } from "../abstract";
-import { Locator, Page } from "playwright";
+import { Locator, Page, selectors } from "playwright";
 import { Dataset, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   DetailedProductInfo,
@@ -12,7 +12,11 @@ import {
   ProductReviews,
 } from "../../types/offer";
 import { extractRootUrl } from "../../utils";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, v4 } from "uuid";
+import { json } from "body-parser";
+
+import jsdom from "jsdom";
+import fs from "fs";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   constructor(options: CrawlerDefinitionOptions) {
@@ -32,27 +36,10 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<void> {
     // Always scrape at least once:
     await super.crawlDetailPage(ctx);
-
-    const chooseVariantButtons = ctx.page.locator(
-      "a[data-cy='product_variant_link']"
-    );
-    const chooseVariantButtonsCount = await chooseVariantButtons.count();
-    if (chooseVariantButtonsCount > 0) {
-      // Scrape more variants
-
-      for (let i = 0; i < chooseVariantButtonsCount; i++) {
-        const button = chooseVariantButtons.nth(i);
-        await button.click({ force: true });
-        await ctx.page.waitForTimeout(2000);
-
-        try {
-          await super.crawlDetailPage(ctx);
-        } catch (error) {
-          // Ignore this product variant and continue to scrape others
-          if (error instanceof Error) log.warning(error.message);
-        }
-      }
-    }
+    await ctx.enqueueLinks({
+      selector: "a[data-cy='product_variant_link']",
+      label: "DETAIL",
+    });
   }
 
   async extractCardProductInfo(
@@ -122,6 +109,28 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         .textContent()
     );
     metadata.schemaOrg = JSON.parse(schemaOrgString);
+
+    // Try using page.content() instead. Doesn't work, please remove later.
+
+    const html = await page.content();
+    fs.writeFile(v4() + ".html", html, (err) => {
+      if (err) {
+        console.error(err);
+      }
+      // file written successfully
+    });
+    // const dom = new jsdom.JSDOM(html);
+    // const doc = dom.window.document;
+    // // const doc = parser.parseFromString(html, "text/html");
+    // const scripts = doc.querySelectorAll("script[type='application/ld+json']");
+    // let productSchemaOrg = null;
+    // scripts.forEach((script) => {
+    //   if (script.textContent && script.textContent.includes("Product")) {
+    //     productSchemaOrg = JSON.parse(script.textContent);
+    //   }
+    // });
+    // console.log(productSchemaOrg);
+    // if (productSchemaOrg) metadata.schemaOrg = productSchemaOrg;
 
     const sku = metadata.schemaOrg?.mpn;
 
