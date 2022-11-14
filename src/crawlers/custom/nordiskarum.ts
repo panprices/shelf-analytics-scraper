@@ -29,12 +29,14 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       page,
       "h1.page-title",
       (node) => node.textContent()
-    ).then((text) => text!.trim());
+    ).then((text) => text?.trim());
+    if (!productName) throw new Error("Cannot extract productName");
+
     const description = await this.extractProperty(
       page,
       "div[itemprop='description']",
       (node) => node.textContent()
-    ).then((text) => text!.trim());
+    ).then((text) => text?.trim());
 
     const allPricesLocators = await page.locator(
       ".product-info-price span.price-wrapper"
