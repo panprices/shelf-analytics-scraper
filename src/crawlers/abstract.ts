@@ -228,6 +228,7 @@ export abstract class AbstractCrawlerDefinition {
 
         currentProductInfo.url = `${currentUrl.protocol}//${currentUrl.host}${currentProductInfo.url}`;
       }
+      currentProductInfo.url = new URL(currentProductInfo.url).href; // encode the url
 
       currentProductInfo.popularityIndex = this.handleFoundProductFromCard(
         currentProductInfo.url,
@@ -235,16 +236,9 @@ export abstract class AbstractCrawlerDefinition {
       );
 
       await enqueueLinks({
-        selector: detailsUrlSelector,
+        urls: [currentProductInfo.url],
         label: "DETAIL",
         userData: currentProductInfo,
-        transformRequestFunction: (original: RequestOptions) => {
-          if (original.url !== currentProductInfo.url) {
-            return false;
-          }
-
-          return original;
-        },
       });
     }
   }
