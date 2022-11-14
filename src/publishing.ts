@@ -9,7 +9,7 @@ export async function sendRequestBatch(
   detailedPages: RequestOptions[],
   jobId: string
 ) {
-  const maxBatchSize = 40;
+  const maxBatchSize = 1000;
   const pubSubClient = new PubSub();
 
   _.chunk(detailedPages, maxBatchSize).forEach(async (pages) => {
