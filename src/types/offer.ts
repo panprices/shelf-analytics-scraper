@@ -69,7 +69,11 @@ export interface DetailedProductInfo extends BaseProductInfo {
   variant?: number; // 0, 1, 2, 3, ...
 }
 
-export interface RequestBatch {
+export interface JobContext {
   jobId: string;
+  env: string;
+}
+export interface RequestBatch {
   productDetails: RequestOptions[];
+  jobContext: JobContext;
 }

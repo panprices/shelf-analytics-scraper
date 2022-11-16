@@ -1,13 +1,13 @@
 import _ from "lodash";
 import { Dictionary, log, RequestOptions } from "crawlee";
 import { PubSub } from "@google-cloud/pubsub";
-import { DetailedProductInfo, RequestBatch } from "./types/offer";
+import { DetailedProductInfo, JobContext, RequestBatch } from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
 import { InsertRowsResponse } from "@google-cloud/bigquery/build/src/table";
 
 export async function sendRequestBatch(
   detailedPages: RequestOptions[],
-  jobId: string
+  jobContext: JobContext
 ) {
   const maxBatchSize = 1000;
   const pubSubClient = new PubSub();
@@ -15,8 +15,8 @@ export async function sendRequestBatch(
   _.chunk(detailedPages, maxBatchSize).forEach(async (pages) => {
     log.info(`Sending a request batch with ${pages.length} requests`);
     const batchRequest: RequestBatch = {
-      jobId: jobId,
       productDetails: pages,
+      jobContext: jobContext,
     };
 
     try {
@@ -136,7 +136,10 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
   });
 }
 
-export async function publishMatchingProducts(products: DetailedProductInfo[]) {
+export async function publishMatchingProducts(
+  products: DetailedProductInfo[],
+  jobContext: JobContext
+) {
   const pubSubClient = new PubSub();
   log.info(`Publishing matching products to be updated.`, {
     nrProducts: products.length,
@@ -144,6 +147,7 @@ export async function publishMatchingProducts(products: DetailedProductInfo[]) {
 
   const payload = {
     productDetails: products,
+    jobContext: jobContext,
   };
 
   try {
