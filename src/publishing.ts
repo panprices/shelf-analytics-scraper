@@ -11,6 +11,10 @@ export async function sendRequestBatch(
 ) {
   const maxBatchSize = 1000;
   const pubSubClient = new PubSub();
+  if (!process.env.SCHEDULE_PRODUCT_SCRAPE_TOPIC) {
+    throw new Error("Cannot find env variable 'SCHEDULE_PRODUCT_SCRAPE_TOPIC'");
+  }
+  const topic = process.env.SCHEDULE_PRODUCT_SCRAPE_TOPIC;
 
   _.chunk(detailedPages, maxBatchSize).forEach(async (pages) => {
     log.info(`Sending a request batch with ${pages.length} requests`);
@@ -21,7 +25,7 @@ export async function sendRequestBatch(
 
     try {
       const messageId = await pubSubClient
-        .topic("trigger_schedule_product_scrapes")
+        .topic(topic)
         .publishMessage({ json: batchRequest });
       log.info(`Message ${messageId} published.`);
     } catch (error) {
@@ -141,6 +145,13 @@ export async function publishMatchingProducts(
   jobContext: JobContext
 ) {
   const pubSubClient = new PubSub();
+  if (!process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC) {
+    throw new Error(
+      "Cannot find env variable 'SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC'"
+    );
+  }
+  const topic = process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC;
+
   log.info(`Publishing matching products to be updated.`, {
     nrProducts: products.length,
   });
@@ -152,7 +163,7 @@ export async function publishMatchingProducts(
 
   try {
     const messageId = await pubSubClient
-      .topic("trigger_shelf_analytics_update_products")
+      .topic(topic)
       .publishMessage({ json: payload });
     log.info(`Message ${messageId} published.`);
   } catch (error) {
