@@ -1,0 +1,26 @@
+steps:
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/panprices/shelf-analytics-scraper", "."]
+  # Push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/panprices/shelf-analytics-scraper"]
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - shelf-analytics-scraper
+      - --image
+      - gcr.io/panprices/shelf-analytics-scraper
+      - --region
+      - europe-west1
+      - --platform
+      - managed
+      - --cpu=1
+      - --memory=4Gi
+      - --concurrency=1 # should only run 1 scraper at a time
+      - --timeout=3600s # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
+images:
+  - gcr.io/panprices/shelf-analytics-scraper
