@@ -73,6 +73,7 @@ export interface JobContext {
   jobId: string;
   env: string;
 }
+
 export interface RequestBatch {
   productDetails: RequestOptions[];
   jobContext: JobContext;
