@@ -41,8 +41,11 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
 
-  const detailedPages = await exploreCategory(body.url, req.body.jobId);
-  await sendRequestBatch(detailedPages, req.body.jobId);
+  const detailedPages = await exploreCategory(
+    body.url,
+    req.body.jobContext.jobId
+  );
+  await sendRequestBatch(detailedPages, req.body.jobContext);
 
   res.status(204).send("OK");
 });
@@ -58,7 +61,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   const matchingProducts = products.filter((p) => p.matchingType === "match");
   if (matchingProducts.length > 0) {
-    await publishMatchingProducts(matchingProducts);
+    await publishMatchingProducts(matchingProducts, body.jobContext);
   }
 
   res.status(204).send("OK");

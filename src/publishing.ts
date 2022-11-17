@@ -1,27 +1,33 @@
 import _ from "lodash";
 import { Dictionary, log, RequestOptions } from "crawlee";
 import { PubSub } from "@google-cloud/pubsub";
-import { DetailedProductInfo, RequestBatch } from "./types/offer";
+import { DetailedProductInfo, JobContext, RequestBatch } from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
 import { InsertRowsResponse } from "@google-cloud/bigquery/build/src/table";
 
 export async function sendRequestBatch(
   detailedPages: RequestOptions[],
-  jobId: string
+  jobContext: JobContext
 ) {
   const maxBatchSize = 1000;
   const pubSubClient = new PubSub();
+  if (!process.env.SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC) {
+    throw new Error(
+      "Cannot find env variable 'SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC'"
+    );
+  }
+  const topic = process.env.SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC;
 
   _.chunk(detailedPages, maxBatchSize).forEach(async (pages) => {
     log.info(`Sending a request batch with ${pages.length} requests`);
     const batchRequest: RequestBatch = {
-      jobId: jobId,
       productDetails: pages,
+      jobContext: jobContext,
     };
 
     try {
       const messageId = await pubSubClient
-        .topic("trigger_schedule_product_scrapes")
+        .topic(topic)
         .publishMessage({ json: batchRequest });
       log.info(`Message ${messageId} published.`);
     } catch (error) {
@@ -136,19 +142,30 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
   });
 }
 
-export async function publishMatchingProducts(products: DetailedProductInfo[]) {
+export async function publishMatchingProducts(
+  products: DetailedProductInfo[],
+  jobContext: JobContext
+) {
   const pubSubClient = new PubSub();
+  if (!process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC) {
+    throw new Error(
+      "Cannot find env variable 'SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC'"
+    );
+  }
+  const topic = process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC;
+
   log.info(`Publishing matching products to be updated.`, {
     nrProducts: products.length,
   });
 
   const payload = {
     productDetails: products,
+    jobContext: jobContext,
   };
 
   try {
     const messageId = await pubSubClient
-      .topic("trigger_shelf_analytics_update_products")
+      .topic(topic)
       .publishMessage({ json: payload });
     log.info(`Message ${messageId} published.`);
   } catch (error) {
