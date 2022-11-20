@@ -9,3 +9,9 @@ You can find more examples and documentation at the following links:
 - Other [examples](https://crawlee.dev/docs/examples/playwright-crawler)
 
 # test-crawlee
+
+
+# How to test XPATH locators in the browser
+
+Go to developer console and use
+`$x('YOUR_XPATH_HERE')`

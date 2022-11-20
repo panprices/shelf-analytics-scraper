@@ -2,6 +2,7 @@ import { AbstractCrawlerDefinition } from "../abstract";
 import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { log, PlaywrightCrawlingContext } from "crawlee";
+import {extractRootUrl} from "../../utils";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -23,7 +24,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     do {
       await super.scrollToBottom(ctx);
 
-      await page.locator("//ul[@class = 'pagination']/li[last()]").click();
+      await page.locator("//button[contains(@class, 'next')]").click();
 
       await new Promise((f) => setTimeout(f, 1000));
 
@@ -245,14 +246,38 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    const rootUrl = extractRootUrl(ctx.page.url());
+    const subCategoriesIdentifier = "//div[contains(@class, 'subcategories')]/a";
+
     await ctx.page
-      .locator("//div[@class = 'subcategories']/a")
+      .locator(subCategoriesIdentifier)
       .nth(0)
       .waitFor();
-    await ctx.enqueueLinks({
-      selector: "//div[@class = 'subcategories']/a",
-      label: "LIST",
+
+    const subCategoriesLocator = ctx.page.locator(subCategoriesIdentifier);
+    const subCategoriesCount = await subCategoriesLocator.count();
+    const subCategoriesUrlPromises = await [...Array(subCategoriesCount).keys()].map(i => {
+      const currentSubCategory = subCategoriesLocator.nth(i)
+      return currentSubCategory.getAttribute("href");
     });
+
+    const subCategoryUrls = await Promise.all(subCategoriesUrlPromises)
+
+    const isLeafCategory = subCategoryUrls
+      .map((u) => `${rootUrl}${u}`)
+      .some((u) => ctx.page.url() == u);
+
+    if (isLeafCategory) {
+      await ctx.enqueueLinks({
+        urls: [ctx.page.url()],
+        label: "LIST"
+      })
+    } else {
+      await ctx.enqueueLinks({
+        selector: subCategoriesIdentifier,
+        label: "INTERMEDIATE_CATEGORY",
+      });
+    }
   }
 
   static async create(): Promise<VentureDesignCrawlerDefinition> {

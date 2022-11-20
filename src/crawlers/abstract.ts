@@ -127,7 +127,7 @@ export abstract class AbstractCrawlerDefinition {
    * @param ctx
    */
   async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    await ctx.page.locator(this.productCardSelector).nth(1).waitFor();
+    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);
 
