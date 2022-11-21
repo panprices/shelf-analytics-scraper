@@ -42,19 +42,28 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
     console.log("Variant counts: " + secondaryVariantButtonsCount);
+
     // Always have one button grayed out which is the current selected variant,
     // so we only try to enqueue more if there are at least 1 more.
+
+    const variantUrls = [];
     if (secondaryVariantButtonsCount >= 2) {
       for (let i = 0; i < secondaryVariantButtonsCount; i++) {
+        console.log("Clicking");
         await secondaryVariantButtons.nth(i).click();
         await ctx.page.waitForTimeout(1500);
 
-        await ctx.enqueueLinks({
-          urls: [ctx.page.url()],
-          label: "DETAIL",
-        });
+        variantUrls.push(ctx.page.url());
+        // await ctx.enqueueLinks({
+        //   urls: [ctx.page.url()],
+        //   label: "DETAIL",
+        // });
       }
     }
+    await ctx.enqueueLinks({
+      urls: variantUrls,
+      label: "DETAIL",
+    });
   }
 
   async extractCardProductInfo(

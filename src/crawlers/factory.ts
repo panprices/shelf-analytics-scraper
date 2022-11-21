@@ -2,6 +2,7 @@ import {
   log,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
+  ProxyConfiguration,
   RequestQueue,
 } from "crawlee";
 import {
@@ -56,6 +57,9 @@ export class CrawlerFactory {
       navigationTimeoutSecs: 150,
       ...overrides,
     };
+    const proxyConfigurationUK = new ProxyConfiguration({
+      proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60001"],
+    });
 
     let definition;
     switch (url) {
@@ -75,9 +79,11 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
         definition = await ChilliCrawlerDefinition.create();
+
         options = {
           ...options,
           requestHandler: definition.router,
+          proxyConfiguration: proxyConfigurationUK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
