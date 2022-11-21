@@ -1,6 +1,5 @@
-import { scrapeDetails } from "../src/service";
-import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
-import { BrowserContext } from "playwright-core";
+import {scrapeDetails} from "../src/service";
+import {PlaywrightCrawlingContext} from "crawlee";
 import * as fs from "fs";
 
 jest.setTimeout(30000);

@@ -6,7 +6,13 @@ import {extractRootUrl} from "../../utils";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
+    const emptyPageLocator = ctx.page.locator(".coming-soon-title")
+    await emptyPageLocator.waitFor({state: "visible", timeout: 500})
+    const emptyPage = await emptyPageLocator.isVisible()
+    console.log(emptyPage)
+    if (emptyPage) {
+      return ;
+    }
 
     return super.crawlListPage(ctx);
   }
