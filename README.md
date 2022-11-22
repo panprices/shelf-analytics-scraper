@@ -15,3 +15,17 @@ You can find more examples and documentation at the following links:
 
 Go to developer console and use
 `$x('YOUR_XPATH_HERE')`
+
+# How to record a har file for tests: 
+Add the following `overrides` option to the crawler: 
+```javascript
+        launchContext: {
+          launchOptions: <any>{
+            recordHar: {
+              path: "example.har",
+            },
+          },
+          experimentalContainers: true,
+          launcher:
+        },
+```

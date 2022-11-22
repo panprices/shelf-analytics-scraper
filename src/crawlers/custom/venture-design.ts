@@ -7,11 +7,15 @@ import {extractRootUrl} from "../../utils";
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     const emptyPageLocator = ctx.page.locator(".coming-soon-title")
-    await emptyPageLocator.waitFor({state: "visible", timeout: 500})
-    const emptyPage = await emptyPageLocator.isVisible()
-    console.log(emptyPage)
-    if (emptyPage) {
-      return ;
+    try {
+      await emptyPageLocator.waitFor({state: "visible", timeout: 500})
+      const emptyPage = await emptyPageLocator.isVisible();
+      if (emptyPage) {
+        log.warning(`Empty category page: ${ctx.page.url()}`);
+        return ;
+      }
+    } catch(e) {
+      log.info(`Not an empty page: ${ctx.page.url()}`);
     }
 
     return super.crawlListPage(ctx);
