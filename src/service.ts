@@ -49,10 +49,6 @@ export async function exploreCategory(
     await inWaitQueue.markRequestHandled(request);
   }
 
-  log.info(`Category explored`, {
-    url: targetUrl,
-    nrProductsFound: detailedPages.length,
-  });
   return detailedPages;
 }
 

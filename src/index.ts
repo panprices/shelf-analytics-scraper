@@ -11,7 +11,7 @@ import {
   sendRequestBatch,
 } from "./publishing";
 import { log, LoggerJson as CrawleeLoggerJson } from "crawlee";
-import { configCrawleeLogger } from "./utils";
+import { configCrawleeLogger, extractRootUrl } from "./utils";
 
 const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -45,6 +45,17 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
     body.url,
     req.body.jobContext.jobId
   );
+  try {
+    log.info(`Categories explored`, {
+      categoryUrl: body.url,
+      nrProductsFound: detailedPages.length,
+      retailer: extractRootUrl(body.url),
+      jobId: req.body.jobContext.jobId,
+    });
+  } catch (error) {
+    /* do nothing */
+  }
+
   await sendRequestBatch(detailedPages, req.body.jobContext);
 
   res.status(204).send("OK");
@@ -57,6 +68,17 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   configCrawleeLogger(cloudTrace);
 
   const products = await scrapeDetails(body.productDetails);
+  try {
+    log.info("Product details scraped", {
+      nrUrls: products.length,
+      nrProductsFound: products.length,
+      retailer: extractRootUrl(body.productDetails[0].url),
+      jobId: req.body.jobContext.jobId,
+    });
+  } catch (error) {
+    /* do nothing */
+  }
+
   await persistProductsToDatabase(products);
 
   const matchingProducts = products.filter((p) => p.matchingType === "match");
