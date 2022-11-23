@@ -36,7 +36,6 @@ app.get("/test", async (req: Request, res: Response) => {
 });
 
 app.post("/exploreCategory", async (req: Request, res: Response) => {
-  console.log({ msg: "Explore category payload", body: req.body });
   const body = <RequestOptions>req.body;
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");

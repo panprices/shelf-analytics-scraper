@@ -4,9 +4,9 @@ import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractRootUrl } from "./utils";
 import { sendRequestBatch } from "./publishing";
 import { DetailedProductInfo } from "./types/offer";
-import {AbstractCrawlerDefinition} from "./crawlers/abstract";
-import {writeFileSync} from "fs";
-import {join} from 'path';
+import { AbstractCrawlerDefinition } from "./crawlers/abstract";
+import { writeFileSync } from "fs";
+import { join } from "path";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -69,55 +69,64 @@ export async function exploreCategoriesNoCapture(
 
   const rootUrl = extractRootUrl(targetUrls[0]);
 
-  const [crawler, crawlerDefinition] = await CrawlerFactory.buildCrawlerForRootUrl(
-    {
-      url: rootUrl,
-      customQueueSettings: {
-        captureLabels: [],
+  const [crawler, crawlerDefinition] =
+    await CrawlerFactory.buildCrawlerForRootUrl(
+      {
+        url: rootUrl,
+        customQueueSettings: {
+          captureLabels: [],
+        },
       },
-    },
-    {
-      ...overrides,
-      maxConcurrency: 1,
-      requestHandlerTimeoutSecs: 3600,
-    }
+      {
+        ...overrides,
+        maxConcurrency: 1,
+        requestHandlerTimeoutSecs: 3600,
+      }
+    );
+  await crawler.run(
+    targetUrls.map((t) => {
+      return {
+        url: t,
+        label: "LIST",
+      };
+    })
   );
-  await crawler.run(targetUrls.map(t => {
-    return {
-      url: t,
-        label:"LIST",
-    }
-  }));
 
-  return await extractProductDetails(crawlerDefinition)
+  return await extractProductDetails(crawlerDefinition);
 }
 
-export async function exploreCategoryEndToEnd(categoryUrls: string[]): Promise<DetailedProductInfo[]> {
-  let result: DetailedProductInfo[] = []
+export async function exploreCategoryEndToEnd(
+  categoryUrls: string[]
+): Promise<DetailedProductInfo[]> {
+  let result: DetailedProductInfo[] = [];
   for (const u of categoryUrls) {
-    console.log(u)
-    const detailedProducts = await exploreCategory(u, 'end_to_end').then(detailRequests => {
-      console.log(`Found ${detailRequests.length} detailed urls`)
+    console.log(u);
+    const detailedProducts = await exploreCategory(u, "end_to_end").then(
+      (detailRequests) => {
+        console.log(`Found ${detailRequests.length} detailed urls`);
 
-      return scrapeDetails(detailRequests).then(detailedProducts => {
-        console.log(`Category ${u} obtained ${detailedProducts.length} product details`)
+        return scrapeDetails(detailRequests).then((detailedProducts) => {
+          console.log(
+            `Category ${u} obtained ${detailedProducts.length} product details`
+          );
 
-        if (detailedProducts.length < detailRequests.length) {
-          throw 'Missing detailed products'
-        }
-        return detailedProducts
-      })
-    })
+          if (detailedProducts.length < detailRequests.length) {
+            throw "Missing detailed products";
+          }
+          return detailedProducts;
+        });
+      }
+    );
 
-    result = [...result, ...detailedProducts]
+    result = [...result, ...detailedProducts];
   }
 
-  return result
+  return result;
 }
 
 export async function extractLeafCategories(targetUrls: string[]) {
   if (targetUrls.length === 0) {
-    return ;
+    return;
   }
 
   const rootUrl = extractRootUrl(targetUrls[0]);
@@ -134,12 +143,14 @@ export async function extractLeafCategories(targetUrls: string[]) {
       maxConcurrency: 4,
     }
   );
-  await crawler.run(targetUrls.map(t => {
-    return {
-      url: t,
-      label:"INTERMEDIATE_CATEGORY",
-    }
-  }));
+  await crawler.run(
+    targetUrls.map((t) => {
+      return {
+        url: t,
+        label: "INTERMEDIATE_CATEGORY",
+      };
+    })
+  );
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
   const categoryUrls = [];
@@ -176,10 +187,12 @@ export async function scrapeDetails(
 
   await crawler.run(detailedPages);
 
-  return await extractProductDetails(crawlerDefinition)
+  return await extractProductDetails(crawlerDefinition);
 }
 
-async function extractProductDetails(crawlerDefinition: AbstractCrawlerDefinition): Promise<DetailedProductInfo[]> {
+async function extractProductDetails(
+  crawlerDefinition: AbstractCrawlerDefinition
+): Promise<DetailedProductInfo[]> {
   const products = (await crawlerDefinition.detailsDataset.getData()).items.map(
     (i) => <DetailedProductInfo>i
   );
@@ -209,7 +222,7 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
     }
 
     p.currency = p.currency.toUpperCase();
-    if (p.currency.length !== 3 && p.currency !== 'UNKNOWN') {
+    if (p.currency.length !== 3 && p.currency !== "UNKNOWN") {
       throw Error(`Unknown currency '${p.currency}'`);
     }
     switch (p.currency) {

@@ -57,9 +57,15 @@ export class CrawlerFactory {
       navigationTimeoutSecs: 150,
       ...overrides,
     };
-    const proxyConfigurationUK = new ProxyConfiguration({
-      proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60001"],
-    });
+
+    const proxyConfiguration = {
+      UK: new ProxyConfiguration({
+        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60002"],
+      }),
+      DE_1st_proxy_for_test: new ProxyConfiguration({
+        proxyUrls: ["http://panprices:BB4NC4WQmx@45.93.52.109:60000"],
+      }),
+    };
 
     let definition;
     switch (url) {
@@ -79,11 +85,10 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
         definition = await ChilliCrawlerDefinition.create();
-
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfigurationUK,
+          proxyConfiguration: proxyConfiguration.UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
