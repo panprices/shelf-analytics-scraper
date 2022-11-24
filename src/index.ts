@@ -53,7 +53,7 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
       jobId: req.body.jobContext.jobId,
     });
   } catch (error) {
-    /* do nothing */
+    /* logging failed, do nothing */
   }
 
   await sendRequestBatch(detailedPages, req.body.jobContext);
@@ -76,7 +76,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
       jobId: req.body.jobContext.jobId,
     });
   } catch (error) {
-    /* do nothing */
+    /* logging failed, do nothing */
   }
 
   await persistProductsToDatabase(products);

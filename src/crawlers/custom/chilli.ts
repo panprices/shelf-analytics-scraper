@@ -121,7 +121,14 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    await page.waitForSelector("h1[data-cy='product_title']");
+    try {
+      await page.waitForSelector("h1[data-cy='product_title']");
+    } catch (error) {
+      log.warning(
+        `No product title found, potentially brokenlink. Url: ${page.url()}`
+      );
+      throw error;
+    }
     await this.handleCookieConsent(page);
 
     const metadata: OfferMetadata = {};
@@ -136,7 +143,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const sku = metadata.schemaOrg?.mpn;
 
-    const product_name = await page
+    const productName = await page
       .locator("h1[data-cy='product_title']")
       .textContent();
     const price_text = await page
@@ -301,7 +308,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
     const intermediateResult: DetailedProductInfo = {
-      name: <string>product_name,
+      name: <string>productName,
       price,
       currency: "SEK",
       images,
