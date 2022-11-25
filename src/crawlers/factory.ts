@@ -65,8 +65,11 @@ export class CrawlerFactory {
       UK: new ProxyConfiguration({
         proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60001"],
       }),
-      DE_1st_proxy_for_test: new ProxyConfiguration({
-        proxyUrls: ["http://panprices:BB4NC4WQmx@45.93.52.109:60000"],
+      SE: new ProxyConfiguration({
+        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60002"],
+      }),
+      DE2: new ProxyConfiguration({
+        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
       }),
     };
 
@@ -91,7 +94,10 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.DE,
+          // Random between SE and DE2 proxy:
+          proxyConfiguration: [proxyConfiguration.SE, proxyConfiguration.DE2][
+            Math.floor(Math.random() * 2)
+          ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
