@@ -20,6 +20,13 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    // Imitate a vertical screen resolution to fit more elements in the viewport.
+    // This helps with some inconsistency when elements are dynamically loaded.
+    await ctx.page.setViewportSize({ width: 1200, height: 1600 });
+    await ctx.page.evaluate(() => window.scrollTo(0, 500)); // to have the thumbnails in viewport
+
+    await this.handleCookieConsent(ctx.page);
+
     const productGroupUrl = ctx.page.url();
     let variantCounter = 0;
 
@@ -116,9 +123,11 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma solution
+  // where you set the variant = 0, 1, 2, ..., and the variant 0 will have
+  // its url changed to the productGroupUrl.
   async crawlSingleDetailPage(
     ctx: PlaywrightCrawlingContext,
-    productgroupUrl: string,
+    productGroupUrl: string,
     variant: number
   ): Promise<void> {
     log.info(`Looking at product with url ${ctx.page.url()}`);
@@ -130,7 +139,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       retailerDomain: extractRootUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
-      productGroupUrl: productgroupUrl,
+      productGroupUrl: productGroupUrl,
       variant: variant,
     });
   }
@@ -161,11 +170,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       !newImages ||
       JSON.stringify(newImages) === JSON.stringify(currentImages)
     );
-    // console.log(currentImages);
-
-    console.log(currentImages.length, newImages.length);
-    console.log(currentImages);
-    console.log(newImages);
 
     return newImages;
   }
@@ -227,10 +231,20 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    const productName = await this.extractProperty(page, "h1.mpzBU", (node) =>
-      node.textContent()
+    const productNamePart1 = await this.extractProperty(
+      page,
+      "h1.mpzBU .ftHHn",
+      (node) => node.textContent()
     ).then((text) => text?.trim());
-    if (!productName) throw new Error("Cannot extract productName");
+    const productNamePart2 = await this.extractProperty(
+      page,
+      "h1.mpzBU .Wvkg0",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    if (!productNamePart1 || !productNamePart2)
+      throw new Error("Cannot extract productName");
+
+    const productName = productNamePart1 + " " + productNamePart2;
 
     const description = await this.extractProperty(
       page,
@@ -329,38 +343,81 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractImages(page: Page): Promise<string[]> {
     const images = [];
 
-    // Take thumbnail images:
-    const thumbnailImagesSelector = page.locator("img.vGPfg");
-    let hasThumbnails;
+    // Extract main image:
+    if (images.length === 0) {
+      const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
+      if (imgUrl) {
+        images.push(cleanImageUrl(imgUrl));
+      }
+    }
+
+    // Try to take thumbnail images:
     try {
-      await thumbnailImagesSelector.nth(0).waitFor({ timeout: 2000 });
-      hasThumbnails = true;
-    } catch {
-      hasThumbnails = false;
+      await page.waitForSelector("div.h2Ciw:first-child img.vGPfg", {
+        timeout: 5000,
+      });
+    } catch (error) {
+      // No thumbnails found, just return the main image
+      return images;
     }
 
-    if (hasThumbnails) {
-      const imagesCount = await thumbnailImagesSelector.count();
-      for (let i = 0; i < imagesCount; i++) {
-        const imgUrl = await thumbnailImagesSelector
-          .nth(i)
-          .getAttribute("src", { timeout: 200 });
-        if (imgUrl) {
-          images.push(cleanImageUrl(imgUrl));
-        }
-      }
-    } else {
-      // No thumbnail images found => product only have 1 image => take it
-      if (images.length === 0) {
-        const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
-        if (imgUrl) {
-          images.push(cleanImageUrl(imgUrl));
-        }
+    // await page.waitForLoadState("networkidle");
+    const thumbnailImagesSelector = page.locator("img.vGPfg");
+    const thumbnailImagesCount = await thumbnailImagesSelector.count();
+    for (let i = 0; i < thumbnailImagesCount; i++) {
+      const imgUrl = await thumbnailImagesSelector
+        .nth(i)
+        .getAttribute("src", { timeout: 500 });
+      if (imgUrl) {
+        images.push(cleanImageUrl(imgUrl));
       }
     }
 
-    return images;
+    return [...new Set(images)]; // deduplicate
   }
+
+  // async extractImages(page: Page): Promise<string[]> {
+  //   const images = [];
+
+  //   // Take thumbnail images:
+  //   const element = await page.waitForSelector("img.vGPfg", { timeout: 2000 });
+  //   console.log(element === null);
+  //   const thumbnailGroupSelector = page.locator("div.vvVTt");
+  //   let hasThumbnails;
+  //   try {
+  //     await thumbnailGroupSelector.waitFor({ timeout: 2000 });
+  //     hasThumbnails = true;
+  //   } catch {
+  //     hasThumbnails = false;
+  //   }
+  //   console.log({
+  //     msg: "Has thumbnail Bygghemma",
+  //     hasThumbnails: hasThumbnails,
+  //   });
+
+  //   if (hasThumbnails) {
+  //     const thumbnailImagesSelector = page.locator("img.vGPfg");
+  //     const imagesCount = await thumbnailImagesSelector.count();
+  //     for (let i = 0; i < imagesCount; i++) {
+  //       const imgUrl = await thumbnailImagesSelector
+  //         .nth(i)
+  //         .getAttribute("src", { timeout: 200 });
+  //       if (imgUrl) {
+  //         images.push(cleanImageUrl(imgUrl));
+  //       }
+  //     }
+  //   } else {
+  //     // No thumbnail images found => product only have 1 image => take it
+  //     if (images.length === 0) {
+  //       const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
+  //       if (imgUrl) {
+  //         images.push(cleanImageUrl(imgUrl));
+  //       }
+  //     }
+  //   }
+
+  //   return images;
+  // }
 
   static async create(): Promise<BygghemmaCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
