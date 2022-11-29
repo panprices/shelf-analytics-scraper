@@ -88,6 +88,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
