@@ -193,36 +193,19 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find 'url' of productCard");
 
-    const priceString = await this.extractProperty(
-      productCard,
-      "span.YwyJA > span",
-      (node) => node.first().textContent()
-    );
-    if (!priceString) throw new Error("Cannot find 'price' of productCard");
-    const price = parseInt(priceString.replace(" ", ""));
-
-    const campaignBannerText = await this.extractProperty(
-      productCard,
-      "p.qtaRX",
-      (node) => node.textContent()
-    );
-    const isDiscounted = campaignBannerText ? true : false;
-
     const previewImageUrl = await this.extractProperty(
       productCard,
       ".FSL6m > a > div > img",
       (node) => node.getAttribute("src")
     );
-    if (!previewImageUrl)
-      throw new Error("Cannot find 'previewImageUrl' of productCard");
-    const previewImageUrlCleaned = cleanImageUrl(previewImageUrl);
+    const previewImageUrlCleaned =
+      previewImageUrl !== undefined
+        ? cleanImageUrl(previewImageUrl)
+        : undefined;
 
     const productInfo: ListingProductInfo = {
       name: productName,
       url,
-      price,
-      currency: "SEK",
-      isDiscounted,
       previewImageUrl: previewImageUrlCleaned,
       categoryUrl,
       popularityIndex: -1, // this will be overwritten later
@@ -275,28 +258,32 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       0
     );
 
-    const specKeys = await page.locator("div.OeTqb table th").allTextContents();
-    const specVals = await page.locator("div.OeTqb table td").allTextContents();
+    const specKeys = await page
+      .locator("div.OeTqb table th")
+      .allTextContents()
+      .then((textContents) => textContents.map((text) => text.trim()));
+    const specVals = await page
+      .locator("div.OeTqb table td")
+      .allTextContents()
+      .then((textContents) => textContents.map((text) => text.trim()));
     if (specKeys.length !== specVals.length) {
       throw new Error("Number of specification keys and vals mismatch");
     }
-    const specs: Specification[] = [];
+    const specifications: Specification[] = [];
     for (let i = 0; i < specKeys.length; i++) {
-      specs.push({
+      specifications.push({
         key: specKeys[i],
         value: specVals[i],
       });
     }
 
-    const brand = specs
-      .find((spec) => spec.key.trim() === "Varumärke")
-      ?.value.trim();
-    const gtin = specs
-      .find((spec) => spec.key.trim() === "EAN-nr")
-      ?.value.trim();
-    const articleNumber = specs
-      .find((spec) => spec.key.trim() === "Art.Nr.")
-      ?.value.trim();
+    const brand = specifications.find(
+      (spec) => spec.key === "Varumärke"
+    )?.value;
+    const gtin = specifications.find((spec) => spec.key === "EAN-nr")?.value;
+    const articleNumber = specifications.find(
+      (spec) => spec.key === "Art.Nr."
+    )?.value;
 
     const metadata: OfferMetadata = {};
     const schemaOrgString = await page
@@ -335,7 +322,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       articleNumber,
       availability,
       reviews,
-      specifications: specs,
+      specifications: specifications,
       metadata,
     };
   }
