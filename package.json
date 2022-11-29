@@ -15,7 +15,7 @@
     "moment": "^2.29.4",
     "node-fetch": "^3.2.10",
     "pino": "^8.4.2",
-    "playwright": "*",
+    "playwright": "1.27.1",
     "playwright-core": "*",
     "uuid": "^8.3.2"
   },
