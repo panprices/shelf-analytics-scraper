@@ -110,18 +110,17 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     ).then((text) => text?.trim());
     if (!priceString) throw new Error("Cannot extract price");
 
-    const price = extractPriceFromPriceString(priceString);
+    const price = extractPriceFromPriceText(priceString);
 
-    const originalPriceString = await this.extractProperty(
+    const originalPriceText = await this.extractProperty(
       page,
       "div.product-info-price span[data-price-type='oldPrice']",
       (node) => node.textContent()
     ).then((text) => text?.trim());
-    const isDiscounted = originalPriceString !== undefined ? true : false;
-    const originalPrice =
-      originalPriceString !== undefined
-        ? extractPriceFromPriceString(originalPriceString)
-        : undefined;
+    const isDiscounted = originalPriceText !== undefined;
+    const originalPrice = isDiscounted
+      ? extractPriceFromPriceText(originalPriceText)
+      : undefined;
 
     const imageLocator = page.locator("div.snapper_nav img");
     const imageCount = await imageLocator.count();
@@ -195,6 +194,9 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       1
     );
 
+    // Their schema.org is not properly JSON-formatted so we cannot scrape it :)
+    let metadata = undefined;
+
     const productInfo = {
       brand,
       name: productName,
@@ -214,6 +216,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews,
       specifications,
       categoryTree,
+      metadata,
     };
 
     return productInfo;
@@ -236,7 +239,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 }
 
-function extractPriceFromPriceString(priceString: string): number {
+function extractPriceFromPriceText(priceString: string): number {
   return parseInt(
     priceString.replace(" ", "").replace("kr", "").replaceAll("\u00A0", "")
   );

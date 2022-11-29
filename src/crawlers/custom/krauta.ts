@@ -41,14 +41,15 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       "div.product-info__wrapper  div.product-description",
       (node) => node.textContent()
     ).then((text) => text?.trim());
-    if (!description) throw new Error("Cannot extract description");
 
-    const originalPriceLocator = page.locator(
-      "div.product-page__top-info .price-view__before-discount"
-    );
-    const isDiscounted = (await originalPriceLocator.count()) > 0;
+    const originalPriceText = await this.extractProperty(
+      page,
+      "div.product-page__top-info .price-view__before-discount",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    const isDiscounted = originalPriceText !== undefined;
     const originalPrice = isDiscounted
-      ? extractNumberFromText((await originalPriceLocator.textContent())!)
+      ? extractNumberFromText(originalPriceText)
       : undefined;
 
     let priceString = await this.extractProperty(
@@ -123,7 +124,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     const categoriesATagsCount = await categoriesATags.count();
     const categories = [];
-    for (let i = 0; i < categoriesATagsCount; ++i) {
+    for (let i = 0; i < categoriesATagsCount; i++) {
       const category = {
         name: <string>await categoriesATags.nth(i).textContent(),
         url: <string>await categoriesATags.nth(i).getAttribute("href"),
@@ -197,41 +198,36 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
-    const originalPriceString = await this.extractProperty(
-      productCard,
-      ".price-view__before-discount",
-      (node) => node.textContent()
-    );
-    const originalPrice = originalPriceString
-      ? extractPriceFromText(originalPriceString)
-      : undefined;
-    const isDiscounted = originalPriceString ? true : false;
+    // const originalPriceString = await this.extractProperty(
+    //   productCard,
+    //   ".price-view__before-discount",
+    //   (node) => node.textContent()
+    // );
+    // const originalPrice = originalPriceString
+    //   ? extractPriceFromText(originalPriceString)
+    //   : undefined;
+    // const isDiscounted = originalPriceString ? true : false;
 
-    const priceString = await this.extractProperty(
-      productCard,
-      ".price-view__sale-price-container",
-      (node) => node.textContent()
-    );
-    if (!priceString) throw new Error("Cannot find price of productCard");
+    // const priceString = await this.extractProperty(
+    //   productCard,
+    //   ".price-view__sale-price-container",
+    //   (node) => node.textContent()
+    // );
+    // if (!priceString) throw new Error("Cannot find price of productCard");
 
-    const price = extractPriceFromText(priceString);
+    // const price = extractPriceFromText(priceString);
 
-    const previewImageUrl = await this.extractPreviewImageOfProductCard(
-      productCard
-    );
+    // const previewImageUrl = await this.extractPreviewImageOfProductCard(
+    //   productCard
+    // );
 
-    if (!previewImageUrl)
-      throw new Error("Cannot find previewImage of productCard");
+    // if (!previewImageUrl)
+    //   throw new Error("Cannot find previewImage of productCard");
 
     const currentProductInfo: ListingProductInfo = {
       // brand,
       name: productName,
       url,
-      price,
-      currency: "SEK",
-      isDiscounted,
-      originalPrice,
-      previewImageUrl,
       popularityIndex: -1, // this will be overwritten later
       categoryUrl,
     };
