@@ -32,13 +32,14 @@ export interface ProductReviews {
 }
 
 export interface BaseProductInfo {
-  brand?: string;
   name: string;
-  description?: string;
   url: string;
-  price: number;
-  currency: string;
-  isDiscounted: boolean;
+
+  brand?: string;
+  description?: string;
+  price?: number;
+  currency?: string;
+  isDiscounted?: boolean;
   originalPrice?: number;
 
   gtin?: string;
@@ -58,6 +59,10 @@ export interface ListingProductInfo extends BaseProductInfo {
 }
 
 export interface DetailedProductInfo extends BaseProductInfo {
+  price: number;
+  currency: string;
+  isDiscounted: boolean;
+
   availability: string;
   fetchedAt?: string;
   retailerDomain?: string;

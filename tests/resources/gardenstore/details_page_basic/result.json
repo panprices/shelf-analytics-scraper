@@ -64,6 +64,16 @@
         "key": "Färg",
         "value": "Beige"
       }
+    ],
+    "categoryTree": [
+      {
+        "name": "Varumärken",
+        "url": "https://www.gardenstore.se/varumarke"
+      },
+      {
+        "name": "Venture Design",
+        "url": "https://www.gardenstore.se/varumarken/venture-design"
+      }
     ]
   }
 ]

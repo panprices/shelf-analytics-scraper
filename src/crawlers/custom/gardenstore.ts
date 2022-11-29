@@ -60,34 +60,30 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     // if (!previewImageUrl)
     //   throw new Error("Cannot find previewImageUrl of productCard");
 
-    const priceString = await this.extractProperty(
-      productCard,
-      "span[data-price-type='finalPrice']",
-      (node) => node.textContent()
-    );
-    if (!priceString) throw new Error("Cannot find price of productCard");
-    const price = extractPriceFromPriceString(priceString);
+    // const priceString = await this.extractProperty(
+    //   productCard,
+    //   "span[data-price-type='finalPrice']",
+    //   (node) => node.textContent()
+    // );
+    // if (!priceString) throw new Error("Cannot find price of productCard");
+    // const price = extractPriceFromPriceString(priceString);
 
-    const originalPriceString = await this.extractProperty(
-      productCard,
-      "span[data-price-type='oldPrice']",
-      (node) => node.textContent()
-    );
-    const isDiscounted = originalPriceString === undefined ? false : true;
-    const originalPrice =
-      originalPriceString == undefined
-        ? undefined
-        : extractPriceFromPriceString(originalPriceString);
+    // const originalPriceString = await this.extractProperty(
+    //   productCard,
+    //   "span[data-price-type='oldPrice']",
+    //   (node) => node.textContent()
+    // );
+    // const isDiscounted = originalPriceString === undefined ? false : true;
+    // const originalPrice =
+    //   originalPriceString == undefined
+    //     ? undefined
+    //     : extractPriceFromPriceString(originalPriceString);
 
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
       // previewImageUrl,
       popularityIndex: -1, // will be overwritten later
-      price,
-      currency: "SEK",
-      isDiscounted,
-      originalPrice,
       categoryUrl,
     };
 
@@ -187,11 +183,17 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     const brand = specifications.find(
       (spec) => spec.key === "Varumärke"
     )?.value;
+
     const gtin = specifications.find((spec) => spec.key === "EAN")?.value;
     const sku = specifications.find(
       (spec) => spec.key === "Artikelnummer"
     )?.value;
     const articleNumber = sku;
+
+    const categoryTree = await this.extractCategoryTree(
+      page.locator("div.breadcrumbs li a"),
+      1
+    );
 
     const productInfo = {
       brand,
@@ -211,6 +213,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       images: imageUrls,
       reviews,
       specifications,
+      categoryTree,
     };
 
     return productInfo;

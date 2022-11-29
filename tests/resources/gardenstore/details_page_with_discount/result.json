@@ -69,6 +69,20 @@
         "key": "Typ av produkt",
         "value": "Med Stativ"
       }
+    ],
+    "categoryTree": [
+      {
+        "name": "Utemöbler & Trädgårdsmöbler",
+        "url": "https://www.gardenstore.se/utemobler"
+      },
+      {
+        "name": "Trädgårdsstolar",
+        "url": "https://www.gardenstore.se/utemobler/tradgardsstolar"
+      },
+      {
+        "name": "Hängstolar",
+        "url": "https://www.gardenstore.se/utemobler/tradgardsstolar/hangstolar"
+      }
     ]
   }
 ]
