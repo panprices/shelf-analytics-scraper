@@ -193,10 +193,6 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     )?.value;
     const articleNumber = sku;
 
-    console.log(gtin);
-    console.log(sku);
-    console.log(articleNumber);
-
     const productInfo = {
       brand,
       name: productName,
