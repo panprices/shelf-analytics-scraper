@@ -39,18 +39,20 @@ export interface BaseProductInfo {
   price: number;
   currency: string;
   isDiscounted: boolean;
-  popularityIndex?: number;
-  categoryTree?: Category[];
-
   originalPrice?: number;
+
   gtin?: string;
   sku?: string;
   articleNumber?: string;
+
+  popularityIndex?: number;
+  categoryTree?: Category[];
+
   metadata?: OfferMetadata;
 }
 
 export interface ListingProductInfo extends BaseProductInfo {
-  previewImageUrl: string;
+  previewImageUrl?: string;
   popularityIndex: number;
   categoryUrl: string;
 }
