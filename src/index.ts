@@ -31,7 +31,7 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
     req.body.jobContext.jobId
   );
   try {
-    log.info(`Categories explored`, {
+    log.info(`Category explored`, {
       categoryUrl: body.url,
       nrProductsFound: detailedPages.length,
       retailer: extractRootUrl(body.url),
@@ -55,7 +55,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const products = await scrapeDetails(body.productDetails);
   try {
     log.info("Product details scraped", {
-      nrUrls: products.length,
+      nrUrls: body.productDetails.length,
       nrProductsFound: products.length,
       retailer: extractRootUrl(body.productDetails[0].url),
       jobId: req.body.jobContext.jobId,
