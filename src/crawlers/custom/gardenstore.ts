@@ -101,8 +101,8 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const description = await this.extractProperty(
       page,
-      "div.product.description",
-      (node) => node.textContent()
+      "div.description",
+      (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
     const outOfStockLocator = page.locator("div.stock.unavailable");
