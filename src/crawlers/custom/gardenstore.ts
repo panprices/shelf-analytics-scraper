@@ -95,22 +95,36 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       "h1.page-title",
       (node) => node.textContent()
     ).then((text) => text?.trim());
-    if (!productName) throw new Error("Cannot extract productName");
+    if (!productName) {
+      throw new Error("Cannot extract productName");
+    }
 
     const description = await this.extractProperty(
       page,
-      "div.description",
+      "div.product.description",
       (node) => node.textContent()
     ).then((text) => text?.trim());
+
+    const outOfStockLocator = page.locator("div.stock.unavailable");
+    const availability =
+      (await outOfStockLocator.count()) > 0 ? "out_of_stock" : "in_stock";
 
     const priceString = await this.extractProperty(
       page,
       "div.product-info-price span[data-price-type='finalPrice']",
       (node) => node.textContent()
     ).then((text) => text?.trim());
-    if (!priceString) throw new Error("Cannot extract price");
 
-    const price = extractPriceFromPriceText(priceString);
+    let price: number;
+    if (priceString) {
+      price = extractPriceFromPriceText(priceString);
+    } else {
+      if (availability === "out_of_stock") {
+        price = 0;
+      } else {
+        throw new Error("Cannot extract price");
+      }
+    }
 
     const originalPriceText = await this.extractProperty(
       page,
@@ -122,21 +136,10 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       ? extractPriceFromPriceText(originalPriceText)
       : undefined;
 
-    const imageLocator = page.locator("div.snapper_nav img");
-    const imageCount = await imageLocator.count();
-    const imageUrls = [];
-    for (let i = 0; i < imageCount; ++i) {
-      const imgUrl = await imageLocator.nth(i).getAttribute("src");
-      if (imgUrl) {
-        imageUrls.push(cleanImageUrl(imgUrl));
-      }
+    const imageUrls = await extractImagesFromProductDetailsPage(page);
+    if (imageUrls.length === 0) {
+      throw new Error("Cannot extract imageUrls");
     }
-
-    const availableCheckMark = page.locator(
-      ".product-points li:first-child .fa"
-    );
-    const availability =
-      (await availableCheckMark.count()) > 0 ? "in_stock" : "out_of_stock";
 
     const reviewScoreText = await this.extractProperty(
       page,
@@ -247,4 +250,30 @@ function extractPriceFromPriceText(priceString: string): number {
 
 function cleanImageUrl(imgUrl: string): string {
   return imgUrl.split("?")[0];
+}
+
+async function extractImagesFromProductDetailsPage(page: Page) {
+  // Try to extract from thumbnails:
+  const imageLocator = page.locator("div.snapper_nav img");
+  const imageCount = await imageLocator.count();
+  const imageUrls = [];
+  for (let i = 0; i < imageCount; ++i) {
+    const imgUrl = await imageLocator.nth(i).getAttribute("src");
+    if (imgUrl) {
+      imageUrls.push(cleanImageUrl(imgUrl));
+    }
+  }
+
+  if (imageUrls.length === 0) {
+    // No thumbnails found - product only has 1 image:
+    const imgUrl = await page
+      .locator("div.enlarge_contain img")
+      .first()
+      .getAttribute("src");
+    if (imgUrl) {
+      imageUrls.push(cleanImageUrl(imgUrl));
+    }
+  }
+
+  return imageUrls;
 }

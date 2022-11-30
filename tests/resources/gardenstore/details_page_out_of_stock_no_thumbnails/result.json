@@ -1,0 +1,51 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.gardenstore.se",
+    "jobId": "job_test_1",
+    "url": "https://www.gardenstore.se/storblommig-ros-budde-rosa-augusta-luise",
+    "brand": "Budde",
+    "popularityIndex": 1,
+    "name": "Storblommig Ros Budde Rosa \"Augusta Luise\"",
+    "label": "DETAIL",
+    "description": "Storblommig Ros - Rosa \"Augusta Luise\"\nAugusta Luise påminner om gammeldags rosor med sin intensiva färgsättning och stora blommor. Färgen varierar i blommorna från rosa till aprikosorange med inslag av gult och rött. Kraftig och tålig med en ljuvlig doft. Vacker ros med mycket stora blommor. Färgen varierar mellan rosa och aprikos med inslag av rött och gult. Stark och robust. Underbar doft. Rikblommig. Beskär på våren. \nObservera: Returrätt gäller ej på växter. Notera att bilderna föreställer ett fullvuxet exemplar.\n\nSvenskt namn: Augusta Luise\nLatinskt namn: Rosa \"Augusta Luise\"\nTyp: Storblommig Ros\nFamilj/grupp: Tehybrid\nVuxen höjd: 80-100 cm\nUtförande: Frilandsodlad\nDoft: stark\nBlomningsfärg: Rosa/aprikosfärgade\nTrivs bäst i: Sol-halvskugga\nJordmån: Mullrik,näringsrik och väldränerad",
+    "price": 0,
+    "currency": "SEK",
+    "isDiscounted": false,
+    "sku": "GTG27709C",
+    "articleNumber": "GTG27709C",
+    "availability": "out_of_stock",
+    "images": [
+      "https://www.gardenstore.se/media/catalog/product/s/t/storblommig-ros-budde-rosa-augusta-luise.jpg"
+    ],
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Artikelnummer",
+        "value": "GTG27709C"
+      },
+      {
+        "key": "Varumärke",
+        "value": "Budde"
+      }
+    ],
+    "categoryTree": [
+      {
+        "name": "Odling & Skötsel",
+        "url": "https://www.gardenstore.se/odling-och-skotsel"
+      },
+      {
+        "name": "Växter, Buskar & Träd",
+        "url": "https://www.gardenstore.se/odling-och-skotsel/vaxter"
+      },
+      {
+        "name": "Rosor",
+        "url": "https://www.gardenstore.se/odling-och-skotsel/vaxter/rosor-vaxter"
+      },
+      {
+        "name": "Storblommiga rosor",
+        "url": "https://www.gardenstore.se/odling-och-skotsel/vaxter/rosor-vaxter/storblommiga-rosor"
+      }
+    ]
+  }
+]

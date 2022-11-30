@@ -17,6 +17,12 @@ describe("Gardenstore details page", () => {
       "https://www.gardenstore.se/hangstol-venture-design-lexi-for-djur?channable=033265736b7500313031392d343038de",
       "tests/resources/gardenstore/details_page_with_discount",
     ],
+    // Out of stock & no thumbnails (only 1 image)
+
+    [
+      "https://www.gardenstore.se/storblommig-ros-budde-rosa-augusta-luise",
+      "tests/resources/gardenstore/details_page_out_of_stock_no_thumbnails",
+    ],
   ])(
     "Product details are retrieved correctly",
     async (targetUrl, testResourcesDir) => {
