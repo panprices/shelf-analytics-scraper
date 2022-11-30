@@ -211,10 +211,12 @@ async function extractProductDetails(
 function postProcessProductDetails(products: DetailedProductInfo[]) {
   products.forEach((p) => {
     if (p.gtin) {
-      if (!isValidGTIN) {
-        throw Error(`GTIN not valid: '${p.gtin}'`);
+      if (!isValidGTIN(p.gtin)) {
+        log.warning(`GTIN is not valid`, { gtin: p.gtin });
+        p.gtin = undefined;
+      } else {
+        p.gtin = p.gtin?.padStart(14, "0");
       }
-      p.gtin = p.gtin?.padStart(14, "0");
     }
 
     p.currency = p.currency.toUpperCase();
