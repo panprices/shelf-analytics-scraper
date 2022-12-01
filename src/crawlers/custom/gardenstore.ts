@@ -21,6 +21,7 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
+  // No need to override this, potentially remove it?
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
@@ -92,7 +93,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const productName = await this.extractProperty(
       page,
-      "h1.page-title",
+      "div.product-info-main h1.page-title",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName) {
@@ -111,8 +112,8 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const priceString = await this.extractProperty(
       page,
-      "div.product-info-price span[data-price-type='finalPrice']",
-      (node) => node.textContent()
+      "div.product-info-price > div.price-final_price span.price",
+      (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
     let price: number;
