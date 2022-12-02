@@ -91,9 +91,12 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     return currentProductInfo;
   }
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const productNameSelector = "div.product-info-main h1.page-title";
+    await page.waitForSelector(productNameSelector);
+
     const productName = await this.extractProperty(
       page,
-      "div.product-info-main h1.page-title",
+      productNameSelector,
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName) {
