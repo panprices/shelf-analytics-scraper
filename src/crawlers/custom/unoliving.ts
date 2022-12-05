@@ -63,7 +63,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     return currentProductInfo;
   }
 
-  async extractProductDetails(page: Page): Promise<UnolivingCrawlerDefinition> {
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const productNameSelector = "h1.page-title";
     await page.waitForSelector(productNameSelector);
 
@@ -85,20 +85,24 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     // Description: Finding div that has h2 = Produktinformation -> take that
     const description = await extractDescriptionFromProductDetailsPage(page);
 
-    const price = await this.extractProperty(
+    const priceText = await this.extractProperty(
       page,
       "span[data-price-type='finalPrice']",
       (node) => node.getAttribute("data-price-amount")
     );
-    if (!price) {
+    if (!priceText) {
       throw new Error("Cannot extract price");
     }
+    const price = parseFloat(priceText);
 
-    const originalPrice = await this.extractProperty(
+    const originalPriceText = await this.extractProperty(
       page,
-      "span[data-price-type='finalPrice']",
+      "span[data-price-type='oldPrice']",
       (node) => node.getAttribute("data-price-amount")
     );
+    const originalPrice = originalPriceText
+      ? parseFloat(originalPriceText)
+      : undefined;
     const isDiscounted = originalPrice !== undefined;
 
     const metadata: OfferMetadata = {};
@@ -115,7 +119,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const gtin = metadata.schemaOrg?.gtin;
     const sku = metadata.schemaOrg?.sku;
-    const imageUrls = metadata.schemaOrg?.image;
+    const imageUrls = metadata.schemaOrg?.image ?? [];
 
     let availability;
     try {
@@ -126,7 +130,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
       throw new Error("Cannot extract availability of product");
     }
 
-    const reviews = "unavailable";
+    const reviews: "unavailable" | ProductReviews = "unavailable";
 
     const specContents = await page
       .locator("ul.features-list li")
@@ -191,8 +195,6 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 }
-
-async function extractImagesFromProductDetailsPage(page: Page) {}
 
 async function extractDescriptionFromProductDetailsPage(page: Page) {
   const infoTabTitles = await page
