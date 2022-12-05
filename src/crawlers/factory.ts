@@ -19,6 +19,7 @@ import { KrautaCrawlerDefinition } from "./custom/krauta";
 import { BygghemmaCrawlerDefinition } from "./custom/bygghemma";
 import { ChilliCrawlerDefinition } from "./custom/chilli";
 import { GardenStoreCrawlerDefinition } from "./custom/gardenstore";
+import { UnolivingCrawlerDefinition } from "./custom/unoliving";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -132,6 +133,13 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://www.gardenstore.se":
         definition = await GardenStoreCrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "https://unoliving.com":
+        definition = await UnolivingCrawlerDefinition.create();
         options = {
           ...options,
           requestHandler: definition.router,
