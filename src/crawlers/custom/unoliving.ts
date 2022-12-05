@@ -64,7 +64,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    const productNameSelector = "h1.page-title";
+    const productNameSelector = "div.product-info-main h1.page-title";
     await page.waitForSelector(productNameSelector);
 
     const productName = await this.extractProperty(
@@ -78,7 +78,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const brand = await this.extractProperty(
       page,
-      "h2.pdp__brand__title",
+      "div.product-info-main h2.pdp__brand__title",
       (node) => node.textContent()
     ).then((text) => text?.trim());
 
@@ -87,7 +87,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const priceText = await this.extractProperty(
       page,
-      "span[data-price-type='finalPrice']",
+      "div.product-info-main span[data-price-type='finalPrice']",
       (node) => node.getAttribute("data-price-amount")
     );
     if (!priceText) {
@@ -97,7 +97,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const originalPriceText = await this.extractProperty(
       page,
-      "span[data-price-type='oldPrice']",
+      "div.product-info-main span[data-price-type='oldPrice']",
       (node) => node.getAttribute("data-price-amount")
     );
     const originalPrice = originalPriceText
