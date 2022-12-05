@@ -2,6 +2,7 @@ import {
   log,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
+  playwrightUtils,
   ProxyConfiguration,
   RequestQueue,
 } from "crawlee";
@@ -73,6 +74,9 @@ export class CrawlerFactory {
       DE2: new ProxyConfiguration({
         proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
       }),
+      SHARED_DATACENTER: new ProxyConfiguration({
+        proxyUrls: ["http://sdcpanprices:C8N3KgxrWe@dc.pr.oxylabs.io:10000"],
+      }),
     };
 
     let definition;
@@ -89,7 +93,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.DE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -97,10 +101,15 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          // Random between SE and DE2 proxy:
-          proxyConfiguration: [proxyConfiguration.SE, proxyConfiguration.DE2][
-            Math.floor(Math.random() * 2)
-          ],
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
+          // Block unnecessary requests such as loading images:
+          // preNavigationHooks: [
+          //   async ({ page }) => {
+          //     await playwrightUtils.blockRequests(page, {
+          //       urlPatterns: [".jpg", ".jpeg", ".png", ".svg", ".gif", ".woff"],
+          //     });
+          // },
+          // ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
@@ -143,6 +152,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
     }
