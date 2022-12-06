@@ -17,22 +17,22 @@ import { extractNumberFromText } from "../../utils";
 export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
     const page = ctx.page;
+    const loadMoreButton = page.locator("button.ais-InfiniteHits-loadMore");
 
     while (true) {
       await this.handleCookieConsent(page);
-      await super.scrollToBottom(ctx);
-
-      // wait for consistency
-      await new Promise((f) => setTimeout(f, 500));
-      const loadMoreButton = page.locator("button.ais-InfiniteHits-loadMore");
 
       try {
         await loadMoreButton.click({ timeout: 5000 });
+        // wait for consistency
+        await new Promise((f) => setTimeout(f, 500));
       } catch (error) {
         // No more expand button to click => break
         break;
       }
     }
+
+    await super.scrollToBottom(ctx);
   }
 
   async extractCardProductInfo(
