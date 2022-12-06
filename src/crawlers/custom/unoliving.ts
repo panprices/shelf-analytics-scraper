@@ -136,7 +136,6 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
       .locator("ul.features-list li")
       .allTextContents()
       .then((texts) => texts.filter((text) => text.includes(":")));
-    console.log(specContents);
 
     const specKeys = specContents.map((text) => text.split(":")[0].trim());
     const specVals = specContents.map((text) => text.split(":")[1].trim());

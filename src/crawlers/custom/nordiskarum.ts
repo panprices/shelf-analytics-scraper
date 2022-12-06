@@ -211,7 +211,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       categoryUrl,
       categoryTree,
     };
-    // console.log(currentProductInfo);
 
     return currentProductInfo;
   }
