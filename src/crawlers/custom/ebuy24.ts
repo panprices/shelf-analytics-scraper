@@ -125,7 +125,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     ).then((text) => text?.trim());
 
     const originalPrice = originalPriceText
-      ? extractPriceAndCurrencyFromPriceText(originalPriceText)[0]
+      ? extractPriceAndCurrencyFromOriginalPriceText(originalPriceText)[0]
       : undefined;
     const isDiscounted = originalPrice !== undefined;
 
