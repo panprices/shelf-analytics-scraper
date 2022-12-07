@@ -21,24 +21,38 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
+  override listingUrlSelector = "ul.pagination.small li:last-child a[href]";
+
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);
 
-    let [previousPageUrl, currentPageUrl] = ["", ctx.page.url()];
-    while (currentPageUrl !== previousPageUrl) {
-      if (this.listingUrlSelector) {
-        await ctx.page
-          .locator(this.listingUrlSelector)
-          .click({ timeout: 5000 });
+    // if ((await ctx.page.locator(this.listingUrlSelector).count()) === 0) {
+    //   // Only 1 page => just scrape it
+    //   await this.scrollToBottom(ctx);
+    //   return;
+    // }
 
-        await ctx.page.waitForTimeout(3000);
-        await this.scrollToBottom(ctx);
+    // // Have pagination => click and scrape each page
+    // let [previousPageUrl, currentPageUrl] = ["", ctx.page.url()];
+    // while (currentPageUrl !== previousPageUrl) {
+    //   await ctx.page.locator(this.listingUrlSelector).click({ timeout: 5000 });
 
-        previousPageUrl = currentPageUrl;
-        currentPageUrl = ctx.page.url();
-      }
+    //   await ctx.page.waitForTimeout(3000);
+    //   await this.scrollToBottom(ctx);
+
+    //   previousPageUrl = currentPageUrl;
+    //   currentPageUrl = ctx.page.url();
+    // }
+
+    // Scrape next pages if exist:
+    while ((await ctx.page.locator(this.listingUrlSelector).count()) > 0) {
+      await ctx.page.locator(this.listingUrlSelector).click({ timeout: 5000 });
+
+      await ctx.page.waitForTimeout(3000);
+      await ctx.page.waitForLoadState("networkidle");
+      await this.scrollToBottom(ctx);
     }
   }
 
@@ -75,7 +89,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const productNameSelector = "h1.m-product-title";
-    await page.waitForSelector(productNameSelector);
+    await page.waitForSelector(productNameSelector, { timeout: 5000 });
 
     const productName = await this.extractProperty(
       page,
@@ -189,7 +203,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     return new Ebuy24CrawlerDefinition({
       detailsDataset,
       listingDataset,
-      listingUrlSelector: "ul.pagination.small li:last-child a",
+      listingUrlSelector: "ul.pagination.small li:last-child a[href]",
 
       detailsUrlSelector:
         "div.row > div.m-productlist-list-item article header a",
