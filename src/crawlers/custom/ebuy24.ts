@@ -72,8 +72,10 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
 
     if (!productName) throw new Error("Cannot find productName of productCard");
 
-    const url = await this.extractProperty(productCard, "header a", (node) =>
-      node.getAttribute("href")
+    const url = await this.extractProperty(
+      productCard,
+      "header a:first-child",
+      (node) => node.getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
@@ -206,7 +208,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
       listingUrlSelector: "ul.pagination.small li:last-child a[href]",
 
       detailsUrlSelector:
-        "div.row > div.m-productlist-list-item article header a",
+        "div.row > div.m-productlist-list-item article header a:first-child",
       productCardSelector: "div.row > div.m-productlist-list-item article",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
