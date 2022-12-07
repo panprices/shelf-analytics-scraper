@@ -173,6 +173,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
       page.locator("div.m-breadcrumb a"),
       1
     );
+    categoryTree.pop(); // last category breadcrum is the product itself
 
     const metadata = undefined;
 
