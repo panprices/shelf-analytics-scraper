@@ -135,58 +135,6 @@ export async function extractProductDetails(
     (node) => node.textContent()
   );
 
-  let articleNumber = undefined,
-    specArray = [];
-  try {
-    const specificationsExpander = page.locator(
-      "//div[contains(@class, 'accordion--title') and .//span/text() = 'Specifikationer']"
-    );
-    await specificationsExpander.click({ timeout: 5000 });
-    articleNumber = await crawlerDefinition.extractProperty(
-      page,
-      "//div[contains(@class, 'articleNumber')]/span",
-      (node) => node.textContent()
-    );
-    const specifications = specificationsExpander.locator("..//tr");
-    const specificationsCount = await specifications.count();
-    specArray = [];
-    for (let i = 0; i < specificationsCount; i++) {
-      const specLocator = specifications.nth(i);
-      const specKey = <string>(
-        await specLocator.locator("xpath=.//td[1]").textContent()
-      );
-      const specValue = <string>(
-        await specLocator.locator("xpath=.//td[2]").textContent()
-      );
-
-      specArray.push({
-        key: specKey,
-        value: specValue,
-      });
-    }
-  } catch (e) {
-    log.info(`Specification not found for product with url: ${page.url()}`);
-  }
-
-  let description;
-  try {
-    const descriptionExpander = page.locator(
-      "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
-    );
-    await descriptionExpander.click({ timeout: 5000 });
-
-    description = <string>(
-      await crawlerDefinition.extractProperty(
-        descriptionExpander,
-        "..//div[contains(@class, 'accordion--content')]",
-        (node) => node.textContent()
-      )
-    );
-  } catch (e) {
-    log.info(`Description not found for product with url: ${page.url()}`);
-    description = "unavailable";
-  }
-
   let reviewSummary: ProductReviews | "unavailable";
   try {
     const averageReviewString = await crawlerDefinition.extractProperty(
@@ -280,7 +228,6 @@ export async function extractProductDetails(
 
     gtin: undefined,
     sku,
-    articleNumber,
 
     availability,
     images,
