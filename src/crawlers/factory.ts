@@ -22,6 +22,7 @@ import { ChilliCrawlerDefinition } from "./custom/chilli";
 import { GardenStoreCrawlerDefinition } from "./custom/gardenstore";
 import { UnolivingCrawlerDefinition } from "./custom/unoliving";
 import { Ebuy24CrawlerDefinition } from "./custom/ebuy24";
+import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -158,6 +159,14 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://ebuy24.dk":
         definition = await Ebuy24CrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.DE,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "https://www.furniturebox.se":
+        definition = await FurnitureboxCrawlerDefinition.create();
         options = {
           ...options,
           requestHandler: definition.router,
