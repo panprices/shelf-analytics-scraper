@@ -1,6 +1,7 @@
-import {scrapeDetails} from "../src/service";
-import {PlaywrightCrawlingContext} from "crawlee";
+import { scrapeDetails } from "../src/service";
+import { PlaywrightCrawlingContext } from "crawlee";
 import * as fs from "fs";
+import { expectScrapeDetailsResultToEqual } from "./test_helpers";
 
 jest.setTimeout(30000);
 
@@ -10,6 +11,11 @@ describe("Homeroom details page", () => {
     [
       "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01",
       "tests/resources/homeroom/details_page_basic",
+    ],
+    // With variants
+    [
+      "https://www.homeroom.se/ellos-home/matgrupp-gilda-med-bord-180x90-cm-6-stolar/1638353-01",
+      "tests/resources/homeroom/details_page_with_variants",
     ],
   ])(
     "Product details are retrieved correctly",
@@ -50,9 +56,8 @@ describe("Homeroom details page", () => {
         ],
       });
 
-      expect(result).toBeDefined();
-      expect(result).toHaveLength(1);
-      expect(result).toEqual(expectedResult);
+      expect(result).toHaveLength(expectedResult.length);
+      expectScrapeDetailsResultToEqual(result, expectedResult);
     }
   );
 });

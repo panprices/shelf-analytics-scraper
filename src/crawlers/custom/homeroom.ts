@@ -12,6 +12,18 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await super.crawlDetailPage(ctx);
+
+    // Enqueue the variant groups where you have a.href:
+    await ctx.enqueueLinks({
+      selector: "div.product-info ul.color-picker-list a",
+      label: "DETAIL",
+    });
+  }
+
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const productName = (<string>(
       await page.locator("h1.product-title").textContent()
