@@ -10,6 +10,7 @@ import {
   SchemaOrg,
 } from "../../types/offer";
 import { v4 as uuidv4 } from "uuid";
+import { extractRootUrl } from "../../utils";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
@@ -297,5 +298,32 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         pageExpanded = newPageHeight > pageHeight;
       } while (!pageExpanded);
     } while (true);
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    // Open category menu
+    await ctx.page.locator("ul.header-menu button").click();
+    await ctx.page.waitForTimeout(5000);
+
+    const mainCategoriesLocator = ctx.page.locator("ul.main-menu button");
+    const mainCategoriesLocatorCount = await mainCategoriesLocator.count();
+
+    for (let i = 0; i < mainCategoriesLocatorCount; i++) {
+      await this.handleCookieConsent(ctx.page);
+
+      // Open sub-category menu
+      await mainCategoriesLocator.nth(i).click();
+      // Extract leaf categories:
+
+      await ctx.enqueueLinks({
+        selector: "div.menu-container ul.sub-menu li a",
+        label: "LIST",
+      });
+
+      // Go back to main category menu
+      await ctx.page.locator("div.sub-menu-container button").click();
+    }
   }
 }
