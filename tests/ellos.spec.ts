@@ -1,50 +1,24 @@
-import { scrapeDetails } from "../src/service";
+import { exploreCategory, scrapeDetails } from "../src/service";
 import { PlaywrightCrawlingContext } from "crawlee";
 import * as fs from "fs";
-import { expectScrapeDetailsResultToEqual } from "./test_helpers";
 
 jest.setTimeout(300000);
 
-describe("Homeroom details page", () => {
+describe("Ellos category page", () => {
   test.each([
-    // Basic info
-    // [
-    //   "https://www.homeroom.se/venture-home/matgrupp-polar-bord-med-4st-valleta-stolar/1577644-01",
-    //   "tests/resources/homeroom/details_page_basic",
-    // ],
-    // // With variants
-    // [
-    //   "https://www.homeroom.se/ellos-home/matgrupp-gilda-med-bord-180x90-cm-6-stolar/1638353-01",
-    //   "tests/resources/homeroom/details_page_with_variants",
-    // ],
+    [
+      "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord",
+      "tests/resources/ebuy24/category_page_basic",
+      110,
+    ],
   ])(
-    "Product details are retrieved correctly",
-    async (targetUrl, testResourcesDir) => {
+    "Category page extracted correctly",
+    async (targetUrl, testResourcesDir, expectedProductsCount) => {
       const expectedResult = JSON.parse(
         fs.readFileSync(`${testResourcesDir}/result.json`, "utf-8")
       );
 
-      const dummyRequest = {
-        url: targetUrl,
-        userData: {
-          jobId: "job_test_1",
-          url: targetUrl,
-          popularityIndex: 1,
-          label: "DETAIL",
-          fetchedAt: "9/2/2022, 4:51:26 PM",
-        },
-      };
-
-      const result = await scrapeDetails([dummyRequest], {
-        launchContext: {
-          // launchOptions: <any>{
-          //   recordHar: {
-          //     path: "example.har",
-          //   },
-          // },
-          // experimentalContainers: true,
-          // launcher:
-        },
+      const result = await exploreCategory(targetUrl, "job_test_1", {
         preNavigationHooks: [
           async (ctx: PlaywrightCrawlingContext) => {
             await ctx.browserController.browser
@@ -54,8 +28,8 @@ describe("Homeroom details page", () => {
         ],
       });
 
-      expect(result).toHaveLength(expectedResult.length);
-      expectScrapeDetailsResultToEqual(result, expectedResult);
+      expect(result).toHaveLength(expectedProductsCount);
+      expect(result).toEqual(expectedResult);
     }
   );
 });
