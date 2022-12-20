@@ -2,19 +2,19 @@ import { AbstractCrawlerDefinition } from "../abstract";
 import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { log, PlaywrightCrawlingContext } from "crawlee";
-import {extractRootUrl} from "../../utils";
+import { extractRootUrl } from "../../utils";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    const emptyPageLocator = ctx.page.locator(".coming-soon-title")
+    const emptyPageLocator = ctx.page.locator(".coming-soon-title");
     try {
-      await emptyPageLocator.waitFor({state: "visible", timeout: 500})
+      await emptyPageLocator.waitFor({ state: "visible", timeout: 500 });
       const emptyPage = await emptyPageLocator.isVisible();
       if (emptyPage) {
         log.warning(`Empty category page: ${ctx.page.url()}`);
-        return ;
+        return;
       }
-    } catch(e) {
+    } catch (e) {
       log.info(`Not an empty page: ${ctx.page.url()}`);
     }
 
@@ -257,21 +257,21 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
     const rootUrl = extractRootUrl(ctx.page.url());
-    const subCategoriesIdentifier = "//div[contains(@class, 'subcategories')]/a";
+    const subCategoriesIdentifier =
+      "//div[contains(@class, 'subcategories')]/a";
 
-    await ctx.page
-      .locator(subCategoriesIdentifier)
-      .nth(0)
-      .waitFor();
+    await ctx.page.locator(subCategoriesIdentifier).nth(0).waitFor();
 
     const subCategoriesLocator = ctx.page.locator(subCategoriesIdentifier);
     const subCategoriesCount = await subCategoriesLocator.count();
-    const subCategoriesUrlPromises = await [...Array(subCategoriesCount).keys()].map(i => {
-      const currentSubCategory = subCategoriesLocator.nth(i)
+    const subCategoriesUrlPromises = await [
+      ...Array(subCategoriesCount).keys(),
+    ].map((i) => {
+      const currentSubCategory = subCategoriesLocator.nth(i);
       return currentSubCategory.getAttribute("href");
     });
 
-    const subCategoryUrls = await Promise.all(subCategoriesUrlPromises)
+    const subCategoryUrls = await Promise.all(subCategoriesUrlPromises);
 
     const isLeafCategory = subCategoryUrls
       .map((u) => `${rootUrl}${u}`)
@@ -280,8 +280,8 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     if (isLeafCategory) {
       await ctx.enqueueLinks({
         urls: [ctx.page.url()],
-        label: "LIST"
-      })
+        label: "LIST",
+      });
     } else {
       await ctx.enqueueLinks({
         selector: subCategoriesIdentifier,

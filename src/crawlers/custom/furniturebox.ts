@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
 import { AbstractCrawlerDefinition } from "../abstract";
 import {
@@ -17,6 +17,7 @@ import {
   extractCardProductInfo as baseExtractCardProductInfo,
   extractProductDetails as baseExtractProductDetails,
 } from "./base-chill";
+import { extractRootUrl } from "../../utils";
 
 export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
@@ -78,35 +79,6 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
         // await super.crawlDetailPage(ctx);
       }
     }
-
-    // Check for secondary variant group where you don't have a.href.
-    // Try to click buttons and enqueue new links:
-    // const secondaryVariantButtons = ctx.page.locator(
-    //   "div[data-cy='product_variant_link']"
-    // );
-    // const secondaryVariantButtonsCount = await secondaryVariantButton.count();
-    // console.log("Variant counts: " + secondaryVariantButtonsCount);
-
-    // Always have one button grayed out which is the current selected variant,
-    // so we only try to enqueue more if there are at least 1 more.
-
-    // const variantUrls = [];
-    // if (secondaryVariantButtonsCount >= 2) {
-    //   for (let i = 0; i < secondaryVariantButtonsCount; i++) {
-    //     await secondaryVariantOpenMenuButton.nth(i).click();
-    //     await ctx.page.waitForTimeout(1500);
-
-    //     variantUrls.push(ctx.page.url());
-    //     // await ctx.enqueueLinks({
-    //     //   urls: [ctx.page.url()],
-    //     //   label: "DETAIL",
-    //     // });
-    //   }
-    // }
-    // await ctx.enqueueLinks({
-    //   urls: variantUrls,
-    //   label: "DETAIL",
-    // });
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -171,9 +143,117 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
+  /**
+   * Crawl category page for subCategoryUrls.
+   *
+   * 2 methods are used to identify a leaf category page: either
+   * (1) cannot find any sub-category link to scrape, or
+   * (2) the current page is also a
+   *
+   * For (1), see this page: https://www.furniturebox.se/forvaring/smaforvaring/forvaringslada?kampanj
+   * For (2), see this page: https://www.furniturebox.se/mobler/vardagsrumsmobler/vardagsrumsbord/soffbord
+   */
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    const rootUrl = extractRootUrl(ctx.page.url());
+    const subCategoriesSelector = "div#toggleCategoriesSlider a";
+
+    // Wait for page to load:
+    try {
+      await ctx.page
+        .locator(subCategoriesSelector)
+        .nth(0)
+        .waitFor({ timeout: 10000 });
+    } catch {
+      // Probably a top level category instead -> scrape it specially:
+      if (await isTopLevelCategoryPage(ctx.page)) {
+        await this.crawlTopLevelCategoryPage(ctx);
+        return;
+      }
+      // Else: is a leaf category page -> save the category url
+      await ctx.enqueueLinks({
+        urls: [ctx.page.url()],
+        label: "LIST",
+      });
+    }
+
+    const subCategoriesLocator = ctx.page.locator(subCategoriesSelector);
+    const subCategoriesCount = await subCategoriesLocator.count();
+    const subCategoriesUrlPromises = [...Array(subCategoriesCount).keys()].map(
+      (i) => {
+        const currentSubCategory = subCategoriesLocator.nth(i);
+        return currentSubCategory.getAttribute("href");
+      }
+    );
+
+    const subCategoryUrls = (
+      await Promise.all(subCategoriesUrlPromises)
+    ).filter((url) => !url?.includes("?kampanj"));
+
+    const isLeafCategory = subCategoryUrls
+      .map((u) => `${rootUrl}${u}`)
+      .some((u) => ctx.page.url() === u);
+
+    if (isLeafCategory) {
+      // Save the category url
+      await ctx.enqueueLinks({
+        urls: [ctx.page.url()],
+        label: "LIST",
+      });
+    } else {
+      // Fetch recursively
+      await ctx.enqueueLinks({
+        selector: subCategoriesSelector,
+        label: "INTERMEDIATE_CATEGORY",
+      });
+    }
+  }
+
+  /**
+   * Scrape sub-categories of top level category page.
+   *
+   * The top level category page is a bit different in CSS selector compared to
+   * 2nd levels and beyond.
+   *
+   * For example, see https://www.furniturebox.se/mobler
+   * vs https://www.furniturebox.se/mobler/bord
+   */
+  async crawlTopLevelCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    const subCategoriesIdentifier = "div#subCategories a";
+    // Wait for page to load:
+    await ctx.page
+      .locator(subCategoriesIdentifier)
+      .nth(0)
+      .waitFor({ timeout: 5000 });
+
+    await ctx.enqueueLinks({
+      selector: subCategoriesIdentifier,
+      label: "INTERMEDIATE_CATEGORY",
+    });
+  }
+
   static async create(): Promise<FurnitureboxCrawlerDefinition> {
     const options = await createCrawlerDefinitionOption();
 
     return new FurnitureboxCrawlerDefinition(options);
   }
+}
+
+async function isTopLevelCategoryPage(page: Page) {
+  const subCategoriesIdentifier = "div#subCategories a";
+  // Wait for page to load:
+  try {
+    await page
+      .locator(subCategoriesIdentifier)
+      .nth(0)
+      .waitFor({ timeout: 5000 });
+  } catch {
+    // Cannot find subCategoriesIdentifier -> not TopLevelCategory
+    return false;
+  }
+
+  return true;
 }
