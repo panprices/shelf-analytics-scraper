@@ -31,6 +31,7 @@ import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
 import { CHROMIUM_USER_DATA_DIR } from "../constants";
 import { extractRootUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
+import { EllosCrawlerDefinition } from "./custom/ellos";
 
 export interface CrawlerFactoryArgs {
   url: string;
