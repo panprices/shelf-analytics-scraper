@@ -6,6 +6,7 @@ export interface OfferMetadata {
 }
 
 export interface SchemaOrg {
+  brand?: string;
   sku?: string;
   gtin?: string;
   mpn?: string;
