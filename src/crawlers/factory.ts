@@ -62,6 +62,21 @@ export class CrawlerFactory {
       maxConcurrency: 5,
       navigationTimeoutSecs: 150,
       ...overrides,
+      // Block unnecessary requests such as loading images:
+      preNavigationHooks: [
+        ...(overrides?.preNavigationHooks ?? []),
+        async ({ page }) => {
+          await page.route("**/*", (route) => {
+            log.info("Image request");
+            return route.request().resourceType() === "image"
+              ? route.fulfill({
+                  status: 200,
+                  body: "accept",
+                })
+              : route.continue();
+          });
+        },
+      ],
     };
 
     const proxyConfiguration = {
@@ -96,7 +111,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
+          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -105,14 +120,6 @@ export class CrawlerFactory {
           ...options,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
-          // Block unnecessary requests such as loading images:
-          // preNavigationHooks: [
-          //   async ({ page }) => {
-          //     await playwrightUtils.blockRequests(page, {
-          //       urlPatterns: [".jpg", ".jpeg", ".png", ".svg", ".gif", ".woff"],
-          //     });
-          // },
-          // ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
