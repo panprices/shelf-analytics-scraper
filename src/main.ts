@@ -1,13 +1,14 @@
 import { log, LoggerJson } from "crawlee";
-import fs, {writeFileSync} from "fs";
+import fs, { writeFileSync } from "fs";
 import {
   exploreCategory,
   exploreCategoriesNoCapture,
   extractLeafCategories,
-  scrapeDetails, exploreCategoryEndToEnd,
+  scrapeDetails,
+  exploreCategoryEndToEnd,
 } from "./service";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
-import {join} from "path";
+import { join } from "path";
 
 async function debugScrapeDetails(targetUrl: string) {
   // "https://www.bygghjemme.no/hage-och-utemiljo/grill/gassgrill/gassgrill-sunwind-vilja/p-918623";
@@ -54,9 +55,11 @@ async function debugCategoryExploration(targetUrl: string) {
 }
 
 async function debugCategoryExplorationEndToEnd(targetUrls: string[]) {
-  const detailedProducts = await exploreCategoryEndToEnd(targetUrls)
+  const detailedProducts = await exploreCategoryEndToEnd(targetUrls);
 
-  writeFileSync(join('.', 'data.json'), JSON.stringify(detailedProducts), {flag: 'w'})
+  writeFileSync(join(".", "data.json"), JSON.stringify(detailedProducts), {
+    flag: "w",
+  });
 }
 
 async function debugLeafCategoryExtraction(targetUrls: string[]) {
@@ -109,9 +112,9 @@ async function debugCategoryExplorationRecordHARForTests() {
   });
 }
 
-// await debugCategoryExploration(
-//   "https://www.k-rauta.se/kategori/verktyg-och-maskiner/arbetsklader-och-sakerhet/handskar/tradgardshandskar"
-// );
+await debugCategoryExploration(
+  "https://www.chilli.se/textil/gardiner/hissgardin-roll-up-gardin"
+);
 // await debugCategoryExplorationNoCapture();
 // await debugLeafCategoryExtraction([
 //   "https://www.venturedesign.se/furniture-fashion",
@@ -119,139 +122,5 @@ async function debugCategoryExplorationRecordHARForTests() {
 //   "https://www.venturedesign.se/utemobler",
 //   "https://www.venturedesign.se/nyheter"
 // ])
-await debugCategoryExplorationEndToEnd([
-  "https://www.venturedesign.se/innemobler/gr-sangpaket",
-  "https://www.venturedesign.se/furniture-fashion/innemobler/gr-matgrupper",
-  "https://www.venturedesign.se/innemobler/bord/matbord",
-  "https://www.venturedesign.se/innemobler/bord/barbord",
-  "https://www.venturedesign.se/innemobler/bord/sangbord",
-  "https://www.venturedesign.se/innemobler/bord/skrivbord",
-  "https://www.venturedesign.se/innemobler/bord/sidobord",
-  "https://www.venturedesign.se/innemobler/bord/soffbord",
-  "https://www.venturedesign.se/innemobler/stolar/matstolar",
-  "https://www.venturedesign.se/innemobler/stolar/barstolar",
-  "https://www.venturedesign.se/innemobler/soffor/2-sits-soffor",
-  "https://www.venturedesign.se/innemobler/soffor/divansoffor",
-  "https://www.venturedesign.se/innemobler/soffor/hornsoffor",
-  "https://www.venturedesign.se/innemobler/soffor/3-sits-soffor",
-  "https://www.venturedesign.se/innemobler/soffor/reclinersoffor",
-  "https://www.venturedesign.se/innemobler/bankar/bankar",
-  "https://www.venturedesign.se/innemobler/soffor/baddsoffor",
-  "https://www.venturedesign.se/innemobler/ftoljer/ftoljer",
-  "https://www.venturedesign.se/innemobler/ftoljer/loungeftoljer",
-  "https://www.venturedesign.se/innemobler/ftoljer/reclinerftoljer",
-  "https://www.venturedesign.se/innemobler/ftoljer/teddyftoljer",
-  "https://www.venturedesign.se/innemobler/ottomanpuff/ottoman",
-  "https://www.venturedesign.se/innemobler/ottomanpuff/puff",
-  "https://www.venturedesign.se/innemobler/sangar/dubbelsangar",
-  "https://www.venturedesign.se/innemobler/gr-matgrupper/rektangulara-matgrupper",
-  "https://www.venturedesign.se/innemobler/gr-matgrupper/runda-matgrupper",
-  "https://www.venturedesign.se/innemobler/sangar/justerbara-sangar",
-  "https://www.venturedesign.se/innemobler/sangar/sanggavlar",
-  "https://www.venturedesign.se/innemobler/gr-matgrupper/ovala-matgrupper",
-  "https://www.venturedesign.se/innemobler/forvaring/skp",
-  "https://www.venturedesign.se/innemobler/forvaring/byr",
-  "https://www.venturedesign.se/innemobler/forvaring/tv-bankar",
-  "https://www.venturedesign.se/innemobler/forvaring/hyllor",
-  "https://www.venturedesign.se/innemobler/forvaring/garderober",
-  "https://www.venturedesign.se/innemobler/forvaring/kladhangare",
-  "https://www.venturedesign.se/innemobler/mattor/rektangulara-mattor",
-  "https://www.venturedesign.se/innemobler/mattor/runda-mattor",
-  "https://www.venturedesign.se/innemobler/mattor/ovala-mattor",
-  "https://www.venturedesign.se/innemobler/textil/sangkappor",
-  "https://www.venturedesign.se/innemobler/textil/sangklader",
-  "https://www.venturedesign.se/innemobler/textil/overkast",
-  "https://www.venturedesign.se/innemobler/textil/gardiner",
-  "https://www.venturedesign.se/innemobler/textil/sanggaveloverdrag",
-  "https://www.venturedesign.se/innemobler/textil/frskinn",
-  "https://www.venturedesign.se/innemobler/textil/pladar",
-  "https://www.venturedesign.se/innemobler/industrivaggar/industrivaggar",
-  "https://www.venturedesign.se/innemobler/speglar/speglar",
-  "https://www.venturedesign.se/innemobler/poster/natur",
-  "https://www.venturedesign.se/innemobler/poster/hem",
-  "https://www.venturedesign.se/innemobler/poster/abstrakt",
-  "https://www.venturedesign.se/innemobler/belysning/golvlampor",
-  "https://www.venturedesign.se/innemobler/belysning/vagglampor",
-  "https://www.venturedesign.se/innemobler/barnmobler/barnstolar",
-  "https://www.venturedesign.se/innemobler/belysning/taklampor",
-  "https://www.venturedesign.se/innemobler/belysning/bordslampor",
-  "https://www.venturedesign.se/innemobler/barnmobler/barnsoffor",
-  "https://www.venturedesign.se/innemobler/barnmobler/barnbord",
-  "https://www.venturedesign.se/furniture-fashion/innemobler/bord/sidobord",
-  "https://www.venturedesign.se/furniture-fashion/innemobler/bord/matbord",
-  "https://www.venturedesign.se/furniture-fashion/innemobler/bord/soffbord",
-  "https://www.venturedesign.se/furniture-fashion/innemobler/ottomanpuff/puff",
-  "https://www.venturedesign.se/furniture-fashion/innemobler/stolar/matstolar",
-  "https://www.venturedesign.se/nyheter/innemobler/gr-matgrupper",
-  "https://www.venturedesign.se/utemobler/bord/barbord",
-  "https://www.venturedesign.se/utemobler/bord/cafbord",
-  "https://www.venturedesign.se/utemobler/bord/matbord",
-  "https://www.venturedesign.se/utemobler/bord/sidobord",
-  "https://www.venturedesign.se/utemobler/bord/soffbord",
-  "https://www.venturedesign.se/utemobler/stolar/matstolar",
-  "https://www.venturedesign.se/utemobler/stolar/barstolar",
-  "https://www.venturedesign.se/utemobler/stolar/cafstolar",
-  "https://www.venturedesign.se/utemobler/stolar/positionsstolar",
-  "https://www.venturedesign.se/utemobler/stolar/reclinerstolar",
-  "https://www.venturedesign.se/utemobler/soffor/2-sits-soffor",
-  "https://www.venturedesign.se/utemobler/soffor/3-sits-soffor",
-  "https://www.venturedesign.se/utemobler/soffor/hammock",
-  "https://www.venturedesign.se/utemobler/bankar/bankar",
-  "https://www.venturedesign.se/utemobler/ftoljer/loungeftoljer",
-  "https://www.venturedesign.se/utemobler/loungegrupper/horngrupper",
-  "https://www.venturedesign.se/utemobler/loungegrupper/lounge-set",
-  "https://www.venturedesign.se/utemobler/loungegrupper/soffgrupper",
-  "https://www.venturedesign.se/utemobler/loungegrupper/caf-set",
-  "https://www.venturedesign.se/utemobler/gr-matgrupper/rektangulara-matgrupper",
-  "https://www.venturedesign.se/utemobler/gr-matgrupper/lounge-stolar",
-  "https://www.venturedesign.se/utemobler/gr-matgrupper/runda-matgrupper",
-  "https://www.venturedesign.se/utemobler/hangstolar/hangstolar",
-  "https://www.venturedesign.se/utemobler/solstolar/solstolar",
-  "https://www.venturedesign.se/utemobler/hangmattor/hangmattor",
-  "https://www.venturedesign.se/utemobler/parasoll/parasoll",
-  "https://www.venturedesign.se/utemobler/parasollstenar/parasollstenar",
-  "https://www.venturedesign.se/utemobler/dynor/positionsdynor",
-  "https://www.venturedesign.se/utemobler/dynor/matstolsdynor",
-  "https://www.venturedesign.se/utemobler/dynor/bankdynor",
-  "https://www.venturedesign.se/utemobler/dynor/dynset",
-  "https://www.venturedesign.se/utemobler/forvaring/hangare",
-  "https://www.venturedesign.se/utemobler/dynor/solstolsdynor",
-  "https://www.venturedesign.se/utemobler/forvaring/dynboxar",
-  "https://www.venturedesign.se/utemobler/pergola-och-paviljonger/paviljonger",
-  "https://www.venturedesign.se/utemobler/kok/sektioner",
-  "https://www.venturedesign.se/utemobler/pergola-och-paviljonger/pergola",
-  "https://www.venturedesign.se/utemobler/kok/handfat",
-  "https://www.venturedesign.se/utemobler/kok/pizzaugn",
-  "https://www.venturedesign.se/utemobler/varmare/terassvarmare",
-  "https://www.venturedesign.se/utemobler/varmare/eldkorgar",
-  "https://www.venturedesign.se/utemobler/mobelskydd/mobelskydd",
-  "https://www.venturedesign.se/utemobler/mobelskydd/parasollskydd",
-  "https://www.venturedesign.se/utemobler/matgrupper/matgrupper",
-  "https://www.venturedesign.se/utemobler/matgrupper/bar-set",
-  "https://www.venturedesign.se/utemobler/matgrupper/caf-set",
-  "https://www.venturedesign.se/nyheter/innemobler/stolar/matstolar",
-  "https://www.venturedesign.se/nyheter/innemobler/stolar/barstolar",
-  "https://www.venturedesign.se/nyheter/innemobler/bankar/bankar",
-  "https://www.venturedesign.se/nyheter/innemobler/bord/barbord",
-  "https://www.venturedesign.se/nyheter/innemobler/bord/matbord",
-  "https://www.venturedesign.se/nyheter/innemobler/bord/sidobord",
-  "https://www.venturedesign.se/nyheter/innemobler/bord/soffbord",
-  "https://www.venturedesign.se/nyheter/innemobler/soffor/3-sits-soffor",
-  "https://www.venturedesign.se/nyheter/innemobler/ottomanpuff/puff",
-  "https://www.venturedesign.se/nyheter/innemobler/ftoljer/ftoljer",
-  "https://www.venturedesign.se/nyheter/innemobler/ftoljer/loungeftoljer",
-  "https://www.venturedesign.se/nyheter/innemobler/ftoljer/teddyftoljer",
-  "https://www.venturedesign.se/nyheter/innemobler/forvaring/skp",
-  "https://www.venturedesign.se/nyheter/innemobler/forvaring/byr",
-  "https://www.venturedesign.se/nyheter/innemobler/forvaring/hyllor",
-  "https://www.venturedesign.se/nyheter/innemobler/forvaring/garderober",
-  "https://www.venturedesign.se/nyheter/innemobler/forvaring/tv-bankar",
-  "https://www.venturedesign.se/nyheter/innemobler/mattor/rektangulara-mattor",
-  "https://www.venturedesign.se/nyheter/innemobler/speglar/speglar",
-  "https://www.venturedesign.se/nyheter/innemobler/mattor/runda-mattor",
-  "https://www.venturedesign.se/nyheter/innemobler/mattor/ovala-mattor",
-  "https://www.venturedesign.se/nyheter/innemobler/barnmobler/barnstolar",
-  "https://www.venturedesign.se/nyheter/innemobler/barnmobler/barnsoffor"
-])
 // await debugScrapeDetailsCaptureHARForTests();
 // await debugCategoryExplorationRecordHARForTests();

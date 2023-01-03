@@ -2,11 +2,8 @@ import { CrawlerFactory } from "./crawlers/factory";
 import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractRootUrl } from "./utils";
-import { sendRequestBatch } from "./publishing";
 import { DetailedProductInfo } from "./types/offer";
 import { AbstractCrawlerDefinition } from "./crawlers/abstract";
-import { writeFileSync } from "fs";
-import { join } from "path";
 
 export async function exploreCategory(
   targetUrl: string,

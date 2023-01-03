@@ -18,22 +18,26 @@ export async function sendRequestBatch(
   }
   const topic = process.env.SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC;
 
-  _.chunk(detailedPages, maxBatchSize).forEach(async (pages) => {
-    log.info(`Sending a request batch with ${pages.length} requests`);
-    const batchRequest: RequestBatch = {
-      productDetails: pages,
-      jobContext: jobContext,
-    };
+  const requestPromises = _.chunk(detailedPages, maxBatchSize).map(
+    async (pages) => {
+      log.info(`Sending a request batch with ${pages.length} requests`);
+      const batchRequest: RequestBatch = {
+        productDetails: pages,
+        jobContext: jobContext,
+      };
 
-    try {
-      const messageId = await pubSubClient
-        .topic(topic)
-        .publishMessage({ json: batchRequest });
-      log.info(`Message ${messageId} published.`);
-    } catch (error) {
-      log.error(`Received error while publishing: ${error}`);
+      try {
+        const messageId = await pubSubClient
+          .topic(topic)
+          .publishMessage({ json: batchRequest });
+        log.info(`Message ${messageId} published.`);
+      } catch (error) {
+        log.error(`Received error while publishing: ${error}`);
+      }
     }
-  });
+  );
+
+  await Promise.all(requestPromises);
 }
 
 export async function persistProductsToDatabase(
