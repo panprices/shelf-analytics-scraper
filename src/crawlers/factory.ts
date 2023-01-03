@@ -2,7 +2,6 @@ import {
   log,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
-  playwrightUtils,
   ProxyConfiguration,
   RequestQueue,
 } from "crawlee";
@@ -24,6 +23,7 @@ import { UnolivingCrawlerDefinition } from "./custom/unoliving";
 import { Ebuy24CrawlerDefinition } from "./custom/ebuy24";
 import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox";
 import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
+import { CHROMIUM_USER_DATA_DIR } from "../constants";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -61,6 +61,9 @@ export class CrawlerFactory {
       maxRequestsPerMinute: 60,
       maxConcurrency: 5,
       navigationTimeoutSecs: 150,
+      launchContext: {
+        userDataDir: CHROMIUM_USER_DATA_DIR,
+      },
       ...overrides,
       // Block unnecessary requests such as loading images:
       preNavigationHooks: [

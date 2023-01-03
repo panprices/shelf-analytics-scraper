@@ -82,9 +82,14 @@ export interface DetailedProductInfo extends BaseProductInfo {
 export interface JobContext {
   jobId: string;
   env: string;
+  skipPublishing?: boolean;
 }
 
 export interface RequestBatch {
   productDetails: RequestOptions[];
+  jobContext: JobContext;
+}
+
+export interface RequestCategoryExploration extends RequestOptions {
   jobContext: JobContext;
 }
