@@ -1,9 +1,13 @@
 import {
+  CheerioCrawlingContext,
+  CrawlingContext,
+  createCheerioRouter,
   createPlaywrightRouter,
   Dataset,
   log,
   PlaywrightCrawlingContext,
   RequestOptions,
+  Router,
   RouterHandler,
 } from "crawlee";
 import { Locator, Page } from "playwright";
@@ -49,12 +53,27 @@ export interface CrawlerDefinitionOptions {
   dynamicProductCardLoading?: boolean;
 }
 
+export interface CheerioCrawlerDefinitionOptions {
+  /**
+   * Keeps the detailed data about products, the one extracted from a product page
+   */
+  detailsDataset: Dataset;
+}
+
 /**
- * General definition of what we need to do to create a new custom implementation for a given website.
+ * General definition of what we need to do to x a new custom implementation for a given website.
  *
  * It defines the way in which both listing and individual pages should be scraped to gain information.
  */
-export abstract class AbstractCrawlerDefinition {
+export interface CrawlerDefinition<Context extends CrawlingContext> {
+  crawlDetailPage(ctx: Context): Promise<void>;
+  get detailsDataset(): Dataset;
+  get router(): Router<Context>;
+}
+
+export abstract class AbstractCrawlerDefinition
+  implements CrawlerDefinition<PlaywrightCrawlingContext>
+{
   protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
   protected readonly _detailsDataset: Dataset;
   private readonly _listingDataset: Dataset;
@@ -341,5 +360,47 @@ export abstract class AbstractCrawlerDefinition {
     );
 
     return [detailsDataset, listingDataset];
+  }
+}
+
+export abstract class AbstractCheerioCrawlerDefinition
+  implements CrawlerDefinition<CheerioCrawlingContext>
+{
+  protected readonly _router: RouterHandler<CheerioCrawlingContext>;
+  protected readonly _detailsDataset: Dataset;
+
+  protected constructor(options: CheerioCrawlerDefinitionOptions) {
+    this._router = createCheerioRouter();
+    this._router.addHandler("DETAIL", (ctx) => this.crawlDetailPage(ctx));
+
+    this._detailsDataset = options.detailsDataset;
+  }
+
+  async crawlDetailPage(ctx: CheerioCrawlingContext): Promise<void> {
+    log.info(`Looking at product with url ${ctx.request.url}`);
+    const productDetails = this.extractProductDetails(ctx);
+
+    const request = ctx.request;
+
+    await this._detailsDataset.pushData(<DetailedProductInfo>{
+      fetchedAt: new Date().toISOString(),
+      retailerDomain: extractRootUrl(ctx.request.url),
+      ...request.userData,
+      ...productDetails,
+    });
+
+    console.log((await this._detailsDataset.getData()).count);
+  }
+
+  abstract extractProductDetails(
+    ctx: CheerioCrawlingContext
+  ): DetailedProductInfo;
+
+  get detailsDataset(): Dataset {
+    return this._detailsDataset;
+  }
+
+  get router(): RouterHandler<CheerioCrawlingContext> {
+    return this._router;
   }
 }
