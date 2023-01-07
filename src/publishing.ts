@@ -50,7 +50,7 @@ export async function persistProductsToDatabase(
     .table("retailer_listings")
     .insert(preprocessedItems)
     .catch((response: InsertRowsResponse) => {
-      log.error(`BigQuery insertion response: ${JSON.stringify(response)}`);
+      log.error(`BigQuery insertion error`, { response: response });
     });
 
   log.info("Published products to BigQuery", {
