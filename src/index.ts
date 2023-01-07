@@ -67,11 +67,13 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     DETAILS_CACHE_MARKER_FILE
   );
 
-  const retailer = extractRootUrl(body.productDetails[0].url);
+  const retailer_url = extractRootUrl(body.productDetails[0].url);
+
+  // One time use to index all products from trademax-like retailers using Cheerio
   const useCheerio =
-    retailer.includes("chilli.se") ||
-    retailer.includes("trademax.se") ||
-    retailer.includes("furniturebox.se");
+    retailer_url.includes("chilli.se") ||
+    retailer_url.includes("trademax.se") ||
+    retailer_url.includes("furniturebox.se");
 
   const products = await scrapeDetails(
     body.productDetails,

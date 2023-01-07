@@ -89,24 +89,6 @@ export class CrawlerFactory {
       ],
     };
 
-    const proxyConfiguration = {
-      DE: new ProxyConfiguration({
-        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60000"],
-      }),
-      UK: new ProxyConfiguration({
-        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60001"],
-      }),
-      SE: new ProxyConfiguration({
-        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60002"],
-      }),
-      DE2: new ProxyConfiguration({
-        proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
-      }),
-      SHARED_DATACENTER: new ProxyConfiguration({
-        proxyUrls: ["http://sdcpanprices:C8N3KgxrWe@dc.pr.oxylabs.io:10000"],
-      }),
-    };
-
     let definition;
     switch (url) {
       case "https://www.homeroom.se":
@@ -121,7 +103,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -242,9 +224,10 @@ export class CrawlerFactory {
       case "https://www.trademax.se":
       case "https://www.furniturebox.se":
         const definition = await ChilliCheerioCrawlerDefinition.create();
-        const options = {
+        const options: CheerioCrawlerOptions = {
           ...defaultOptions,
           requestHandler: definition.router,
+          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
         };
         return [new CheerioCrawler(options), definition];
     }
@@ -253,3 +236,21 @@ export class CrawlerFactory {
     throw Error(`Asked for unknown root url: ${url}`);
   }
 }
+
+const proxyConfiguration = {
+  DE: new ProxyConfiguration({
+    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60000"],
+  }),
+  UK: new ProxyConfiguration({
+    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60001"],
+  }),
+  SE: new ProxyConfiguration({
+    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60002"],
+  }),
+  DE2: new ProxyConfiguration({
+    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
+  }),
+  SHARED_DATACENTER: new ProxyConfiguration({
+    proxyUrls: ["http://sdcpanprices:C8N3KgxrWe@dc.pr.oxylabs.io:10000"],
+  }),
+};

@@ -120,9 +120,9 @@ async function debugCategoryExplorationRecordHARForTests(targetUrl: string) {
   fs.writeFileSync("result.json", JSON.stringify(detailedPages, null, 2));
 }
 
-await debugCategoryExploration(
-  "https://www.chilli.se/textil/gardiner/hissgardin-roll-up-gardin"
-);
+// await debugCategoryExploration(
+//   "https://www.chilli.se/textil/gardiner/hissgardin-roll-up-gardin"
+// );
 // await debugCategoryExplorationNoCapture();
 // await debugLeafCategoryExtraction([
 //   "https://www.venturedesign.se/furniture-fashion",
@@ -142,97 +142,6 @@ await debugCategoryExploration(
 // await exploreCategoryEndToEnd([
 //   "https://www.chilli.se/m%C3%B6bler/soffor/divansoffa-sch%C3%A4slongsoffa",
 // ]);
-
-// Gardenstore
-
-// await debugCategoryExploration(
-//   "https://www.gardenstore.se/utemobler/loungemobler"
-// );
-
-// await debugScrapeDetails(
-//   "https://www.gardenstore.se/19935-780-matstol-venture-design-velvet-lyx-beige"
-// );
-// With discount:
-// await debugScrapeDetails(
-//   "https://www.gardenstore.se/hangstol-venture-design-lexi-for-djur?channable=033265736b7500313031392d343038de"
-// );
-// Out of stock & only 1 image
-// await debugScrapeDetails(
-//   "https://www.gardenstore.se/storblommig-ros-budde-rosa-augusta-luise"
-// );
-// 2 div.description
-// await debugScrapeDetails(
-//   "https://www.gardenstore.se/vat-grovdammsugare-einhell-th-vc-1820-s-20-l"
-// );
-// await debugScrapeDetails(
-//   "https://www.gardenstore.se/gr19820-matgrupp-venture-design-jepara-arctic-matbord-250-100-6-matstolar"
-// );
-
-// await debugScrapeDetailsRecordHARForTests(
-//   "https://www.gardenstore.se/gr19635-matgrupp-venture-design-sleek-plaza-matbord-195-95-6-matstolar"
-// );
-
-// await debugCategoryExplorationEndToEnd([
-//   "https://www.gardenstore.se/varumarken/venture-design",
-// ]);
-
-// ===
-// Unoliving
-// ===
-
-// await debugCategoryExploration("https://unoliving.com/brands/venture-design");
-// await debugCategoryExploration(
-//   "https://www.homeroom.se/dekoration/presentpapper-tillbehor"
-// );
-
-// await debugCategoryExplorationRecordHARForTests(
-//   "https://unoliving.com/sovevaerelse/sengetilbehor"
-// );
-
-// With discount, 3 images
-// await debugScrapeDetails(
-//   "https://unoliving.com/temahome-apex-spisebord-gra-beton-look-200x100"
-// );
-
-// With error
-
-// await debugScrapeDetails(
-//   "https://unoliving.com/nordal-sof-2-pers-sofa-varm-gra-velour"
-// );
-// await debugScrapeDetailsRecordHARForTests(
-//   "https://unoliving.com/nordal-sof-2-pers-sofa-varm-gra-velour"
-// );
-
-// ===
-// Ebuy24
-// ===
-
-// await debugCategoryExploration("https://ebuy24.dk/shop/93-stole/");
-
-// await debugCategoryExplorationRecordHARForTests(
-//   "https://ebuy24.dk/shop/376-glas-spisebord/"
-// );
-
-// await debugCategoryExploration(
-//   "https://ebuy24.dk/shop/511-overtraek-til-havemoebler/"
-// );
-
-// Category page with products having "prisgaranti". Expect 149 products.
-// await debugCategoryExploration("https://ebuy24.dk/shop/15-sofaer/");
-// await debugCategoryExplorationEndToEnd(["https://ebuy24.dk/shop/93-stole/"]);
-
-// await debugScrapeDetails(
-//   "https://ebuy24.dk/shop/93-stole/4461-baroness-laenestol-som-kurvestol-natur-rattan-graa/"
-// );
-
-// Many images
-// await debugScrapeDetails(
-//   "https://ebuy24.dk/shop/93-stole/15096-talgarth-laenestol-recliner-med-fodskammel-antracit-sort/"
-// );
-
-// await debugScrapeDetailsRecordHARForTests(
-//   "https://ebuy24.dk/shop/93-stole/4092-ramy-laenestol-i-marineblaa-med-mat-sort-metal-stel/"
-// );
 
 // Furniture box
 // await debugCategoryExploration(
@@ -318,7 +227,7 @@ await debugCategoryExploration(
 // Test Chilli Cheerio
 import { DetailedProductInfo } from "./types/offer";
 
-async function debugScrapeChilliCheerio(categoryUrls: string[]) {
+async function debugScrapeCheerio(categoryUrls: string[]) {
   const detailedProducts = await exploreCategoryEndToEndCheerio(categoryUrls);
 
   writeFileSync(join(".", "data.json"), JSON.stringify(detailedProducts), {
@@ -326,7 +235,7 @@ async function debugScrapeChilliCheerio(categoryUrls: string[]) {
   });
 }
 
-async function debugScrapeDetailsChilliCheerio(targetUrl: string) {
+async function debugScrapeDetailsCheerio(targetUrl: string) {
   const dummyRequest = {
     url: targetUrl,
     userData: {
@@ -338,7 +247,7 @@ async function debugScrapeDetailsChilliCheerio(targetUrl: string) {
       matchingType: "match",
     },
   };
-  const detailedItems = await scrapeDetailsCheerio([dummyRequest]);
+  const detailedItems = await scrapeDetails([dummyRequest], {}, true);
 
   log.info(JSON.stringify(detailedItems, null, 2));
   log.info("Item found", {
@@ -352,14 +261,14 @@ async function debugScrapeDetailsChilliCheerio(targetUrl: string) {
   // log.info("Published to BigQuery");
 }
 
-// await debugScrapeDetailsChilliCheerio(
-//   "https://www.chilli.se/m%C3%B6bler/bord/matgrupp/matgrupp-steph-180-cm-med-6-eleri-matstol-svart-p506272"
-// );
+await debugScrapeDetailsCheerio(
+  "https://www.chilli.se/m%C3%B8bler/stoler/spisestuestoler/tuva-lenestol-kunstl%C3%A6r-svart-p1651269-v92251"
+);
 // await debugScrapeChilliCheerio([
 //   "https://www.chilli.se/utem%C3%B6bler/utebord/cafebord",
 // ]);
 
-await debugScrapeChilliCheerio([
+await debugScrapeCheerio([
   "https://www.chilli.se/m%C3%B6bler/bord/soffbord",
   "https://www.chilli.se/m%C3%B6bler/bord/matgrupp",
   //   "https://www.chilli.se/m%C3%B6bler/bord/avlastningsbord",
