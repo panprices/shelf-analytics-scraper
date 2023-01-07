@@ -103,7 +103,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -120,7 +120,7 @@ export class CrawlerFactory {
           //     });
           //   },
           // ],
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
@@ -179,7 +179,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.DE,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
@@ -227,7 +227,7 @@ export class CrawlerFactory {
         const options: CheerioCrawlerOptions = {
           ...defaultOptions,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new CheerioCrawler(options), definition];
     }
