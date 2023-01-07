@@ -1,9 +1,11 @@
 import {
   log,
+  CheerioCrawler,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
   ProxyConfiguration,
   RequestQueue,
+  CheerioCrawlerOptions,
 } from "crawlee";
 import {
   CustomQueueSettings,
@@ -11,7 +13,10 @@ import {
 } from "../custom_crawlee/custom_request_queue";
 import { HomeroomCrawlerDefinition } from "./custom/homeroom";
 import { TrademaxCrawlerDefinition } from "./custom/trademax";
-import { AbstractCrawlerDefinition } from "./abstract";
+import {
+  AbstractCheerioCrawlerDefinition,
+  AbstractCrawlerDefinition,
+} from "./abstract";
 import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
 import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 import { v4 as uuidv4 } from "uuid";
@@ -24,6 +29,8 @@ import { Ebuy24CrawlerDefinition } from "./custom/ebuy24";
 import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox";
 import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
 import { CHROMIUM_USER_DATA_DIR } from "../constants";
+import { extractRootUrl } from "../utils";
+import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -37,8 +44,9 @@ export interface CrawlerFactoryArgs {
  * As more sources are being added they should be added here as well, so we keep this one class as a central point
  * to interact with the various sources.
  */
+
 export class CrawlerFactory {
-  static async buildCrawlerForRootUrl(
+  static async buildPlaywrightCrawlerForRootUrl(
     args: CrawlerFactoryArgs,
     overrides?: PlaywrightCrawlerOptions
   ): Promise<[PlaywrightCrawler, AbstractCrawlerDefinition]> {
@@ -70,7 +78,6 @@ export class CrawlerFactory {
         ...(overrides?.preNavigationHooks ?? []),
         async ({ page }) => {
           await page.route("**/*", (route) => {
-            log.info("Image request");
             return route.request().resourceType() === "image"
               ? route.fulfill({
                   status: 200,
@@ -122,6 +129,15 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
+          // proxyConfiguration: proxyConfiguration.SE,
+          // Block unnecessary requests such as loading images:
+          // preNavigationHooks: [
+          //   async ({ page }) => {
+          //     await playwrightUtils.blockRequests(page, {
+          //       urlPatterns: [".jpg", ".jpeg", ".png", ".svg", ".gif", ".woff"],
+          //     });
+          //   },
+          // ],
           proxyConfiguration: proxyConfiguration.SHARED_DATACENTER,
         };
         return [new PlaywrightCrawler(options), definition];
@@ -192,6 +208,45 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
+    }
+
+    log.warning(`Asked for unknown root url: ${url}`);
+    throw Error(`Asked for unknown root url: ${url}`);
+  }
+
+  static async buildCheerioCrawlerForRootUrl(
+    args: CrawlerFactoryArgs
+  ): Promise<[CheerioCrawler, AbstractCheerioCrawlerDefinition]> {
+    if (args.useCustomQueue === undefined) {
+      // use custom queue by default
+      args.useCustomQueue = true;
+    }
+
+    const url = args.url;
+    const requestQueue = args.useCustomQueue
+      ? await CustomRequestQueue.open(
+          "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4(),
+          {},
+          args.customQueueSettings
+        )
+      : await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4());
+
+    const defaultOptions: CheerioCrawlerOptions = {
+      requestQueue,
+      maxRequestsPerMinute: 30,
+    };
+
+    const rootUrl = extractRootUrl(url);
+    switch (rootUrl) {
+      case "https://www.chilli.se":
+      case "https://www.trademax.se":
+      case "https://www.furniturebox.se":
+        const definition = await ChilliCheerioCrawlerDefinition.create();
+        const options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new CheerioCrawler(options), definition];
     }
 
     log.warning(`Asked for unknown root url: ${url}`);

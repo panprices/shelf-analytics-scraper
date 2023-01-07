@@ -3,7 +3,11 @@ import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractRootUrl } from "./utils";
 import { DetailedProductInfo } from "./types/offer";
-import { AbstractCrawlerDefinition } from "./crawlers/abstract";
+import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerDefinition,
+} from "./crawlers/abstract";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -12,7 +16,7 @@ export async function exploreCategory(
 ): Promise<RequestOptions[]> {
   const rootUrl = extractRootUrl(targetUrl);
 
-  const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl(
+  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
     { url: rootUrl },
     {
       ...overrides,
@@ -63,7 +67,7 @@ export async function exploreCategoriesNoCapture(
   const rootUrl = extractRootUrl(targetUrls[0]);
 
   const [crawler, crawlerDefinition] =
-    await CrawlerFactory.buildCrawlerForRootUrl(
+    await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
       {
         url: rootUrl,
         customQueueSettings: {
@@ -117,14 +121,63 @@ export async function exploreCategoryEndToEnd(
   return result;
 }
 
-export async function extractLeafCategories(targetUrls: string[]) {
+export async function exploreCategoryEndToEndCheerio(
+  categoryUrls: string[]
+): Promise<DetailedProductInfo[]> {
+  let result: DetailedProductInfo[] = [];
+  for (const u of categoryUrls) {
+    console.log(u);
+    const detailedProducts = await exploreCategory(
+      u,
+      "end_to_end_2022_01_03_v2"
+    ).then(async (detailRequests) => {
+      console.log(`Found ${detailRequests.length} detailed urls`);
+
+      const detailedProducts = await scrapeDetails(
+        detailRequests,
+        undefined,
+        true
+      );
+      console.log(
+        `Category ${u} obtained ${detailedProducts.length} product details`
+      );
+
+      if (detailedProducts.length < detailRequests.length) {
+        log.error("Missing detailed products", {
+          fromCategoryExplore: detailRequests.length,
+          got: detailedProducts.length,
+        });
+      }
+      return detailedProducts;
+    });
+
+    log.info(JSON.stringify(detailedProducts, null, 2));
+    log.info("Item found", {
+      nrItems: detailedProducts.length,
+      urls: detailedProducts.map((item) => item.url),
+      nrImages: detailedProducts.map((item) => item.images.length),
+    });
+
+    log.info("Persisting in BigQuery");
+    await persistProductsToDatabase(detailedProducts);
+    log.info("Published to BigQuery");
+
+    result = [...result, ...detailedProducts];
+  }
+
+  return result;
+}
+
+export async function extractLeafCategories(
+  targetUrls: string[]
+): Promise<string[]> {
   if (targetUrls.length === 0) {
-    return;
+    return [];
   }
 
   const rootUrl = extractRootUrl(targetUrls[0]);
 
-  const [crawler, _] = await CrawlerFactory.buildCrawlerForRootUrl(
+  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
     {
       url: rootUrl,
       customQueueSettings: {
@@ -156,27 +209,37 @@ export async function extractLeafCategories(targetUrls: string[]) {
     categoryUrls.push(nextRequest.url);
   }
 
-  categoryUrls.forEach((u) => log.info(u));
+  log.info("Categories found", { nrCategoryUrls: categoryUrls.length });
+  return categoryUrls;
 }
 
 export async function scrapeDetails(
   detailedPages: RequestOptions[],
-  overrides?: PlaywrightCrawlerOptions
+  overrides?: PlaywrightCrawlerOptions,
+  useCheerio: boolean = false
 ): Promise<DetailedProductInfo[]> {
   if (detailedPages.length === 0) {
     return [];
   }
 
-  const sampleUrl = detailedPages[0].url;
-  const rootUrl = extractRootUrl(sampleUrl);
-  const [crawler, crawlerDefinition] =
-    await CrawlerFactory.buildCrawlerForRootUrl(
-      {
+  const rootUrl = extractRootUrl(detailedPages[0].url);
+  let crawler, crawlerDefinition;
+  if (useCheerio) {
+    [crawler, crawlerDefinition] =
+      await CrawlerFactory.buildCheerioCrawlerForRootUrl({
         url: rootUrl,
         useCustomQueue: false,
-      },
-      overrides
-    );
+      });
+  } else {
+    [crawler, crawlerDefinition] =
+      await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
+        {
+          url: rootUrl,
+          useCustomQueue: false,
+        },
+        overrides
+      );
+  }
 
   await crawler.run(detailedPages);
 
@@ -184,7 +247,7 @@ export async function scrapeDetails(
 }
 
 async function extractProductDetails(
-  crawlerDefinition: AbstractCrawlerDefinition
+  crawlerDefinition: CrawlerDefinition<any>
 ): Promise<DetailedProductInfo[]> {
   const products = (await crawlerDefinition.detailsDataset.getData()).items.map(
     (i) => <DetailedProductInfo>i
