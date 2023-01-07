@@ -44,7 +44,7 @@
     "start": "npm run start:dev",
     "start:prod": "node --experimental-specifier-resolution=node dist/index.js",
     "start:dev": "ts-node-esm --experimental-specifier-resolution=node -T src/index.ts",
-    "run-main": "rm -r storage && NODE_OPTIONS='--max-old-space-size=4096' ts-node-esm --experimental-specifier-resolution=node -T src/main.ts",
+    "run-main": "ts-node-esm --experimental-specifier-resolution=node -T src/main.ts",
     "build": "tsc",
     "test": "jest",
     "demo": "tsc && node demo.js",

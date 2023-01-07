@@ -41,7 +41,6 @@ describe("Nordiskarum details page", () => {
         ],
       });
 
-      expect(result).toBeDefined();
       expect(result).toHaveLength(1);
       expect(result).toEqual(expectedResult);
     }

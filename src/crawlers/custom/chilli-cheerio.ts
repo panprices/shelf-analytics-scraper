@@ -30,12 +30,6 @@ export class ChilliCheerioCrawlerDefinition extends AbstractCheerioCrawlerDefini
       schemaOrg,
     };
 
-    console.log(
-      $("script[type='application/ld+json']").filter((_, element) =>
-        $(element).text().includes("schema.org")
-      ).length
-    );
-
     const schemaOrgBreadcrumbString = $("script[type='application/ld+json']")
       .filter(
         (_, element) =>

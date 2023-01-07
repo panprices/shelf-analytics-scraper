@@ -238,16 +238,16 @@ export class CrawlerFactory {
     };
 
     const rootUrl = extractRootUrl(url);
-    let definition;
     switch (rootUrl) {
       case "https://www.chilli.se":
-        definition = await ChilliCheerioCrawlerDefinition.create();
-        return [
-          new CheerioCrawler({
-            requestHandler: definition.router,
-          }),
-          definition,
-        ];
+      case "https://www.trademax.se":
+      case "https://www.furniturebox.se":
+        const definition = await ChilliCheerioCrawlerDefinition.create();
+        const options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new CheerioCrawler(options), definition];
     }
 
     log.warning(`Asked for unknown root url: ${url}`);
