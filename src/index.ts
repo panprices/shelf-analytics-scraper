@@ -67,7 +67,17 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     DETAILS_CACHE_MARKER_FILE
   );
 
-  const products = await scrapeDetails(body.productDetails);
+  const retailer = extractRootUrl(body.productDetails[0].url);
+  const useCheerio =
+    retailer.includes("chilli.se") ||
+    retailer.includes("trademax.se") ||
+    retailer.includes("furniturebox.se");
+
+  const products = await scrapeDetails(
+    body.productDetails,
+    undefined,
+    useCheerio
+  );
   try {
     log.info("Product details scraped", {
       nrUrls: body.productDetails.length,
