@@ -78,7 +78,6 @@ export class CrawlerFactory {
         ...(overrides?.preNavigationHooks ?? []),
         async ({ page }) => {
           await page.route("**/*", (route) => {
-            log.info("Image request");
             return route.request().resourceType() === "image"
               ? route.fulfill({
                   status: 200,
