@@ -388,8 +388,6 @@ export abstract class AbstractCheerioCrawlerDefinition
       ...request.userData,
       ...productDetails,
     });
-
-    console.log((await this._detailsDataset.getData()).count);
   }
 
   abstract extractProductDetails(
