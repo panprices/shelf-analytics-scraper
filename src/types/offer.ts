@@ -83,6 +83,8 @@ export interface JobContext {
   jobId: string;
   env: string;
   skipPublishing?: boolean;
+  scraperCategoryPage?: string; // "{playwright, cheerio}"
+  scraperProductPage?: string; // "{playwright, cheerio}"
 }
 
 export interface RequestBatch {

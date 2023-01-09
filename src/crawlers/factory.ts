@@ -68,6 +68,7 @@ export class CrawlerFactory {
       headless: true,
       maxRequestsPerMinute: 60,
       maxConcurrency: 5,
+      maxRequestRetries: 2,
       navigationTimeoutSecs: 150,
       launchContext: {
         userDataDir: CHROMIUM_USER_DATA_DIR,
@@ -216,6 +217,7 @@ export class CrawlerFactory {
     const defaultOptions: CheerioCrawlerOptions = {
       requestQueue,
       maxRequestsPerMinute: 30,
+      maxRequestRetries: 2,
     };
 
     const rootUrl = extractRootUrl(url);
