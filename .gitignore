@@ -1,5 +1,7 @@
 # Crawlee
 storage/
+browser-persistent-context/
+cache.zip
 
 # Logs
 logs

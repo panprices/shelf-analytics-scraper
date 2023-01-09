@@ -99,31 +99,6 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.trademax.se":
-        definition = await TrademaxCrawlerDefinition.create();
-        options = {
-          ...options,
-          requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
-        };
-        return [new PlaywrightCrawler(options), definition];
-      case "https://www.chilli.se":
-        definition = await ChilliCrawlerDefinition.create();
-        options = {
-          ...options,
-          requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
-          // Block unnecessary requests such as loading images:
-          // preNavigationHooks: [
-          //   async ({ page }) => {
-          //     await playwrightUtils.blockRequests(page, {
-          //       urlPatterns: [".jpg", ".jpeg", ".png", ".svg", ".gif", ".woff"],
-          //     });
-          //   },
-          // ],
-          proxyConfiguration: proxyConfiguration.SE,
-        };
-        return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
         definition = await VentureDesignCrawlerDefinition.create();
         options = {
@@ -175,12 +150,28 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.trademax.se":
+        definition = await TrademaxCrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.SE,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "https://www.chilli.se":
+        definition = await ChilliCrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+        };
+        return [new PlaywrightCrawler(options), definition];
       case "https://www.furniturebox.se":
         definition = await FurnitureboxCrawlerDefinition.create();
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
@@ -229,7 +220,7 @@ export class CrawlerFactory {
         const options: CheerioCrawlerOptions = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };
         return [new CheerioCrawler(options), definition];
     }
@@ -252,7 +243,7 @@ const proxyConfiguration = {
   DE2: new ProxyConfiguration({
     proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
   }),
-  SHARED_DATACENTER: new ProxyConfiguration({
-    proxyUrls: ["http://sdcpanprices:C8N3KgxrWe@dc.pr.oxylabs.io:10000"],
+  SHARED_DATACENTER_DE: new ProxyConfiguration({
+    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.de-pr.oxylabs.io:40000"],
   }),
 };
