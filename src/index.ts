@@ -29,10 +29,6 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestCategoryExploration>req.body;
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
-  const [shouldUploadCache, cacheSize] = await downloadCache(
-    body.jobContext,
-    DETAILS_CACHE_MARKER_FILE
-  );
   configCrawleeLogger(cloudTrace);
 
   const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
@@ -50,29 +46,28 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   if (!body.jobContext.skipPublishing) {
     await sendRequestBatch(detailedPages, req.body.jobContext);
   }
-  if (shouldUploadCache && cacheSize < 10e6 /* 10MB */) {
-    await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
-  }
 
   res.status(204).send("OK");
 });
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
-  const body = <RequestBatch>req.body;
-
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
 
+  log.info("/scrapeDetails");
+
+  const body = <RequestBatch>req.body;
   const retailer_url = extractRootUrl(body.productDetails[0].url);
 
   // One time use to index all products from trademax-like retailers using Cheerio
-  const useCheerio =
-    body.jobContext.scraperProductPage === "cheerio" || // TODO: remove this line later
-    retailer_url.includes("chilli.se") ||
-    retailer_url.includes("furniturebox.se");
+  const useCheerio = body.jobContext.scraperProductPage === "cheerio";
 
   let [shouldUploadCache, cacheSize] = [false, 0];
-  if (!useCheerio) {
+  if (
+    retailer_url.includes("trademax.se") ||
+    retailer_url.includes("chilli.se") ||
+    retailer_url.includes("furniturebox.se")
+  ) {
     [shouldUploadCache, cacheSize] = await downloadCache(
       body.jobContext,
       DETAILS_CACHE_MARKER_FILE

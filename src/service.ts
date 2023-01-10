@@ -292,6 +292,10 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
         }
       }
     }
+
+    if (!p.popularityIndex) {
+      p.popularityIndex = -1;
+    }
   });
 
   return products;
