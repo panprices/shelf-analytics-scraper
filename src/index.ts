@@ -29,10 +29,11 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestCategoryExploration>req.body;
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
-  const shouldUploadCache = await downloadCache(
-    body.jobContext,
-    CATEGORY_CACHE_MARKER_FILE
-  );
+  const shouldUploadCache = false;
+  // const shouldUploadCache = await downloadCache(
+  //   body.jobContext,
+  //   CATEGORY_CACHE_MARKER_FILE
+  // );
   configCrawleeLogger(cloudTrace);
 
   const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
@@ -69,17 +70,15 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const useCheerio =
     body.jobContext.scraperProductPage === "cheerio" || // TODO: remove this line later
     retailer_url.includes("chilli.se") ||
-    retailer_url.includes("trademax.se") ||
     retailer_url.includes("furniturebox.se");
 
   let shouldUploadCache = false;
-  if (!useCheerio) {
-    console.log(useCheerio);
-    shouldUploadCache = await downloadCache(
-      body.jobContext,
-      DETAILS_CACHE_MARKER_FILE
-    );
-  }
+  // if (!useCheerio) {
+  //   shouldUploadCache = await downloadCache(
+  //     body.jobContext,
+  //     DETAILS_CACHE_MARKER_FILE
+  //   );
+  // }
 
   const products = await scrapeDetails(
     body.productDetails,
