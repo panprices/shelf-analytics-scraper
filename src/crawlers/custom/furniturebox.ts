@@ -140,7 +140,6 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       name: productName,
       description,
       specifications,
-      popularityIndex: -1, // to be replaced later
     };
   }
 
