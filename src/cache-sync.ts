@@ -12,7 +12,7 @@ import { log } from "crawlee";
 
 /**
  * Downloads the existent cache from the google storage bucket. It returns whether the cache was already created for
- * this type of operation (as indicated by the marker file). Even if the cache was not updated by a worker operating on
+ * this type of operation (as indicated by the marker file), and the cache size. Even if the cache was not updated by a worker operating on
  * the current type of task, we still take any existent cache, but we will update it at the end.
  *
  * @param jobContext
@@ -21,12 +21,20 @@ import { log } from "crawlee";
 export async function downloadCache(
   jobContext: JobContext,
   markerFileName: string
-): Promise<boolean> {
+): Promise<[boolean, number]> {
   const storage = new Storage();
   const bucket = storage.bucket(CACHES_BUCKET);
   const cacheArchive = bucket.file(
     `${JOBS_DIRECTORY}/${jobContext.jobId}/${CACHE_ARCHIVE_NAME}`
   );
+
+  let cacheSize;
+  try {
+    const metadata = await cacheArchive.getMetadata();
+    cacheSize = parseInt(metadata[0].size);
+  } catch {
+    cacheSize = 0;
+  }
 
   const cacheArchiveExists = (await cacheArchive.exists())[0];
   if (cacheArchiveExists) {
@@ -41,7 +49,7 @@ export async function downloadCache(
   const markerFile = bucket.file(
     `${JOBS_DIRECTORY}/${jobContext.jobId}/${markerFileName}`
   );
-  return !(await markerFile.exists())[0];
+  return [!(await markerFile.exists())[0], cacheSize];
 }
 
 export async function uploadCache(

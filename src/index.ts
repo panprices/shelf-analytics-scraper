@@ -29,11 +29,10 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestCategoryExploration>req.body;
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
-  const shouldUploadCache = false;
-  // const shouldUploadCache = await downloadCache(
-  //   body.jobContext,
-  //   CATEGORY_CACHE_MARKER_FILE
-  // );
+  const [shouldUploadCache, cacheSize] = await downloadCache(
+    body.jobContext,
+    DETAILS_CACHE_MARKER_FILE
+  );
   configCrawleeLogger(cloudTrace);
 
   const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
@@ -51,7 +50,7 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   if (!body.jobContext.skipPublishing) {
     await sendRequestBatch(detailedPages, req.body.jobContext);
   }
-  if (shouldUploadCache) {
+  if (shouldUploadCache && cacheSize < 10e6 /* 10MB */) {
     await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
   }
 
@@ -72,13 +71,18 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     retailer_url.includes("chilli.se") ||
     retailer_url.includes("furniturebox.se");
 
-  let shouldUploadCache = false;
-  // if (!useCheerio) {
-  //   shouldUploadCache = await downloadCache(
-  //     body.jobContext,
-  //     DETAILS_CACHE_MARKER_FILE
-  //   );
-  // }
+  let [shouldUploadCache, cacheSize] = [false, 0];
+  if (!useCheerio) {
+    [shouldUploadCache, cacheSize] = await downloadCache(
+      body.jobContext,
+      DETAILS_CACHE_MARKER_FILE
+    );
+  }
+
+  log.info("Check for browser cache", {
+    cacheFound: shouldUploadCache,
+    cacheSize,
+  });
 
   const products = await scrapeDetails(
     body.productDetails,
@@ -102,7 +106,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {
     await publishMatchingProducts(matchingProducts, body.jobContext);
   }
-  if (shouldUploadCache) {
+  if (shouldUploadCache && cacheSize < 10e6 /* 10MB */) {
     await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
   }
 

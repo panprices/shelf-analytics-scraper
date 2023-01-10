@@ -75,19 +75,19 @@ export class CrawlerFactory {
       },
       ...overrides,
       // Block unnecessary requests such as loading images:
-      preNavigationHooks: [
-        ...(overrides?.preNavigationHooks ?? []),
-        async ({ page }) => {
-          await page.route("**/*", (route) => {
-            return route.request().resourceType() === "image"
-              ? route.fulfill({
-                  status: 200,
-                  body: "accept",
-                })
-              : route.continue();
-          });
-        },
-      ],
+      // preNavigationHooks: [
+      //   ...(overrides?.preNavigationHooks ?? []),
+      //   async ({ page }) => {
+      //     await page.route("**/*", (route) => {
+      //       return route.request().resourceType() === "image"
+      //         ? route.fulfill({
+      //             status: 200,
+      //             body: "accept",
+      //           })
+      //         : route.continue();
+      //     });
+      //   },
+      // ],
     };
 
     let definition;
@@ -155,7 +155,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -163,7 +163,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.furniturebox.se":
