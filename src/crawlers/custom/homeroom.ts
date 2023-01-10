@@ -187,6 +187,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       url: page.url(),
       reviews,
       availability,
+
+      popularityIndex: -1, // to be replaced later
     };
   }
 

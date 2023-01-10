@@ -322,6 +322,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       specifications: specArray,
       availability,
       metadata,
+      popularityIndex: -1, // to be replaced later
     };
 
     if (originalPriceString) {
