@@ -55,7 +55,11 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     const secondaryVariantButtons = ctx.page.locator(
       "div.PJfd6 button[data-cy='selector_option_button']"
     );
-    if ((await secondaryVariantOpenMenuButton.count()) >= 0) {
+
+    if ((await secondaryVariantOpenMenuButton.count()) > 0) {
+      console.log(
+        "Open menu button" + (await secondaryVariantOpenMenuButton.count())
+      );
       // Click the menu button to open the menu:
       await secondaryVariantOpenMenuButton.first().click();
       await ctx.page.waitForTimeout(1500);
@@ -237,6 +241,8 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
 
   static async create(): Promise<FurnitureboxCrawlerDefinition> {
     const options = await createCrawlerDefinitionOption();
+    // Next page buttons are dynamically rendered, so we need to scroll slower
+    options.dynamicProductCardLoading = true;
 
     return new FurnitureboxCrawlerDefinition(options);
   }
