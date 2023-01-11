@@ -74,7 +74,7 @@ export async function extractProductDetails(
 ) {
   try {
     await page.waitForSelector("h1[data-cy='product_title']", {
-      timeout: 5000,
+      timeout: 15000,
     });
   } catch (error) {
     log.error(
