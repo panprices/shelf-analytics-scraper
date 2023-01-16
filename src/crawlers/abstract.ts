@@ -168,18 +168,19 @@ export abstract class AbstractCrawlerDefinition
 
   /**
    * This method also assigns the `popularityIndex` property to products. The idea is that a product arrives here
-   * in the order it is found while scraping the listing page, so its popularity index is the number of products
-   * we have already registered in the map before its arrival
+   * in the order it is found while scraping the listing page, so its popularity index is
+   * (the number of products we have already registered in the map before its arrival) + 1.
+   * Plus one so that we start counting from 1.
    *
    * @param url
    * @param product
    */
   handleFoundProductFromCard(url: string, product: ListingProductInfo): number {
     if (this.productInfos.has(url)) {
-      return <number>this.productInfos.get(url)!.popularityIndex;
+      return this.productInfos.get(url)!.popularityIndex;
     }
 
-    product.popularityIndex = this.productInfos.size;
+    product.popularityIndex = this.productInfos.size + 1;
     this.productInfos.set(url, product);
     return product.popularityIndex;
   }
