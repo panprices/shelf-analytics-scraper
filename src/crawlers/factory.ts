@@ -155,7 +155,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -171,7 +171,7 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
@@ -232,18 +232,21 @@ export class CrawlerFactory {
 
 const proxyConfiguration = {
   DE: new ProxyConfiguration({
-    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60000"],
-  }),
-  UK: new ProxyConfiguration({
-    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60001"],
+    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
   }),
   SE: new ProxyConfiguration({
     proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60002"],
   }),
-  DE2: new ProxyConfiguration({
-    proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
+  SHARED_DATACENTER_GLOBAL: new ProxyConfiguration({
+    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.pr.oxylabs.io:10000"],
   }),
   SHARED_DATACENTER_DE: new ProxyConfiguration({
     proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.de-pr.oxylabs.io:40000"],
+  }),
+  SHARED_DATACENTER_FR: new ProxyConfiguration({
+    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.fr-pr.oxylabs.io:42000"],
+  }),
+  SHARED_DATACENTER_UK: new ProxyConfiguration({
+    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.gb-pr.oxylabs.io:46000"],
   }),
 };
