@@ -10,6 +10,10 @@ import {
 } from "./service";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { join } from "path";
+<<<<<<< HEAD
+=======
+import _ from "lodash";
+>>>>>>> ef9841e (fix)
 
 async function debugScrapeDetails(targetUrl: string) {
   const dummyRequest = {
@@ -25,10 +29,16 @@ async function debugScrapeDetails(targetUrl: string) {
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: false,
+    headless: true,
   });
 
-  log.info(JSON.stringify(detailedItems, null, 2));
+  log.info(
+    JSON.stringify(
+      detailedItems.map((item) => _.omit(item, "metadata")),
+      null,
+      2
+    )
+  );
   log.info("Item found", {
     nrItems: detailedItems.length,
     urls: detailedItems.map((item) => item.url),
@@ -264,43 +274,82 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 await debugScrapeDetailsCheerio(
   "https://www.chilli.se/m%C3%B8bler/stoler/spisestuestoler/tuva-lenestol-kunstl%C3%A6r-svart-p1651269-v92251"
 );
+// await debugScrapeDetailsCheerio(
+//   "https://www.chilli.se/m%C3%B8bler/stoler/spisestuestoler/tuva-lenestol-kunstl%C3%A6r-svart-p1651269-v92251"
+// );
 // await debugScrapeChilliCheerio([
 //   "https://www.chilli.se/utem%C3%B6bler/utebord/cafebord",
 // ]);
 
-await debugScrapeCheerio([
-  "https://www.chilli.se/m%C3%B6bler/bord/soffbord",
-  "https://www.chilli.se/m%C3%B6bler/bord/matgrupp",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/avlastningsbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/matbord-k%C3%B6ksbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/kontorsbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/marmorbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/sminkbord-toalettbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/bordstillbeh%C3%B6r",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/barbord-st%C3%A5bord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/serveringsvagn-serveringsbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/spelbord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/hopf%C3%A4llbart-bord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/massagebord",
-  //   "https://www.chilli.se/m%C3%B6bler/bord/avlastningsbord/s%C3%A4ngbord-nattduksbord",
-  //   "https://www.chilli.se/m%C3%B6bler/barnm%C3%B6bler/barnbord",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/sammetssoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/divansoffa-sch%C3%A4slongsoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/3-sits-soffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/b%C3%A4ddsoffor",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/u-soffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/sofftillbeh%C3%B6r",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/soffgrupp",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/howard-soffor",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/2-sits-soffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/h%C3%B6rnsoffor",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/skinnsoffa-l%C3%A4dersoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/modulsoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/4-sits-soffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/biosoffa-reclinersoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/dagb%C3%A4dd",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/k%C3%B6kssoffa-pinnsoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/soffor/chesterfield-soffa",
-  //   "https://www.chilli.se/m%C3%B6bler/barnm%C3%B6bler/barnsoffa",
-  //   "https://www.chilli.se/m%C3%B6bler/s%C3%A4ngar/kontinentals%C3%A4ngar",
-]);
+// await debugScrapeCheerio([
+// "https://www.chilli.se/m%C3%B6bler/bord/soffbord",
+// "https://www.chilli.se/m%C3%B6bler/bord/matgrupp",
+//   "https://www.chilli.se/m%C3%B6bler/bord/avlastningsbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/matbord-k%C3%B6ksbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/kontorsbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/marmorbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/sminkbord-toalettbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/bordstillbeh%C3%B6r",
+//   "https://www.chilli.se/m%C3%B6bler/bord/barbord-st%C3%A5bord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/serveringsvagn-serveringsbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/spelbord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/hopf%C3%A4llbart-bord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/massagebord",
+//   "https://www.chilli.se/m%C3%B6bler/bord/avlastningsbord/s%C3%A4ngbord-nattduksbord",
+//   "https://www.chilli.se/m%C3%B6bler/barnm%C3%B6bler/barnbord",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/sammetssoffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/divansoffa-sch%C3%A4slongsoffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/3-sits-soffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/b%C3%A4ddsoffor",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/u-soffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/sofftillbeh%C3%B6r",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/soffgrupp",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/howard-soffor",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/2-sits-soffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/h%C3%B6rnsoffor",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/skinnsoffa-l%C3%A4dersoffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/modulsoffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/4-sits-soffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/biosoffa-reclinersoffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/dagb%C3%A4dd",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/k%C3%B6kssoffa-pinnsoffa",
+//   "https://www.chilli.se/m%C3%B6bler/soffor/chesterfield-soffa",
+//   "https://www.chilli.se/m%C3%B6bler/barnm%C3%B6bler/barnsoffa",
+//   "https://www.chilli.se/m%C3%B6bler/s%C3%A4ngar/kontinentals%C3%A4ngar",
+// ]);
+
+// await debugScrapeCheerio([
+//   "https://www.chilli.se/belysning/inomhusbelysning-lampor/bordslampa",
+//   "https://www.chilli.se/belysning/inomhusbelysning-lampor/f%C3%B6nsterlampa",
+//   "https://www.chilli.se/belysning/inomhusbelysning-lampor/golvlampa",
+//   "https://www.chilli.se/belysning/inomhusbelysning-lampor/sovrumslampa",
+//   "https://www.chilli.se/belysning/inomhusbelysning-lampor/taklampa",
+//   "https://www.chilli.se/f%C3%B6rvaring/badrumsf%C3%B6rvaring/spegelsk%C3%A5p",
+//   "https://www.chilli.se/f%C3%B6rvaring/f%C3%B6rvaringsm%C3%B6bler/byr%C3%A5",
+//   "https://www.chilli.se/f%C3%B6rvaring/hylla/bokhylla",
+//   "https://www.chilli.se/f%C3%B6rvaring/hylla/hyllor-utomhus",
+//   "https://www.chilli.se/f%C3%B6rvaring/hylla/v%C3%A4gghylla",
+//   "https://www.chilli.se/f%C3%B6rvaring/sk%C3%A5p/f%C3%B6rvaringssk%C3%A5p",
+//   "https://www.chilli.se/f%C3%B6rvaring/sk%C3%A5p/vitrinsk%C3%A5p",
+//   "https://www.chilli.se/inredning/mattor/ullmatta",
+// ]);
+
+// await debugCategoryExplorationEndToEnd([
+//   "https://www.trademax.se/varum%C3%A4rken/venture-home",
+// ]);
+
+// await debugCategoryExploration(
+//   "https://www.trademax.se/varum%C3%A4rken/venture-home"
+// );
+
+await debugScrapeDetails(
+  "https://www.homeroom.se/ellos-home/matgrupp-gilda-med-bord-180x90-cm-6-stolar/1638353-01"
+);
+
+// await debugCategoryExplorationRecordHARForTests(
+//   "https://www.bygghemma.se/inredning-och-belysning/trappor/spiraltrappa"
+// );
+
+// await debugScrapeDetailsRecordHARForTests(
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471"
+// );
