@@ -100,6 +100,13 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.ellos.se":
+        definition = await EllosCrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
         definition = await VentureDesignCrawlerDefinition.create();
         options = {

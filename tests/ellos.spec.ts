@@ -8,12 +8,11 @@ describe("Ellos category page", () => {
   test.each([
     [
       "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord",
-      "tests/resources/ebuy24/category_page_basic",
-      110,
+      "tests/resources/ellos/category_page_basic",
     ],
   ])(
     "Category page extracted correctly",
-    async (targetUrl, testResourcesDir, expectedProductsCount) => {
+    async (targetUrl, testResourcesDir) => {
       const expectedResult = JSON.parse(
         fs.readFileSync(`${testResourcesDir}/result.json`, "utf-8")
       );
@@ -28,7 +27,7 @@ describe("Ellos category page", () => {
         ],
       });
 
-      expect(result).toHaveLength(expectedProductsCount);
+      expect(result).toHaveLength(expectedResult.length);
       expect(result).toEqual(expectedResult);
     }
   );

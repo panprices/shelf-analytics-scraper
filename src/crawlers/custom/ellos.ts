@@ -9,11 +9,21 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
-import { v4 as uuidv4 } from "uuid";
-import { extractRootUrl } from "../../utils";
-import { extractCardProductInfo } from "./base-chill";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await super.crawlDetailPage(ctx);
+
+    // Enqueue the variant groups where you have a.href:
+    await ctx.enqueueLinks({
+      selector: "div.product-info ul.color-picker-list a",
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
+  }
+
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
     const page = ctx.page;
     const loadMoreButton = page.locator("div.load-more-button");
@@ -54,25 +64,110 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
-    const previewImageUrl = await this.extractProperty(
-      productCard,
-      "xpath=(..//picture/source)[1]",
-      this.extractImageFromSrcSet
-    );
-
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
-      previewImageUrl,
       categoryUrl,
-      popularityIndex: -1,
+      popularityIndex: -1, // will be overwritten later
     };
 
     return currentProductInfo;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    throw new Error("Method not implemented.");
+    const productName = await this.extractProperty(
+      page,
+      "div.product-desc h1",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    if (!productName) {
+      throw new Error("Cannot extract productName");
+    }
+
+    const brand = await this.extractProperty(
+      page,
+      "div.product-desc a.brand",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+
+    const priceText = await this.extractProperty(
+      page,
+      // "div.product-desc .offer span",
+      "//div[contains(@class, 'product-desc')]//strong[contains(@class, 'offer')]//span[contains(text(), 'SEK')]",
+      (node) => node.textContent()
+    );
+    if (!priceText) {
+      throw new Error("Cannot extract priceText");
+    }
+    const price = extractPriceFromPriceText(priceText);
+    const originalPriceText = await this.extractProperty(
+      page,
+      "div.product-desc .offer s",
+      (node) => node.textContent()
+    );
+    const isDiscounted = !!originalPriceText;
+    const originalPrice = isDiscounted
+      ? extractPriceFromPriceText(originalPriceText)
+      : undefined;
+
+    const description = await this.extractProperty(
+      page,
+      "div.product-details-intro",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+
+    const schemaOrgString = await page
+      .locator(
+        "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
+      )
+      .textContent();
+    if (!schemaOrgString) {
+      throw new Error("Cannot extract schema.org data");
+    }
+    const schemaOrg = JSON.parse(schemaOrgString);
+
+    let availability;
+    try {
+      availability = schemaOrg.offers.availability.includes("InStock")
+        ? "in_stock"
+        : "out_of_stock";
+    } catch (error) {
+      throw new Error("Cannot extract availability of product");
+    }
+    const reviews: ProductReviews = {
+      averageReview: schemaOrg.aggregateRating?.ratingValue,
+      reviewCount: schemaOrg.aggregateRating?.reviewCount,
+      recentReviews: [],
+    };
+
+    const imageUrls = schemaOrg.image;
+
+    const categoryTree = await this.extractCategoryTree(
+      page.locator("ul.navigation-breadcrumb-items li a"),
+      1
+    );
+
+    const productInfo = {
+      brand,
+      name: productName,
+      description,
+      url: page.url(),
+      price: price,
+      currency: "SEK",
+      isDiscounted,
+      originalPrice,
+
+      availability,
+      images: imageUrls,
+      reviews,
+      specifications: [], // TODO: extract specifications
+      categoryTree,
+      metadata: {
+        schemaOrg: schemaOrg,
+      },
+    };
+
+    return productInfo;
   }
 
   static async create(): Promise<EllosCrawlerDefinition> {
@@ -88,4 +183,10 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
       dynamicProductCardLoading: true,
     });
   }
+}
+
+function extractPriceFromPriceText(priceText: string) {
+  return parseInt(
+    priceText.replace(" ", "").replace("SEK", "").replaceAll("\u00A0", "")
+  );
 }
