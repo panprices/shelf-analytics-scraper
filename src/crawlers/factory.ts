@@ -31,6 +31,7 @@ import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
 import { CHROMIUM_USER_DATA_DIR } from "../constants";
 import { extractRootUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
+import { EllosCrawlerDefinition } from "./custom/ellos";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -94,6 +95,13 @@ export class CrawlerFactory {
     switch (url) {
       case "https://www.homeroom.se":
         definition = await HomeroomCrawlerDefinition.create();
+        options = {
+          ...options,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "https://www.ellos.se":
+        definition = await EllosCrawlerDefinition.create();
         options = {
           ...options,
           requestHandler: definition.router,

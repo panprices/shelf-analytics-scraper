@@ -9,8 +9,6 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
-import { v4 as uuidv4 } from "uuid";
-import { extractRootUrl } from "../../utils";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
