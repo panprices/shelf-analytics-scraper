@@ -239,3 +239,21 @@ export async function extractProductDetails(
 
   return intermediateResult;
 }
+
+export async function getVariantUrlsFromSchemaOrg(
+  page: Page
+): Promise<string[]> {
+  const schemaOrgString = await page
+    .locator(
+      "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
+    )
+    .textContent();
+  if (!schemaOrgString) {
+    throw new Error("Cannot extract schema.org data");
+  }
+  const schemaOrg = JSON.parse(schemaOrgString);
+
+  const offerUrls = schemaOrg.offers.map((offer: any) => offer.url);
+
+  return offerUrls;
+}
