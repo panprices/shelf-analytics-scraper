@@ -42,10 +42,12 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.enqueueLinks({
       selector: "div#possibleVariants a",
       label: "DETAIL",
+      userData: ctx.request.userData,
     });
     await ctx.enqueueLinks({
       selector: "div#variantPropertySelectors a",
       label: "DETAIL",
+      userData: ctx.request.userData,
     });
 
     // Check for secondary variant group where you don't have a.href.
@@ -66,7 +68,7 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
 
       const secondaryVariantButtonsCount =
         await secondaryVariantButtons.count();
-      console.log("Count: " + secondaryVariantButtonsCount);
+      console.log("Secondary Count: " + secondaryVariantButtonsCount);
       for (let i = 0; i < secondaryVariantButtonsCount; i++) {
         if (i > 0) {
           // Click the menu button to open the menu again:
@@ -79,8 +81,8 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
         await ctx.enqueueLinks({
           urls: [ctx.page.url()],
           label: "DETAIL",
+          userData: ctx.request.userData,
         });
-        // await super.crawlDetailPage(ctx);
       }
     }
   }

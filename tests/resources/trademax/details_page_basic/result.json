@@ -1,0 +1,150 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.trademax.se",
+    "jobId": "job_test_1",
+    "url": "https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-p1509727",
+    "popularityIndex": 1,
+    "name": "Kenya Solsäng",
+    "label": "DETAIL",
+    "price": 379900,
+    "currency": "SEK",
+    "images": [
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4874057.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIxKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4NzQwNTd9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877545.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIyKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDV9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877546.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIzKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDZ9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877547.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI0KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDd9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877548.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI1KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDh9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877549.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI2KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDl9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877550.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI3KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTB9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877551.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI4KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTF9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877552.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI5KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTJ9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877553.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDMwKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTN9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877554.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDMxKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTR9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877555.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDMyKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTV9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877556.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDMzKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTZ9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877557.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDM0KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTd9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877558.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDM1KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTh9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877559.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDM2KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTl9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877560.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDM3KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NjB9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877561.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDM4KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NjF9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877562.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDM5KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NjJ9",
+      "https://images.trademax.se/utem%C3%B6bler-utestolar-tr%C3%A4dg%C3%A5rdsstolar-sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-4877563.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDQwKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NjN9"
+    ],
+    "description": " Skötselråd Utemöbler",
+    "isDiscounted": true,
+    "categoryTree": [
+      {
+        "name": "Utemöbler",
+        "url": "/utem%C3%B6bler"
+      },
+      {
+        "name": "Utestol & trädgårdsstol",
+        "url": "/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar"
+      },
+      {
+        "name": "Solsäng & Solvagnar",
+        "url": "/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/sols%C3%A4ng-solvagn"
+      }
+    ],
+    "reviews": "unavailable",
+    "articleNumber": "2009727",
+    "sku": "2116-444",
+    "specifications": [
+      {
+        "key": "Dyna ingår",
+        "value": "Ja"
+      },
+      {
+        "key": "Färgnamn",
+        "value": "Brun/Beige"
+      },
+      {
+        "key": "Färg",
+        "value": "brunbeige"
+      },
+      {
+        "key": "Dynfärg",
+        "value": "beige"
+      },
+      {
+        "key": "Form",
+        "value": "Rektangulär"
+      },
+      {
+        "key": "Montering krävs",
+        "value": "Nej"
+      },
+      {
+        "key": "Bredd",
+        "value": "64 cm"
+      },
+      {
+        "key": "Längd",
+        "value": "200 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "17 cm"
+      },
+      {
+        "key": "Sitthöjd",
+        "value": "17 cm"
+      },
+      {
+        "key": "Stoppning",
+        "value": "Skum"
+      },
+      {
+        "key": "Material stomme",
+        "value": "Teak"
+      }
+    ],
+    "availability": "in_stock",
+    "metadata": {
+      "schemaOrg": {
+        "name": "Kenya Solsäng",
+        "offers": [
+          {
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "SEK",
+            "priceValidUntil": "2022-11-28",
+            "url": "https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/sols%C3%A4ng-solvagn/kenya-sols%C3%A4ng-brunbeige-p1509727",
+            "price": 3799,
+            "itemCondition": "https://schema.org/NewCondition",
+            "@type": "Offer"
+          }
+        ],
+        "description": "Köp Kenya Solsäng - Brun/Beige på Black Friday ✔ 600 000 nöjda kunder ✔ Alltid fri frakt & öppet köp ✔ Black Friday hos Trademax",
+        "sku": "2009727",
+        "mpn": "2116-444",
+        "category": "Solsäng & Solvagnar",
+        "image": [
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4874057.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIxKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4NzQwNTd9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4874057.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIxKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4NzQwNTd9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877545.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIyKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDV9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877545.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIyKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDV9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877546.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIzKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDZ9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877546.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDIzKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDZ9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877547.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI0KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDd9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877547.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI0KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDd9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877548.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI1KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDh9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877548.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI1KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDh9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877549.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI2KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDl9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877549.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI2KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NDl9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877550.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI3KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTB9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877550.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI3KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTB9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877551.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI4KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTF9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877551.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI4KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTF9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877552.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI5KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTJ9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877552.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDI5KS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTJ9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877553.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDMwKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTN9",
+          "https://images.trademax.se/utemöbler-utestolar-trädgårdsstolar-solsäng-solvagn/kenya-solsäng-brunbeige-4877553.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5NzI3KDMwKS5qcGciLCJvX3R5cGUiOiJXRUJfU0U6cHJvZHVjdHMiLCJvX2lkIjoiMTUwOTcyNyIsImkiOjQ4Nzc1NTN9"
+        ],
+        "@type": "Product",
+        "@context": "https://schema.org"
+      }
+    },
+    "originalPrice": 429900
+  }
+]

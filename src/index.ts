@@ -63,16 +63,16 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const useCheerio = body.jobContext.scraperProductPage === "cheerio";
 
   let [shouldUploadCache, cacheSize] = [false, 0];
-  if (
-    retailer_url.includes("trademax.se") ||
-    retailer_url.includes("chilli.se") ||
-    retailer_url.includes("furniturebox.se")
-  ) {
-    [shouldUploadCache, cacheSize] = await downloadCache(
-      body.jobContext,
-      DETAILS_CACHE_MARKER_FILE
-    );
-  }
+  // if (
+  //   retailer_url.includes("trademax.se") ||
+  //   retailer_url.includes("chilli.se") ||
+  //   retailer_url.includes("furniturebox.se")
+  // ) {
+  //   [shouldUploadCache, cacheSize] = await downloadCache(
+  //     body.jobContext,
+  //     DETAILS_CACHE_MARKER_FILE
+  //   );
+  // }
 
   log.info("Check for browser cache", {
     cacheFound: shouldUploadCache,

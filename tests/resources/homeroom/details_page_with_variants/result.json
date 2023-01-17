@@ -138,7 +138,9 @@
   {
     "fetchedAt": "2022-12-16T14:49:43.740Z",
     "retailerDomain": "https://www.homeroom.se",
+    "jobId": "job_test_1",
     "label": "DETAIL",
+    "popularityIndex": 1,
     "name": "Matgrupp Gilda med bord 180x90 cm + 6 stolar",
     "price": 439900,
     "currency": "SEK",

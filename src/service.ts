@@ -294,6 +294,9 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
     }
 
     if (!p.popularityIndex) {
+      log.error(
+        "Cannot find Popularity Index! Set to -1 temporarily to avoid missing data, but need fix asap."
+      );
       p.popularityIndex = -1;
     }
   });

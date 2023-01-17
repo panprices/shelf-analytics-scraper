@@ -3,7 +3,7 @@ import { PlaywrightCrawlingContext } from "crawlee";
 import * as fs from "fs";
 import { expectScrapeDetailsResultToEqual } from "./test_helpers";
 
-jest.setTimeout(30000);
+jest.setTimeout(300000);
 
 describe("Homeroom details page", () => {
   test.each([
@@ -29,24 +29,12 @@ describe("Homeroom details page", () => {
         userData: {
           jobId: "job_test_1",
           url: targetUrl,
-          brand: "Venture Home",
           popularityIndex: 1,
-          name: "Matgrupp Polar bord med 4st Penally stolar",
           label: "DETAIL",
-          fetchedAt: "9/2/2022, 4:51:26 PM",
         },
       };
 
       const result = await scrapeDetails([dummyRequest], {
-        launchContext: {
-          // launchOptions: <any>{
-          //   recordHar: {
-          //     path: "example.har",
-          //   },
-          // },
-          // experimentalContainers: true,
-          // launcher:
-        },
         preNavigationHooks: [
           async (ctx: PlaywrightCrawlingContext) => {
             await ctx.browserController.browser

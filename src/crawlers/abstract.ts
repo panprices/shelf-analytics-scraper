@@ -121,10 +121,10 @@ export abstract class AbstractCrawlerDefinition
     const request = ctx.request;
 
     await this._detailsDataset.pushData(<DetailedProductInfo>{
-      fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
+      fetchedAt: new Date().toISOString(),
+      retailerDomain: extractRootUrl(ctx.page.url()),
     });
   }
 

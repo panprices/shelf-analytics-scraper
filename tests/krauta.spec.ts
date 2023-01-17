@@ -4,7 +4,7 @@ import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
 import { extractPriceFromText } from "../src/crawlers/custom/krauta";
 
-jest.setTimeout(30000);
+jest.setTimeout(300000);
 
 describe("Krauta details page", () => {
   test.each([

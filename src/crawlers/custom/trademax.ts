@@ -41,6 +41,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.enqueueLinks({
       selector: "a[data-cy='product_variant_link']",
       label: "DETAIL",
+      userData: ctx.request.userData,
     });
 
     // Check for secondary variant group where you don't have a.href.
@@ -60,6 +61,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         await ctx.enqueueLinks({
           urls: [ctx.page.url()],
           label: "DETAIL",
+          userData: ctx.request.userData,
         });
       }
     }

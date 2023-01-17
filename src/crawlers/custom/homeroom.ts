@@ -22,6 +22,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.enqueueLinks({
       selector: "div.product-info ul.color-picker-list a",
       label: "DETAIL",
+      userData: ctx.request.userData,
     });
   }
 
