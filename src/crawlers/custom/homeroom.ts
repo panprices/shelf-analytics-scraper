@@ -9,8 +9,47 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
+import { extractNumberFromText } from "../../utils";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
+  override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    const categoryUrl = ctx.page.url();
+    if (!categoryUrl.includes("?page=")) {
+      // Initial category page => Calculate the number of pages
+      // and enqueue all pages to scrape.
+      const nrProductsText = await ctx.page
+        .locator("div.product-list-inner div.drop-list-container")
+        .textContent();
+      if (!nrProductsText) {
+        throw new Error(
+          "Cannot extract nrProductsText. Category url might be broken."
+        );
+      }
+
+      const nrProducts = extractNumberFromText(nrProductsText);
+      const nrProductsPerPage = 58;
+      const nrPages = Math.ceil(nrProducts / nrProductsPerPage);
+
+      const urlsToExplore = [];
+      for (let i = 1; i <= nrPages; i++) {
+        urlsToExplore.push(categoryUrl.split("?")[0] + `?page=${i}`);
+      }
+
+      log.info(
+        `Category has ${nrProducts} products. Enqueued ${nrPages} pages to explore.`
+      );
+      await ctx.enqueueLinks({
+        urls: urlsToExplore,
+        label: "LIST",
+        userData: ctx.request.userData,
+      });
+
+      return;
+    }
+
+    await super.crawlListPage(ctx);
+  }
+
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
@@ -193,37 +232,12 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const brand = await this.extractProperty(
-      productCard,
-      "..//b[contains(@class, 'brand')]",
-      (node) => node.textContent()
-    );
     const name = <string>(
       await this.extractProperty(
         productCard,
         "..//span[contains(@class, 'name')]",
         (node) => node.textContent()
       )
-    );
-    let priceString = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//span[contains(@class, 'price-point')]",
-        (node) => node.textContent()
-      )
-    );
-    if (!priceString) {
-      priceString = "0\nSEK";
-    }
-    const originalPriceString = await this.extractProperty(
-      productCard,
-      "..//s[contains(./span/@class, 'currency')]",
-      (node) => node.textContent()
-    );
-    const imageUrl = await this.extractProperty(
-      productCard,
-      "xpath=(..//picture/source)[1]",
-      this.extractImageFromSrcSet
     );
     const url = <string>(
       await this.extractProperty(productCard, "xpath=./a[1]", (node) =>
@@ -232,21 +246,11 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     );
 
     const currentProductInfo: ListingProductInfo = {
-      brand,
       name,
       url,
-      previewImageUrl: <string>imageUrl,
       popularityIndex: -1,
-      isDiscounted: originalPriceString !== null,
-      price: Number(priceString.trim().split("\n")[0].replace(/\s/g, "")),
-      currency: priceString.trim().split("\n")[1].trim(),
       categoryUrl,
     };
-    if (originalPriceString) {
-      currentProductInfo.originalPrice = Number(
-        originalPriceString.trim().split("\n")[0].replace(/\s/g, "")
-      );
-    }
 
     return currentProductInfo;
   }
@@ -264,40 +268,42 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
-  override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
-    const page = ctx.page;
+  // DEPRECATED: override scrollToBottom to handle infinite scroll.
+  // We now use pagination with ?page=X instead
+  // override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
+  //   const page = ctx.page;
 
-    let buttonVisible = false;
-    do {
-      await super.scrollToBottom(ctx);
+  //   let buttonVisible = false;
+  //   do {
+  //     await super.scrollToBottom(ctx);
 
-      // wait for consistency
-      await new Promise((f) => setTimeout(f, 100));
-      const loadMoreButton = page.locator("div.load-more-button");
+  //     // wait for consistency
+  //     await new Promise((f) => setTimeout(f, 100));
+  //     const loadMoreButton = page.locator("div.load-more-button");
 
-      log.info(`Button: ${loadMoreButton}`);
-      await this.handleCookieConsent(page);
-      buttonVisible = await loadMoreButton.isVisible();
-      if (!buttonVisible) {
-        break;
-      }
+  //     log.info(`Button: ${loadMoreButton}`);
+  //     await this.handleCookieConsent(page);
+  //     buttonVisible = await loadMoreButton.isVisible();
+  //     if (!buttonVisible) {
+  //       break;
+  //     }
 
-      const pageHeight = await page.evaluate(
-        async () => document.body.offsetHeight
-      );
-      await loadMoreButton.click();
-      let pageExpanded = false;
-      do {
-        log.info("Waiting for button click to take effect");
-        await new Promise((f) => setTimeout(f, 1500));
+  //     const pageHeight = await page.evaluate(
+  //       async () => document.body.offsetHeight
+  //     );
+  //     await loadMoreButton.click();
+  //     let pageExpanded = false;
+  //     do {
+  //       log.info("Waiting for button click to take effect");
+  //       await new Promise((f) => setTimeout(f, 1500));
 
-        const newPageHeight = await page.evaluate(
-          async () => document.body.offsetHeight
-        );
-        pageExpanded = newPageHeight > pageHeight;
-      } while (!pageExpanded);
-    } while (true);
-  }
+  //       const newPageHeight = await page.evaluate(
+  //         async () => document.body.offsetHeight
+  //       );
+  //       pageExpanded = newPageHeight > pageHeight;
+  //     } while (!pageExpanded);
+  //   } while (true);
+  // }
 
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext

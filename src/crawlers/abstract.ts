@@ -203,7 +203,7 @@ export abstract class AbstractCrawlerDefinition
     for (
       let currentScrollY = startY;
       currentScrollY < scrollHeight;
-      currentScrollY += 400
+      currentScrollY += 600
     ) {
       await page.evaluate(
         (scrollPosition: number) => window.scrollTo(0, scrollPosition),
