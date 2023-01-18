@@ -1,7 +1,7 @@
 import { scrapeDetails } from "../src/service";
 import { PlaywrightCrawlingContext } from "crawlee";
 import * as fs from "fs";
-import { expectScrapeDetailsResultToEqual } from "./test_helpers";
+import { expectScrapeDetailsResultToEqual } from "./test-helpers";
 
 jest.setTimeout(300000);
 

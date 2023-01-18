@@ -2,6 +2,7 @@ import { scrapeDetails } from "../src/service";
 import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
+import { expectScrapeDetailsResultToEqual } from "./test-helpers";
 
 jest.setTimeout(300000);
 
@@ -55,7 +56,7 @@ describe("Gardenstore details page", () => {
       });
 
       expect(result).toHaveLength(1);
-      expect(result).toEqual(expectedResult);
+      expectScrapeDetailsResultToEqual(result, expectedResult);
     }
   );
 });

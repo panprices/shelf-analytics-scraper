@@ -5,7 +5,7 @@ import * as fs from "fs";
 import {
   expectScrapeDetailsResultToEqual,
   expectToIncludeSameMembers,
-} from "./test_helpers";
+} from "./test-helpers";
 import _ from "lodash";
 
 jest.setTimeout(300000);

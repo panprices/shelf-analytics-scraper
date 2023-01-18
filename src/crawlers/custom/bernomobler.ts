@@ -59,7 +59,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const description = await this.extractProperty(
       page,
-      "div.product-grid__content .rte p",
+      "div.product-grid__content .rte",
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
@@ -67,8 +67,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     const price = prices[0];
     const originalPrice = prices[1];
 
-    const isDiscounted =
-      originalPrice === null || originalPrice === undefined ? false : true;
+    const isDiscounted = !!originalPrice;
 
     const metadata: OfferMetadata = {};
     const schemaOrgString = await page
@@ -96,15 +95,13 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const imageUrls = await extractImagesFromProductDetailsPage(page);
     const reviews: "unavailable" | ProductReviews = "unavailable";
-    // TODO: implement scraping specs
-    const specifications: Specification[] = [];
 
     const productInfo = {
       brand,
       name: productName,
       description,
       url: page.url(),
-      price: <number>price,
+      price: price,
       currency: "SEK",
       isDiscounted,
       originalPrice,
@@ -115,8 +112,8 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       availability,
       images: imageUrls,
       reviews,
-      specifications,
-      // categoryTree: [], // this will be replaced later by value from when we scrape category
+      specifications: [], // TODO
+      // categoryTree: [], // this will be replaced later
       metadata,
     };
 
@@ -138,7 +135,9 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 }
-async function extractPricesFromProductDetailsPage(page: Page) {
+async function extractPricesFromProductDetailsPage(
+  page: Page
+): Promise<[number, number?]> {
   const allPriceTexts = await page
     .locator("div.product-block--price span")
     .allTextContents();
@@ -150,14 +149,15 @@ async function extractPricesFromProductDetailsPage(page: Page) {
   }
 
   if (allPriceTexts.length === 1) {
+    // No discount
     const price = extractPriceFromPriceText(allPriceTexts[0]);
     const originalPrice = undefined;
     return [price, originalPrice];
   } else {
-    // allPriceTexts.length === 2
+    // allPriceTexts.length === 2 (with discount)
     const prices = allPriceTexts.map((text) => extractPriceFromPriceText(text));
-    const price = Math.max(...prices);
-    const originalPrice = Math.min(...prices);
+    const price = Math.min(...prices);
+    const originalPrice = Math.max(...prices);
 
     return [price, originalPrice];
   }

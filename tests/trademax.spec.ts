@@ -2,7 +2,7 @@ import { scrapeDetails } from "../src/service";
 import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
-import { expectToIncludeSameMembers } from "./test_helpers";
+import { expectToIncludeSameMembers } from "./test-helpers";
 import _ from "lodash";
 
 jest.setTimeout(300000);

@@ -8,6 +8,7 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinition,
 } from "./crawlers/abstract";
+import { categoryTreeMapping } from "./category-tree-mapping";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -281,7 +282,7 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
 
     p.currency = p.currency.toUpperCase();
     if (p.currency.length !== 3 && p.currency !== "UNKNOWN") {
-      throw Error(`Unknown currency '${p.currency}'`);
+      throw new Error(`Unknown currency '${p.currency}'`);
     }
     switch (p.currency) {
       // SEK, USD, EUR
@@ -291,6 +292,14 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
           p.originalPrice = p.originalPrice * 100;
         }
       }
+    }
+
+    if (!p.categoryTree) {
+      // Try to get it from categoryTreeMapping instead. Namely for the retailer Berno Mobler.
+      if (!p.categoryUrl) {
+        throw new Error("Cannot find neither categoryTree nor categoryUrl");
+      }
+      p.categoryTree = categoryTreeMapping[p.categoryUrl];
     }
 
     if (!p.popularityIndex) {
