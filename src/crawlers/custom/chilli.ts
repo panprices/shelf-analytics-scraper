@@ -13,6 +13,7 @@ import {
 } from "../../types/offer";
 import { extractRootUrl } from "../../utils";
 import { v4 as uuidv4 } from "uuid";
+import { getVariantUrlsFromSchemaOrg } from "./base-chill";
 
 export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   constructor(options: CrawlerDefinitionOptions) {
@@ -35,6 +36,16 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       label: "DETAIL",
       userData: ctx.request.userData,
     });
+
+    // Enqueue variants from schema.org:
+    const schemaOrgVariantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
+    if (schemaOrgVariantUrls) {
+      await ctx.enqueueLinks({
+        urls: schemaOrgVariantUrls,
+        label: "DETAIL",
+        userData: ctx.request.userData,
+      });
+    }
 
     // Check for secondary variant group where you don't have a.href.
     // Try to click buttons and enqueue new links:
