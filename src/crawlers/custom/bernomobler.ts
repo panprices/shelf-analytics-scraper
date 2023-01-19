@@ -79,11 +79,10 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       throw new Error("Cannot extract schema.org data");
     }
     const schemaOrg = JSON.parse(schemaOrgString);
-    metadata.schemaOrg = schemaOrg;
 
-    const brand = metadata.schemaOrg?.brand;
-    const gtin = metadata.schemaOrg?.gtin;
-    const sku = metadata.schemaOrg?.sku;
+    const brand = schemaOrg?.brand;
+    const gtin = schemaOrg?.gtin;
+    const sku = schemaOrg?.sku;
     let availability;
     try {
       availability = schemaOrg.offers[0].availability.includes("InStock")
@@ -114,7 +113,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews,
       specifications: [], // TODO
       // categoryTree: [], // this will be replaced later
-      metadata,
+      metadata: { schemaOrg },
     };
 
     return productInfo;

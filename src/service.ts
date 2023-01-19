@@ -4,11 +4,8 @@ import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractRootUrl } from "./utils";
 import { DetailedProductInfo } from "./types/offer";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
-import {
-  AbstractCrawlerDefinition,
-  CrawlerDefinition,
-} from "./crawlers/abstract";
-import { categoryTreeMapping } from "./category-tree-mapping";
+import { CrawlerDefinition } from "./crawlers/abstract";
+import { findCategoryTree } from "./category-tree-mapping";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -299,7 +296,7 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
       if (!p.categoryUrl) {
         throw new Error("Cannot find neither categoryTree nor categoryUrl");
       }
-      p.categoryTree = categoryTreeMapping[p.categoryUrl];
+      p.categoryTree = findCategoryTree(p.categoryUrl);
     }
 
     if (!p.popularityIndex) {

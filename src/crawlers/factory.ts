@@ -76,19 +76,22 @@ export class CrawlerFactory {
       },
       ...overrides,
       // Block unnecessary requests such as loading images:
-      // preNavigationHooks: [
-      //   ...(overrides?.preNavigationHooks ?? []),
-      //   async ({ page }) => {
-      //     await page.route("**/*", (route) => {
-      //       return route.request().resourceType() === "image"
-      //         ? route.fulfill({
-      //             status: 200,
-      //             body: "accept",
-      //           })
-      //         : route.continue();
-      //     });
-      //   },
-      // ],
+      preNavigationHooks: [
+        ...(overrides?.preNavigationHooks ?? []),
+        async ({ page }) => {
+          page.setDefaultNavigationTimeout(15000);
+        },
+        // async ({ page }) => {
+        //   await page.route("**/*", (route) => {
+        //     return route.request().resourceType() === "image"
+        //       ? route.fulfill({
+        //           status: 200,
+        //           body: "accept",
+        //         })
+        //       : route.continue();
+        //   });
+        // },
+      ],
     };
 
     let definition;

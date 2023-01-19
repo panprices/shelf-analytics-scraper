@@ -1,7 +1,20 @@
 /*
 Hard coded categoryTree for when we cannot scrape category from neither product page nor category page. Namely for the retailer Berno Mobler.
 */
-export const categoryTreeMapping = {
+
+import { log } from "crawlee";
+import { Category } from "./types/offer";
+
+export function findCategoryTree(categoryUrl: string): Category[] {
+  const categoryTree = categoryTreeMapping[categoryUrl];
+  if (!categoryTree) {
+    log.error(`Cannot find categoryTree for category '${categoryUrl}'`);
+    return [];
+  }
+  return categoryTree;
+}
+
+const categoryTreeMapping = {
   "https://bernomobler.se/collections/2-sits-soffa": [
     {
       name: "Vardagsrum",
