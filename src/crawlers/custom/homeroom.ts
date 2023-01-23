@@ -12,6 +12,8 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
+  protected override categoryPageSize: number = 58;
+
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     const categoryUrl = ctx.page.url();
     if (!categoryUrl.includes("?page=")) {
@@ -27,8 +29,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       }
 
       const nrProducts = extractNumberFromText(nrProductsText);
-      const nrProductsPerPage = 58;
-      const nrPages = Math.ceil(nrProducts / nrProductsPerPage);
+      const nrPages = Math.ceil(nrProducts / this.categoryPageSize);
 
       const urlsToExplore = [];
       for (let i = 1; i <= nrPages; i++) {
@@ -229,8 +230,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractCardProductInfo(
     categoryUrl: string,
-    productCard: Locator,
-    popularityIndex?: number
+    productCard: Locator
   ): Promise<ListingProductInfo> {
     const name = <string>(
       await this.extractProperty(

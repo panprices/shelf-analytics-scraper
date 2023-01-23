@@ -351,8 +351,7 @@ export abstract class AbstractCrawlerDefinition
    */
   abstract extractCardProductInfo(
     categoryUrl: string,
-    productCard: Locator,
-    popularityIndex?: number
+    productCard: Locator
   ): Promise<ListingProductInfo>;
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
