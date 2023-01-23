@@ -110,7 +110,6 @@ export abstract class AbstractCrawlerDefinition
     this.productCardSelector = options.productCardSelector;
     this.cookieConsentSelector = options.cookieConsentSelector;
     this.dynamicProductCardLoading = options.dynamicProductCardLoading ?? true;
-    this.categoryPageSize = options.categoryPageSize;
 
     this.productInfos = new Map<string, ListingProductInfo>();
   }
