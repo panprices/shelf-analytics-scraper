@@ -70,7 +70,7 @@ export class CrawlerFactory {
       maxRequestsPerMinute: 60,
       maxConcurrency: 5,
       maxRequestRetries: 2,
-      navigationTimeoutSecs: 150,
+      navigationTimeoutSecs: 15,
       launchContext: {
         userDataDir: CHROMIUM_USER_DATA_DIR,
       },
@@ -79,7 +79,7 @@ export class CrawlerFactory {
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),
         async ({ page }) => {
-          page.setDefaultNavigationTimeout(15000);
+          page.setDefaultTimeout(20000);
         },
         // async ({ page }) => {
         //   await page.route("**/*", (route) => {
@@ -100,6 +100,7 @@ export class CrawlerFactory {
         definition = await HomeroomCrawlerDefinition.create();
         options = {
           ...options,
+          maxConcurrency: 4,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
@@ -190,7 +191,6 @@ export class CrawlerFactory {
         options = {
           ...options,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
     }

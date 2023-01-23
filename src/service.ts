@@ -184,7 +184,7 @@ export async function extractLeafCategories(
     },
     {
       headless: true,
-      maxConcurrency: 4,
+      maxConcurrency: 5,
     }
   );
   await crawler.run(
