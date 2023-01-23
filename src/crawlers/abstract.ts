@@ -84,6 +84,11 @@ export abstract class AbstractCrawlerDefinition
   protected readonly cookieConsentSelector?: string;
   protected readonly dynamicProductCardLoading: boolean;
 
+  /**
+   * Number of products displayed on a category page
+   */
+  protected readonly categoryPageSize?: number;
+
   private readonly productInfos: Map<string, ListingProductInfo>;
 
   protected constructor(options: CrawlerDefinitionOptions) {
@@ -105,6 +110,7 @@ export abstract class AbstractCrawlerDefinition
     this.productCardSelector = options.productCardSelector;
     this.cookieConsentSelector = options.cookieConsentSelector;
     this.dynamicProductCardLoading = options.dynamicProductCardLoading ?? true;
+    this.categoryPageSize = options.categoryPageSize;
 
     this.productInfos = new Map<string, ListingProductInfo>();
   }
@@ -250,10 +256,16 @@ export abstract class AbstractCrawlerDefinition
       }
       currentProductInfo.url = new URL(currentProductInfo.url).href; // encode the url
 
-      currentProductInfo.popularityIndex = this.handleFoundProductFromCard(
-        currentProductInfo.url,
-        currentProductInfo
-      );
+      const pageNumber = ctx.request.userData.pageNumber;
+      if (pageNumber && this.categoryPageSize) {
+        currentProductInfo.popularityIndex =
+          (pageNumber - 1) * this.categoryPageSize + j + 1;
+      } else {
+        currentProductInfo.popularityIndex = this.handleFoundProductFromCard(
+          currentProductInfo.url,
+          currentProductInfo
+        );
+      }
 
       await enqueueLinks({
         urls: [currentProductInfo.url],
@@ -339,7 +351,8 @@ export abstract class AbstractCrawlerDefinition
    */
   abstract extractCardProductInfo(
     categoryUrl: string,
-    productCard: Locator
+    productCard: Locator,
+    popularityIndex?: number
   ): Promise<ListingProductInfo>;
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
