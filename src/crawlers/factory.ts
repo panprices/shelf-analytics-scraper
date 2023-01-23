@@ -70,7 +70,7 @@ export class CrawlerFactory {
       maxRequestsPerMinute: 60,
       maxConcurrency: 5,
       maxRequestRetries: 2,
-      navigationTimeoutSecs: 15,
+      navigationTimeoutSecs: 30,
       launchContext: {
         userDataDir: CHROMIUM_USER_DATA_DIR,
       },
@@ -100,7 +100,7 @@ export class CrawlerFactory {
         definition = await HomeroomCrawlerDefinition.create();
         options = {
           ...options,
-          maxConcurrency: 4,
+          maxConcurrency: 5,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];

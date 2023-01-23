@@ -1,9 +1,38 @@
-import { scrapeDetails } from "../src/service";
+import { exploreCategory, scrapeDetails } from "../src/service";
 import { PlaywrightCrawlingContext } from "crawlee";
 import * as fs from "fs";
 import { expectScrapeDetailsResultToEqual } from "./test-helpers";
 
 jest.setTimeout(300000);
+
+describe("Homeroom category page", () => {
+  test.each([
+    [
+      "https://www.homeroom.se/mobler/hallmobler/hatthyllor",
+      "tests/resources/homeroom/category_page_basic",
+    ],
+  ])(
+    "Category page extracted correctly",
+    async (targetUrl, testResourcesDir) => {
+      const expectedResult = JSON.parse(
+        fs.readFileSync(`${testResourcesDir}/result.json`, "utf-8")
+      );
+
+      const result = await exploreCategory(targetUrl, "job_test_1", {
+        preNavigationHooks: [
+          async (ctx: PlaywrightCrawlingContext) => {
+            await ctx.browserController.browser
+              .contexts()[0]
+              .routeFromHAR(`${testResourcesDir}/recording.har`);
+          },
+        ],
+      });
+
+      expect(result).toHaveLength(expectedResult.length);
+      expect(result).toEqual(expectedResult);
+    }
+  );
+});
 
 describe("Homeroom details page", () => {
   test.each([

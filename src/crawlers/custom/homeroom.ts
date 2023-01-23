@@ -12,6 +12,8 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
+  protected override categoryPageSize: number = 58;
+
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     const categoryUrl = ctx.page.url();
     if (!categoryUrl.includes("?page=")) {
@@ -27,22 +29,31 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       }
 
       const nrProducts = extractNumberFromText(nrProductsText);
-      const nrProductsPerPage = 58;
-      const nrPages = Math.ceil(nrProducts / nrProductsPerPage);
+      const nrPages = Math.ceil(nrProducts / this.categoryPageSize);
 
       const urlsToExplore = [];
       for (let i = 1; i <= nrPages; i++) {
-        urlsToExplore.push(categoryUrl.split("?")[0] + `?page=${i}`);
+        const url = categoryUrl.split("?")[0] + `?page=${i}`;
+        urlsToExplore.push(url);
+
+        await ctx.enqueueLinks({
+          urls: [url],
+          label: "LIST",
+          userData: {
+            ...ctx.request.userData,
+            pageNumber: i,
+          },
+        });
       }
 
       log.info(
         `Category has ${nrProducts} products. Enqueued ${nrPages} pages to explore.`
       );
-      await ctx.enqueueLinks({
-        urls: urlsToExplore,
-        label: "LIST",
-        userData: ctx.request.userData,
-      });
+      // await ctx.enqueueLinks({
+      //   urls: urlsToExplore,
+      //   label: "LIST",
+      //   userData: ctx.request.userData,
+      // });
 
       return;
     }
@@ -322,7 +333,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 }
 
-async function extractImagesFromDetailedPage(page: Page) {
+async function extractImagesFromDetailedPage(page: Page): Promise<string[]> {
   const imagesSelector = page.locator(
     "//li[contains(@class, 'product-gallery-item')]//source[1]"
   );
@@ -338,12 +349,12 @@ async function extractImagesFromDetailedPage(page: Page) {
     const images = [];
     for (let i = 0; i < imageCount; i++) {
       const sourceTag = imagesSelector.nth(i);
-      images.push(getImgUrlFromSourceTag(sourceTag));
+      images.push(await getImgUrlFromSourceTag(sourceTag));
     }
     return images;
   } else {
     // Only 1 image
     const sourceTag = page.locator("div.product-gallery source").first();
-    return [getImgUrlFromSourceTag(sourceTag)];
+    return [await getImgUrlFromSourceTag(sourceTag)];
   }
 }
