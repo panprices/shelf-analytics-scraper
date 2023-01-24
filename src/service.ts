@@ -26,6 +26,10 @@ export async function exploreCategory(
     {
       url: targetUrl,
       label: "LIST",
+      userData: {
+        jobId: jobId,
+        pageNumber: 1,
+      },
     },
   ]);
 

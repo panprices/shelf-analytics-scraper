@@ -141,12 +141,30 @@ export abstract class AbstractCrawlerDefinition
    */
   abstract extractProductDetails(page: Page): Promise<DetailedProductInfo>;
 
+  // DEPRECATED: we use the new implementation now to have pageNumber in the userData.
+  // async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+  //   await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
+
+  //   await this.scrollToBottom(ctx);
+
+  //   if (this.listingUrlSelector) {
+  //     await ctx.enqueueLinks({
+  //       selector: this.listingUrlSelector,
+  //       label: "LIST",
+  //     });
+  //   }
+  // }
+
   /**
    * Entry point for the listing pages logic.
    *
    * We scroll to the bottom of the page and progressively add identified products. This way we address the issue of
    * lazy loading web pages and various recycle views that could prevent us for getting a full picture of the products
    * in the listing by only looking at one window of the page.
+   *
+   * We also use enqueueLinks with the `urls` option instead of `selector` to be able to pass the `pageNumber` in the
+   * `userData`. This way we can keep track of the page number and calculate `popularityIndex` while scraping
+   * multiple category pages in parallel.
    *
    * @param ctx
    */
@@ -156,10 +174,27 @@ export abstract class AbstractCrawlerDefinition
     await this.scrollToBottom(ctx);
 
     if (this.listingUrlSelector) {
-      await ctx.enqueueLinks({
-        selector: this.listingUrlSelector,
-        label: "LIST",
-      });
+      // This was taken from Crawlee source code and modified slightly:
+      const hrefs =
+        ((await ctx.page.$$eval(this.listingUrlSelector, (linkEls) =>
+          linkEls
+            .map((link) => link.getAttribute("href"))
+            .filter((href) => !!href)
+        )) as string[]) ?? [];
+
+      const currentPageUrl = ctx.page.url();
+      const urls = hrefs.map((href) => new URL(href, currentPageUrl).href); // add the base url to the relative urls if needed
+
+      for (let i = 0; i < urls.length; i++) {
+        await ctx.enqueueLinks({
+          urls: [urls[i]],
+          label: "LIST",
+          userData: {
+            ...ctx.request.userData,
+            pageNumber: ctx.request.userData.pageNumber + i + 1,
+          },
+        });
+      }
     }
   }
 
@@ -256,6 +291,9 @@ export abstract class AbstractCrawlerDefinition
       currentProductInfo.url = new URL(currentProductInfo.url).href; // encode the url
 
       const pageNumber = ctx.request.userData.pageNumber;
+      if (!pageNumber) {
+        log.warning("No page number found in ctx.request.userData");
+      }
       if (pageNumber && this.categoryPageSize) {
         currentProductInfo.popularityIndex =
           (pageNumber - 1) * this.categoryPageSize + j + 1;

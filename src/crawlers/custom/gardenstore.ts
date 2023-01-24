@@ -21,19 +21,7 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
-  // No need to override this, potentially remove it?
-  override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
-
-    await this.scrollToBottom(ctx);
-
-    if (this.listingUrlSelector) {
-      await ctx.enqueueLinks({
-        selector: this.listingUrlSelector,
-        label: "LIST",
-      });
-    }
-  }
+  protected override readonly categoryPageSize = 36;
 
   async extractCardProductInfo(
     categoryUrl: string,

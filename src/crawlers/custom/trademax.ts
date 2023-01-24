@@ -20,6 +20,8 @@ import fs from "fs";
 import { getVariantUrlsFromSchemaOrg } from "./base-chill";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
+  protected override readonly categoryPageSize = 36;
+
   constructor(options: CrawlerDefinitionOptions) {
     super(options);
 

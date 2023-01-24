@@ -68,7 +68,7 @@ export class CrawlerFactory {
       requestQueue,
       headless: true,
       maxRequestsPerMinute: 60,
-      maxConcurrency: 5,
+      maxConcurrency: 4,
       maxRequestRetries: 2,
       navigationTimeoutSecs: 30,
       launchContext: {
@@ -143,6 +143,7 @@ export class CrawlerFactory {
         definition = await GardenStoreCrawlerDefinition.create();
         options = {
           ...options,
+          maxConcurrency: 5,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
@@ -166,6 +167,7 @@ export class CrawlerFactory {
         definition = await TrademaxCrawlerDefinition.create();
         options = {
           ...options,
+          maxConcurrency: 5,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SE,
         };
