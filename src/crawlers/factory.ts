@@ -64,13 +64,13 @@ export class CrawlerFactory {
           args.customQueueSettings
         )
       : await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4());
-    let options: PlaywrightCrawlerOptions = {
+    const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
       headless: true,
       maxRequestsPerMinute: 60,
-      maxConcurrency: 5,
+      maxConcurrency: 4,
       maxRequestRetries: 2,
-      navigationTimeoutSecs: 30,
+      navigationTimeoutSecs: 150,
       launchContext: {
         userDataDir: CHROMIUM_USER_DATA_DIR,
       },
@@ -94,12 +94,12 @@ export class CrawlerFactory {
       ],
     };
 
-    let definition;
+    let definition, options;
     switch (url) {
       case "https://www.homeroom.se":
         definition = await HomeroomCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
         };
@@ -107,93 +107,93 @@ export class CrawlerFactory {
       case "https://www.ellos.se":
         definition = await EllosCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.DE,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.venturedesign.se":
         definition = await VentureDesignCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.nordiskarum.se":
         definition = await NordiskaRumCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.k-rauta.se":
         definition = await KrautaCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.bygghemma.se":
         definition = await BygghemmaCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.gardenstore.se":
         definition = await GardenStoreCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://unoliving.com":
         definition = await UnolivingCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.DE,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://ebuy24.dk":
         definition = await Ebuy24CrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.DE,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.trademax.se":
         definition = await TrademaxCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SE,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.chilli.se":
         definition = await ChilliCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SE,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://www.furniturebox.se":
         definition = await FurnitureboxCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SE,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
       case "https://bernomobler.se":
         definition = await BernoMoblerCrawlerDefinition.create();
         options = {
-          ...options,
+          ...defaultOptions,
           requestHandler: definition.router,
         };
-        return [new PlaywrightCrawler(options), definition];
+        return [new PlaywrightCrawler(defaultOptions), definition];
     }
 
     log.warning(`Asked for unknown root url: ${url}`);
