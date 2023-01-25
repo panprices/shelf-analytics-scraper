@@ -1,4 +1,5 @@
 export const CHROMIUM_USER_DATA_DIR = "./browser-persistent-context";
+export const CRAWLEE_STORAGE_DIR = "./storage";
 export const CACHES_BUCKET = "shelf-analytics-caches";
 export const JOBS_DIRECTORY = "jobs";
 

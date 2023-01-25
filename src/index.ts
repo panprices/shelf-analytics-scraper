@@ -13,8 +13,11 @@ import { configCrawleeLogger, extractRootUrl } from "./utils";
 import { downloadCache, uploadCache } from "./cache-sync";
 import {
   CATEGORY_CACHE_MARKER_FILE,
+  CHROMIUM_USER_DATA_DIR,
+  CRAWLEE_STORAGE_DIR,
   DETAILS_CACHE_MARKER_FILE,
 } from "./constants";
+import fastFolderSize from "fast-folder-size";
 
 dotenv.config();
 const app = express();
@@ -47,6 +50,7 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
     await sendRequestBatch(detailedPages, req.body.jobContext);
   }
 
+  track_and_log_number_of_requests_handled();
   res.status(204).send("OK");
 });
 
@@ -74,10 +78,10 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   //   );
   // }
 
-  log.info("Check for browser cache", {
-    cacheFound: shouldUploadCache,
-    cacheSize,
-  });
+  // log.info("Check for browser cache", {
+  //   cacheFound: shouldUploadCache,
+  //   cacheSize,
+  // });
 
   const products = await scrapeDetails(
     body.productDetails,
@@ -105,6 +109,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
   }
 
+  track_and_log_number_of_requests_handled();
   res.status(204).send("OK");
 });
 
@@ -112,3 +117,42 @@ const port = parseInt(<string>process.env.PORT) || 8080;
 app.listen(port, () => {
   console.log(`helloworld: listening on port ${port}`);
 });
+
+// ---
+// Utils
+// ---
+
+/**
+ * Keep track and log how many requests a cloud run instance handles before shuting down.
+ * Delete this after 2023-03-01 unless there are reasons to keep it.
+ */
+let nr_requests_handled = 0;
+function track_and_log_number_of_requests_handled() {
+  try {
+    nr_requests_handled += 1;
+
+    // Only log every 5th requests to not affect performance
+    // and to not spam the logs
+    if (nr_requests_handled % 5 !== 0) {
+      return;
+    }
+
+    log.info(`Number of request this docker instance handled`, {
+      nr_requests_handled,
+    });
+    fastFolderSize(CHROMIUM_USER_DATA_DIR, (err, bytes) => {
+      if (err) {
+        log.error(err.message);
+      }
+      log.info("Cache folder size", { nr_MB: bytes! / 1024 ** 2 });
+    });
+    fastFolderSize(CRAWLEE_STORAGE_DIR, (err, bytes) => {
+      if (err) {
+        log.error(err.message);
+      }
+      log.info("Crawlee storage folder size", { nr_MB: bytes! / 1024 ** 2 });
+    });
+  } catch {
+    /* do nothing */
+  }
+}
