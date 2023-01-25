@@ -9,8 +9,11 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
+import { extractNumberFromText } from "../../utils";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
+  // protected override categoryPageSize: number = 56;
+
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
@@ -42,6 +45,53 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
       }
     }
   }
+
+  // DEPRECATED: Toan tried to paralellize the category exploration just like
+  // Homeroom, but encounters some issues that give us less products.
+  // Does not have bandwidth to fix this yet, and the infite scroll is faster
+  // than Homeroom so it's probably good for now.
+  //
+  // override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+  //   const categoryUrl = ctx.page.url();
+  //   if (!categoryUrl.includes("?page=")) {
+  //     // Initial category page => Calculate the number of pages
+  //     // and enqueue all pages to scrape.
+  //     const nrProductsText = await ctx.page
+  //       .locator("div.product-list-inner div.product-sort")
+  //       .textContent();
+  //     if (!nrProductsText) {
+  //       throw new Error(
+  //         "Cannot extract nrProductsText. Category url might be broken."
+  //       );
+  //     }
+
+  //     const nrProducts = extractNumberFromText(nrProductsText);
+  //     const nrPages = Math.ceil(nrProducts / this.categoryPageSize);
+
+  //     const urlsToExplore = [];
+  //     for (let i = 1; i <= nrPages; i++) {
+  //       const url = categoryUrl.split("?")[0] + `?page=${i}`;
+  //       urlsToExplore.push(url);
+
+  //       await ctx.enqueueLinks({
+  //         urls: [url],
+  //         label: "LIST",
+  //         userData: {
+  //           ...ctx.request.userData,
+  //           pageNumber: i,
+  //         },
+  //       });
+  //     }
+
+  //     log.info(
+  //       `Category has ${nrProducts} products. Enqueued ${nrPages} pages to explore.`
+  //     );
+
+  //     return;
+  //   }
+
+  //   await super.crawlListPage(ctx);
+  // }
 
   async extractCardProductInfo(
     categoryUrl: string,

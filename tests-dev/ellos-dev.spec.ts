@@ -1,4 +1,4 @@
-import { scrapeDetails } from "../src/service";
+import { exploreCategory, scrapeDetails } from "../src/service";
 
 jest.setTimeout(300000);
 
@@ -14,8 +14,14 @@ function dummyRequest(targetUrl: string) {
   };
 }
 
-// 1 variant groups - 2 variants
-test("Simple test", async () => {
+test("Category page", async () => {
+  const targetUrl = "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord";
+  const result = await exploreCategory(targetUrl, "job_test_1");
+
+  expect(result).toHaveLength(112);
+});
+
+test("Product page with 2 variants", async () => {
   const targetUrl =
     "https://www.ellos.se/venture-home/matgrupp-tempe-med-2st-matstolar-polar/1722582-02";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);

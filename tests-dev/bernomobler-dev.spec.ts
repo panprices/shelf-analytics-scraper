@@ -16,16 +16,14 @@ function dummyRequest(targetUrl: string) {
   };
 }
 
-// Category page
-test("Simple test", async () => {
+test("Category page", async () => {
   const targetUrl = "https://bernomobler.se/collections/runda-matbord";
   const result = await exploreCategory(targetUrl, "job_test_1");
 
   expect(result).toHaveLength(97);
 });
 
-// Basic page
-test("Simple test", async () => {
+test("Basic product page", async () => {
   const targetUrl =
     "https://bernomobler.se/products/rise-avlastningsbord-dubbel-teak-look-svart";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
@@ -38,8 +36,7 @@ test("Simple test", async () => {
   expect(result[0].name).toEqual("Rise avlastningsbord dubbel teak-look/svart");
 });
 
-// Basic page with discount
-test("Simple test", async () => {
+test("Product page with discount", async () => {
   const targetUrl =
     "https://bernomobler.se/products/break-matgrupp-4st-stolar-vit-gra";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
