@@ -43,6 +43,11 @@ export async function sendRequestBatch(
 export async function persistProductsToDatabase(
   savedItems: DetailedProductInfo[]
 ) {
+  if (savedItems.length === 0) {
+    log.warning("No products to publish to BigQuery");
+    return;
+  }
+
   const bigquery = new BigQuery();
   const preprocessedItems = prepareForBigQuery(savedItems);
   await bigquery

@@ -61,12 +61,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   log.info("/scrapeDetails");
 
   const body = <RequestBatch>req.body;
-  const retailer_url = extractRootUrl(body.productDetails[0].url);
-
-  // One time use to index all products from trademax-like retailers using Cheerio
   const useCheerio = body.jobContext.scraperProductPage === "cheerio";
 
-  let [shouldUploadCache, cacheSize] = [false, 0];
+  // let [shouldUploadCache, cacheSize] = [false, 0];
   // if (
   //   retailer_url.includes("trademax.se") ||
   //   retailer_url.includes("chilli.se") ||
@@ -105,9 +102,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {
     await publishMatchingProducts(matchingProducts, body.jobContext);
   }
-  if (shouldUploadCache && cacheSize < 10e6 /* 10MB */) {
-    await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
-  }
+  // if (shouldUploadCache && cacheSize < 10e6 /* 10MB */) {
+  //   await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
+  // }
 
   track_and_log_number_of_requests_handled();
   res.status(204).send("OK");
