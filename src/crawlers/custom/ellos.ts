@@ -36,7 +36,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
       await this.handleCookieConsent(page);
 
       try {
-        await loadMoreButton.click({ timeout: 5000 });
+        await loadMoreButton.click({ timeout: 15000 });
         // wait for consistency
         await new Promise((f) => setTimeout(f, 500));
       } catch (error) {
@@ -48,9 +48,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
 
   // DEPRECATED: Toan tried to paralellize the category exploration just like
   // Homeroom, but encounters some issues that give us less products.
-  // Does not have bandwidth to fix this yet, and the infite scroll is faster
-  // than Homeroom so it's probably good for now.
-  //
+  // Apparently Ellos page show 56 products but calculate the pagination
+  // with 58 products, thus we are missing 2 products per (nrPages - 1).
   // override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
   //   const categoryUrl = ctx.page.url();
   //   if (!categoryUrl.includes("?page=")) {
@@ -129,7 +128,10 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
       page,
       "div.product-desc h1",
       (node) => node.textContent()
-    ).then((text) => text?.trim());
+    ).then((text) =>
+      // Trim and replace multiple whitespaces/endlines with single white spaces
+      text?.trim().replaceAll(/\s+/g, " ")
+    );
     if (!productName) {
       throw new Error("Cannot extract productName");
     }
@@ -165,6 +167,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
       "div.product-details-intro",
       (node) => node.textContent()
     ).then((text) => text?.trim());
+
+    const sku = await extractSKUFromProductPage(page);
 
     const schemaOrgString = await page
       .locator(
@@ -207,6 +211,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
       isDiscounted,
       originalPrice,
 
+      sku,
+
       availability,
       images: imageUrls,
       reviews,
@@ -239,4 +245,22 @@ function extractPriceFromPriceText(priceText: string) {
   return parseInt(
     priceText.replace(" ", "").replace("SEK", "").replaceAll("\u00A0", "")
   );
+}
+async function extractSKUFromProductPage(
+  page: Page
+): Promise<string | undefined> {
+  const skuText = await page.locator("p.product-details-sku").textContent();
+  if (!skuText) {
+    log.error("Cannot extract SKU of product");
+    return undefined;
+  }
+  // Extract SKU from string.
+  // "Artikelnummer: 1705327-01-24" -> "1705327-01-24"
+  try {
+    const sku = skuText.split(":")[1].trim();
+    return sku;
+  } catch {
+    log.error("Cannot extract SKU of product");
+    return undefined;
+  }
 }
