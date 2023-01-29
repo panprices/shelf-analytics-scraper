@@ -262,6 +262,13 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.trendrum.se":
+        definition = await BernoMoblerCrawlerDefinition.create();
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
     }
 
     log.warning(`Asked for unknown root url: ${url}`);
