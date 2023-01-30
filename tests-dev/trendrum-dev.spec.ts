@@ -21,7 +21,7 @@ test("Category page", async () => {
   expect(result).toHaveLength(59);
 });
 
-test("Product page", async () => {
+test.only("Product page", async () => {
   const targetUrl = "https://www.trendrum.se/tromso-runt-matbord-120-cm-vit-ek";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
   const product = result[0];
@@ -29,4 +29,5 @@ test("Product page", async () => {
   expect(product.images.length).toEqual(2);
   expect(product.name).toEqual("Tromsö runt matbord 120 cm - Vit / Ek");
   expect(product.price).toEqual(349000);
+  expect(product.categoryTree?.length).toEqual(3);
 });
