@@ -169,7 +169,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -177,7 +177,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.furniturebox.se":
@@ -185,7 +185,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
