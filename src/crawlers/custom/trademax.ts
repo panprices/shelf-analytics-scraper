@@ -47,11 +47,11 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     // // Enqueue the main variant group where you have a.href:
-    // await ctx.enqueueLinks({
-    //   selector: "a[data-cy='product_variant_link']",
-    //   label: "DETAIL",
-    //   userData: ctx.request.userData,
-    // });
+    await ctx.enqueueLinks({
+      selector: "div#possibleVariants a",
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
 
     // // Check for secondary variant group where you don't have a.href.
     // // Try to click buttons and enqueue new links:
