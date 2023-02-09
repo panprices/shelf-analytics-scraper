@@ -3,7 +3,7 @@ import {
   CrawlerDefinitionOptions,
 } from "../abstract";
 import { Locator, Page, selectors } from "playwright";
-import { Dataset, log, PlaywrightCrawlingContext } from "crawlee";
+import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   DetailedProductInfo,
   IndividualReview,
@@ -20,12 +20,55 @@ import fs from "fs";
 import { getVariantUrlsFromSchemaOrg } from "./base-chill";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
+  protected override categoryPageSize: number = 36;
+
   constructor(options: CrawlerDefinitionOptions) {
     super(options);
 
     this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", (_) =>
       this.crawlIntermediateLowerCategoryPage(_)
     );
+  }
+
+  override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    await super.crawlListPage(ctx);
+
+    const categoryUrl = ctx.page.url();
+    if (!categoryUrl.includes("?page=")) {
+      // Initial category page
+      // => Find the number of pages and enqueue all pages to scrape.
+      try {
+        await ctx.page.waitForSelector(this.listingUrlSelector!);
+        const paginationLinks = ctx.page.locator(this.listingUrlSelector!);
+
+        const lastPageLink = paginationLinks.nth(
+          (await paginationLinks.count()) - 2
+        );
+        const lastPageNumberText = await lastPageLink.textContent();
+        if (!lastPageNumberText) {
+          log.debug("No last page found - category only has 1 page");
+          return;
+        }
+
+        const nrPages = parseInt(lastPageNumberText);
+        for (let i = 2; i <= nrPages; i++) {
+          const url = categoryUrl.split("?")[0] + `?page=${i}`;
+
+          await ctx.enqueueLinks({
+            urls: [url],
+            label: "LIST",
+            userData: {
+              ...ctx.request.userData,
+              pageNumber: i,
+            },
+          });
+        }
+
+        log.info(`Enqueued ${nrPages} category pages to explore.`);
+      } catch (e) {
+        log.debug("No pagination found - category only has 1 page");
+      }
+    }
   }
 
   /**
@@ -383,6 +426,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "//a[contains(@class, 'ProductCard_card__global')]",
       productCardSelector: "//a[contains(@class, 'ProductCard_card__global')]",
       cookieConsentSelector: "#onetrust-accept-btn-handler",
+      dynamicProductCardLoading: false,
     });
   }
 }

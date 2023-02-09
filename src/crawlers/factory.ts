@@ -168,6 +168,7 @@ export class CrawlerFactory {
         definition = await TrademaxCrawlerDefinition.create();
         options = {
           ...defaultOptions,
+          maxConcurrency: 5,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
         };

@@ -208,13 +208,13 @@ export abstract class AbstractCrawlerDefinition
     for (
       let currentScrollY = startY;
       currentScrollY < scrollHeight;
-      currentScrollY += 600
+      currentScrollY += 500
     ) {
       await page.evaluate(
         (scrollPosition: number) => window.scrollTo(0, scrollPosition),
         currentScrollY
       );
-      await new Promise((f) => setTimeout(f, 10));
+      await new Promise((f) => setTimeout(f, 200));
 
       if (this.dynamicProductCardLoading) {
         await this.registerProductCards(ctx);
