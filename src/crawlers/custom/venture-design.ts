@@ -30,18 +30,41 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
    */
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
     const page = ctx.page;
-    let scrolled = false;
+
+    const waitForInfiniteScrollTimeout = 10000;
+    let startTime, timeElapsed;
+    let pageExpanded = false;
+
     do {
+      const pageHeight = await page.evaluate(
+        async () => document.body.offsetHeight
+      );
+
       await super.scrollToBottom(ctx);
-
-      await page.locator("//button[contains(@class, 'next')]").click();
-
       await new Promise((f) => setTimeout(f, 1000));
 
-      // Every time there is a next page, the scroll goes back to the top
-      // At the last page even though the button is active nothing happens (the page stays scrolled)
-      scrolled = await page.evaluate(() => window.scrollY != 0);
-    } while (!scrolled); // if we are not scrolled, it means we are back to the top of the page (new page)
+      // Scroll up to trigger the next page load:
+      startTime = Date.now();
+      do {
+        timeElapsed = Date.now() - startTime;
+        for (let i = 1; i <= 4; i++) {
+          await page.evaluate(
+            (i) => window.scrollTo(0, document.body.scrollHeight - i * 600),
+            i
+          );
+          await page.waitForTimeout(500);
+        }
+
+        const newPageHeight = await page.evaluate(
+          async () => document.body.offsetHeight
+        );
+        pageExpanded = newPageHeight > pageHeight;
+      } while (!pageExpanded && timeElapsed < waitForInfiniteScrollTimeout);
+
+      if (!pageExpanded) {
+        break;
+      }
+    } while (true);
   }
 
   async extractCardProductInfo(
