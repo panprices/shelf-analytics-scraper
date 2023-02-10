@@ -114,6 +114,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         .locator("//div[contains(@class, 'long-description')]//p/span[1]")
         .textContent()
     );
+
+    const sku = description.split("Artikelnummer:")[1].split("\n")[0].trim();
+
     const brand = (await this.extractProperty(
       page,
       "//h2[contains(@class, 'long-description-title')]/a[2]",
@@ -127,7 +130,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         .textContent()
     );
     const schemaOrg: SchemaOrg = JSON.parse(schemaOrgString);
-    const sku = schemaOrg.sku;
     metadata.schemaOrg = schemaOrg;
 
     const specifications = await page.locator(
