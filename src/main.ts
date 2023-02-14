@@ -24,7 +24,7 @@ async function debugScrapeDetails(targetUrl: string) {
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
-    // headless: false,
+    headless: true,
   });
 
   log.info(JSON.stringify(detailedItems, null, 2));
@@ -160,7 +160,7 @@ await debugScrapeDetails(
 // );
 
 // await debugScrapeDetailsRecordHARForTests(
-//   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
+//   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
 // );
 //
 // await debugCategoryExplorationRecordHARForTests(

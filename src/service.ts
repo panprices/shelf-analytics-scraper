@@ -4,7 +4,7 @@ import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractRootUrl } from "./utils";
 import { DetailedProductInfo } from "./types/offer";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
-import { CrawlerDefinition } from "./crawlers/abstract";
+import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
 import { findCategoryTree } from "./category-tree-mapping";
 
 export async function exploreCategory(
@@ -214,7 +214,8 @@ export async function extractLeafCategories(
 export async function scrapeDetails(
   detailedPages: RequestOptions[],
   overrides?: PlaywrightCrawlerOptions,
-  useCheerio: boolean = false
+  useCheerio: boolean = false,
+  launchOptions?: CrawlerLaunchOptions
 ): Promise<DetailedProductInfo[]> {
   if (detailedPages.length === 0) {
     return [];
@@ -235,7 +236,8 @@ export async function scrapeDetails(
           url: rootUrl,
           useCustomQueue: false,
         },
-        overrides
+        overrides,
+        launchOptions
       );
   }
 
