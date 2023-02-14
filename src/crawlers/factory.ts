@@ -189,7 +189,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
