@@ -38,7 +38,6 @@ export interface CrawlerFactoryArgs {
   url: string;
   useCustomQueue?: boolean;
   customQueueSettings?: CustomQueueSettings;
-  ignoreVariants?: boolean;
 }
 
 /**
