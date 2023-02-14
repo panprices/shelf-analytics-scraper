@@ -51,6 +51,18 @@ export interface CrawlerDefinitionOptions {
   cookieConsentSelector?: string;
 
   dynamicProductCardLoading?: boolean;
+
+  /**
+   * Options to control the crawler behavior
+   */
+  launchOptions?: CrawlerLaunchOptions;
+}
+
+export interface CrawlerLaunchOptions {
+  /**
+   * Option to ignore enquing variants of a product
+   */
+  ignoreVariants?: boolean;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -83,6 +95,7 @@ export abstract class AbstractCrawlerDefinition
   protected readonly productCardSelector: string;
   protected readonly cookieConsentSelector?: string;
   protected readonly dynamicProductCardLoading: boolean;
+  protected readonly launchOptions?: CrawlerLaunchOptions;
 
   /**
    * Number of products displayed on a category page
@@ -110,6 +123,7 @@ export abstract class AbstractCrawlerDefinition
     this.productCardSelector = options.productCardSelector;
     this.cookieConsentSelector = options.cookieConsentSelector;
     this.dynamicProductCardLoading = options.dynamicProductCardLoading ?? true;
+    this.launchOptions = options?.launchOptions;
 
     this.productInfos = new Map<string, ListingProductInfo>();
   }

@@ -23,9 +23,14 @@ async function debugScrapeDetails(targetUrl: string) {
       matchingType: "match",
     },
   };
-  const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: true,
-  });
+  const detailedItems = await scrapeDetails(
+    [dummyRequest],
+    {
+      headless: true,
+    },
+    false,
+    { ignoreVariants: true }
+  );
 
   log.info(JSON.stringify(detailedItems, null, 2));
   log.info("Item found", {
@@ -138,9 +143,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://bernomobler.se/collections/runda-matbord"
 // );
 
-// await debugScrapeDetails(
-//   "https://bernomobler.se/products/maglehem-sofa-table-glass-black"
-// );
+await debugScrapeDetails(
+  "https://www.furniturebox.se/utomhus/ovrigt-utemobler/tradgardstillbehor/ovriga-tradgardstillbehor/odlingslador-2-st-100x50x50-cm-massiv-furu-brun-p1697240-v1579502"
+);
 
 // await debugScrapeDetails(
 //   "https://bernomobler.se/products/copenhagen-dining-table-round-black-black"
@@ -163,6 +168,6 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
 // );
 
-await debugCategoryExplorationRecordHARForTests(
-  "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-);
+// await debugCategoryExplorationRecordHARForTests(
+//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
+// );
