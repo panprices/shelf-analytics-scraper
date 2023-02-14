@@ -170,7 +170,7 @@ export class CrawlerFactory {
           ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -178,7 +178,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.furniturebox.se":
@@ -186,7 +186,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
@@ -234,7 +234,7 @@ export class CrawlerFactory {
         const options: CheerioCrawlerOptions = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_DE,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new CheerioCrawler(options), definition];
     }
