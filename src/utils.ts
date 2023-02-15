@@ -1,5 +1,6 @@
 import { log, LoggerJson, LogLevel } from "crawlee";
 import fs from "fs";
+import { ElementHandle } from "playwright-core";
 
 export class CrawleeLoggerForGCP extends LoggerJson {
   override _log(
@@ -82,4 +83,38 @@ export function appendObjectToFile(filename: string, obj: object) {
 
   const newData = JSON.stringify(data, null, 2);
   fs.writeFileSync(filename, newData);
+}
+
+//Returns true if the element is not outside any parent element with overflow: hidden
+export async function isHiddenByOverflow(elementHandle: ElementHandle<Node>) {
+  let elPosition = await elementHandle.boundingBox();
+
+  let parents: Array<ElementHandle<HTMLElement>> = [];
+  let parentElement = await elementHandle.$("xpath=..");
+  while (parentElement) {
+    let parentStyle = await parentElement.evaluate((el) =>
+      window.getComputedStyle(el)
+    );
+    if (parentStyle.overflow === "hidden") {
+      parents.push(parentElement as ElementHandle<HTMLElement>);
+    }
+    parentElement = await parentElement.$("xpath=..");
+  }
+
+  for (let parent of parents) {
+    let parentPosition = await parent.boundingBox();
+    if (!parentPosition) return true;
+    if (!elPosition) return true;
+    if (
+      elPosition.y >= parentPosition.y &&
+      elPosition.x >= parentPosition.x &&
+      elPosition.y + elPosition.height <=
+        parentPosition.y + parentPosition.height &&
+      elPosition.x + elPosition.width <= parentPosition.x + parentPosition.width
+    ) {
+      continue;
+    }
+    return true;
+  }
+  return false;
 }

@@ -16,7 +16,11 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
 } from "../types/offer";
-import { appendObjectToFile, extractRootUrl } from "../utils";
+import {
+  appendObjectToFile,
+  extractRootUrl,
+  isHiddenByOverflow,
+} from "../utils";
 import { v4 as uuidv4 } from "uuid";
 import { createHash } from "crypto";
 import { CategoryLabel } from "../types/categories";
@@ -310,12 +314,12 @@ export abstract class AbstractCrawlerDefinition
     }
   }
 
-  async extractProperty(
+  async extractProperty<T>(
     rootElement: Locator | Page,
     path: string,
-    extractor: (node: Locator) => Promise<string | null>,
+    extractor: (node: Locator) => Promise<T | null>,
     categoryLabel?: CategoryLabel
-  ): Promise<string | undefined> {
+  ): Promise<T | undefined> {
     const tag = await rootElement.locator(path);
     const elementExists = (await tag.count()) > 0;
     if (!elementExists) {
@@ -329,8 +333,15 @@ export abstract class AbstractCrawlerDefinition
     ) {
       const handles = await tag.elementHandles();
       for (const handle of handles) {
+        if (await isHiddenByOverflow(handle)) continue;
+
         const box = await handle.boundingBox();
+        // Get current scroll and adjust the bounding box
         if (!box) continue;
+        const scrollY = await (rootElement as Page).evaluate(
+          () => window.scrollY
+        );
+        box.y += scrollY;
         const id = createHash("sha256")
           .update((rootElement as Page).url())
           .digest("hex");
@@ -343,7 +354,7 @@ export abstract class AbstractCrawlerDefinition
       }
     }
 
-    const intermediateResult: string | null = tag ? await extractor(tag) : null;
+    const intermediateResult = tag ? await extractor(tag) : null;
     return intermediateResult !== null ? intermediateResult : undefined;
   }
 
