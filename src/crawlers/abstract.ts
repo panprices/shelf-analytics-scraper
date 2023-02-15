@@ -70,6 +70,11 @@ export interface CrawlerLaunchOptions {
    * Take a screenshot of the page
    */
   takeScreenshot?: boolean;
+
+  /**
+   * Save bounding boxes of the elements
+   */
+  saveBoundingBoxes?: boolean;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -317,7 +322,11 @@ export abstract class AbstractCrawlerDefinition
       return undefined;
     }
 
-    if (categoryLabel && (rootElement as Page).url) {
+    if (
+      this.launchOptions?.saveBoundingBoxes &&
+      categoryLabel &&
+      (rootElement as Page).url
+    ) {
       const handles = await tag.elementHandles();
       for (const handle of handles) {
         const box = await handle.boundingBox();

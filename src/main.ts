@@ -23,13 +23,25 @@ async function debugScrapeDetails(targetUrl: string) {
       matchingType: "match",
     },
   };
+
+  const launchParams = {
+    ignoreVariants: true,
+    saveBoundingBoxes: true,
+    takeScreenshot: true,
+  };
+
+  // Delete the file if it exists
+  if (launchParams.saveBoundingBoxes) {
+    fs.unlinkSync("bounding-boxes.json");
+  }
+
   const detailedItems = await scrapeDetails(
     [dummyRequest],
     {
       headless: true,
     },
     false,
-    { ignoreVariants: true }
+    launchParams
   );
 
   log.info(JSON.stringify(detailedItems, null, 2));
