@@ -16,6 +16,7 @@ import { TrademaxCrawlerDefinition } from "./custom/trademax";
 import {
   AbstractCheerioCrawlerDefinition,
   AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
 } from "./abstract";
 import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
 import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
@@ -49,7 +50,8 @@ export interface CrawlerFactoryArgs {
 export class CrawlerFactory {
   static async buildPlaywrightCrawlerForRootUrl(
     args: CrawlerFactoryArgs,
-    overrides?: PlaywrightCrawlerOptions
+    overrides?: PlaywrightCrawlerOptions,
+    launchOptions?: CrawlerLaunchOptions
   ): Promise<[PlaywrightCrawler, AbstractCrawlerDefinition]> {
     if (args.useCustomQueue === undefined) {
       // use custom queue by default
@@ -182,7 +184,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.furniturebox.se":
-        definition = await FurnitureboxCrawlerDefinition.create();
+        definition = await FurnitureboxCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

@@ -18,6 +18,7 @@ import {
 } from "../types/offer";
 import { extractRootUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
+import { createHash } from "crypto";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -51,6 +52,23 @@ export interface CrawlerDefinitionOptions {
   cookieConsentSelector?: string;
 
   dynamicProductCardLoading?: boolean;
+
+  /**
+   * Options to control the crawler behavior
+   */
+  launchOptions?: CrawlerLaunchOptions;
+}
+
+export interface CrawlerLaunchOptions {
+  /**
+   * Option to ignore enquing variants of a product
+   */
+  ignoreVariants?: boolean;
+
+  /**
+   * Take a screenshot of the page
+   */
+  takeScreenshot?: boolean;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -83,6 +101,7 @@ export abstract class AbstractCrawlerDefinition
   protected readonly productCardSelector: string;
   protected readonly cookieConsentSelector?: string;
   protected readonly dynamicProductCardLoading: boolean;
+  protected readonly launchOptions?: CrawlerLaunchOptions;
 
   /**
    * Number of products displayed on a category page
@@ -110,6 +129,7 @@ export abstract class AbstractCrawlerDefinition
     this.productCardSelector = options.productCardSelector;
     this.cookieConsentSelector = options.cookieConsentSelector;
     this.dynamicProductCardLoading = options.dynamicProductCardLoading ?? true;
+    this.launchOptions = options?.launchOptions;
 
     this.productInfos = new Map<string, ListingProductInfo>();
   }
@@ -122,6 +142,16 @@ export abstract class AbstractCrawlerDefinition
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     log.info(`Looking at product with url ${ctx.page.url()}`);
+
+    if (this.launchOptions?.takeScreenshot) {
+      await ctx.page.screenshot({
+        path: `./screenshots/${createHash("sha256")
+          .update(ctx.page.url())
+          .digest("hex")}.png`,
+        fullPage: true,
+      });
+    }
+
     const productDetails = await this.extractProductDetails(ctx.page);
     const request = ctx.request;
 

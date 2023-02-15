@@ -1,7 +1,7 @@
 import { Locator, Page } from "playwright";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -32,6 +32,10 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
     await super.crawlDetailPage(ctx);
+
+    if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
 
     // Enqueue the variant groups where you have a.href:
     await ctx.enqueueLinks({
@@ -256,12 +260,14 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
-  static async create(): Promise<FurnitureboxCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<FurnitureboxCrawlerDefinition> {
     const options = await createCrawlerDefinitionOption();
     // Next page buttons are dynamically rendered, so we need to scroll slower
     options.dynamicProductCardLoading = true;
 
-    return new FurnitureboxCrawlerDefinition(options);
+    return new FurnitureboxCrawlerDefinition({ ...options, launchOptions });
   }
 }
 
