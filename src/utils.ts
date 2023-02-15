@@ -68,7 +68,8 @@ export function extractNumberFromText(text: string): number {
 }
 
 /**
- * Read a JSON file (array of objects) and append a new object to the end of the array.
+ * Read a JSON file (array of objects) and
+ * append a new object to the end of the array.
  */
 export function appendObjectToFile(filename: string, obj: object) {
   let data = [];
