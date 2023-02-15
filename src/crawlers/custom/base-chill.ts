@@ -5,6 +5,7 @@
 
 import { log } from "crawlee";
 import { Locator, Page } from "playwright";
+import { CategoryLabel } from "../../types/categories";
 import {
   DetailedProductInfo,
   IndividualReview,
@@ -99,26 +100,55 @@ export async function extractProductDetails(
   const productName = await page
     .locator("h1[data-cy='product_title']")
     .textContent();
-  const price_text = await page
-    .locator("div#productInfoPrice div[data-cy='current-price']")
-    .textContent();
-  const price = Number(price_text?.replace(" ", ""));
 
-  const imagesPreviewLocator = await page.locator(
-    "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]//img"
+  const price = await crawlerDefinition
+    .extractProperty(
+      page,
+      "div#productInfoPrice div[data-cy='current-price']",
+      (node) => node.textContent(),
+      CategoryLabel.PRICE
+    )
+    .then((text) => Number(text?.replace(" ", "")));
+
+  const imagesPreviewLocator = await crawlerDefinition.extractProperty(
+    page,
+    "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]//img",
+    async (node) => node,
+    CategoryLabel.IMAGE_SLIDER
   );
+
+  if (!imagesPreviewLocator) {
+    throw new Error("Cannot find imagesPreviewLocator");
+  }
   const imagesCount = await imagesPreviewLocator.count();
   for (let i = 0; i < imagesCount; i++) {
     const currentImagePreview = imagesPreviewLocator.nth(i);
     await currentImagePreview.click();
   }
 
-  const images = await page
-    .locator("div#productInfoImage div.slick-slide div.z3Vk_ img")
-    .evaluateAll((list: HTMLElement[]) =>
-      list.map((element) => <string>element.getAttribute("src"))
-    );
-  const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
+  const images = await crawlerDefinition.extractProperty(
+    page,
+    "div#productInfoImage div.slick-slide div.z3Vk_ img",
+    (node) =>
+      node.evaluateAll((list: HTMLElement[]) =>
+        list.map((element) => <string>element.getAttribute("src"))
+      ),
+    CategoryLabel.MAIN_IMAGE
+  );
+  if (!images) {
+    throw new Error("Cannot find images");
+  }
+
+  const breadcrumbLocator = await crawlerDefinition.extractProperty(
+    page,
+    "//div[@id = 'breadcrumbs']//a",
+    async (node) => node,
+    CategoryLabel.BREADCRUMBS
+  );
+
+  if (!breadcrumbLocator) {
+    throw new Error("Cannot find breadcrumbLocator");
+  }
   const categoryTree = await crawlerDefinition.extractCategoryTree(
     breadcrumbLocator,
     1
