@@ -1,4 +1,5 @@
 import { log, LoggerJson, LogLevel } from "crawlee";
+import fs from "fs";
 
 export class CrawleeLoggerForGCP extends LoggerJson {
   override _log(
@@ -64,4 +65,20 @@ export function extractNumberFromText(text: string): number {
 
   const num = parseInt(matches[0]);
   return num;
+}
+
+/**
+ * Read a JSON file (array of objects) and append a new object to the end of the array.
+ */
+export function appendObjectToFile(filename: string, obj: object) {
+  let data = [];
+  if (fs.existsSync(filename)) {
+    const fileContents = fs.readFileSync(filename).toString();
+    data = JSON.parse(fileContents);
+  }
+
+  data.push(obj);
+
+  const newData = JSON.stringify(data, null, 2);
+  fs.writeFileSync(filename, newData);
 }

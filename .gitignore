@@ -135,3 +135,4 @@ dist
 .pnp.*
 
 /screenshots
+bounding-boxes.json

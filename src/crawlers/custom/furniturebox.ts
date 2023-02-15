@@ -19,6 +19,7 @@ import {
   getVariantUrlsFromSchemaOrg,
 } from "./base-chill";
 import { extractRootUrl } from "../../utils";
+import { CategoryLabel } from "../../types/categories";
 
 export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
@@ -113,7 +114,8 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       page,
       "h1[data-cy='product_title'] span",
       (node) =>
-        node.allTextContents().then((textContents) => textContents.join(" "))
+        node.allTextContents().then((textContents) => textContents.join(" ")),
+      CategoryLabel.TITLE
     ).then((text) => text?.trim());
     if (!productName) {
       throw new Error("Cannot extract productName");
@@ -122,7 +124,8 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     const description = await this.extractProperty(
       page,
       "div#ProductHighlightsDescription",
-      (node) => node.innerText()
+      (node) => node.innerText(),
+      CategoryLabel.DESCRIPTION
     ).then((text) => text?.trim());
 
     let articleNumber = undefined;

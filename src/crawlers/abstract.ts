@@ -16,9 +16,10 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
 } from "../types/offer";
-import { extractRootUrl } from "../utils";
+import { appendObjectToFile, extractRootUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
 import { createHash } from "crypto";
+import { CategoryLabel } from "../types/categories";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -307,12 +308,30 @@ export abstract class AbstractCrawlerDefinition
   async extractProperty(
     rootElement: Locator | Page,
     path: string,
-    extractor: (node: Locator) => Promise<string | null>
+    extractor: (node: Locator) => Promise<string | null>,
+    categoryLabel?: CategoryLabel
   ): Promise<string | undefined> {
     const tag = await rootElement.locator(path);
     const elementExists = (await tag.count()) > 0;
     if (!elementExists) {
       return undefined;
+    }
+
+    if (categoryLabel && (rootElement as Page).url) {
+      const handles = await tag.elementHandles();
+      for (const handle of handles) {
+        const box = await handle.boundingBox();
+        if (!box) continue;
+        const id = createHash("sha256")
+          .update((rootElement as Page).url())
+          .digest("hex");
+        appendObjectToFile("bounding-boxes.json", {
+          image_id: `${id}.png`,
+          category_id: categoryLabel,
+          bbox: [box.x, box.y, box.width, box.height],
+          id: id,
+        });
+      }
     }
 
     const intermediateResult: string | null = tag ? await extractor(tag) : null;
