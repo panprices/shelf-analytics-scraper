@@ -31,8 +31,12 @@ async function debugScrapeDetails(targetUrl: string) {
   };
 
   // Delete the file if it exists
-  if (launchParams.saveBoundingBoxes) {
+  if (launchParams.saveBoundingBoxes && fs.existsSync("bounding-boxes.json")) {
     fs.unlinkSync("bounding-boxes.json");
+  }
+  // Delete everything in the folder if it exists
+  if (launchParams.takeScreenshot && fs.existsSync("screenshots")) {
+    fs.rmdirSync("screenshots", { recursive: true });
   }
 
   const detailedItems = await scrapeDetails(
