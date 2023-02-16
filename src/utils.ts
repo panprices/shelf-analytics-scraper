@@ -88,6 +88,7 @@ export function appendObjectToFile(filename: string, obj: object) {
 //Returns true if the element is not outside any parent element with overflow: hidden
 export async function isHiddenByOverflow(elementHandle: ElementHandle<Node>) {
   let elPosition = await elementHandle.boundingBox();
+  if (!elPosition) return true;
 
   let parents: Array<ElementHandle<HTMLElement>> = [];
   let parentElement = await elementHandle.$("xpath=..");
@@ -104,7 +105,6 @@ export async function isHiddenByOverflow(elementHandle: ElementHandle<Node>) {
   for (let parent of parents) {
     let parentPosition = await parent.boundingBox();
     if (!parentPosition) return true;
-    if (!elPosition) return true;
     if (
       elPosition.y >= parentPosition.y &&
       elPosition.x >= parentPosition.x &&
