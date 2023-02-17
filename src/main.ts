@@ -11,8 +11,8 @@ import {
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { join } from "path";
 
-async function debugScrapeDetails(targetUrl: string) {
-  const dummyRequest = {
+async function debugScrapeDetails(targetUrls: string[]) {
+  const dummyRequests = targetUrls.map((targetUrl) => ({
     url: targetUrl,
     userData: {
       jobId: "job_test_1",
@@ -22,9 +22,9 @@ async function debugScrapeDetails(targetUrl: string) {
       label: "DETAIL",
       matchingType: "match",
     },
-  };
-  const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: true,
+  }));
+  const detailedItems = await scrapeDetails(dummyRequests, {
+    headless: false,
   });
 
   log.info(JSON.stringify(detailedItems, null, 2));
@@ -142,9 +142,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://bernomobler.se/products/maglehem-sofa-table-glass-black"
 // );
 
-// await debugScrapeDetails(
-//   "https://bernomobler.se/products/copenhagen-dining-table-round-black-black"
-// );
+await debugScrapeDetails([
+  "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/tradgardsgrupp/utemobler-matgrupp/matgrupp-venture-design-virda-o-150-med-6-asta-stolar/p-1115629",
+]);
 
 // Ellos Home
 // await debugCategoryExploration(
@@ -163,6 +163,6 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
 // );
 
-await debugCategoryExplorationRecordHARForTests(
-  "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-);
+// await debugCategoryExplorationRecordHARForTests(
+//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
+// );

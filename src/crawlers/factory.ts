@@ -6,6 +6,7 @@ import {
   ProxyConfiguration,
   RequestQueue,
   CheerioCrawlerOptions,
+  PlaywrightCrawlingContext,
 } from "crawlee";
 import {
   CustomQueueSettings,
@@ -32,6 +33,8 @@ import { CHROMIUM_USER_DATA_DIR } from "../constants";
 import { extractRootUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
+import { Route } from "playwright-core";
+import { BrowserCrawlingContext } from "@crawlee/browser/internals/browser-crawler";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -83,13 +86,35 @@ export class CrawlerFactory {
         },
         // async ({ page }) => {
         //   await page.route("**/*", (route) => {
+        //     const base64Image =
+        //       "data:image/png;base64," +
+        //       "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9ElEQVQ4jWP4//8/" +
+        //       "AyWMyvIyMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCz" +
+        //       "MDAwMDCzMDAwMDCzMDAwMDAwoJjKUEl6AEmU6zQAe3/8nGxjKQNsbMDEyM///n19nJpMjR9zVlZUDcwufmBoKkCGxkA/" +
+        //       "g+VHlpDQACAKrE1fJ5eYZMAAAAASUVORK5CYII=";
+        //
         //     return route.request().resourceType() === "image"
         //       ? route.fulfill({
-        //           status: 200,
-        //           body: "accept",
+        //           contentType: "image/png",
+        //           body: Buffer.from(base64Image.split(",")[1], "base64"),
         //         })
         //       : route.continue();
         //   });
+        //
+        //   Promise.all(
+        //     [
+        //       "https://www.googletagmanager.com",
+        //       "https://cdn.cookielaw.org",
+        //       "https://gtm.hfnordic.com/gtm.js",
+        //       "https://www.google-analytics.com",
+        //       "https://www.google.com",
+        //     ].map(
+        //       async (domain) =>
+        //         await page.route(`${domain}/**`, (route: Route) =>
+        //           route.abort()
+        //         )
+        //     )
+        //   );
         // },
       ],
     };
@@ -170,7 +195,7 @@ export class CrawlerFactory {
           ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
