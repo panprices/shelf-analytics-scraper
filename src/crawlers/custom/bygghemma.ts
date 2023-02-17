@@ -26,6 +26,10 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.page.evaluate(() => window.scrollTo(0, 500)); // to have the thumbnails in viewport
 
     await this.handleCookieConsent(ctx.page);
+    await BygghemmaCrawlerDefinition.clickOverlayButton(
+      ctx.page,
+      "div#modal button"
+    );
 
     const productGroupUrl = ctx.page.url();
     let variantCounter = 0;
@@ -248,7 +252,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       "div.gZqc6 div:last-child",
       (node) => node.textContent()
     );
-    const isDiscounted = campaignBannerText?.trim() ? true : false;
+    const isDiscounted = !!campaignBannerText?.trim();
     const originalPrice = undefined; // cannot find original price even if on campaign
 
     const images = await this.extractImages(page);

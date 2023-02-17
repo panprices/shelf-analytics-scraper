@@ -302,12 +302,17 @@ export abstract class AbstractCrawlerDefinition
       return;
     }
 
-    const cookieConsentButton = page
-      .locator(this.cookieConsentSelector)
-      .first();
-    const receivedCookieConsent = await cookieConsentButton.isVisible();
-    if (receivedCookieConsent) {
-      await cookieConsentButton.click();
+    await AbstractCrawlerDefinition.clickOverlayButton(
+      page,
+      this.cookieConsentSelector
+    );
+  }
+
+  static async clickOverlayButton(page: Page, buttonSelector: string) {
+    const button = page.locator(buttonSelector).first();
+    const buttonVisible = await button.isVisible();
+    if (buttonVisible) {
+      await button.click();
     }
   }
 
