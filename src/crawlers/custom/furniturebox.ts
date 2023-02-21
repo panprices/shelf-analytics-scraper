@@ -34,26 +34,26 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     await super.crawlDetailPage(ctx);
 
     // Enqueue the variant groups where you have a.href:
-    await ctx.enqueueLinks({
-      selector: "div#possibleVariants a",
-      label: "DETAIL",
-      userData: ctx.request.userData,
-    });
-    await ctx.enqueueLinks({
-      selector: "div#variantPropertySelectors a",
-      label: "DETAIL",
-      userData: ctx.request.userData,
-    });
-
-    // Enqueue variants from schema.org:
-    const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
-    if (variantUrls) {
-      await ctx.enqueueLinks({
-        urls: variantUrls,
-        label: "DETAIL",
-        userData: ctx.request.userData,
-      });
-    }
+    // await ctx.enqueueLinks({
+    //   selector: "div#possibleVariants a",
+    //   label: "DETAIL",
+    //   userData: ctx.request.userData,
+    // });
+    // await ctx.enqueueLinks({
+    //   selector: "div#variantPropertySelectors a",
+    //   label: "DETAIL",
+    //   userData: ctx.request.userData,
+    // });
+    //
+    // // Enqueue variants from schema.org:
+    // const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
+    // if (variantUrls) {
+    //   await ctx.enqueueLinks({
+    //     urls: variantUrls,
+    //     label: "DETAIL",
+    //     userData: ctx.request.userData,
+    //   });
+    // }
 
     // DEPRECATED: Check for secondary variant group where you don't have a.href.
     // This was implemented before we use getVariantUrlsFromSchemaOrg.

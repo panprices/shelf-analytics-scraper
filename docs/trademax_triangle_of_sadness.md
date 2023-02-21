@@ -29,3 +29,9 @@ One improvement we discussed is to use cheerio for the first attempt at a detail
 least the one we identified so far) is that we can't access different variants in this way (which involves clicking
 buttons). The thinking is that we do all the detail scraping with cheerio at first, and then just for the pages where 
 we had a matched SKU, we follow the URLs and do a full indexing (grabbing all the info that requires button clicking). 
+
+
+# 21.02.2023
+
+Disabled variant checking for the triangle of sadness retailers. We did this because for now we only want to go to 
+urls we already know of. And we supposedly know the URLs for each different variant. This helps save up traffic.

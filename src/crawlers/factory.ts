@@ -1,12 +1,12 @@
 import {
-  log,
   CheerioCrawler,
+  CheerioCrawlerOptions,
+  log,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
+  PlaywrightHook,
   ProxyConfiguration,
   RequestQueue,
-  CheerioCrawlerOptions,
-  PlaywrightCrawlingContext,
 } from "crawlee";
 import {
   CustomQueueSettings,
@@ -34,7 +34,6 @@ import { extractRootUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { Route } from "playwright-core";
-import { BrowserCrawlingContext } from "@crawlee/browser/internals/browser-crawler";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -84,40 +83,41 @@ export class CrawlerFactory {
         async ({ page }) => {
           page.setDefaultTimeout(20000);
         },
-        // async ({ page }) => {
-        //   await page.route("**/*", (route) => {
-        //     const base64Image =
-        //       "data:image/png;base64," +
-        //       "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9ElEQVQ4jWP4//8/" +
-        //       "AyWMyvIyMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCz" +
-        //       "MDAwMDCzMDAwMDCzMDAwMDAwoJjKUEl6AEmU6zQAe3/8nGxjKQNsbMDEyM///n19nJpMjR9zVlZUDcwufmBoKkCGxkA/" +
-        //       "g+VHlpDQACAKrE1fJ5eYZMAAAAASUVORK5CYII=";
-        //
-        //     return route.request().resourceType() === "image"
-        //       ? route.fulfill({
-        //           contentType: "image/png",
-        //           body: Buffer.from(base64Image.split(",")[1], "base64"),
-        //         })
-        //       : route.continue();
-        //   });
-        //
-        //   Promise.all(
-        //     [
-        //       "https://www.googletagmanager.com",
-        //       "https://cdn.cookielaw.org",
-        //       "https://gtm.hfnordic.com/gtm.js",
-        //       "https://www.google-analytics.com",
-        //       "https://www.google.com",
-        //     ].map(
-        //       async (domain) =>
-        //         await page.route(`${domain}/**`, (route: Route) =>
-        //           route.abort()
-        //         )
-        //     )
-        //   );
-        // },
       ],
     };
+
+    const blockImagesAndScriptsHooks: PlaywrightHook[] = [
+      async ({ page }) => {
+        await page.route("**/*", (route) => {
+          const base64Image =
+            "data:image/png;base64," +
+            "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9ElEQVQ4jWP4//8/" +
+            "AyWMyvIyMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCz" +
+            "MDAwMDCzMDAwMDCzMDAwMDAwoJjKUEl6AEmU6zQAe3/8nGxjKQNsbMDEyM///n19nJpMjR9zVlZUDcwufmBoKkCGxkA/" +
+            "g+VHlpDQACAKrE1fJ5eYZMAAAAASUVORK5CYII=";
+
+          return route.request().resourceType() === "image"
+            ? route.fulfill({
+                contentType: "image/png",
+                body: Buffer.from(base64Image.split(",")[1], "base64"),
+              })
+            : route.continue();
+        });
+
+        Promise.all(
+          [
+            "https://www.googletagmanager.com",
+            "https://cdn.cookielaw.org",
+            "https://gtm.hfnordic.com/gtm.js",
+            "https://www.google-analytics.com",
+            "https://www.google.com",
+          ].map(
+            async (domain) =>
+              await page.route(`${domain}/**`, (route: Route) => route.abort())
+          )
+        );
+      },
+    ];
 
     let definition, options;
     switch (url) {
@@ -195,6 +195,10 @@ export class CrawlerFactory {
           ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
+          preNavigationHooks: [
+            ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
+            ...blockImagesAndScriptsHooks,
+          ],
           // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
@@ -204,6 +208,10 @@ export class CrawlerFactory {
           ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          preNavigationHooks: [
+            ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
+            ...blockImagesAndScriptsHooks,
+          ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.furniturebox.se":
@@ -212,6 +220,10 @@ export class CrawlerFactory {
           ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          preNavigationHooks: [
+            ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
+            ...blockImagesAndScriptsHooks,
+          ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
