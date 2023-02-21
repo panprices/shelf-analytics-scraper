@@ -308,12 +308,17 @@ export abstract class AbstractCrawlerDefinition
     );
   }
 
-  static async clickOverlayButton(page: Page, buttonSelector: string) {
+  static async clickOverlayButton(
+    page: Page,
+    buttonSelector: string
+  ): Promise<boolean> {
     const button = page.locator(buttonSelector).first();
     const buttonVisible = await button.isVisible();
     if (buttonVisible) {
       await button.click();
+      return true;
     }
+    return false;
   }
 
   async extractCategoryTree(

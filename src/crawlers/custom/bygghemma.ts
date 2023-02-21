@@ -7,10 +7,8 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
   OfferMetadata,
-  SchemaOrg,
   Specification,
 } from "../../types/offer";
-import _ from "lodash";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -32,98 +30,8 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     );
 
     const productGroupUrl = ctx.page.url();
-    let variantCounter = 0;
 
-    const chooseColorButtons = ctx.page.locator("ul.xr_zG li");
-    const chooseColorButtonsCount = await chooseColorButtons.count();
-
-    const chooseTypeDropdownButton = ctx.page.locator("div.DcdG0 button");
-    const selectableOptions = ctx.page.locator("div.DcdG0 li:not(.WYoRt)");
-
-    let currentImages;
-    if (chooseColorButtonsCount == 0) {
-      if ((await chooseTypeDropdownButton.count()) === 0) {
-        await this.crawlSingleDetailPage(ctx, productGroupUrl, variantCounter);
-        variantCounter++;
-      } else {
-        currentImages = await this.extractImages(ctx.page);
-        variantCounter = await this.chooseDropdownOptionAndCrawlDetailpage(
-          ctx,
-          chooseTypeDropdownButton,
-          selectableOptions,
-          currentImages,
-          productGroupUrl,
-          variantCounter
-        );
-      }
-    } else {
-      currentImages = await this.extractImages(ctx.page);
-      // console.log(currentImages);
-
-      for (let i = 0; i < chooseColorButtonsCount; i++) {
-        const colorButton = chooseColorButtons.nth(i);
-        await colorButton.click();
-        await ctx.page.waitForTimeout(1000);
-
-        if ((await chooseTypeDropdownButton.count()) === 0) {
-          try {
-            currentImages = await this.waitForChanges(ctx, currentImages);
-            await this.crawlSingleDetailPage(
-              ctx,
-              productGroupUrl,
-              variantCounter
-            );
-            variantCounter++;
-          } catch (error) {
-            // Ignore this product variant and continue to scrape others
-            if (error instanceof Error) log.warning(error.message);
-          }
-        } else {
-          variantCounter = await this.chooseDropdownOptionAndCrawlDetailpage(
-            ctx,
-            chooseTypeDropdownButton,
-            selectableOptions,
-            currentImages,
-            productGroupUrl,
-            variantCounter
-          );
-        }
-      }
-    }
-  }
-
-  async chooseDropdownOptionAndCrawlDetailpage(
-    ctx: PlaywrightCrawlingContext,
-    chooseTypeDropdownButton: Locator,
-    selectableOptions: Locator,
-    currentImages: string[],
-    productGroupUrl: any,
-    variantCounter: number
-  ): Promise<number> {
-    await chooseTypeDropdownButton.click();
-    await ctx.page.waitForTimeout(1000);
-    const selectableOptionsCount = await selectableOptions.count();
-    await chooseTypeDropdownButton.click(); // close the dropdown so it doesn't interfere with clicking
-    await ctx.page.waitForTimeout(1000);
-    // console.log("Types: ", selectableOptionsCount);
-
-    for (let j = 0; j < selectableOptionsCount; j++) {
-      await chooseTypeDropdownButton.click();
-      await ctx.page.waitForTimeout(1000);
-      const optionButton = selectableOptions.nth(j);
-      await optionButton.click();
-      await ctx.page.waitForTimeout(1000);
-
-      try {
-        currentImages = await this.waitForChanges(ctx, currentImages);
-        await this.crawlSingleDetailPage(ctx, productGroupUrl, variantCounter);
-        variantCounter++;
-      } catch (error) {
-        if (error instanceof Error) log.warning(error.message);
-        // Ignore this variant and continue to scraper other variances
-      }
-    }
-    return variantCounter;
+    await this.exploreVariantsSpace(ctx, 0, [], productGroupUrl);
   }
 
   // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma solution
@@ -134,7 +42,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     productGroupUrl: string,
     variant: number
   ): Promise<void> {
-    log.info(`Looking at product with url ${ctx.page.url()}`);
     const productDetails = await this.extractProductDetails(ctx.page);
     const request = ctx.request;
 
@@ -148,34 +55,234 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
+  async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    paramIndex: number,
+    optionIndex: number
+  ) {
+    const paramsDropDownSelectors = ctx.page.locator("div.DcdG0");
+    const paramsImageSelectors = ctx.page.locator("ul.xr_zG");
+
+    const paramsDropDownSelectorsCount = await paramsDropDownSelectors.count();
+    const paramsImageSelectorsCount = await paramsImageSelectors.count();
+    if (paramIndex < paramsDropDownSelectorsCount) {
+      const currentParamSelector = paramsDropDownSelectors.nth(paramIndex);
+      await currentParamSelector.locator("button").click();
+      await ctx.page.waitForTimeout(50);
+      await currentParamSelector.locator("li").nth(optionIndex).click();
+    } else if (
+      paramIndex <
+      paramsImageSelectorsCount + paramsDropDownSelectorsCount
+    ) {
+      const currentParamSelector = paramsImageSelectors.nth(
+        paramIndex - paramsDropDownSelectorsCount
+      );
+      await currentParamSelector.locator("li").nth(optionIndex).click();
+    }
+  }
+
+  async getOptionsForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<number> {
+    const paramsDropDownSelectors = ctx.page.locator("div.DcdG0");
+    const paramsImageSelectors = ctx.page.locator("ul.xr_zG");
+
+    const paramsDropDownSelectorsCount = await paramsDropDownSelectors.count();
+    const paramsImageSelectorsCount = await paramsImageSelectors.count();
+    if (paramIndex < paramsDropDownSelectorsCount) {
+      const currentParamSelector = paramsDropDownSelectors.nth(paramIndex);
+      await currentParamSelector.locator("button").click();
+      await ctx.page.waitForTimeout(50);
+      const optionsCount = await currentParamSelector.locator("li").count();
+      await currentParamSelector.locator("button").click();
+      return optionsCount;
+    } else if (
+      paramIndex <
+      paramsImageSelectorsCount + paramsDropDownSelectorsCount
+    ) {
+      const currentParamSelector = paramsImageSelectors.nth(
+        paramIndex - paramsDropDownSelectorsCount
+      );
+      return await currentParamSelector.locator("li").count();
+    }
+    return 0;
+  }
+
+  /**
+   * Depth first exploration of the variants space.
+   *
+   * @param ctx
+   * @param parameterIndex
+   * @param currentOption
+   * @param productGroupUrl
+   * @param exploredVariants
+   * @param pageState
+   */
+  async exploreVariantsSpace(
+    ctx: PlaywrightCrawlingContext,
+    parameterIndex: number,
+    currentOption: number[],
+    productGroupUrl: string,
+    exploredVariants: number = 0,
+    pageState: any = {}
+  ): Promise<[any, number]> {
+    const optionsCount = await this.getOptionsForParamIndex(
+      ctx,
+      parameterIndex
+    );
+    if (optionsCount === 0) {
+      let newPageState = {};
+      // We only expect state changes for products with variants
+      // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
+      if (parameterIndex !== 0) {
+        newPageState = await this.waitForChanges(ctx, pageState);
+      }
+      await this.crawlVariant(ctx, exploredVariants, productGroupUrl);
+      return [newPageState, 1];
+    }
+
+    let exploredSubBranches = 0;
+    for (let optionIndex = 0; optionIndex < optionsCount; optionIndex++) {
+      await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
+      const invalidVariant = await this.checkInvalidVariant(ctx, [
+        ...currentOption,
+        optionIndex,
+      ]);
+      if (invalidVariant) {
+        // select the state previous to the change
+        for (let i = 0; i < currentOption.length; i++) {
+          await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+        }
+        continue;
+      }
+      const [newPageState, exploredOnSubBranch] =
+        await this.exploreVariantsSpace(
+          ctx,
+          parameterIndex + 1,
+          [...currentOption, optionIndex],
+          productGroupUrl,
+          exploredVariants,
+          pageState
+        );
+      exploredSubBranches += exploredOnSubBranch;
+      exploredVariants += exploredOnSubBranch;
+      pageState = newPageState;
+    }
+    return [pageState, exploredSubBranches];
+  }
+
+  async checkInvalidVariant(
+    ctx: PlaywrightCrawlingContext,
+    currentOption: number[]
+  ): Promise<boolean> {
+    let invalidVariant = await this.waitForInvalidVariantMessage(ctx);
+    if (!invalidVariant) {
+      return false;
+    }
+
+    for (let i = 0; i < currentOption.length; i++) {
+      await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+    }
+
+    return await this.waitForInvalidVariantMessage(ctx);
+  }
+
+  /**
+   * Select a specific variant.
+   *
+   * The selection is defined by an array of the length equal to the number of parameters to set.
+   * Each element in the array is the index of the option to select for the parameter at the given index.
+   *
+   * Normally the parameters remain there between different variants. A combination may fail just
+   * because it is incompatible with previously selected parameters. In this case we retry the selection one more time
+   * after seeing the invalid variant message.
+   *
+   * @param ctx
+   * @param variantIndex
+   * @param variantIndex
+   * @param productGroupUrl
+   */
+  async crawlVariant(
+    ctx: PlaywrightCrawlingContext,
+    variantIndex: number,
+    productGroupUrl: string
+  ) {
+    try {
+      await this.crawlSingleDetailPage(ctx, productGroupUrl, variantIndex);
+    } catch (error) {
+      if (error instanceof Error) log.warning(error.message);
+      // Ignore this variant and continue to scraper other variances
+    }
+  }
+
+  /**
+   * The logic: wait 1 second after changing the parameters, then wait for network idle, check the url changed
+   * then wait again for network idle and one more second
+   * @param ctx
+   * @param currentState
+   * @param timeout
+   */
   async waitForChanges(
     ctx: PlaywrightCrawlingContext,
-    currentImages: string[],
+    currentState: any,
     timeout: number = 1000 // ms
   ) {
-    log.info("Wait for images to change...");
+    log.info("Wait for state to change...");
     const startTime = Date.now();
 
-    let newImages;
+    // Wait for 1 more second just in case
+    await ctx.page.waitForTimeout(1000);
+
+    await ctx.page.waitForLoadState("networkidle");
+
+    let newState = {};
     do {
       if (Date.now() - startTime > timeout) {
         // Shouldn't throw error but just return result since it's likely that
         // the image wasn't changed after choosing another option.
-        return currentImages;
+        return currentState;
       }
 
-      // newImages = await this.extractImages(ctx.page);
       try {
-        newImages = await this.extractImages(ctx.page);
+        const newUrl = ctx.page.url();
+        newState = {
+          url: newUrl,
+        };
       } catch (error) {
         // Page changed during image extraction => just try again
       }
     } while (
-      !newImages ||
-      JSON.stringify(newImages) === JSON.stringify(currentImages)
+      !newState ||
+      // expect changes in all keys
+      Object.keys(newState).some((key) => newState[key] === currentState[key])
     );
+    // Wait for network to be idle
+    await ctx.page.waitForLoadState("networkidle");
 
-    return newImages;
+    // Wait for 1 more second just in case
+    await ctx.page.waitForTimeout(1000);
+
+    const newImages = await this.extractImages(ctx.page);
+    const newUrl = ctx.page.url();
+    newState = {
+      images: newImages,
+      url: newUrl,
+    };
+    return newState;
+  }
+
+  async waitForInvalidVariantMessage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<boolean> {
+    const invalidCombination =
+      await BygghemmaCrawlerDefinition.clickOverlayButton(ctx.page, ".KAdjw");
+
+    if (invalidCombination) {
+      log.info("Invalid combination of parameters");
+      return true;
+    }
+    return false;
   }
 
   async extractCardProductInfo(
@@ -207,17 +314,17 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
         ? cleanImageUrl(previewImageUrl)
         : undefined;
 
-    const productInfo: ListingProductInfo = {
+    return {
       name: productName,
       url,
       previewImageUrl: previewImageUrlCleaned,
       categoryUrl,
       popularityIndex: -1, // this will be overwritten later
     };
-    return productInfo;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    log.info(`Looking at product with url ${page.url()}`);
     const productNamePart1 = await this.extractProperty(
       page,
       "h1.mpzBU .ftHHn",
@@ -238,7 +345,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       "div._VQkc div.SonMi div.SonMi",
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
-
     const priceString = await this.extractProperty(
       page,
       "div.gZqc6 div:first-child",
@@ -366,49 +472,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
 
     return [...new Set(images)]; // deduplicate
   }
-
-  // async extractImages(page: Page): Promise<string[]> {
-  //   const images = [];
-
-  //   // Take thumbnail images:
-  //   const element = await page.waitForSelector("img.vGPfg", { timeout: 2000 });
-  //   console.log(element === null);
-  //   const thumbnailGroupSelector = page.locator("div.vvVTt");
-  //   let hasThumbnails;
-  //   try {
-  //     await thumbnailGroupSelector.waitFor({ timeout: 2000 });
-  //     hasThumbnails = true;
-  //   } catch {
-  //     hasThumbnails = false;
-  //   }
-  //   console.log({
-  //     msg: "Has thumbnail Bygghemma",
-  //     hasThumbnails: hasThumbnails,
-  //   });
-
-  //   if (hasThumbnails) {
-  //     const thumbnailImagesSelector = page.locator("img.vGPfg");
-  //     const imagesCount = await thumbnailImagesSelector.count();
-  //     for (let i = 0; i < imagesCount; i++) {
-  //       const imgUrl = await thumbnailImagesSelector
-  //         .nth(i)
-  //         .getAttribute("src", { timeout: 200 });
-  //       if (imgUrl) {
-  //         images.push(cleanImageUrl(imgUrl));
-  //       }
-  //     }
-  //   } else {
-  //     // No thumbnail images found => product only have 1 image => take it
-  //     if (images.length === 0) {
-  //       const imgUrl = await page.locator("img.eNbZA").getAttribute("src");
-  //       if (imgUrl) {
-  //         images.push(cleanImageUrl(imgUrl));
-  //       }
-  //     }
-  //   }
-
-  //   return images;
-  // }
 
   static async create(): Promise<BygghemmaCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
