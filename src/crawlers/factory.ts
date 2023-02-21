@@ -77,11 +77,10 @@ export class CrawlerFactory {
         userDataDir: CHROMIUM_USER_DATA_DIR,
       },
       ...overrides,
-      // Block unnecessary requests such as loading images:
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),
         async ({ page }) => {
-          page.setDefaultTimeout(20000);
+          page.setDefaultTimeout(30000);
         },
       ],
     };

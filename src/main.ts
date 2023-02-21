@@ -24,7 +24,7 @@ async function debugScrapeDetails(targetUrl: string) {
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: false,
+    // headless: false,
   });
 
   log.info(JSON.stringify(detailedItems, null, 2));
@@ -138,9 +138,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://bernomobler.se/collections/runda-matbord"
 // );
 
-// await debugScrapeDetails(
-//   "https://bernomobler.se/products/maglehem-sofa-table-glass-black"
-// );
+await debugScrapeDetails(
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433"
+);
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
@@ -159,9 +159,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
 // );
 
-await debugScrapeDetailsRecordHARForTests(
-  "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
-);
+// await debugScrapeDetailsRecordHARForTests(
+//   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
+// );
 //
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"

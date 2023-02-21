@@ -1,7 +1,10 @@
 import { Locator, Page } from "playwright";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerDefinitionOptions,
+} from "../abstract";
 import { extractRootUrl } from "../../utils";
 import {
   DetailedProductInfo,
@@ -11,6 +14,22 @@ import {
 } from "../../types/offer";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
+  constructor(options: CrawlerDefinitionOptions) {
+    super(options);
+
+    const crawlerDefinition = this;
+    this._router.addHandler("VARIANT", (_) =>
+      crawlerDefinition.crawlVariant(_)
+    );
+  }
+
+  async prepareHeadlessScreen(ctx: PlaywrightCrawlingContext) {
+    // Imitate a vertical screen resolution to fit more elements in the viewport.
+    // This helps with some inconsistency when elements are dynamically loaded.
+    await ctx.page.setViewportSize({ width: 1200, height: 1600 });
+    await ctx.page.evaluate(() => window.scrollTo(0, 500)); // to have the thumbnails in viewport
+  }
+
   /**
    * Need to override this so that since 1 product may have multiple colour variants
    * => Multiple products from 1 original url, each has their own GTIN/SKU.
@@ -18,11 +37,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    // Imitate a vertical screen resolution to fit more elements in the viewport.
-    // This helps with some inconsistency when elements are dynamically loaded.
-    await ctx.page.setViewportSize({ width: 1200, height: 1600 });
-    await ctx.page.evaluate(() => window.scrollTo(0, 500)); // to have the thumbnails in viewport
-
+    await this.prepareHeadlessScreen(ctx);
     await this.handleCookieConsent(ctx.page);
     await BygghemmaCrawlerDefinition.clickOverlayButton(
       ctx.page,
@@ -31,6 +46,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const productGroupUrl = ctx.page.url();
 
+    console.log("Starting variant exploration... from url: ", productGroupUrl);
     await this.exploreVariantsSpace(ctx, 0, [], productGroupUrl);
   }
 
@@ -125,8 +141,12 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     currentOption: number[],
     productGroupUrl: string,
     exploredVariants: number = 0,
-    pageState: any = {}
+    pageState: any = undefined
   ): Promise<[any, number]> {
+    if (!pageState) {
+      pageState = { url: productGroupUrl };
+    }
+
     const optionsCount = await this.getOptionsForParamIndex(
       ctx,
       parameterIndex
@@ -136,9 +156,27 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       // We only expect state changes for products with variants
       // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
       if (parameterIndex !== 0) {
-        newPageState = await this.waitForChanges(ctx, pageState);
+        pageState = { url: ctx.page.url() };
+        newPageState = await this.waitForChanges(ctx, pageState, 10000);
+
+        await ctx.enqueueLinks({
+          urls: [ctx.page.url()],
+          userData: {
+            ...ctx.request.userData,
+            variantIndex: exploredVariants,
+            productGroupUrl: productGroupUrl,
+            label: "VARIANT",
+          },
+        });
+      } else {
+        ctx.request.userData = {
+          ...ctx.request.userData,
+          variantIndex: 0,
+          productGroupUrl: productGroupUrl,
+        };
+        await this.crawlVariant(ctx);
       }
-      await this.crawlVariant(ctx, exploredVariants, productGroupUrl);
+
       return [newPageState, 1];
     }
 
@@ -199,15 +237,12 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
    * after seeing the invalid variant message.
    *
    * @param ctx
-   * @param variantIndex
-   * @param variantIndex
-   * @param productGroupUrl
    */
-  async crawlVariant(
-    ctx: PlaywrightCrawlingContext,
-    variantIndex: number,
-    productGroupUrl: string
-  ) {
+  async crawlVariant(ctx: PlaywrightCrawlingContext) {
+    await this.prepareHeadlessScreen(ctx);
+
+    const variantIndex = ctx.request.userData.variantIndex;
+    const productGroupUrl = ctx.request.userData.productGroupUrl;
     try {
       await this.crawlSingleDetailPage(ctx, productGroupUrl, variantIndex);
     } catch (error) {
@@ -228,7 +263,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     currentState: any,
     timeout: number = 1000 // ms
   ) {
-    log.info("Wait for state to change...");
+    log.info("Wait for state to change, current state: ", currentState);
     const startTime = Date.now();
 
     // Wait for 1 more second just in case
@@ -241,6 +276,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       if (Date.now() - startTime > timeout) {
         // Shouldn't throw error but just return result since it's likely that
         // the image wasn't changed after choosing another option.
+        log.warning("Timeout while waiting for state to change");
         return currentState;
       }
 
@@ -252,6 +288,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       } catch (error) {
         // Page changed during image extraction => just try again
       }
+      await ctx.page.waitForTimeout(timeout / 10);
     } while (
       !newState ||
       // expect changes in all keys
@@ -262,11 +299,8 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
 
     // Wait for 1 more second just in case
     await ctx.page.waitForTimeout(1000);
-
-    const newImages = await this.extractImages(ctx.page);
     const newUrl = ctx.page.url();
     newState = {
-      images: newImages,
       url: newUrl,
     };
     return newState;
