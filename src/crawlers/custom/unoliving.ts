@@ -33,6 +33,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     await super.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
   }
 
   async extractCardProductInfo(

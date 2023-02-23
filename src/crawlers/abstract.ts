@@ -6,7 +6,6 @@ import {
   Dataset,
   log,
   PlaywrightCrawlingContext,
-  RequestOptions,
   Router,
   RouterHandler,
 } from "crawlee";
@@ -50,6 +49,14 @@ export interface CrawlerDefinitionOptions {
    */
   cookieConsentSelector?: string;
 
+  /**
+   * Whether we should consider that the category page dynamically loads in the DOM only visible products
+   *
+   * If that's the case, we need to fetch the elements after every scroll.
+   *
+   * By default this option is set to true, because it is the option that works even if the website does not
+   * have this behaviour. The problem when this option is left true is that the category indexing will be slower.
+   */
   dynamicProductCardLoading?: boolean;
 
   /**
@@ -90,12 +97,11 @@ export abstract class AbstractCrawlerDefinition
   protected readonly _detailsDataset: Dataset;
   private readonly _listingDataset: Dataset;
 
-  protected readonly detailsUrlSelector: string;
   protected readonly listingUrlSelector?: string;
   protected readonly productCardSelector: string;
-  protected readonly cookieConsentSelector?: string;
-  protected readonly dynamicProductCardLoading: boolean;
   protected readonly launchOptions?: CrawlerLaunchOptions;
+
+  protected readonly crawlerOptions: CrawlerDefinitionOptions;
 
   /**
    * Number of products displayed on a category page
@@ -118,12 +124,10 @@ export abstract class AbstractCrawlerDefinition
     this._detailsDataset = options.detailsDataset;
     this._listingDataset = options.listingDataset;
 
-    this.detailsUrlSelector = options.detailsUrlSelector;
     this.listingUrlSelector = options.listingUrlSelector;
     this.productCardSelector = options.productCardSelector;
-    this.cookieConsentSelector = options.cookieConsentSelector;
-    this.dynamicProductCardLoading = options.dynamicProductCardLoading ?? true;
     this.launchOptions = options?.launchOptions;
+    this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
   }
@@ -168,6 +172,7 @@ export abstract class AbstractCrawlerDefinition
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
 
     if (this.listingUrlSelector) {
       await ctx.enqueueLinks({
@@ -230,11 +235,10 @@ export abstract class AbstractCrawlerDefinition
       );
       await new Promise((f) => setTimeout(f, 200));
 
-      if (this.dynamicProductCardLoading) {
+      if (this.crawlerOptions.dynamicProductCardLoading) {
         await this.registerProductCards(ctx);
       }
     }
-    await this.registerProductCards(ctx);
 
     // Scroll slightly up. This is needed to avoid the view staying at the bottom after new elements are loaded
     // for infinite scroll pages
@@ -251,7 +255,6 @@ export abstract class AbstractCrawlerDefinition
     const enqueueLinks = ctx.enqueueLinks;
 
     const productCardSelector = this.productCardSelector;
-    const detailsUrlSelector = this.detailsUrlSelector;
     const articlesLocator = page.locator(productCardSelector);
     const articlesCount = await articlesLocator.count();
     for (let j = 0; j < articlesCount; j++) {
@@ -312,13 +315,13 @@ export abstract class AbstractCrawlerDefinition
   }
 
   async handleCookieConsent(page: Page): Promise<void> {
-    if (this.cookieConsentSelector === undefined) {
+    if (this.crawlerOptions.cookieConsentSelector === undefined) {
       return;
     }
 
     await AbstractCrawlerDefinition.clickOverlayButton(
       page,
-      this.cookieConsentSelector
+      this.crawlerOptions.cookieConsentSelector
     );
   }
 

@@ -40,7 +40,6 @@ export interface CrawlerFactoryArgs {
   url: string;
   useCustomQueue?: boolean;
   customQueueSettings?: CustomQueueSettings;
-  ignoreVariants?: boolean;
 }
 
 /**
@@ -71,6 +70,19 @@ export class CrawlerFactory {
       : await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4());
     const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
+      browserPoolOptions: {
+        retireBrowserAfterPageCount: 5,
+        preLaunchHooks: [
+          async (_) => {
+            log.info("Launching new browser");
+          },
+        ],
+      },
+      useSessionPool: false,
+      autoscaledPoolOptions: {
+        autoscaleIntervalSecs: 300,
+        loggingIntervalSecs: 300,
+      },
       headless: true,
       maxRequestsPerMinute: 60,
       maxConcurrency: 4,
@@ -144,6 +156,10 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          preNavigationHooks: [
+            ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
+            ...blockImagesAndScriptsHooks,
+          ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.nordiskarum.se":

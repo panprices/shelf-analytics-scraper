@@ -134,13 +134,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 
 // Berno Mobler
 
-// await debugCategoryExploration(
-//   "https://bernomobler.se/collections/runda-matbord"
-// );
-
-await debugScrapeDetails(
-  "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433"
+await debugCategoryExploration(
+  "https://www.venturedesign.se/innemobler/gr-matgrupper/rektangulara-matgrupper"
 );
+
+// await debugScrapeDetails(
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433"
+// );
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"

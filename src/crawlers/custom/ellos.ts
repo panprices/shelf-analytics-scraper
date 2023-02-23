@@ -33,6 +33,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinition {
 
     while (true) {
       await super.scrollToBottom(ctx);
+      await this.registerProductCards(ctx);
       await this.handleCookieConsent(page);
 
       try {

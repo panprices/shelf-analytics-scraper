@@ -290,5 +290,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     await super.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
   }
 }

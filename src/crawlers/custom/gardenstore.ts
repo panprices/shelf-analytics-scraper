@@ -26,6 +26,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
 
     if (this.listingUrlSelector) {
       await ctx.enqueueLinks({

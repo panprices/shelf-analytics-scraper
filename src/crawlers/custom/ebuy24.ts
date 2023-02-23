@@ -27,6 +27,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
 
     // if ((await ctx.page.locator(this.listingUrlSelector).count()) === 0) {
     //   // Only 1 page => just scrape it
@@ -53,6 +54,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
       await ctx.page.waitForTimeout(3000);
       await ctx.page.waitForLoadState("networkidle");
       await this.scrollToBottom(ctx);
+      await this.registerProductCards(ctx);
     }
   }
 
