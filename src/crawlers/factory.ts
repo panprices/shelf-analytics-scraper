@@ -71,7 +71,7 @@ export class CrawlerFactory {
     const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
       browserPoolOptions: {
-        retireBrowserAfterPageCount: 5,
+        retireBrowserAfterPageCount: 20,
         preLaunchHooks: [
           async (_) => {
             log.info("Launching new browser");
