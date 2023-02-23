@@ -198,7 +198,7 @@ export class CrawlerFactory {
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
           ],
-          // proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -298,5 +298,8 @@ const proxyConfiguration = {
   }),
   SHARED_DATACENTER_UK: new ProxyConfiguration({
     proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.gb-pr.oxylabs.io:46000"],
+  }),
+  SHARED_DATACENTER_NL: new ProxyConfiguration({
+    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.nl-pr.oxylabs.io:44000"],
   }),
 };
