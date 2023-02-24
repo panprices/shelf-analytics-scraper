@@ -30,6 +30,49 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     await ctx.page.evaluate(() => window.scrollTo(0, 500)); // to have the thumbnails in viewport
   }
 
+  async crawlDetailPageNoVariantExploration(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    let isSelectionApplied = true;
+    let currentParamIndex = 0;
+    do {
+      let paramExists =
+        (await this.getOptionsForParamIndex(ctx, currentParamIndex)) > 0;
+      if (!paramExists) {
+        break;
+      }
+
+      let hasSelectedOption = await this.hasSelectedOptionForParamIndex(
+        ctx,
+        currentParamIndex
+      );
+      if (!hasSelectedOption) {
+        isSelectionApplied = false;
+        break;
+      }
+    } while (true);
+
+    if (!isSelectionApplied) {
+      const pageState = {
+        url: ctx.page.url(),
+      };
+      // When no parameters are selected, we ended up at the productGroupUrl because of the hacky solution.
+      // Then we start exploring the variants space, but we stop after the first variant
+      await this.exploreVariantsSpace(
+        ctx,
+        0,
+        [],
+        ctx.page.url(),
+        0,
+        pageState,
+        1
+      );
+    } else {
+      // Avoid index 0, because that changes the URL to the productGroupUrl. (HACKY Bygghemma solution)
+      await this.crawlSingleDetailPage(ctx, ctx.page.url(), 1);
+    }
+  }
+
   /**
    * Need to override this so that since 1 product may have multiple colour variants
    * => Multiple products from 1 original url, each has their own GTIN/SKU.
@@ -43,6 +86,10 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       ctx.page,
       "div#modal button"
     );
+
+    if (this.launchOptions?.ignoreVariants) {
+      return await this.crawlDetailPageNoVariantExploration(ctx);
+    }
 
     const productGroupUrl = ctx.page.url();
 
@@ -97,6 +144,35 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     }
   }
 
+  async hasSelectedOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<boolean> {
+    const paramsDropDownSelectors = ctx.page.locator("div.DcdG0");
+    const paramsImageSelectors = ctx.page.locator("ul.xr_zG");
+
+    const paramsDropDownSelectorsCount = await paramsDropDownSelectors.count();
+    const paramsImageSelectorsCount = await paramsImageSelectors.count();
+    if (paramIndex < paramsDropDownSelectorsCount) {
+      const currentParamSelector = paramsDropDownSelectors.nth(paramIndex);
+      await currentParamSelector.locator("button").click();
+      await ctx.page.waitForTimeout(50);
+      const hasSelectedOption =
+        (await currentParamSelector.locator("li.Hq9Iz").count()) > 0;
+      await currentParamSelector.locator("button").click();
+      return hasSelectedOption;
+    } else if (
+      paramIndex <
+      paramsImageSelectorsCount + paramsDropDownSelectorsCount
+    ) {
+      const currentParamSelector = paramsImageSelectors.nth(
+        paramIndex - paramsDropDownSelectorsCount
+      );
+      return (await currentParamSelector.locator("li.qC64r").count()) > 0;
+    }
+    return false;
+  }
+
   async getOptionsForParamIndex(
     ctx: PlaywrightCrawlingContext,
     paramIndex: number
@@ -134,6 +210,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
    * @param productGroupUrl
    * @param exploredVariants
    * @param pageState
+   * @param limit
    */
   async exploreVariantsSpace(
     ctx: PlaywrightCrawlingContext,
@@ -141,7 +218,8 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     currentOption: number[],
     productGroupUrl: string,
     exploredVariants: number = 0,
-    pageState: any = undefined
+    pageState?: any,
+    limit?: number
   ): Promise<[any, number]> {
     if (!pageState) {
       pageState = { url: productGroupUrl };
@@ -205,6 +283,9 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
         );
       exploredSubBranches += exploredOnSubBranch;
       exploredVariants += exploredOnSubBranch;
+      if (limit && exploredVariants >= limit) {
+        return [newPageState, exploredVariants];
+      }
       pageState = newPageState;
     }
     return [pageState, exploredSubBranches];

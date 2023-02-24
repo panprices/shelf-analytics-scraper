@@ -30,6 +30,10 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     // Always scrape at least once:
     await super.crawlDetailPage(ctx);
 
+    if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
+
     // Enqueue the main variant group where you have a.href:
     await ctx.enqueueLinks({
       selector: "a[data-cy='product_variant_link']",
@@ -39,13 +43,13 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
 
     // Enqueue variants from schema.org:
     const schemaOrgVariantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
-    // if (schemaOrgVariantUrls) {
-    //   await ctx.enqueueLinks({
-    //     urls: schemaOrgVariantUrls,
-    //     label: "DETAIL",
-    //     userData: ctx.request.userData,
-    //   });
-    // }
+    if (schemaOrgVariantUrls) {
+      await ctx.enqueueLinks({
+        urls: schemaOrgVariantUrls,
+        label: "DETAIL",
+        userData: ctx.request.userData,
+      });
+    }
 
     // Check for secondary variant group where you don't have a.href.
     // Try to click buttons and enqueue new links:
@@ -53,25 +57,25 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       "div[data-cy='product_variant_link']"
     );
     const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
-    // console.log("Variant counts: " + secondaryVariantButtonsCount);
+    console.log("Variant counts: " + secondaryVariantButtonsCount);
 
     // Always have one button grayed out which is the current selected variant,
     // so we only try to enqueue more if there are at least 1 more.
 
-    // const variantUrls = [];
-    // if (secondaryVariantButtonsCount >= 2) {
-    //   for (let i = 0; i < secondaryVariantButtonsCount; i++) {
-    //     await secondaryVariantButtons.nth(i).click();
-    //     await ctx.page.waitForTimeout(1500);
-    //
-    //     variantUrls.push(ctx.page.url());
-    //   }
-    // }
-    // await ctx.enqueueLinks({
-    //   urls: variantUrls,
-    //   label: "DETAIL",
-    //   userData: ctx.request.userData,
-    // });
+    const variantUrls = [];
+    if (secondaryVariantButtonsCount >= 2) {
+      for (let i = 0; i < secondaryVariantButtonsCount; i++) {
+        await secondaryVariantButtons.nth(i).click();
+        await ctx.page.waitForTimeout(1500);
+
+        variantUrls.push(ctx.page.url());
+      }
+    }
+    await ctx.enqueueLinks({
+      urls: variantUrls,
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
   }
 
   async extractCardProductInfo(

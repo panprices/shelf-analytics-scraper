@@ -83,7 +83,8 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   const products = await scrapeDetails(
     body.productDetails,
     undefined,
-    useCheerio
+    useCheerio,
+    body.launchOptions
   );
   try {
     log.info("Product details scraped", {

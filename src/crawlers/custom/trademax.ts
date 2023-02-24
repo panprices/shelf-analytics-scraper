@@ -80,43 +80,47 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<void> {
     await super.crawlDetailPage(ctx);
 
-    // const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
-    // if (variantUrls) {
-    //   await ctx.enqueueLinks({
-    //     urls: variantUrls,
-    //     label: "DETAIL",
-    //     userData: ctx.request.userData,
-    //   });
-    // }
+    if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
 
-    // // Enqueue the main variant group where you have a.href:
-    // await ctx.enqueueLinks({
-    //   selector: "div#possibleVariants a",
-    //   label: "DETAIL",
-    //   userData: ctx.request.userData,
-    // });
+    const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
+    if (variantUrls) {
+      await ctx.enqueueLinks({
+        urls: variantUrls,
+        label: "DETAIL",
+        userData: ctx.request.userData,
+      });
+    }
 
-    // // Check for secondary variant group where you don't have a.href.
-    // // Try to click buttons and enqueue new links:
-    // const secondaryVariantButtons = ctx.page.locator(
-    //   "div[data-cy='product_variant_link']"
-    // );
-    // const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
-    // console.log("Variant counts: " + secondaryVariantButtonsCount);
-    // // Always have one button grayed out which is the current selected variant,
-    // // so we only try to enqueue more if there are at least 1 more.
-    // if (secondaryVariantButtonsCount >= 2) {
-    //   for (let i = 0; i < secondaryVariantButtonsCount; i++) {
-    //     await secondaryVariantButtons.nth(i).click();
-    //     await ctx.page.waitForTimeout(1500);
+    // Enqueue the main variant group where you have a.href:
+    await ctx.enqueueLinks({
+      selector: "div#possibleVariants a",
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
 
-    //     await ctx.enqueueLinks({
-    //       urls: [ctx.page.url()],
-    //       label: "DETAIL",
-    //       userData: ctx.request.userData,
-    //     });
-    //   }
-    // }
+    // Check for secondary variant group where you don't have a.href.
+    // Try to click buttons and enqueue new links:
+    const secondaryVariantButtons = ctx.page.locator(
+      "div[data-cy='product_variant_link']"
+    );
+    const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
+    console.log("Variant counts: " + secondaryVariantButtonsCount);
+    // Always have one button grayed out which is the current selected variant,
+    // so we only try to enqueue more if there are at least 1 more.
+    if (secondaryVariantButtonsCount >= 2) {
+      for (let i = 0; i < secondaryVariantButtonsCount; i++) {
+        await secondaryVariantButtons.nth(i).click();
+        await ctx.page.waitForTimeout(1500);
+
+        await ctx.enqueueLinks({
+          urls: [ctx.page.url()],
+          label: "DETAIL",
+          userData: ctx.request.userData,
+        });
+      }
+    }
   }
 
   async extractCardProductInfo(

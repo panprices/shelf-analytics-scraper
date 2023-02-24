@@ -1,4 +1,5 @@
 import { RequestOptions } from "crawlee";
+import { CrawlerLaunchOptions } from "../crawlers/abstract";
 
 export interface OfferMetadata {
   originalPrice?: number;
@@ -93,6 +94,7 @@ export interface JobContext {
 export interface RequestBatch {
   productDetails: RequestOptions[];
   jobContext: JobContext;
+  launchOptions?: CrawlerLaunchOptions;
 }
 
 export interface RequestCategoryExploration extends RequestOptions {

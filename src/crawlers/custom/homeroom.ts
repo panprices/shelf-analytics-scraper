@@ -66,6 +66,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<void> {
     await super.crawlDetailPage(ctx);
 
+    if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
     // Enqueue the variant groups where you have a.href:
     await ctx.enqueueLinks({
       selector: "div.product-info ul.color-picker-list a",
