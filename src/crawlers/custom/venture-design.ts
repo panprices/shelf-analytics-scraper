@@ -1,4 +1,4 @@
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { log, PlaywrightCrawlingContext } from "crawlee";
@@ -313,7 +313,9 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     }
   }
 
-  static async create(): Promise<VentureDesignCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<VentureDesignCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
     return new VentureDesignCrawlerDefinition({
@@ -321,6 +323,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       listingDataset,
       detailsUrlSelector: "article.article >> a",
       productCardSelector: "article.article",
+      launchOptions,
     });
   }
 }

@@ -7,7 +7,7 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -202,7 +202,9 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
-  static async create(): Promise<Ebuy24CrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<Ebuy24CrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -216,6 +218,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "div.row > div.m-productlist-list-item article",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 }

@@ -7,7 +7,7 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -235,7 +235,9 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     return currentProductInfo;
   }
 
-  static async create(): Promise<KrautaCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<KrautaCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -246,6 +248,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "article.product-list__card a.product-card",
       productCardSelector: "article.product-list__card",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 

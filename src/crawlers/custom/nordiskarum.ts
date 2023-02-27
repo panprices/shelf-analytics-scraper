@@ -7,7 +7,7 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -242,7 +242,9 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     return categoryTree;
   }
 
-  static async create(): Promise<NordiskaRumCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<NordiskaRumCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -253,6 +255,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "div.product-item-photo a",
       productCardSelector: "li.product-item",
       cookieConsentSelector: "a.cta-ok",
+      launchOptions,
     });
   }
 

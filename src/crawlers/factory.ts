@@ -138,7 +138,7 @@ export class CrawlerFactory {
     let definition, options;
     switch (url) {
       case "https://www.homeroom.se":
-        definition = await HomeroomCrawlerDefinition.create();
+        definition = await HomeroomCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           maxConcurrency: 5,
@@ -146,7 +146,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.ellos.se":
-        definition = await EllosCrawlerDefinition.create();
+        definition = await EllosCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -154,7 +154,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.venturedesign.se":
-        definition = await VentureDesignCrawlerDefinition.create();
+        definition = await VentureDesignCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -165,21 +165,21 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.nordiskarum.se":
-        definition = await NordiskaRumCrawlerDefinition.create();
+        definition = await NordiskaRumCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.k-rauta.se":
-        definition = await KrautaCrawlerDefinition.create();
+        definition = await KrautaCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.bygghemma.se":
-        definition = await BygghemmaCrawlerDefinition.create();
+        definition = await BygghemmaCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           preNavigationHooks: [
@@ -195,7 +195,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.gardenstore.se":
-        definition = await GardenStoreCrawlerDefinition.create();
+        definition = await GardenStoreCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -203,7 +203,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://unoliving.com":
-        definition = await UnolivingCrawlerDefinition.create();
+        definition = await UnolivingCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -211,7 +211,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://ebuy24.dk":
-        definition = await Ebuy24CrawlerDefinition.create();
+        definition = await Ebuy24CrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -219,7 +219,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.trademax.se":
-        definition = await TrademaxCrawlerDefinition.create();
+        definition = await TrademaxCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           maxConcurrency: 5,
@@ -232,7 +232,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
-        definition = await ChilliCrawlerDefinition.create();
+        definition = await ChilliCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -256,7 +256,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
-        definition = await BernoMoblerCrawlerDefinition.create();
+        definition = await BernoMoblerCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

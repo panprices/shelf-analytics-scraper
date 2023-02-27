@@ -1,7 +1,7 @@
 import { Locator, Page } from "playwright";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -183,7 +183,9 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     return productInfo;
   }
 
-  static async create(): Promise<UnolivingCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<UnolivingCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -195,6 +197,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "ol li.plp__grid-item",
       cookieConsentSelector: "button.coi-banner__accept",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 }

@@ -1,4 +1,4 @@
-import { RequestOptions } from "crawlee";
+import { PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { CrawlerLaunchOptions } from "../crawlers/abstract";
 
 export interface OfferMetadata {
@@ -95,6 +95,7 @@ export interface RequestBatch {
   productDetails: RequestOptions[];
   jobContext: JobContext;
   launchOptions?: CrawlerLaunchOptions;
+  overrides?: PlaywrightCrawlerOptions;
 }
 
 export interface RequestCategoryExploration extends RequestOptions {

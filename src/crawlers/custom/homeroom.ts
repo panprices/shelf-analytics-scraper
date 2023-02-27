@@ -1,6 +1,6 @@
 import { Locator, Page } from "playwright";
 import { Dataset, log, PlaywrightCrawlingContext } from "crawlee";
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   DetailedProductInfo,
   IndividualReview,
@@ -260,7 +260,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     return currentProductInfo;
   }
 
-  static async create(): Promise<HomeroomCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<HomeroomCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -270,6 +272,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
       productCardSelector: "//article[contains(@class, 'product-card')]",
       cookieConsentSelector: "a.cta-ok",
+      launchOptions,
     });
   }
 

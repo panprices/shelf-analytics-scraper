@@ -7,7 +7,7 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -119,7 +119,9 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     return productInfo;
   }
 
-  static async create(): Promise<BernoMoblerCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<BernoMoblerCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -131,6 +133,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       listingUrlSelector: "div.pagination span.next a",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 }

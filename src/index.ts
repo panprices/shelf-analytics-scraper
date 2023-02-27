@@ -10,13 +10,7 @@ import {
   sendRequestBatch,
 } from "./publishing";
 import { configCrawleeLogger, extractRootUrl } from "./utils";
-import { downloadCache, uploadCache } from "./cache-sync";
-import {
-  CATEGORY_CACHE_MARKER_FILE,
-  CHROMIUM_USER_DATA_DIR,
-  CRAWLEE_STORAGE_DIR,
-  DETAILS_CACHE_MARKER_FILE,
-} from "./constants";
+import { CHROMIUM_USER_DATA_DIR, CRAWLEE_STORAGE_DIR } from "./constants";
 import fastFolderSize from "fast-folder-size";
 
 dotenv.config();
@@ -83,7 +77,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   const products = await scrapeDetails(
     body.productDetails,
-    undefined,
+    body.overrides,
     useCheerio,
     body.launchOptions
   );

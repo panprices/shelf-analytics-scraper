@@ -7,7 +7,7 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -230,7 +230,9 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     return productInfo;
   }
 
-  static async create(): Promise<GardenStoreCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<GardenStoreCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -243,6 +245,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       cookieConsentSelector:
         "button#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 }

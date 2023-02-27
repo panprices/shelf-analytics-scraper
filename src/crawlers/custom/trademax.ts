@@ -1,6 +1,7 @@
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
 } from "../abstract";
 import { Locator, Page, selectors } from "playwright";
 import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
@@ -419,7 +420,9 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
-  static async create(): Promise<TrademaxCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<TrademaxCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -431,6 +434,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "//a[contains(@class, 'ProductCard_card__global')]",
       cookieConsentSelector: "#onetrust-accept-btn-handler",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 }

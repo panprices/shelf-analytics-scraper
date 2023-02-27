@@ -4,6 +4,7 @@ import { log, PlaywrightCrawlingContext } from "crawlee";
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
 } from "../abstract";
 import { extractRootUrl } from "../../utils";
 import {
@@ -50,6 +51,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
         isSelectionApplied = false;
         break;
       }
+      currentParamIndex++;
     } while (true);
 
     if (!isSelectionApplied) {
@@ -588,7 +590,9 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
     return [...new Set(images)]; // deduplicate
   }
 
-  static async create(): Promise<BygghemmaCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<BygghemmaCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -605,6 +609,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "main div.xqHsK",
       cookieConsentSelector: "button#ccc-notify-accept",
       dynamicProductCardLoading: false,
+      launchOptions,
     });
   }
 }

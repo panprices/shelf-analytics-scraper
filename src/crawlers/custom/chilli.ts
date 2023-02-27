@@ -1,6 +1,7 @@
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
 } from "../abstract";
 import { Locator, Page } from "playwright";
 import { Dataset, log, PlaywrightCrawlingContext } from "crawlee";
@@ -379,7 +380,9 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
-  static async create(): Promise<ChilliCrawlerDefinition> {
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<ChilliCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
@@ -390,6 +393,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "//a[contains(@class, 'ProductCard_card__global')]",
       productCardSelector: "//a[contains(@class, 'ProductCard_card__global')]",
       cookieConsentSelector: "#onetrust-accept-btn-handler",
+      launchOptions,
     });
   }
 }
