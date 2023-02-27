@@ -4,6 +4,8 @@ import {
   log,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
+  PlaywrightCrawlingContext,
+  PlaywrightGotoOptions,
   PlaywrightHook,
   ProxyConfiguration,
   RequestQueue,
@@ -180,6 +182,15 @@ export class CrawlerFactory {
         definition = await BygghemmaCrawlerDefinition.create();
         options = {
           ...defaultOptions,
+          preNavigationHooks: [
+            ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
+            async (
+              _: PlaywrightCrawlingContext,
+              goToOptions: PlaywrightGotoOptions
+            ) => {
+              goToOptions!.waitUntil = "domcontentloaded";
+            },
+          ],
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];

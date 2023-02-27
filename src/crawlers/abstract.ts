@@ -52,10 +52,7 @@ export interface CrawlerDefinitionOptions {
   /**
    * Whether we should consider that the category page dynamically loads in the DOM only visible products
    *
-   * If that's the case, we need to fetch the elements after every scroll.
-   *
-   * By default this option is set to true, because it is the option that works even if the website does not
-   * have this behaviour. The problem when this option is left true is that the category indexing will be slower.
+   * If that's the case, we need to fetch the elements after every scroll
    */
   dynamicProductCardLoading?: boolean;
 

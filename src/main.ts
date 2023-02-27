@@ -135,7 +135,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // Berno Mobler
 
 await debugCategoryExploration(
-  "https://www.venturedesign.se/innemobler/gr-matgrupper/rektangulara-matgrupper"
+  "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 );
 
 // await debugScrapeDetails(
