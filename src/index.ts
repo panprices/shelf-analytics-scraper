@@ -62,6 +62,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   const body = <RequestBatch>req.body;
   const useCheerio = body.jobContext.scraperProductPage === "cheerio";
+  log.info("Request", body);
 
   // let [shouldUploadCache, cacheSize] = [false, 0];
   // if (
