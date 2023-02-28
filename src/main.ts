@@ -134,13 +134,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 
 // Berno Mobler
 
-await debugCategoryExploration(
-  "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
-);
-
-// await debugScrapeDetails(
-//   "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/matbord-venture-home-polar/p-1159433"
+// await debugCategoryExploration(
+//   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );
+
+await debugScrapeDetails(
+  "https://ebuy24.dk/shop/812-tekstiler/19642-livia-sengesaet-1-saet-200x150cm-beige-hvid-/"
+);
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"

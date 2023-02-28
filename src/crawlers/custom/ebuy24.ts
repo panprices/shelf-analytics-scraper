@@ -153,7 +153,16 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     const gtin = specifications.find(
       (spec) => spec.key === "EAN-nummer"
     )?.value;
-    const sku = undefined;
+    const sku = await this.extractProperty(
+      page,
+      ".m-product-itemNumber-value",
+      (node) => node.textContent()
+    ).then((text) => {
+      if (!text || text.indexOf("-") === -1) {
+        return undefined;
+      }
+      return text.trim().split("-").slice(1).join("-");
+    });
 
     const reviews = "unavailable";
 
