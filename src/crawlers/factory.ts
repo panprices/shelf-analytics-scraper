@@ -228,7 +228,7 @@ export class CrawlerFactory {
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
           ],
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.chilli.se":
@@ -236,7 +236,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -248,7 +248,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -300,7 +300,7 @@ export class CrawlerFactory {
         const options: CheerioCrawlerOptions = {
           ...defaultOptions,
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SHARED_DATACENTER_UK,
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new CheerioCrawler(options), definition];
     }
