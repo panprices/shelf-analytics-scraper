@@ -1,10 +1,14 @@
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import { extractRootUrl } from "../../utils";
 
-export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
+export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     const emptyPageLocator = ctx.page.locator(".coming-soon-title");
     try {
@@ -311,6 +315,54 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinition {
         label: "INTERMEDIATE_CATEGORY",
       });
     }
+  }
+
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    // The group URL is also the first variant so we scrape it
+    await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
+
+    const hasVariants = (await this.getOptionsForParamIndex(ctx, 0)) > 0;
+    if (hasVariants) {
+      await super.crawlDetailPage(ctx);
+    }
+  }
+
+  override async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    paramIndex: number,
+    optionIndex: number
+  ) {
+    const selector = ctx.page.locator(".row-dimensions select").nth(paramIndex);
+    await selector.selectOption({ index: optionIndex });
+  }
+
+  override async hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext,
+    __: number
+  ): Promise<boolean> {
+    // There is always a selected option, there is no "group product" in Venture Design
+    return true;
+  }
+
+  override async getOptionsForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<number> {
+    return await ctx.page
+      .locator(".row-dimensions select")
+      .nth(paramIndex)
+      .locator("option")
+      .count();
+  }
+
+  override async checkInvalidVariant(
+    _: PlaywrightCrawlingContext,
+    __: number[]
+  ): Promise<boolean> {
+    // Impossible for Venture Design to have invalid variants
+    return false;
   }
 
   static async create(

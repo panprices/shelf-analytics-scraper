@@ -133,6 +133,7 @@ export abstract class AbstractCrawlerDefinition
    * Get details about an individual product by looking at the product page
    *
    * This method also saves to a crawlee `Dataset`. In the future it has to save to an external storage like firestore
+   *
    * @param ctx
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -397,6 +398,311 @@ export abstract class AbstractCrawlerDefinition
 
     return [detailsDataset, listingDataset];
   }
+}
+
+export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCrawlerDefinition {
+  protected constructor(options: CrawlerDefinitionOptions) {
+    super(options);
+    const crawlerDefinition = this;
+    this._router.addHandler("VARIANT", (_) =>
+      crawlerDefinition.crawlVariant(_)
+    );
+  }
+
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await this.crawlDetailPageWithVariantsLogic(ctx);
+  }
+
+  async crawlDetailPageWithVariantsLogic(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    if (this.launchOptions?.ignoreVariants) {
+      return await this.crawlDetailPageNoVariantExploration(ctx);
+    }
+
+    const productGroupUrl = ctx.page.url();
+
+    console.log("Starting variant exploration... from url: ", productGroupUrl);
+    await this.exploreVariantsSpace(ctx, 0, [], productGroupUrl);
+  }
+
+  /**
+   * Select a specific variant.
+   *
+   * The selection is defined by an array of the length equal to the number of parameters to set.
+   * Each element in the array is the index of the option to select for the parameter at the given index.
+   *
+   * Normally the parameters remain there between different variants. A combination may fail just
+   * because it is incompatible with previously selected parameters. In this case we retry the selection one more time
+   * after seeing the invalid variant message.
+   *
+   * @param ctx
+   */
+  async crawlVariant(ctx: PlaywrightCrawlingContext) {
+    const variantIndex = ctx.request.userData.variantIndex;
+    const productGroupUrl = ctx.request.userData.productGroupUrl;
+    try {
+      await this.crawlSingleDetailPage(ctx, productGroupUrl, variantIndex);
+    } catch (error) {
+      if (error instanceof Error) log.warning(error.message);
+      // Ignore this variant and continue to scraper other variances
+    }
+  }
+
+  async crawlSingleDetailPage(
+    ctx: PlaywrightCrawlingContext,
+    productGroupUrl: string,
+    variant: number
+  ): Promise<void> {
+    const productDetails = await this.extractProductDetails(ctx.page);
+    const request = ctx.request;
+
+    await this._detailsDataset.pushData(<DetailedProductInfo>{
+      fetchedAt: new Date().toISOString(),
+      retailerDomain: extractRootUrl(ctx.page.url()),
+      ...request.userData,
+      ...productDetails,
+      productGroupUrl: productGroupUrl,
+      variant: variant,
+    });
+  }
+
+  async crawlDetailPageNoVariantExploration(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    let isSelectionApplied = true;
+    let currentParamIndex = 0;
+    do {
+      let paramExists =
+        (await this.getOptionsForParamIndex(ctx, currentParamIndex)) > 0;
+      if (!paramExists) {
+        break;
+      }
+
+      let hasSelectedOption = await this.hasSelectedOptionForParamIndex(
+        ctx,
+        currentParamIndex
+      );
+      if (!hasSelectedOption) {
+        isSelectionApplied = false;
+        break;
+      }
+      currentParamIndex++;
+    } while (true);
+
+    if (!isSelectionApplied) {
+      const pageState = {
+        url: ctx.page.url(),
+      };
+      // When no parameters are selected, we ended up at the productGroupUrl because of the hacky solution.
+      // Then we start exploring the variants space, but we stop after the first variant
+      await this.exploreVariantsSpace(
+        ctx,
+        0,
+        [],
+        ctx.page.url(),
+        0,
+        pageState,
+        1
+      );
+    } else {
+      // Avoid index 0, because that changes the URL to the productGroupUrl. (HACKY Bygghemma solution)
+      await this.crawlSingleDetailPage(ctx, ctx.page.url(), 1);
+    }
+  }
+
+  /**
+   * Depth first exploration of the variants space.
+   *
+   * @param ctx
+   * @param parameterIndex
+   * @param currentOption
+   * @param productGroupUrl
+   * @param exploredVariants
+   * @param pageState
+   * @param limit
+   */
+  async exploreVariantsSpace(
+    ctx: PlaywrightCrawlingContext,
+    parameterIndex: number,
+    currentOption: number[],
+    productGroupUrl: string,
+    exploredVariants: number = 0,
+    pageState?: any,
+    limit?: number
+  ): Promise<[any, number]> {
+    if (!pageState) {
+      pageState = { url: productGroupUrl };
+    }
+
+    const optionsCount = await this.getOptionsForParamIndex(
+      ctx,
+      parameterIndex
+    );
+    if (optionsCount === 0) {
+      let newPageState = {};
+      // We only expect state changes for products with variants
+      // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
+      if (parameterIndex !== 0) {
+        pageState = { url: ctx.page.url() };
+        newPageState = await this.waitForChanges(ctx, pageState, 10000);
+
+        await ctx.enqueueLinks({
+          urls: [ctx.page.url()],
+          userData: {
+            ...ctx.request.userData,
+            variantIndex: exploredVariants,
+            productGroupUrl: productGroupUrl,
+            label: "VARIANT",
+          },
+        });
+      } else {
+        ctx.request.userData = {
+          ...ctx.request.userData,
+          variantIndex: 0,
+          productGroupUrl: productGroupUrl,
+        };
+        await this.crawlVariant(ctx);
+      }
+
+      return [newPageState, 1];
+    }
+
+    let exploredSubBranches = 0;
+    for (let optionIndex = 0; optionIndex < optionsCount; optionIndex++) {
+      try {
+        await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
+      } catch (e) {
+        log.warning(
+          "Option became unavailable, switching to product group page"
+        );
+        await ctx.page.goto(productGroupUrl, { waitUntil: "domcontentloaded" });
+        // select the state previous to the change
+        for (let i = 0; i < currentOption.length; i++) {
+          await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+        }
+        try {
+          await this.selectOptionForParamIndex(
+            ctx,
+            parameterIndex,
+            optionIndex
+          );
+        } catch (e) {
+          log.warning(
+            "Serious, option still unavailable from group page, skipping"
+          );
+          continue;
+        }
+      }
+
+      const invalidVariant = await this.checkInvalidVariant(ctx, [
+        ...currentOption,
+        optionIndex,
+      ]);
+
+      if (invalidVariant) {
+        // select the state previous to the change
+        for (let i = 0; i < currentOption.length; i++) {
+          await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+        }
+        continue;
+      }
+      const [newPageState, exploredOnSubBranch] =
+        await this.exploreVariantsSpace(
+          ctx,
+          parameterIndex + 1,
+          [...currentOption, optionIndex],
+          productGroupUrl,
+          exploredVariants,
+          pageState
+        );
+      exploredSubBranches += exploredOnSubBranch;
+      exploredVariants += exploredOnSubBranch;
+      if (limit && exploredVariants >= limit) {
+        return [newPageState, exploredVariants];
+      }
+      pageState = newPageState;
+    }
+    return [pageState, exploredSubBranches];
+  }
+
+  /**
+   * The logic: wait 1 second after changing the parameters, then wait for network idle, check the url changed
+   * then wait again for network idle and one more second
+   * @param ctx
+   * @param currentState
+   * @param timeout
+   */
+  async waitForChanges(
+    ctx: PlaywrightCrawlingContext,
+    currentState: any,
+    timeout: number = 1000 // ms
+  ) {
+    log.info("Wait for state to change, current state: ", currentState);
+    const startTime = Date.now();
+
+    // Wait for 1 more second just in case
+    await ctx.page.waitForTimeout(1000);
+
+    await ctx.page.waitForLoadState("networkidle");
+
+    let newState = {};
+    do {
+      if (Date.now() - startTime > timeout) {
+        // Shouldn't throw error but just return result since it's likely that
+        // the image wasn't changed after choosing another option.
+        log.warning("Timeout while waiting for state to change");
+        return currentState;
+      }
+
+      try {
+        const newUrl = ctx.page.url();
+        newState = {
+          url: newUrl,
+        };
+      } catch (error) {
+        // Page changed during image extraction => just try again
+      }
+      await ctx.page.waitForTimeout(timeout / 10);
+    } while (
+      !newState ||
+      // expect changes in all keys
+      Object.keys(newState).some((key) => newState[key] === currentState[key])
+    );
+    // Wait for network to be idle
+    await ctx.page.waitForLoadState("networkidle");
+
+    // Wait for 1 more second just in case
+    await ctx.page.waitForTimeout(1000);
+    const newUrl = ctx.page.url();
+    newState = {
+      url: newUrl,
+    };
+    return newState;
+  }
+
+  abstract selectOptionForParamIndex(
+    _: PlaywrightCrawlingContext,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void>;
+
+  abstract hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<boolean>;
+
+  abstract getOptionsForParamIndex(
+    _: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<number>;
+
+  abstract checkInvalidVariant(
+    _: PlaywrightCrawlingContext,
+    currentOption: number[]
+  ): Promise<boolean>;
 }
 
 export abstract class AbstractCheerioCrawlerDefinition

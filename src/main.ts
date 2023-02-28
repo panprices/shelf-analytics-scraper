@@ -24,7 +24,7 @@ async function debugScrapeDetails(targetUrl: string) {
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: true,
+    headless: false,
   });
 
   log.info(JSON.stringify(detailedItems, null, 2));
@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-med-bianca-matbord-och-4-walerina-matstolar/p-1470152-1468526"
+  "https://www.venturedesign.se/products/poster-materials-21x30"
 );
 
 // await debugScrapeDetails(
