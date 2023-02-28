@@ -262,11 +262,36 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
 
     let exploredSubBranches = 0;
     for (let optionIndex = 0; optionIndex < optionsCount; optionIndex++) {
-      await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
+      try {
+        await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
+      } catch (e) {
+        log.warning(
+          "Option became unavailable, switching to product group page"
+        );
+        await ctx.page.goto(productGroupUrl, { waitUntil: "domcontentloaded" });
+        // select the state previous to the change
+        for (let i = 0; i < currentOption.length; i++) {
+          await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+        }
+        try {
+          await this.selectOptionForParamIndex(
+            ctx,
+            parameterIndex,
+            optionIndex
+          );
+        } catch (e) {
+          log.warning(
+            "Serious, option still unavailable from group page, skipping"
+          );
+          continue;
+        }
+      }
+
       const invalidVariant = await this.checkInvalidVariant(ctx, [
         ...currentOption,
         optionIndex,
       ]);
+
       if (invalidVariant) {
         // select the state previous to the change
         for (let i = 0; i < currentOption.length; i++) {
@@ -452,8 +477,9 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinition {
       "h1.mpzBU .Wvkg0",
       (node) => node.textContent()
     ).then((text) => text?.trim());
-    if (!productNamePart1 || !productNamePart2)
-      throw new Error("Cannot extract productName");
+    if (!productNamePart1 || !productNamePart2) {
+      log.warning("Cannot extract productName");
+    }
 
     const productName = productNamePart1 + " " + productNamePart2;
 

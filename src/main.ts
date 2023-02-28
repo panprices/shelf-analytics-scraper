@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://ebuy24.dk/shop/812-tekstiler/19642-livia-sengesaet-1-saet-200x150cm-beige-hvid-/"
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-med-bianca-matbord-och-4-walerina-matstolar/p-1470152-1468526"
 );
 
 // await debugScrapeDetails(
