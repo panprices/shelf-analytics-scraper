@@ -96,8 +96,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       currency = (<string>parts[parts.length - 1]).trim();
       price = Number(priceString.replace(currency, "").replace(/\s/g, ""));
     } else {
-      price = 0;
-      currency = "unavailable";
+      // Product is out of stock
+      throw new Error("Cannot extract price: Product is out of stock");
     }
 
     const isDiscounted = (await page.locator("p.original-price").count()) > 0;
@@ -112,12 +112,11 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const images = await extractImagesFromDetailedPage(page);
 
-    const description = <string>(
-      await page
-        .locator("//div[contains(@class, 'long-description')]//p/span[1]")
-        .textContent()
-    );
+    const description = await this.extractDescriptionFromDetailedPage(page);
 
+    if (!description.includes("Artikelnummer:")) {
+      throw new Error("Cannot extract sku.");
+    }
     const sku = description.split("Artikelnummer:")[1].split("\n")[0].trim();
 
     const brand = (await this.extractProperty(
@@ -338,6 +337,24 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       // Go back to main category menu
       await ctx.page.locator("div.sub-menu-container button").click();
     }
+  }
+
+  async extractDescriptionFromDetailedPage(page: Page): Promise<string> {
+    // Handle cookie consent so that we can click to expand description (if needed):
+    await this.handleCookieConsent(page);
+
+    // Try to expand description box fully if needed:
+    const expandButton = page.locator(".long-description button");
+    if (await expandButton.isVisible()) {
+      await expandButton.click();
+    }
+
+    const description = <string>(
+      await page
+        .locator("//div[contains(@class, 'long-description')]//p/span[1]")
+        .textContent()
+    );
+    return description;
   }
 }
 
