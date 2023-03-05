@@ -332,8 +332,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     await ctx.page.waitForTimeout(3000);
   }
   async hasSelectedOptionForParamIndex(
-    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
-    paramIndex: number
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number
   ): Promise<boolean> {
     return false;
   }
@@ -366,8 +366,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     return 0;
   }
   async checkInvalidVariant(
-    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
-    currentOption: number[]
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number[]
   ): Promise<boolean> {
     return false;
   }
@@ -375,7 +375,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
   override async waitForChanges(
     ctx: PlaywrightCrawlingContext,
     currentState: any,
-    timeout: number = 1000 // ms
+    _: number = 1000 // ms
   ) {
     // Wait for network to be idle
     await ctx.page.waitForLoadState("networkidle");
