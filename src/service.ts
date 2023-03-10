@@ -259,9 +259,9 @@ async function extractProductDetails(
       (p.retailerDomain?.includes("bygghemma") ||
         p.retailerDomain?.includes("ellos")) &&
       p.variant === 0 &&
-      p.productGroupUrl
+      p.variantGroupUrl
     ) {
-      p.url = p.productGroupUrl;
+      p.url = p.variantGroupUrl;
     }
   });
 

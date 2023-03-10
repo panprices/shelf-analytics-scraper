@@ -422,10 +422,10 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       return await this.crawlDetailPageNoVariantExploration(ctx);
     }
 
-    const productGroupUrl = ctx.page.url();
+    const variantGroupUrl = ctx.page.url();
 
-    console.log("Starting variant exploration... from url: ", productGroupUrl);
-    await this.exploreVariantsSpace(ctx, 0, [], productGroupUrl);
+    console.log("Starting variant exploration... from url: ", variantGroupUrl);
+    await this.exploreVariantsSpace(ctx, 0, [], variantGroupUrl);
   }
 
   /**
@@ -442,9 +442,9 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
    */
   async crawlVariant(ctx: PlaywrightCrawlingContext) {
     const variantIndex = ctx.request.userData.variantIndex;
-    const productGroupUrl = ctx.request.userData.productGroupUrl;
+    const variantGroupUrl = ctx.request.userData.variantGroupUrl;
     try {
-      await this.crawlSingleDetailPage(ctx, productGroupUrl, variantIndex);
+      await this.crawlSingleDetailPage(ctx, variantGroupUrl, variantIndex);
     } catch (error) {
       if (error instanceof Error) log.warning(error.message);
       // Ignore this variant and continue to scraper other variances
@@ -453,7 +453,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
 
   async crawlSingleDetailPage(
     ctx: PlaywrightCrawlingContext,
-    productGroupUrl: string,
+    variantGroupUrl: string,
     variant: number
   ): Promise<void> {
     const productDetails = await this.extractProductDetails(ctx.page);
@@ -464,7 +464,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       retailerDomain: extractRootUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
-      productGroupUrl: productGroupUrl,
+      variantGroupUrl: variantGroupUrl,
       variant: variant,
     });
   }
@@ -496,7 +496,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       const pageState = {
         url: ctx.page.url(),
       };
-      // When no parameters are selected, we ended up at the productGroupUrl because of the hacky solution.
+      // When no parameters are selected, we ended up at the variantGroupUrl because of the hacky solution.
       // Then we start exploring the variants space, but we stop after the first variant
       await this.exploreVariantsSpace(
         ctx,
@@ -508,7 +508,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         1
       );
     } else {
-      // Avoid index 0, because that changes the URL to the productGroupUrl. (HACKY Bygghemma solution)
+      // Avoid index 0, because that changes the URL to the variantGroupUrl. (HACKY Bygghemma solution)
       await this.crawlSingleDetailPage(ctx, ctx.page.url(), 1);
     }
   }
@@ -519,7 +519,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
    * @param ctx
    * @param parameterIndex
    * @param currentOption
-   * @param productGroupUrl
+   * @param variantGroupUrl
    * @param exploredVariants
    * @param pageState
    * @param limit
@@ -528,13 +528,13 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     ctx: PlaywrightCrawlingContext,
     parameterIndex: number,
     currentOption: number[],
-    productGroupUrl: string,
+    variantGroupUrl: string,
     exploredVariants: number = 0,
     pageState?: any,
     limit?: number
   ): Promise<[any, number]> {
     if (!pageState) {
-      pageState = { url: productGroupUrl };
+      pageState = { url: variantGroupUrl };
     }
 
     const optionsCount = await this.getOptionsForParamIndex(
@@ -554,7 +554,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
           userData: {
             ...ctx.request.userData,
             variantIndex: exploredVariants,
-            productGroupUrl: productGroupUrl,
+            variantGroupUrl: variantGroupUrl,
             label: "VARIANT",
           },
         });
@@ -562,7 +562,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         ctx.request.userData = {
           ...ctx.request.userData,
           variantIndex: 0,
-          productGroupUrl: productGroupUrl,
+          variantGroupUrl: variantGroupUrl,
         };
         await this.crawlVariant(ctx);
       }
@@ -578,7 +578,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         log.warning(
           "Option became unavailable, switching to product group page"
         );
-        await ctx.page.goto(productGroupUrl, { waitUntil: "domcontentloaded" });
+        await ctx.page.goto(variantGroupUrl, { waitUntil: "domcontentloaded" });
         // select the state previous to the change
         for (let i = 0; i < currentOption.length; i++) {
           await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
@@ -614,7 +614,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
           ctx,
           parameterIndex + 1,
           [...currentOption, optionIndex],
-          productGroupUrl,
+          variantGroupUrl,
           exploredVariants,
           pageState
         );

@@ -79,7 +79,7 @@ export interface DetailedProductInfo extends BaseProductInfo {
   //categoryTree is only optional if we already scraped it in the category page.
 
   matchingType?: string; // {match, unknown}
-  productGroupUrl?: string;
+  variantGroupUrl?: string;
   variant?: number; // 0, 1, 2, 3, ...
 }
 

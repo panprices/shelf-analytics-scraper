@@ -40,10 +40,10 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
 
   // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma solution
   // where you set the variant = 0, 1, 2, ..., and the variant 0 will have
-  // its url changed to the productGroupUrl.
+  // its url changed to the variantGroupUrl.
   override async crawlSingleDetailPage(
     ctx: PlaywrightCrawlingContext,
-    productGroupUrl: string,
+    variantGroupUrl: string,
     variant: number
   ): Promise<void> {
     const productDetails = await this.extractProductDetails(ctx.page);
@@ -54,7 +54,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       retailerDomain: extractRootUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
-      productGroupUrl: productGroupUrl,
+      variantGroupUrl: variantGroupUrl,
       variant: variant,
     });
   }

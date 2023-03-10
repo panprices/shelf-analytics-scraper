@@ -136,6 +136,7 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     "specifications",
     "availability",
     "reviews",
+    "variant_group_url",
     "metadata",
     "job_id",
   ];

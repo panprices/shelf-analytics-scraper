@@ -72,10 +72,10 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
 
   // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma/Ellos solution
   // where you set the variant = 0, 1, 2, ..., and the variant 0 will have
-  // its url changed to the productGroupUrl.
+  // its url changed to the variantGroupUrl.
   override async crawlSingleDetailPage(
     ctx: PlaywrightCrawlingContext,
-    productGroupUrl: string,
+    variantGroupUrl: string,
     variant: number
   ): Promise<void> {
     const productDetails = await this.extractProductDetails(ctx.page);
@@ -86,7 +86,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       retailerDomain: extractRootUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
-      productGroupUrl: productGroupUrl,
+      variantGroupUrl: variantGroupUrl,
       variant: variant,
     });
   }
@@ -253,11 +253,21 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     } catch (error) {
       throw new Error("Cannot extract availability of product");
     }
-    const reviews: ProductReviews = {
-      averageReview: schemaOrg.aggregateRating?.ratingValue,
-      reviewCount: schemaOrg.aggregateRating?.reviewCount,
-      recentReviews: [],
-    };
+
+    let reviews: ProductReviews | "unavailable";
+    if (
+      schemaOrg.aggregateRating &&
+      schemaOrg.aggregateRating.ratingValue &&
+      schemaOrg.aggregateRating.reviewCount
+    ) {
+      reviews = {
+        averageReview: schemaOrg.aggregateRating.ratingValue,
+        reviewCount: schemaOrg.aggregateRating.reviewCount,
+        recentReviews: [],
+      };
+    } else {
+      reviews = "unavailable";
+    }
 
     const imageUrls = schemaOrg.image;
 
