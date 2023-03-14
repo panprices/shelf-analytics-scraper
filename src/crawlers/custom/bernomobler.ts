@@ -95,6 +95,24 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     const imageUrls = await extractImagesFromProductDetailsPage(page);
     const reviews: "unavailable" | ProductReviews = "unavailable";
 
+    const specArray: Specification[] = [];
+    const candidateSpecBlocks = await page.locator("div.product-block--tab");
+    const candidateSpecBlocksCount = await candidateSpecBlocks.count();
+    for (let i = 0; i < candidateSpecBlocksCount; i++) {
+      const candidateSpecBlock = candidateSpecBlocks.nth(i);
+      const specBlockTitle = await candidateSpecBlock.locator("button").textContent();
+      if (specBlockTitle?.includes("Material") || 
+      specBlockTitle?.includes("Färg") 
+      || specBlockTitle?.includes("Mått")
+      ) {
+        const specBlock = candidateSpecBlock;
+        const specContent = await specBlock.locator(".collapsible-content__inner");
+        specArray.push({
+          key: "Specifikationer",
+          value: "" + await specContent.textContent(),
+        });
+        
+
     const productInfo = {
       brand,
       name: productName,
