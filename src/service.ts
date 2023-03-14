@@ -256,8 +256,7 @@ async function extractProductDetails(
   // HACKY SOLUTION for Bygghemma/Ellos products with multiple variants:
   products.forEach((p) => {
     if (
-      (p.retailerDomain?.includes("bygghemma") ||
-        p.retailerDomain?.includes("ellos")) &&
+      p.retailerDomain?.includes("bygghemma") &&
       p.variant === 0 &&
       p.variantGroupUrl
     ) {
