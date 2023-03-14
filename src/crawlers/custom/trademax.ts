@@ -244,7 +244,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         page,
         "//div[contains(@class, 'articleNumber')]/span",
         (node) => node.textContent()
-      );
+      ).then((text) => text?.trim());
       const specifications = specificationsExpander.locator("..//tr");
       const specificationsCount = await specifications.count();
       specArray = [];

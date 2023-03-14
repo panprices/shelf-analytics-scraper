@@ -199,11 +199,14 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
         "//div[contains(@class, 'accordion--title') and .//span/text() = 'Specifikationer']"
       );
       await specificationsExpander.click({ timeout: 5000 });
+      await page.waitForSelector(
+        "//div[contains(@class, 'articleNumber')]/span"
+      );
       articleNumber = await this.extractProperty(
         page,
         "//div[contains(@class, 'articleNumber')]/span",
         (node) => node.textContent()
-      );
+      ).then((text) => text?.trim());
       const specifications = specificationsExpander.locator("..//tr");
       const specificationsCount = await specifications.count();
       specArray = [];

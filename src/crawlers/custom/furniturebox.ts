@@ -130,6 +130,9 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     try {
       const specificationsExpander = page.locator("button#Overiew_SpecsClick");
       await specificationsExpander.click({ timeout: 5000 });
+      await page.waitForSelector(
+        "//div[contains(@class, 'articleNumber')]/span"
+      );
       articleNumber = await this.extractProperty(
         page,
         "//div[contains(@class, 'articleNumber')]/span",
