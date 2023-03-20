@@ -95,23 +95,46 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     const imageUrls = await extractImagesFromProductDetailsPage(page);
     const reviews: "unavailable" | ProductReviews = "unavailable";
 
-    const specArray: Specification[] = [];
-    const candidateSpecBlocks = await page.locator("div.product-block--tab");
+    const specifications: Specification[] = [];
+    const candidateSpecBlocks = await page.locator(
+      "div.flex-col div.product-block"
+    );
     const candidateSpecBlocksCount = await candidateSpecBlocks.count();
     for (let i = 0; i < candidateSpecBlocksCount; i++) {
       const candidateSpecBlock = candidateSpecBlocks.nth(i);
-      const specBlockTitle = await candidateSpecBlock.locator("button").textContent();
-      if (specBlockTitle?.includes("Material") || 
-      specBlockTitle?.includes("Färg") 
-      || specBlockTitle?.includes("Mått")
-      ) {
-        const specBlock = candidateSpecBlock;
-        const specContent = await specBlock.locator(".collapsible-content__inner");
-        specArray.push({
-          key: "Specifikationer",
-          value: "" + await specContent.textContent(),
+
+      // This is a blank block that seperate the specification blocks and
+      // the "delivery and return" blocks. We can stop here.
+      const isSeperationBlock =
+        (await candidateSpecBlock
+          .textContent()
+          .then((text) => text?.trim().length)) === 0;
+      if (isSeperationBlock) {
+        break;
+      }
+
+      const specBlockTitle = await candidateSpecBlock
+        .locator("button")
+        .textContent();
+      const specBlock = candidateSpecBlock;
+      const specContent = await specBlock
+        .locator(".collapsible-content__inner")
+        .textContent()
+        .then((text) => text?.trim());
+
+      if (specContent) {
+        const individualSpecs = specContent.split("\n").map((row) => {
+          const [key, value] = row.split(":");
+          return {
+            key: key.trim(),
+            value: value.trim(),
+          };
         });
-        
+        individualSpecs.forEach((spec) => {
+          specifications.push(spec);
+        });
+      }
+    }
 
     const productInfo = {
       brand,
@@ -129,7 +152,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       availability,
       images: imageUrls,
       reviews,
-      specifications: [], // TODO
+      specifications, // TODO
       // categoryTree: [], // this will be replaced later
       metadata: { schemaOrg },
     };
