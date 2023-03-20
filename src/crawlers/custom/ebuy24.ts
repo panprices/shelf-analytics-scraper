@@ -200,7 +200,6 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
 
       gtin,
       sku,
-      articleNumber: sku,
 
       availability,
       images,

@@ -170,7 +170,6 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
       gtin,
       sku,
-      articleNumber: sku,
 
       availability,
       images: imageUrls,

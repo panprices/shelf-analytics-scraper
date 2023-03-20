@@ -334,7 +334,6 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       brand,
       categoryTree,
       reviews: reviewSummary,
-      articleNumber,
       sku,
       specifications: specArray,
       availability,

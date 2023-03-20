@@ -217,7 +217,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
 
       gtin,
       sku,
-      articleNumber,
+      mpn: sku,
 
       availability,
       images: imageUrls,

@@ -321,7 +321,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       categoryTree,
       gtin,
       sku: articleNumber,
-      articleNumber,
       availability,
       reviews,
       specifications: specifications,

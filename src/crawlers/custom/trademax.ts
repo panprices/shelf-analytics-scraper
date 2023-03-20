@@ -374,7 +374,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       brand,
       categoryTree,
       reviews: reviewSummary,
-      articleNumber,
       sku,
       specifications: specArray,
       availability,

@@ -256,7 +256,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
       (node) => node.textContent().then((s) => s!.trim())
     );
 
-    const articleNumber = await this.extractProperty(
+    const sku = await this.extractProperty(
       page,
       "//div[./h6/text() = 'Artikelnr:']/span",
       (node) => node.textContent().then((s) => s!.trim())
@@ -274,9 +274,9 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
       specifications: specArray,
       categoryTree,
       name,
+
       gtin,
-      sku: articleNumber,
-      articleNumber,
+      sku,
     };
   }
 
