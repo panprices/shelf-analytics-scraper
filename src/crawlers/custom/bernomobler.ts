@@ -123,13 +123,16 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
         .then((text) => text?.trim());
 
       if (specContent) {
-        const individualSpecs = specContent.split("\n").map((row) => {
-          const [key, value] = row.split(":");
-          return {
-            key: key.trim(),
-            value: value.trim(),
-          };
-        });
+        const individualSpecs = specContent
+          .split("\n")
+          .filter((row) => row.includes(":"))
+          .map((row) => {
+            const [key, value] = row.split(":");
+            return {
+              key: key.trim(),
+              value: value.trim(),
+            };
+          });
         individualSpecs.forEach((spec) => {
           specifications.push(spec);
         });
