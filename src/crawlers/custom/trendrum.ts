@@ -108,9 +108,28 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("div#navBreadCrumb a"),
-      1,
-      true
+      1
     );
+    categoryTree.pop(); // remove last element, which is this product page
+
+    const specifications: Specification[] = [];
+    const specKeys = await page
+      .locator("table td.attribName")
+      .allTextContents()
+      .then((textContents) => textContents.map((text) => text.trim()));
+    const specVals = await page
+      .locator("table td.attribValue")
+      .allTextContents()
+      .then((textContents) => textContents.map((text) => text.trim()));
+    if (specKeys.length !== specVals.length) {
+      throw new Error("Number of specification keys and vals mismatch");
+    }
+    for (let i = 0; i < specKeys.length; i++) {
+      specifications.push({
+        key: specKeys[i],
+        value: specVals[i],
+      });
+    }
 
     const productInfo: DetailedProductInfo = {
       brand,
@@ -128,7 +147,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       availability,
       images: imageUrls,
       reviews,
-      specifications: [], // TODO
+      specifications,
       categoryTree,
       metadata: { schemaOrg },
     };
