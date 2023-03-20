@@ -1,7 +1,8 @@
-import { Locator, Page } from "playwright";
+import { chromium, Locator, Page } from "playwright";
 import {
   browserCrawlerEnqueueLinks,
   Dataset,
+  Dictionary,
   log,
   PlaywrightCrawlingContext,
 } from "crawlee";
@@ -155,6 +156,36 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     return productInfo;
   }
 
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    // Entry point: https://www.trendrum.se/
+    const page = ctx.page;
+
+    await this.handleCookieConsent(page);
+
+    const topLevelCategoryButtons = await page.locator("ul.nav > li");
+    const topLevelCategoryButtonsCount = await topLevelCategoryButtons.count();
+    // Hover over each top level category button to dynamic-load the subcategories
+    for (let i = 0; i < topLevelCategoryButtonsCount; i++) {
+      const button = await topLevelCategoryButtons.nth(i);
+      await button.hover();
+      await page.waitForTimeout(1000);
+    }
+
+    // Get hrefs of all subcategories:
+    await ctx.enqueueLinks({
+      selector: "ul.nav ul li a",
+      label: "LIST",
+    });
+
+    // Get hrefs of all main categories without subcategories:
+    await ctx.enqueueLinks({
+      selector: "ul.nav > li div > a:last-child",
+      label: "LIST",
+    });
+  }
+
   static async create(): Promise<TrendrumCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
@@ -165,7 +196,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "div.productListingOuterBox",
       detailsUrlSelector: "div.productListingOuterBox a.itemTitle",
       listingUrlSelector: "div.navSplitPagesLinks a",
-      // cookieConsentSelector: "",
+      cookieConsentSelector: "div.cookieTextHolderExtended span.cookieButton",
       dynamicProductCardLoading: false,
     });
   }
