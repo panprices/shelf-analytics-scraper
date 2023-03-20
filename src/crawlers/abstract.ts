@@ -338,11 +338,12 @@ export abstract class AbstractCrawlerDefinition
 
   async extractCategoryTree(
     breadcrumbLocator: Locator,
-    startingIndex: number = 0
+    startIndex: number = 0,
+    removeLast: boolean = false // for when last breadcrumb is the product
   ): Promise<Category[]> {
     const breadcrumbCount = await breadcrumbLocator.count();
     const categoryTree = [];
-    for (let i = startingIndex; i < breadcrumbCount; i++) {
+    for (let i = startIndex; i < breadcrumbCount; i++) {
       const name = (<string>(
         await breadcrumbLocator.nth(i).textContent()
       )).trim();
@@ -360,6 +361,10 @@ export abstract class AbstractCrawlerDefinition
         name,
         url,
       });
+    }
+
+    if (removeLast) {
+      categoryTree.pop();
     }
 
     return categoryTree;

@@ -36,6 +36,7 @@ import { CHROMIUM_USER_DATA_DIR } from "../constants";
 import { extractRootUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
+import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import { Route } from "playwright-core";
 
 export interface CrawlerFactoryArgs {
@@ -257,6 +258,13 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://bernomobler.se":
         definition = await BernoMoblerCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "https://www.trendrum.se":
+        definition = await TrendrumCrawlerDefinition.create();
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
