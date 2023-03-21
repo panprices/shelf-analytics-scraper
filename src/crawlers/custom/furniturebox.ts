@@ -168,6 +168,7 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       name: productName,
       description,
       specifications,
+      sku: articleNumber,
     };
   }
 

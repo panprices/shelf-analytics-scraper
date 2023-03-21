@@ -94,7 +94,7 @@ export async function extractProductDetails(
   );
   metadata.schemaOrg = JSON.parse(schemaOrgString);
 
-  const sku = metadata.schemaOrg?.mpn;
+  const mpn = metadata.schemaOrg?.mpn;
 
   const productName = await page
     .locator("h1[data-cy='product_title']")
@@ -227,7 +227,7 @@ export async function extractProductDetails(
     originalPrice,
 
     gtin: undefined,
-    sku,
+    mpn,
 
     availability,
     images,
