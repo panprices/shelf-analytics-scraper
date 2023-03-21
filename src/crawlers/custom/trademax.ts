@@ -192,7 +192,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     metadata.schemaOrg = JSON.parse(schemaOrgString);
 
-    const sku = metadata.schemaOrg?.mpn;
+    const mpn = metadata.schemaOrg?.mpn;
 
     const product_name = await page
       .locator("h1[data-cy='product_title']")
@@ -374,7 +374,10 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       brand,
       categoryTree,
       reviews: reviewSummary,
-      sku,
+
+      sku: articleNumber,
+      mpn,
+
       specifications: specArray,
       availability,
       metadata,

@@ -173,6 +173,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       currency: "SEK",
       images: imageUrls,
       sku,
+      mpn: sku,
       gtin: ean,
       // metadata,
       availability,

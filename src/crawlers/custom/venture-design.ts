@@ -277,6 +277,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
 
       gtin,
       sku,
+      mpn: sku,
     };
   }
 

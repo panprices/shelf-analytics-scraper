@@ -93,6 +93,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       images,
       // categoryTree: [], // this will be replaced later by value from when we scrape category
       sku,
+      mpn: sku,
       metadata,
       specifications,
       isDiscounted,
