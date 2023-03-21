@@ -222,6 +222,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       description,
       categoryTree,
       sku,
+      mpn: sku,
       metadata,
       specifications: specArray,
       brand,

@@ -297,6 +297,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       originalPrice,
 
       sku,
+      mpn: sku,
 
       availability,
       images: imageUrls,

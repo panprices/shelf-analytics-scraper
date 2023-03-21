@@ -151,6 +151,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
       gtin,
       sku,
+      mpn: sku,
 
       availability,
       images: imageUrls,
