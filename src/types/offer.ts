@@ -48,7 +48,7 @@ export interface BaseProductInfo {
 
   gtin?: string;
   sku?: string;
-  articleNumber?: string;
+  mpn?: string;
 
   popularityIndex?: number;
   categoryUrl?: string;

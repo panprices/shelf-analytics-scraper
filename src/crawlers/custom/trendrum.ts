@@ -144,6 +144,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
 
       gtin: undefined,
       sku: undefined,
+      mpn: undefined,
 
       availability,
       images: imageUrls,
