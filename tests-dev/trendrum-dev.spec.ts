@@ -32,3 +32,31 @@ test("Product page", async () => {
   expect(product.categoryTree?.length).toEqual(3);
   expect(product.specifications.length).toEqual(2);
 });
+
+test("Product page with mpn", async () => {
+  const targetUrl = "https://www.trendrum.se/kenya-matbord-220-x-100-cm-teak";
+  const result = await scrapeDetails([dummyRequest(targetUrl)]);
+
+  expect(result[0].mpn).toEqual("9526-244");
+});
+
+test("With variants", async () => {
+  const targetUrl = "https://www.trendrum.se/handvavd-ullmatta-gabbeh-bla";
+  const result = await scrapeDetails([dummyRequest(targetUrl)]);
+
+  expect(result.length).toEqual(3);
+  expect(result.map((item) => item.name)).toEqual([
+    "Handvävd ullmatta Gabbeh - Blå - 140x200 cm",
+    "Handvävd ullmatta Gabbeh - Blå - 170x240 cm",
+    "Handvävd ullmatta Gabbeh - Blå - 200x300 cm",
+  ]);
+  expect(result.map((item) => item.price)).toEqual([419000, 549000, 819000]);
+  expect(result[0].specifications).toContainEqual({
+    key: "Bredd",
+    value: "140 cm",
+  });
+  expect(result[1].specifications).toContainEqual({
+    key: "Bredd",
+    value: "170 cm",
+  });
+});

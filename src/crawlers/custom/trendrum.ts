@@ -19,7 +19,8 @@ import {
   SchemaOrg,
   Specification,
 } from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
+import { extractNumberFromText, extractRootUrl } from "../../utils";
+import { count } from "console";
 
 export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
   override async extractCardProductInfo(
@@ -46,9 +47,106 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
-  override async extractProductDetails(
-    page: Page
-  ): Promise<DetailedProductInfo> {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    if (await this.hasVariant(ctx.page)) {
+      await this.crawlVariantPage(ctx);
+    } else {
+      await super.crawlDetailPage(ctx);
+    }
+  }
+
+  async hasVariant(page: Page): Promise<boolean> {
+    // If there is a normal price, it means that the product has no variants.
+    // Otherwise it has variants.
+    try {
+      await page
+        .locator("div.productPrices span.currentprice")
+        .waitFor({ timeout: 5000 });
+      return false;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  async crawlVariantPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    const page = ctx.page;
+
+    const names = await page.locator(".ProductVariantName").allTextContents();
+    const nrProducts = names.length;
+    const prices = await page
+      .locator(".ProductVariantPrice")
+      .allTextContents()
+      .then((prices) => prices.map((price) => extractNumberFromText(price)));
+    const skus = await this.extractVariantSKUs(page);
+
+    const variantSpecifications: Specification[][] = Array.from(
+      { length: nrProducts },
+      () => [] as Specification[]
+    );
+
+    const specKeys = await page
+      .locator(".CompareBoxHolder table td.attribName")
+      .allTextContents()
+      .then((textContents) => textContents.slice(1).map((text) => text.trim()));
+    const specVals = await page
+      .locator(".CompareBoxHolder table td.attribValue")
+      .allTextContents()
+      .then((textContents) =>
+        textContents.slice(nrProducts).map((text) => text.trim())
+      );
+    if (specKeys.length * nrProducts !== specVals.length) {
+      throw new Error("Number of specification keys and vals mismatch");
+    }
+    for (let i = 0; i < specKeys.length; i++) {
+      for (let variantIndex = 0; variantIndex < nrProducts; variantIndex++) {
+        variantSpecifications[variantIndex].push({
+          key: specKeys[i],
+          value: specVals[i * nrProducts + variantIndex],
+        });
+      }
+    }
+
+    const baseProductDetails = await this.extractBaseProductDetails(page);
+    const products = names.map((name, i) => ({
+      ...baseProductDetails,
+      name,
+      price: prices[i],
+      sku: skus[i],
+      url: `${baseProductDetails.url}#${skus[i]}`,
+      specifications: baseProductDetails.specifications.concat(
+        variantSpecifications[i]
+      ),
+    }));
+
+    const request = ctx.request;
+
+    for (const productDetails of products) {
+      await this._detailsDataset.pushData(<DetailedProductInfo>{
+        ...request.userData,
+        ...productDetails,
+        fetchedAt: new Date().toISOString(),
+        retailerDomain: extractRootUrl(ctx.page.url()),
+      });
+    }
+  }
+
+  async extractVariantSKUs(page: Page): Promise<string[]> {
+    const skuTexts = await page
+      .locator(".ProductVariantModel")
+      .allTextContents();
+    if (!skuTexts) throw new Error("Cannot extract SKU of variants");
+
+    // "Artikel: 54271.  PG: M53" -> "54271"
+    const skus = skuTexts.map((text) =>
+      extractNumberFromText(text.split(".")[0]).toString()
+    );
+
+    return skus;
+  }
+
+  async extractBaseProductDetails(page: Page) {
     const productNameSelector = "div.infodisplay_headerbox h1";
     await page.waitForSelector(productNameSelector);
 
@@ -64,18 +162,8 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     const description = await this.extractProperty(
       page,
       "div.products_description span",
-      (node) => node.textContent()
+      (node) => node.first().textContent()
     ).then((text) => text?.trim());
-
-    const priceText = await this.extractProperty(
-      page,
-      "div.productPrices span.currentprice",
-      (node) => node.textContent()
-    );
-    if (!priceText) {
-      throw new Error("Cannot extract price");
-    }
-    const price = extractNumberFromText(priceText);
 
     const schemaOrgString = await page
       .locator(
@@ -88,6 +176,14 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     const schemaOrg = JSON.parse(schemaOrgString);
 
     const brand = schemaOrg?.brand.name;
+    const gtin = schemaOrg?.gtin;
+    const sku = schemaOrg?.sku;
+
+    let mpn: string = schemaOrg?.mpn;
+    if (mpn && mpn.match(/^M[\d]+-/)) {
+      mpn = mpn.replace(/^M[\d]+-/, "");
+    }
+
     const imageUrls = schemaOrg?.image;
     let availability;
     try {
@@ -115,11 +211,11 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const specifications: Specification[] = [];
     const specKeys = await page
-      .locator("table td.attribName")
+      .locator(".FactsBox table td.attribName")
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     const specVals = await page
-      .locator("table td.attribValue")
+      .locator(".FactsBox table td.attribValue")
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     if (specKeys.length !== specVals.length) {
@@ -132,19 +228,19 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       });
     }
 
-    const productInfo: DetailedProductInfo = {
+    const productInfo = {
       brand,
       name: productName,
       description,
       url: page.url(),
-      price: price,
+      // price,
       currency: "SEK",
       isDiscounted: false, // cannot find originalPrice in page
       originalPrice: undefined, // cannot find originalPrice in page
 
-      gtin: undefined,
-      sku: undefined,
-      mpn: undefined,
+      gtin,
+      sku,
+      mpn,
 
       availability,
       images: imageUrls,
@@ -152,6 +248,27 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       specifications,
       categoryTree,
       metadata: { schemaOrg },
+    };
+
+    return productInfo;
+  }
+
+  override async extractProductDetails(
+    page: Page
+  ): Promise<DetailedProductInfo> {
+    const priceText = await this.extractProperty(
+      page,
+      "div.productPrices span.currentprice",
+      (node) => node.textContent()
+    );
+    if (!priceText) {
+      throw new Error("Cannot extract price");
+    }
+    const price = extractNumberFromText(priceText);
+
+    const productInfo = {
+      ...(await this.extractBaseProductDetails(page)),
+      price,
     };
 
     return productInfo;
