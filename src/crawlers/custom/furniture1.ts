@@ -93,7 +93,10 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
     }
     const schemaOrg = JSON.parse(schemaOrgString);
 
-    const imageUrls = schemaOrg?.image;
+    let imageUrls = await this.extractImagesFromProductPage(page);
+    if (imageUrls.length === 0) {
+      imageUrls = schemaOrg?.image;
+    }
 
     const price = schemaOrg?.offers[0].price;
     const currency = schemaOrg?.offers[0].priceCurrency;
@@ -137,7 +140,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       1
     );
 
-    const productInfo = {
+    const productInfo: DetailedProductInfo = {
       name: productName,
       description,
       url: page.url(),
@@ -159,6 +162,25 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return productInfo;
+  }
+
+  async extractImagesFromProductPage(page: Page): Promise<string[]> {
+    try {
+      const images = await page
+        .locator(".owl-item > a > img.ty-pict")
+        .evaluateAll((list: HTMLElement[]) =>
+          list.map((element) => <string>element.getAttribute("src"))
+        );
+
+      if (images.length !== 0) {
+        // remove duplicates
+        return [...new Set(images)];
+      }
+    } catch (error) {
+      log.warning("No image found", { url: page.url(), error });
+    }
+
+    return [];
   }
 
   async extractReviews(page: Page): Promise<ProductReviews | "unavailable"> {

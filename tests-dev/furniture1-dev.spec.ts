@@ -49,8 +49,7 @@ test("With reviews", async () => {
   expect(result[0].reviews.reviewCount).toEqual(2);
 });
 
-// 1 variant groups - 5 variants
-test("Simple test", async () => {
+test("1 variant groups - 5 variants", async () => {
   const targetUrl =
     "https://www.baldai1.lt/minksti-baldai/sofos-lovos/sofa-lova-miami-392.html";
 
@@ -59,11 +58,12 @@ test("Simple test", async () => {
   expect(result.map((p) => p.images.length)).toEqual([8, 8, 8, 8, 8]);
 });
 
-// // 2 variant groups - 7 variants
-// test("Simple test", async () => {
-//   const targetUrl =
-//     "https://www.furniturebox.se/textilier/mattor/modern-matta/ullmattor/singapore-ullmatta-200x300-ivory-p685751-v340163";
+test("1 variant groups - 2 variants", async () => {
+  const targetUrl = "https://www.baldai1.lt/kedes/kede-vg6800.html";
 
-//   const result = await scrapeDetails([dummyRequest(targetUrl)]);
-//   expect(result).toHaveLength(7);
-// });
+  const result = await scrapeDetails([dummyRequest(targetUrl)]);
+  expect(result).toHaveLength(2);
+  expect(result.map((p) => p.images.length)).toEqual([5, 5]);
+  // Make sure that the images are different
+  expect(result[0].images[0]).not.toEqual(result[1].images[0]);
+});
