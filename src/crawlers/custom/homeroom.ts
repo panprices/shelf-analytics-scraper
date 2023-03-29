@@ -150,7 +150,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
         value: (<string>spec.split("\n")[1]).trim(),
       });
     }
-    const buyButtonLocator = page.locator("//button/span[text() = 'Handla']");
+    const buyButtonLocator = page.locator("//button//span[text() = 'Handla']");
     const availability =
       (await buyButtonLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
