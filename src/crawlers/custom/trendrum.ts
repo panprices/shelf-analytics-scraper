@@ -109,7 +109,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     const baseProductDetails = await this.extractBaseProductDetails(page);
-    const products = names.map((name, i) => ({
+    const products: DetailedProductInfo[] = names.map((name, i) => ({
       ...baseProductDetails,
       name,
       price: prices[i],
@@ -118,6 +118,8 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       specifications: baseProductDetails.specifications.concat(
         variantSpecifications[i]
       ),
+      variant: i,
+      variantGroupUrl: baseProductDetails.url,
     }));
 
     const request = ctx.request;
@@ -165,11 +167,11 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
-    const schemaOrgString = await page
-      .locator(
-        "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
-      )
-      .textContent();
+    const schemaOrgString = await this.extractProperty(
+      page,
+      "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]",
+      (node) => node.textContent()
+    );
     if (!schemaOrgString) {
       throw new Error("Cannot extract schema.org data");
     }
@@ -184,7 +186,6 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       mpn = mpn.replace(/^M[\d]+-/, "");
     }
 
-    const imageUrls = schemaOrg?.image;
     let availability;
     try {
       availability = schemaOrg.offers[0].availability.includes("InStock")
@@ -228,6 +229,11 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       });
     }
 
+    let imageUrls = await this.extractImagesFromProductPage(page);
+    if (imageUrls.length === 0) {
+      imageUrls = schemaOrg.image;
+    }
+
     const productInfo = {
       brand,
       name: productName,
@@ -251,6 +257,25 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return productInfo;
+  }
+
+  async extractImagesFromProductPage(page: Page): Promise<string[]> {
+    try {
+      const images = await page
+        .locator(".infodisplay_left span.modal_image")
+        .evaluateAll((list: HTMLElement[]) =>
+          list.map((element) => <string>element.getAttribute("href"))
+        );
+
+      if (images.length !== 0) {
+        // remove duplicates
+        return [...new Set(images)];
+      }
+    } catch (error) {
+      log.warning("No image found", { url: page.url(), error });
+    }
+
+    return [];
   }
 
   override async extractProductDetails(
@@ -314,7 +339,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "div.productListingOuterBox",
       detailsUrlSelector: "div.productListingOuterBox a.itemTitle",
       listingUrlSelector: "div.navSplitPagesLinks a",
-      cookieConsentSelector: "div.cookieTextHolderExtended span.cookieButton",
+      cookieConsentSelector: ".cookieTextHolderExtended  .cookieButton.all",
       dynamicProductCardLoading: false,
     });
   }

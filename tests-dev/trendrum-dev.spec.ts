@@ -18,7 +18,7 @@ test("Category page", async () => {
   const targetUrl = "https://www.trendrum.se/barbord-cafebord";
   const result = await exploreCategory(targetUrl, "job_test_1");
 
-  expect(result).toHaveLength(56);
+  expect(result).toHaveLength(55);
 });
 
 test("Product page", async () => {
@@ -45,6 +45,7 @@ test("With variants", async () => {
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
   expect(result.length).toEqual(3);
+  expect(result.map((item) => item.images.length)).toEqual([1, 1, 1]);
   expect(result.map((item) => item.name)).toEqual([
     "Handvävd ullmatta Gabbeh - Blå - 140x200 cm",
     "Handvävd ullmatta Gabbeh - Blå - 170x240 cm",
