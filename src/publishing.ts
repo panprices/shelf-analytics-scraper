@@ -32,7 +32,7 @@ export async function sendRequestBatch(
           .publishMessage({ json: batchRequest });
         log.info(`Message ${messageId} published.`);
       } catch (error) {
-        log.error(`Received error while publishing: ${error}`);
+        log.error(`Received error while publishing to PubSub`, { error });
       }
     }
   );
@@ -132,7 +132,7 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     "currency",
     "gtin",
     "sku",
-    "article_number", // DEPRECATED? potentially the same as sku, so use sku when possible
+    "mpn",
     "specifications",
     "availability",
     "reviews",
