@@ -271,6 +271,13 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.baldai1.lt":
+        definition = await Furniture1CrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
     }
 
