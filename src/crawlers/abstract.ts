@@ -32,17 +32,17 @@ export interface CrawlerDefinitionOptions {
   /**
    * Selector for the urls of individual product pages
    */
-  detailsUrlSelector: string;
+  detailsUrlSelector?: string; // undefined if we don't implement category scraping
 
   /**
    * Selector for next pages within the product listing / category
    */
-  listingUrlSelector?: string;
+  listingUrlSelector?: string; // undefined if we don't implement category scraping
 
   /**
    * Selector for individual product cards to be scraped for information available as part of the listings
    */
-  productCardSelector: string;
+  productCardSelector?: string; // undefined if we don't implement category scraping
 
   /**
    * Selector for the cookie consent button
@@ -95,7 +95,7 @@ export abstract class AbstractCrawlerDefinition
   private readonly _listingDataset: Dataset;
 
   protected readonly listingUrlSelector?: string;
-  protected readonly productCardSelector: string;
+  protected readonly productCardSelector?: string;
   protected readonly launchOptions?: CrawlerLaunchOptions;
 
   protected readonly crawlerOptions: CrawlerDefinitionOptions;
@@ -167,6 +167,11 @@ export abstract class AbstractCrawlerDefinition
    * @param ctx
    */
   async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    if (!this.productCardSelector) {
+      log.info("No product card selector defined, skipping");
+      return;
+    }
+
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);
@@ -252,6 +257,11 @@ export abstract class AbstractCrawlerDefinition
     const page = ctx.page;
     const enqueueLinks = ctx.enqueueLinks;
 
+    if (!this.productCardSelector) {
+      log.info("Category crawling not enabled, skipping");
+      return;
+    }
+
     const productCardSelector = this.productCardSelector;
     const articlesLocator = page.locator(productCardSelector);
     const articlesCount = await articlesLocator.count();
@@ -262,6 +272,15 @@ export abstract class AbstractCrawlerDefinition
         page.url(),
         currentProductCard
       );
+
+      if (!currentProductInfo) {
+        // if category crawling is disabled for this scraper, we should not reach this point
+        // check that `productCardSelector` is undefined
+        log.error(
+          `Could not extract product info from card ${j} on page ${page.url()}`
+        );
+        continue;
+      }
 
       if (currentProductInfo.url.startsWith("/")) {
         const currentUrl = new URL(page.url());
@@ -376,7 +395,7 @@ export abstract class AbstractCrawlerDefinition
   abstract extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
-  ): Promise<ListingProductInfo>;
+  ): Promise<ListingProductInfo | undefined>;
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
     return this._router;
