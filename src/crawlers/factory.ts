@@ -38,7 +38,7 @@ import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import { Route } from "playwright-core";
-import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
+import { Furniture1CrawlerDefinition } from "./custom/furniture1";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -266,15 +266,6 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://www.trendrum.se":
         definition = await TrendrumCrawlerDefinition.create();
-        options = {
-          ...defaultOptions,
-          requestHandler: definition.router,
-        };
-        return [new PlaywrightCrawler(options), definition];
-      case "https://www.finnishdesignshop.com":
-        definition = await FinnishDesignShopCrawlerDefinition.create(
-          launchOptions
-        );
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
