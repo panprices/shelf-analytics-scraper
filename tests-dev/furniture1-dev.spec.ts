@@ -15,13 +15,13 @@ function dummyRequest(targetUrl: string) {
   };
 }
 
-// test("Category page", async () => {
-//   const targetUrl =
-//     "https://www.baldai1.lt/minksti-baldai/u-formos-minksti-kampai/";
-//   const result = await exploreCategory(targetUrl, "job_test_local");
+test("Category page", async () => {
+  const targetUrl =
+    "https://www.baldai1.lt/minksti-baldai/u-formos-minksti-kampai/";
+  const result = await exploreCategory(targetUrl, "job_test_local");
 
-//   expect(result).toHaveLength(73);
-// });
+  expect(result).toHaveLength(74);
+});
 
 test("Details page", async () => {
   const targetUrl =
@@ -56,6 +56,9 @@ test("1 variant groups - 5 variants", async () => {
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
   expect(result).toHaveLength(5);
   expect(result.map((p) => p.images.length)).toEqual([8, 8, 8, 8, 8]);
+  expect(result.map((p) => p.price)).toEqual([
+    69700, 69700, 69700, 69700, 69700,
+  ]);
 });
 
 test("1 variant groups - 2 variants", async () => {
@@ -66,4 +69,5 @@ test("1 variant groups - 2 variants", async () => {
   expect(result.map((p) => p.images.length)).toEqual([5, 5]);
   // Make sure that the images are different
   expect(result[0].images[0]).not.toEqual(result[1].images[0]);
+  expect(result.map((p) => p.price)).toEqual([8800, 8800]);
 });

@@ -98,8 +98,15 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       imageUrls = schemaOrg?.image;
     }
 
-    const price = schemaOrg?.offers[0].price;
-    const currency = schemaOrg?.offers[0].priceCurrency;
+    const priceText = await this.extractProperty(
+      page,
+      ".pdp-buySection .ty-price .ty-price-num",
+      (node) => node.first().textContent()
+    ).then((text) => text?.trim());
+    if (!priceText) {
+      throw new Error("Cannot extract price of product");
+    }
+    const price = parseInt(priceText);
 
     let availability;
     try {
@@ -144,8 +151,8 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       name: productName,
       description,
       url: page.url(),
-      price: price,
-      currency,
+      price,
+      currency: "EUR",
       isDiscounted: false, // cannot find any info about discounts
       originalPrice: undefined, // cannot find any info about discounts
 
