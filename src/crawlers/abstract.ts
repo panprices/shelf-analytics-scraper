@@ -311,7 +311,7 @@ export abstract class AbstractCrawlerDefinition
   async extractProperty(
     rootElement: Locator | Page,
     path: string,
-    extractor: (node: Locator) => Promise<string | null>
+    extractor: (node: Locator) => Promise<string | null | undefined>
   ): Promise<string | undefined> {
     const tag = await rootElement.locator(path);
     const elementExists = (await tag.count()) > 0;
@@ -319,7 +319,9 @@ export abstract class AbstractCrawlerDefinition
       return undefined;
     }
 
-    const intermediateResult: string | null = tag ? await extractor(tag) : null;
+    const intermediateResult: string | null | undefined = tag
+      ? await extractor(tag)
+      : null;
     return intermediateResult !== null ? intermediateResult : undefined;
   }
 
@@ -403,6 +405,32 @@ export abstract class AbstractCrawlerDefinition
 
   get detailsDataset(): Dataset {
     return this._detailsDataset;
+  }
+
+  async extractSchemaOrgFromAttributes(
+    page: Page
+  ): Promise<{ [key: string]: any }> {
+    const schemaOrgProduct = await page.locator(
+      '//*[@itemtype="http://schema.org/Product"]'
+    );
+
+    const propsLocator = schemaOrgProduct.locator("//*[@itemprop]");
+
+    return await propsLocator.evaluateAll((nodes) => {
+      return nodes
+        .map((node) => {
+          let content = node.getAttribute("content");
+          let prop = node.getAttribute("itemprop") as string;
+
+          if (!content) {
+            content = node.textContent;
+          }
+          return {
+            [prop]: content,
+          };
+        })
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    });
   }
 
   static async openDatasets(): Promise<[Dataset, Dataset]> {
