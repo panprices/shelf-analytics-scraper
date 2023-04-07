@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.venturedesign.se/products/poster-materials-21x30"
+  "https://www.finnishdesignshop.com/en-se/product/f-shelf-left-oak"
 );
 
 // await debugScrapeDetails(

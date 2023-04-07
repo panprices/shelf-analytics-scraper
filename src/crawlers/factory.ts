@@ -39,6 +39,7 @@ import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import { Route } from "playwright-core";
 import { Furniture1CrawlerDefinition } from "./custom/furniture1";
+import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -278,6 +279,16 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.finnishdesignshop.com":
+        definition = await FinnishDesignShopCrawlerDefinition.create(
+          launchOptions
+        );
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      // Comment to help the script understand where to add new cases
     }
 
     log.warning(`Asked for unknown root url: ${url}`);
