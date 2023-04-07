@@ -24,6 +24,9 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
   override listingUrlSelector = "ul.pagination.small li:last-child a[href]";
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    if (!this.productCardSelector) {
+      throw new Error("productCardSelector not defined");
+    }
     await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
 
     await this.scrollToBottom(ctx);

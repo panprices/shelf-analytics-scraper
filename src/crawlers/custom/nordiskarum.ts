@@ -261,6 +261,9 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
+    if (!this.productCardSelector) {
+      throw new Error("productCardSelector not defined");
+    }
     // Scroll to bottom once:
     const page = ctx.page;
     await page.evaluate(() => {
