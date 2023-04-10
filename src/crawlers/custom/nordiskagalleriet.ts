@@ -84,7 +84,9 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const optionsCount = await dropDown.locator(".VB_Egenskap").count();
     await dropDown.click();
-    return optionsCount;
+
+    // If there is only one option, it is the default one, so we don't need to select it
+    return optionsCount <= 1 ? 0 : optionsCount;
   }
 
   async checkInvalidVariant(
@@ -129,7 +131,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const brand = await this.extractProperty(
       page,
-      "//div[@id='VarumarkeText']//a",
+      "//div[@id='VarumarkeText']//a[last()]",
       (node) => node.textContent()
     );
     const description = await this.extractProperty(page, "#prodtext", (node) =>

@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.nordiskagalleriet.no/maze-interior/bill-shoe-shelf"
+  "https://www.nordiskagalleriet.no/alessi/dr-skud-fluesmekker"
 );
 
 // await debugScrapeDetails(
