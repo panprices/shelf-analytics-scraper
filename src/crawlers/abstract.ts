@@ -447,8 +447,13 @@ export abstract class AbstractCrawlerDefinition
   }
 }
 
+export type VariantCrawlingStrategy = "new_tabs" | "same_tab";
+
 export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCrawlerDefinition {
-  protected constructor(options: CrawlerDefinitionOptions) {
+  protected constructor(
+    options: CrawlerDefinitionOptions,
+    protected variantCrawlingStrategy: VariantCrawlingStrategy = "new_tabs"
+  ) {
     super(options);
     const crawlerDefinition = this;
     this._router.addHandler("VARIANT", (_) =>
@@ -540,9 +545,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     } while (true);
 
     if (!isSelectionApplied) {
-      const pageState = {
-        url: ctx.page.url(),
-      };
+      const pageState = this.getCurrentVariantState(ctx);
       // When no parameters are selected, we ended up at the variantGroupUrl because of the hacky solution.
       // Then we start exploring the variants space, but we stop after the first variant
       await this.exploreVariantsSpace(
@@ -558,6 +561,10 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       // Avoid index 0, because that changes the URL to the variantGroupUrl. (HACKY Bygghemma solution)
       await this.crawlSingleDetailPage(ctx, ctx.page.url(), 1);
     }
+  }
+
+  async getCurrentVariantUrl(ctx: PlaywrightCrawlingContext): Promise<string> {
+    return Promise.resolve(ctx.page.url());
   }
 
   /**
@@ -581,7 +588,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     limit?: number
   ): Promise<[any, number]> {
     if (!pageState) {
-      pageState = { url: variantGroupUrl };
+      pageState = this.getCurrentVariantState(ctx);
     }
 
     const optionsCount = await this.getOptionsForParamIndex(
@@ -593,18 +600,28 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       // We only expect state changes for products with variants
       // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
       if (parameterIndex !== 0) {
-        pageState = { url: ctx.page.url() };
+        pageState = await this.getCurrentVariantState(ctx);
         newPageState = await this.waitForChanges(ctx, pageState, 10000);
 
-        await ctx.enqueueLinks({
-          urls: [ctx.page.url()],
-          userData: {
+        const url = await this.getCurrentVariantUrl(ctx);
+        if (this.variantCrawlingStrategy === "new_tabs") {
+          await ctx.enqueueLinks({
+            urls: [url],
+            userData: {
+              ...ctx.request.userData,
+              variantIndex: exploredVariants,
+              variantGroupUrl: variantGroupUrl,
+              label: "VARIANT",
+            },
+          });
+        } else {
+          ctx.request.userData = {
             ...ctx.request.userData,
             variantIndex: exploredVariants,
             variantGroupUrl: variantGroupUrl,
-            label: "VARIANT",
-          },
-        });
+          };
+          await this.crawlVariant(ctx);
+        }
       } else {
         ctx.request.userData = {
           ...ctx.request.userData,
@@ -622,6 +639,10 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       try {
         await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
       } catch (e) {
+        log.info(
+          `Option ${optionIndex} for parameter ${parameterIndex} is not available`
+        );
+        debugger;
         log.warning(
           "Option became unavailable, switching to product group page"
         );
@@ -675,6 +696,12 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     return [pageState, exploredSubBranches];
   }
 
+  async getCurrentVariantState(ctx: PlaywrightCrawlingContext): Promise<any> {
+    return Promise.resolve({
+      url: ctx.page.url(),
+    });
+  }
+
   /**
    * The logic: wait 1 second after changing the parameters, then wait for network idle, check the url changed
    * then wait again for network idle and one more second
@@ -705,10 +732,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       }
 
       try {
-        const newUrl = ctx.page.url();
-        newState = {
-          url: newUrl,
-        };
+        newState = await this.getCurrentVariantState(ctx);
       } catch (error) {
         // Page changed during image extraction => just try again
       }
@@ -724,9 +748,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     // Wait for 1 more second just in case
     await ctx.page.waitForTimeout(1000);
     const newUrl = ctx.page.url();
-    newState = {
-      url: newUrl,
-    };
+    newState = await this.getCurrentVariantState(ctx);
     return newState;
   }
 

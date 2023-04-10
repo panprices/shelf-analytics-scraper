@@ -270,6 +270,24 @@ async function extractProductDetails(
 
 function postProcessProductDetails(products: DetailedProductInfo[]) {
   products.forEach((p) => {
+    p.images = p.images.map((i) => {
+      if (i.startsWith("/")) {
+        return p.retailerDomain + i;
+      }
+      return i;
+    });
+
+    for (let i = 0; i < (p.categoryTree?.length ?? 0); i++) {
+      const category = p.categoryTree?.[i];
+      if (category?.url.startsWith("/")) {
+        category.url = p.retailerDomain + category.url;
+      }
+    }
+
+    if (p.categoryUrl?.startsWith("/")) {
+      p.categoryUrl = p.retailerDomain + p.categoryUrl;
+    }
+
     if (p.gtin) {
       if (!isValidGTIN(p.gtin)) {
         log.warning(`GTIN is not valid`, { gtin: p.gtin });

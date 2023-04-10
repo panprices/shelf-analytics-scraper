@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.lanna.no/oppbevaring-og-hyller/hyller-og-vegghyller-/pythagoras-drawer-l---white/"
+  "https://www.nordiskagalleriet.no/maze-interior/bill-shoe-shelf"
 );
 
 // await debugScrapeDetails(

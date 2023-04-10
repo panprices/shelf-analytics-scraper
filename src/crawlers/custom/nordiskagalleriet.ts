@@ -1,0 +1,333 @@
+import { Locator, Page } from "playwright";
+import { DetailedProductInfo } from "../../types/offer";
+import {
+  AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
+} from "../abstract";
+import { extractRootUrl } from "../../utils";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+
+export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
+  public constructor(options: CrawlerDefinitionOptions) {
+    super(options, "same_tab");
+  }
+
+  override async getCurrentVariantState(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<any> {
+    const sku = await this.extractProperty(ctx.page, "#artnr-copy", (node) =>
+      node.textContent().then((t) => t?.trim())
+    );
+
+    return { sku };
+  }
+
+  override async getCurrentVariantUrl(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<string> {
+    await ctx.page.waitForSelector("#artnr-copy", { timeout: 500 });
+    const url = ctx.page.url().split("?")[0];
+    const sku = await this.extractProperty(ctx.page, "#artnr-copy", (node) =>
+      node.textContent().then((t) => t?.trim())
+    );
+    log.info(`Current variant url: ${url}?sku=${sku}`);
+    return `${url}?sku=${sku}`;
+  }
+
+  async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void> {
+    const dropDowns = ctx.page.locator(".selectmenu");
+    const dropDown = dropDowns.nth(paramIndex);
+
+    await dropDown.click();
+    const options = dropDown.locator(".VB_Egenskap");
+    await options.nth(optionIndex).click();
+
+    await ctx.page.waitForLoadState("networkidle");
+  }
+
+  async hasSelectedOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number
+  ): Promise<boolean> {
+    const dropDowns = ctx.page.locator(".selectmenu");
+    const dropDown = dropDowns.nth(paramIndex);
+
+    const dropDownDefault = await dropDown
+      .locator(".VB_label")
+      .getAttribute("data-default");
+    const dropDownValue = await dropDown
+      .locator(".VB_label >> span")
+      .textContent();
+
+    return dropDownValue !== dropDownDefault;
+  }
+
+  async getOptionsForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number
+  ): Promise<number> {
+    const dropDowns = ctx.page.locator(".selectmenu");
+    const dropDownsCount = await dropDowns.count();
+    if (dropDownsCount <= paramIndex) {
+      return 0;
+    }
+
+    const dropDown = dropDowns.nth(paramIndex);
+
+    await dropDown.click();
+
+    const optionsCount = await dropDown.locator(".VB_Egenskap").count();
+    await dropDown.click();
+    return optionsCount;
+  }
+
+  async checkInvalidVariant(
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number[]
+  ): Promise<boolean> {
+    return false;
+  }
+  /**
+   * This retailer does not use category scraping, it gets the URLs from sitemap
+   */
+  extractCardProductInfo(): Promise<undefined> {
+    return Promise.resolve(undefined);
+  }
+
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const headlineName = await this.extractProperty(
+      page,
+      ".ArtikelnamnFalt",
+      (node) => node.textContent().then((t) => t?.trim())
+    );
+    const variantSubName = await this.extractProperty(
+      page,
+      "//div[contains(@class, 'VB_label')]//span[contains(@class, 'variant-beskr')]",
+      async (nodes) => {
+        const nodesCount = await nodes.count();
+        return Promise.all(
+          Array.from({ length: nodesCount }, (_, i) => {
+            return nodes
+              .nth(i)
+              .textContent()
+              .then((t) => t?.trim());
+          })
+        ).then((texts) => texts.join(" ").trim());
+      }
+    );
+    const name = `${headlineName} ${variantSubName ?? ""}`.trim();
+
+    const sku = await this.extractProperty(page, "#artnr-copy", (node) =>
+      node.textContent().then((t) => t?.trim())
+    );
+
+    const brand = await this.extractProperty(
+      page,
+      "//div[@id='VarumarkeText']//a",
+      (node) => node.textContent()
+    );
+    const description = await this.extractProperty(page, "#prodtext", (node) =>
+      node.textContent().then((t) => t?.trim())
+    );
+
+    const priceExtractor = (node: Locator) =>
+      node.textContent().then((t) => t?.replace(/[^0-9]/g, ""));
+    let priceString = await this.extractProperty(
+      page,
+      ".PrisBOLD",
+      priceExtractor
+    );
+
+    let isDiscounted = false,
+      originalPriceString = undefined;
+    if (!priceString) {
+      priceString = await this.extractProperty(
+        page,
+        ".PrisREA",
+        priceExtractor
+      );
+      isDiscounted = true;
+      originalPriceString = await this.extractProperty(
+        page,
+        ".PrisORD",
+        priceExtractor
+      );
+    }
+
+    const schemaOrgString = await this.extractProperty(
+      page,
+      "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]",
+      (node) => node.textContent()
+    );
+    const schemaOrg = JSON.parse(schemaOrgString ?? "[]");
+    const schemaOrgProduct = schemaOrg.find(
+      (s: Dictionary) => s["sku"] === sku
+    );
+    const currency = schemaOrgProduct?.["offers"]?.["priceCurrency"];
+    const mpn = schemaOrgProduct?.["mpn"];
+    const gtin = schemaOrgProduct?.["gtin8"] ?? schemaOrgProduct?.["gtin13"];
+
+    const categoryTree = await this.extractCategoryTree(
+      page.locator(
+        "//div[contains(@class, 'breadcrumbwrap')]" +
+          "//li[contains(@class, 'breadcrumb-item') and not(contains(@class, 'active'))]/a"
+      )
+    );
+    const inStock = await this.extractProperty(
+      page,
+      "#TextLagerIdFalt",
+      (node) =>
+        node
+          .getAttribute("class")
+          .then((c) => c?.includes("instock").toString())
+    );
+    const availability = inStock === "true" ? "in_stock" : "out_of_stock";
+
+    const imagesString = await this.extractProperty(
+      page,
+      "//div[@id='carousel']//a[contains(@class, 'item')]/img[1]",
+      async (nodes) => {
+        const nodesCount = await nodes.count();
+        return Promise.all(
+          Array.from({ length: nodesCount }, (_, i) => i).map(async (i) => {
+            let src = await nodes.nth(i).getAttribute("src");
+            if (!src) {
+              src = await nodes.nth(i).getAttribute("data-src");
+            }
+            return src;
+          })
+        ).then((images) => JSON.stringify(images));
+      }
+    );
+    const images = JSON.parse(imagesString ?? "[]");
+
+    const reviewsAverageString = await this.extractProperty(
+      page,
+      ".average-grade",
+      (node) =>
+        node
+          .textContent()
+          .then((t) => t?.replace(/[^0-9\/.]/g, "").split("/")[0])
+    );
+    const reviewsCountString = await this.extractProperty(
+      page,
+      ".tab-reviews-trigger",
+      (node) =>
+        node
+          .textContent()
+          .then(
+            (t) => t?.match(/\(([^)]+)\)/)?.[1]?.replace(/[^0-9]/g, "") ?? "0"
+          )
+    );
+
+    const reviewsString = await this.extractProperty(
+      page,
+      "//div[@id='article-grades-list']/div",
+      async (nodes) => {
+        const reviewsCount = await nodes.count();
+        return Promise.all(
+          Array.from({ length: reviewsCount }, (_, i) => i).map(async (i) => {
+            const review = await nodes.nth(i);
+            const reviewContent = await review
+              .locator("//div[contains(@class, 'row')][3]")
+              .textContent();
+            const reviewScore = await review
+              .locator("//div[contains(@class, 'row')][2]//span")
+              .getAttribute("class")
+              .then((c) =>
+                c
+                  ?.split(" ")
+                  .find((c) => c.startsWith("betyg") && c.length === 6)
+                  ?.replace("betyg", "")
+              );
+
+            return {
+              score: Number(reviewScore),
+              content: reviewContent,
+            };
+          })
+        ).then((reviews) => JSON.stringify(reviews));
+      }
+    );
+    const recentReviews = JSON.parse(reviewsString ?? "[]");
+
+    const specsString = await this.extractProperty(
+      page,
+      ".property-row",
+      async (nodes) => {
+        const specsCount = await nodes.count();
+        return Promise.all(
+          Array.from({ length: specsCount }, (_, i) => i).map(async (i) => {
+            const spec = await nodes.nth(i);
+            const specName = await spec.locator("div").nth(0).textContent();
+            const specValue = await spec.locator("div").nth(1).textContent();
+
+            return {
+              key: specName,
+              value: specValue,
+            };
+          })
+        ).then((specs) => JSON.stringify(specs));
+      }
+    );
+    const specifications = JSON.parse(specsString ?? "[]");
+
+    // return a Dummy `DetailedProductInfo` object
+    return {
+      name: name,
+      url: `${page.url()}#sku=${sku}`,
+
+      brand: brand,
+      description: description,
+      price: Number(priceString),
+      currency: currency,
+      isDiscounted: isDiscounted,
+      originalPrice: Number(originalPriceString),
+
+      gtin: gtin,
+      sku: sku,
+      mpn: mpn,
+
+      categoryUrl: categoryTree[categoryTree.length - 1].url,
+      categoryTree: categoryTree,
+
+      metadata: { schemaOrg: schemaOrgProduct },
+
+      availability: availability,
+      fetchedAt: new Date().toISOString(),
+      retailerDomain: extractRootUrl(page.url()),
+
+      images: images, // if not applicable return an empty array
+      reviews: {
+        averageReview: Number(reviewsAverageString),
+        reviewCount: Number(reviewsCountString),
+        recentReviews: recentReviews,
+      },
+      specifications: specifications, // if not applicable return an empty array
+
+      //categoryTree is only optional if we already scraped it in the category page.
+
+      variantGroupUrl: "",
+      variant: 0, // 0, 1, 2, 3, ...
+    };
+  }
+
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<NordiskaGallerietCrawlerDefinition> {
+    const [detailsDataset, listingDataset] =
+      await AbstractCrawlerDefinition.openDatasets();
+
+    return new NordiskaGallerietCrawlerDefinition({
+      detailsDataset,
+      listingDataset,
+      launchOptions,
+    });
+  }
+}

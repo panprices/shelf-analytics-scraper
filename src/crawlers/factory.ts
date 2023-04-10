@@ -41,6 +41,7 @@ import { Route } from "playwright-core";
 import { Furniture1CrawlerDefinition } from "./custom/furniture1";
 import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
 import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
+import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -291,6 +292,15 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "https://www.lanna.no":
         definition = await LannaMoblerCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "https://www.nordiskagalleriet.no":
+        definition = await NordiskaGallerietCrawlerDefinition.create(
+          launchOptions
+        );
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
