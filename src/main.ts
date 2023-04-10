@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.finnishdesignshop.com/en-se/product/f-shelf-left-oak"
+  "https://www.lanna.no/oppbevaring-og-hyller/hyller-og-vegghyller-/pythagoras-drawer-l---white/"
 );
 
 // await debugScrapeDetails(

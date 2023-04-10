@@ -11,9 +11,9 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
     return Promise.resolve(undefined);
   }
 
-  extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     // return a Dummy `DetailedProductInfo` object
-    return Promise.resolve({
+    return {
       name: "",
       url: page.url(),
 
@@ -45,7 +45,7 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
 
       variantGroupUrl: "",
       variant: 0, // 0, 1, 2, 3, ...
-    });
+    };
   }
 
   static async create(
