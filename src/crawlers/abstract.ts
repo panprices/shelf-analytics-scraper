@@ -567,6 +567,18 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     return Promise.resolve(ctx.page.url());
   }
 
+  async recoverState(
+    ctx: PlaywrightCrawlingContext,
+    currentOption: number[],
+    variantGroupUrl: string
+  ) {
+    await ctx.page.goto(variantGroupUrl, { waitUntil: "domcontentloaded" });
+    // select the state previous to the change
+    for (let i = 0; i < currentOption.length; i++) {
+      await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+    }
+  }
+
   /**
    * Depth first exploration of the variants space.
    *
@@ -591,10 +603,21 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       pageState = this.getCurrentVariantState(ctx);
     }
 
-    const optionsCount = await this.getOptionsForParamIndex(
-      ctx,
-      parameterIndex
-    );
+    let optionsCount;
+    try {
+      optionsCount = await this.getOptionsForParamIndex(ctx, parameterIndex);
+    } catch (e) {
+      log.warning("Failed to get options for param index: " + parameterIndex);
+      log.info("Trying to recover by navigation to group url");
+
+      await this.recoverState(ctx, currentOption, variantGroupUrl);
+      try {
+        optionsCount = await this.getOptionsForParamIndex(ctx, parameterIndex);
+      } catch (e) {
+        log.error(JSON.stringify(e));
+        optionsCount = 0;
+      }
+    }
     if (optionsCount === 0) {
       let newPageState = {};
       // We only expect state changes for products with variants
@@ -646,11 +669,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         log.warning(
           "Option became unavailable, switching to product group page"
         );
-        await ctx.page.goto(variantGroupUrl, { waitUntil: "domcontentloaded" });
-        // select the state previous to the change
-        for (let i = 0; i < currentOption.length; i++) {
-          await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
-        }
+        await this.recoverState(ctx, currentOption, variantGroupUrl);
         try {
           await this.selectOptionForParamIndex(
             ctx,
@@ -658,9 +677,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
             optionIndex
           );
         } catch (e) {
-          log.warning(
-            "Serious, option still unavailable from group page, skipping"
-          );
+          log.error(JSON.stringify(e));
           continue;
         }
       }

@@ -44,10 +44,16 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
     const dropDowns = ctx.page.locator(".selectmenu");
     const dropDown = dropDowns.nth(paramIndex);
 
-    await dropDown.click();
-    const options = dropDown.locator(".VB_Egenskap");
-    await options.nth(optionIndex).click();
+    let option,
+      optionVisible = false;
+    do {
+      await dropDown.click();
+      let options = dropDown.locator(".VB_Egenskap");
+      option = options.nth(optionIndex);
+      optionVisible = await option.isVisible();
+    } while (!optionVisible);
 
+    await option.click();
     await ctx.page.waitForLoadState("networkidle");
   }
 
@@ -62,7 +68,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
       .locator(".VB_label")
       .getAttribute("data-default");
     const dropDownValue = await dropDown
-      .locator(".VB_label >> span")
+      .locator(".VB_label span.variant-beskr")
       .textContent();
 
     return dropDownValue !== dropDownDefault;
@@ -164,13 +170,18 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const schemaOrgString = await this.extractProperty(
       page,
-      "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]",
+      "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), '\"Product\"')]",
       (node) => node.textContent()
     );
-    const schemaOrg = JSON.parse(schemaOrgString ?? "[]");
-    const schemaOrgProduct = schemaOrg.find(
-      (s: Dictionary) => s["sku"] === sku
-    );
+    const schemaOrg = JSON.parse(schemaOrgString ?? "{}");
+
+    // For pages with variants schema org is an array with the different variants
+    // Otherwise schema org is a single object
+    const hasVariants = Array.isArray(schemaOrg);
+
+    const schemaOrgProduct = hasVariants
+      ? schemaOrg.find((s: Dictionary) => s["sku"] === sku)
+      : schemaOrg;
     const currency = schemaOrgProduct?.["offers"]?.["priceCurrency"];
     const mpn = schemaOrgProduct?.["mpn"];
     const gtin = schemaOrgProduct?.["gtin8"] ?? schemaOrgProduct?.["gtin13"];
@@ -230,7 +241,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const reviewsString = await this.extractProperty(
       page,
-      "//div[@id='article-grades-list']/div",
+      "//div[@id='article-grades-list']/div[contains(@class, 'grade-wrap')]",
       async (nodes) => {
         const reviewsCount = await nodes.count();
         return Promise.all(
@@ -283,7 +294,9 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
     // return a Dummy `DetailedProductInfo` object
     return {
       name: name,
-      url: `${page.url()}#sku=${sku}`,
+      // For pages with variants we modify the URL to store the different products
+      // Otherwise we just return the original URL
+      url: hasVariants ? `${page.url()}#sku=${sku}` : page.url(),
 
       brand: brand,
       description: description,

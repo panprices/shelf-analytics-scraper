@@ -24,7 +24,7 @@ async function debugScrapeDetails(targetUrl: string) {
     },
   };
   const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: false,
+    headless: true,
   });
 
   log.info(JSON.stringify(detailedItems, null, 2));
@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.finnishdesignshop.com/en-no/product/balcony-lounge-bench-w-armrest-121-5-x-69-cm-desert-green"
+  "https://www.nordiskagalleriet.no/secto-design/octo-small-4241-pendant"
 );
 
 // await debugScrapeDetails(
