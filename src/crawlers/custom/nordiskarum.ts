@@ -87,10 +87,12 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
         : "out_of_stock";
     }
 
-    const skuText = (await page
-      .locator(".product__info .product__sku")
-      .textContent())!.trim();
-    const sku = skuText.replace("Artikelnummer:", "").trim();
+    const skuText = await this.extractProperty(
+      page,
+      ".product__info .product__sku",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    const sku = skuText?.replace("Artikelnummer:", "").trim();
 
     const specKeys = await page
       .locator(".product__info .sf-property__name")
