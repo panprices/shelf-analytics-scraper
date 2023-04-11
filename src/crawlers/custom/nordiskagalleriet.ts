@@ -66,12 +66,14 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const dropDownDefault = await dropDown
       .locator(".VB_label")
-      .getAttribute("data-default");
+      .getAttribute("data-default")
+      .then((t) => t?.trim());
     const dropDownValue = await dropDown
-      .locator(".VB_label span.variant-beskr")
-      .textContent();
+      .locator(".VB_label")
+      .textContent()
+      .then((t) => t?.trim());
 
-    return dropDownValue !== dropDownDefault;
+    return dropDownValue?.toLowerCase() !== dropDownDefault?.toLowerCase();
   }
 
   async getOptionsForParamIndex(

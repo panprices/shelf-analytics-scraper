@@ -23,9 +23,16 @@ async function debugScrapeDetails(targetUrl: string) {
       matchingType: "match",
     },
   };
-  const detailedItems = await scrapeDetails([dummyRequest], {
-    headless: true,
-  });
+  const detailedItems = await scrapeDetails(
+    [dummyRequest],
+    {
+      headless: false,
+    },
+    false,
+    {
+      ignoreVariants: true,
+    }
+  );
 
   log.info(JSON.stringify(detailedItems, null, 2));
   log.info("Item found", {
@@ -138,9 +145,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );
 
-await debugScrapeDetails(
-  "https://www.nordiskagalleriet.no/secto-design/octo-small-4241-pendant"
-);
+await debugScrapeDetails("https://www.nordiskagalleriet.no/foscarini/spokes-2");
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"

@@ -476,7 +476,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
 
     const variantGroupUrl = ctx.page.url();
 
-    console.log("Starting variant exploration... from url: ", variantGroupUrl);
+    log.info("Starting variant exploration... from url: " + variantGroupUrl);
     await this.exploreVariantsSpace(ctx, 0, [], variantGroupUrl);
   }
 
@@ -665,7 +665,6 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         log.info(
           `Option ${optionIndex} for parameter ${parameterIndex} is not available`
         );
-        debugger;
         log.warning(
           "Option became unavailable, switching to product group page"
         );
