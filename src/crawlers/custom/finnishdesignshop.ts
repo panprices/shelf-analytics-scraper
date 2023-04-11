@@ -1,9 +1,136 @@
 import { Page } from "playwright";
 import { DetailedProductInfo } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import { extractRootUrl } from "../../utils";
+import { PlaywrightCrawlingContext, Dictionary, log } from "crawlee";
 
-export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinition {
+/**
+ * Variants appear for example for posters with different sizes:
+ * - https://www.finnishdesignshop.com/en-se/product/floating-leaves-09
+ *
+ * Is the link above unavailable, try looking through the posters category:
+ * - https://www.finnishdesignshop.com/en-se/decoration/posters-memory-boards/posters
+ *
+ * Changing the size does not change the URL, so we need to handle variant crawling
+ */
+export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
+  public constructor(options: CrawlerDefinitionOptions) {
+    super(options, "same_tab");
+  }
+
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await ctx.page.waitForLoadState("networkidle");
+    return super.crawlDetailPage(ctx);
+  }
+
+  override async getCurrentVariantState(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<any> {
+    const sku = await this.extractProperty(
+      ctx.page,
+      "form span#price span.price-localized",
+      (node) => node.getAttribute("data-sku")
+    );
+
+    return { sku };
+  }
+
+  override async getCurrentVariantUrl(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<string> {
+    await ctx.page.waitForSelector("form span#price span.price-localized", {
+      timeout: 500,
+    });
+    const url = ctx.page.url().split("?")[0];
+    const sku = await this.extractProperty(
+      ctx.page,
+      "form span#price span.price-localized",
+      (node) => node.getAttribute("data-sku")
+    );
+    log.info(`Current variant url: ${url}?sku=${sku}`);
+    return `${url}?sku=${sku}`;
+  }
+
+  async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void> {
+    const parameterLocator = ctx.page
+      .locator("ul.product-variations")
+      .nth(paramIndex);
+    const options = parameterLocator.locator("li");
+    const option = await options.nth(optionIndex);
+
+    await option.click();
+
+    await ctx.page.waitForLoadState("networkidle");
+  }
+
+  async hasSelectedOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number
+  ): Promise<boolean> {
+    const parameterLocator = ctx.page
+      .locator("ul.product-variations")
+      .nth(paramIndex);
+    const optionsLocator = parameterLocator.locator("li");
+    const optionsCount = await optionsLocator.count();
+
+    for (let i = 0; i < optionsCount; i++) {
+      const currentOptionLocator = optionsLocator.nth(i);
+      const isSelected = await currentOptionLocator
+        .getAttribute("class")
+        .then((className) => className?.includes("selected") ?? false);
+
+      if (isSelected) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private async hasVariants(page: Page): Promise<boolean> {
+    return page
+      .locator("ul.product-variations")
+      .count()
+      .then((count) => count > 0);
+  }
+
+  async getOptionsForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number
+  ): Promise<number> {
+    const allParametersLocator = ctx.page.locator("ul.product-variations");
+    const paramtersCount = await allParametersLocator.count();
+    if (paramIndex >= paramtersCount) {
+      return 0;
+    }
+
+    const parameterLocator = allParametersLocator.nth(paramIndex);
+    const optionsLocator = parameterLocator.locator("li");
+    return optionsLocator.count();
+  }
+
+  /**
+   * Assumed to be impossible
+   * @param _
+   * @param __
+   */
+  async checkInvalidVariant(
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number[]
+  ): Promise<boolean> {
+    return false;
+  }
+
   /**
    * This retailer does not use category scraping, it gets the URLs from sitemap
    */
@@ -14,11 +141,13 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     await page.waitForSelector('//*[@itemprop="name"]');
 
+    const hasVariants = await this.hasVariants(page);
+
     // return a Dummy `DetailedProductInfo` object
     const sku = await this.extractProperty(
       page,
-      '//*[@itemprop="sku"]',
-      (node) => node.getAttribute("content")
+      "form span#price span.price-localized",
+      (node) => node.getAttribute("data-sku")
     );
     const mpn = sku?.substring(2);
 
@@ -49,7 +178,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const isDiscountedStr = await this.extractProperty(
       page,
-      "span.js-price-sale",
+      "form span#price span.js-price-sale",
       (node) => node.count().then((c) => (c > 0).toString())
     );
     const isDiscounted = isDiscountedStr === "true";
@@ -59,30 +188,32 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     let originalPrice: string | null | undefined = undefined;
 
     if (isDiscounted) {
-      price = await this.extractProperty(page, "span.js-price-sale", (node) =>
-        node.getAttribute("data-localized-price")
+      price = await this.extractProperty(
+        page,
+        "form span#price span.js-price-sale",
+        (node) => node.getAttribute("data-localized-price")
       );
 
       // The price from which we remove commas, dots, spaces and numbers
       currency = await this.extractProperty(
         page,
-        "span.js-price-sale",
-        (node) => node.textContent().then((t) => t?.replace(/[0-9,\\. ]/g, ""))
+        "form span#price span.js-price-sale",
+        (node) => node.textContent().then((t) => t?.replace(/[^A-Z]/g, ""))
       );
 
       originalPrice = await this.extractProperty(
         page,
-        "span.js-price-original",
+        "form span#price span.js-price-original",
         (node) => node.getAttribute("data-localized-original-price")
       );
     } else {
       const priceCurrencyString = await this.extractProperty(
         page,
-        "span.price-localized",
+        "form span#price span.price-localized",
         (node) => node.textContent()
       );
 
-      price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "");
+      price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "").split(",")[0];
       currency = priceCurrencyString?.replace(/[^A-Z]/g, "");
     }
 
@@ -102,7 +233,10 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     );
     const specsReadMoreButtonCount = await specsReadMoreButton.count();
     if (specsReadMoreButtonCount === 1) {
-      await specsReadMoreButton.click();
+      const canClick = await specsReadMoreButton.isVisible();
+      if (canClick) {
+        await specsReadMoreButton.click();
+      }
     }
 
     const specsPropertiesLocator = page.locator(
@@ -131,7 +265,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
     return {
       name: name,
-      url: page.url(),
+      url: hasVariants ? `${page.url()}?sku=${sku}` : page.url(),
 
       brand: brand,
       description: description,

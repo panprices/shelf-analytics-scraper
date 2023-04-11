@@ -139,7 +139,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.nordiskagalleriet.no/alessi/dr-skud-fluesmekker"
+  "https://www.finnishdesignshop.com/en-no/product/balcony-lounge-bench-w-armrest-121-5-x-69-cm-desert-green"
 );
 
 // await debugScrapeDetails(
