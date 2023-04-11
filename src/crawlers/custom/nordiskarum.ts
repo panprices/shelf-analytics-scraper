@@ -18,58 +18,90 @@ import {
   SchemaOrg,
   Specification,
 } from "../../types/offer";
+import { extractNumberFromText } from "../../utils";
 
 export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo> {
+    const productName = (await productCard
+      .locator("a.sf-product-card__link h3")
+      .textContent())!.trim();
+    const url = <string>(
+      await productCard
+        .locator("> a.sf-product-card__link")
+        .nth(0)
+        .getAttribute("href")
+    );
+
+    const currentProductInfo: ListingProductInfo = {
+      name: productName,
+      url,
+      popularityIndex: -1, // this will be overwritten later
+      categoryUrl,
+    };
+
+    return currentProductInfo;
+  }
+
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     // Wait for images
-    await page.waitForSelector("div.fotorama__stage img");
-    await page.waitForTimeout(100);
+    await page
+      .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
+      .first()
+      .waitFor({ state: "attached" });
 
     const productName = await this.extractProperty(
       page,
-      "h1.page-title",
+      ".product__info .sf-product-name",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName) throw new Error("Cannot extract productName");
 
     const description = await this.extractProperty(
       page,
-      "div[itemprop='description']",
-      (node) => node.textContent()
+      ".product__info .product__description",
+      (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
-    const allPricesLocators = await page.locator(
-      ".product-info-price span.price-wrapper"
+    const price = await this.extractPriceFromProductDetailsPage(page);
+    const originalPrice = await this.extractOriginalPriceFromProductDetailsPage(
+      page
     );
-    const nrPriceLocators = await allPricesLocators.count();
-    const allPrices = [];
-    for (let i = 0; i < nrPriceLocators; i++) {
-      const priceString =
-        (await allPricesLocators.nth(i).getAttribute("data-price-amount")) ||
-        "";
-      allPrices.push(parseInt(priceString));
-    }
-    const isDiscounted = allPrices.length === 2;
-    const price = Math.min(...allPrices);
-    const originalPrice = isDiscounted ? Math.max(...allPrices) : undefined;
+    const isDiscounted = !!originalPrice;
 
     const images = await this.extractProductImagesFromProductDetailsPage(page);
 
-    const availability = "in_stock"; // always in stock
-    const sku = (await page
-      .locator("div[itemprop='sku']")
+    const availabilitySchemaOrg = await this.extractProperty(
+      page,
+      "meta[itemprop='availability']",
+      (node) => node.getAttribute("content")
+    ).then((text) => text?.trim());
+
+    // default to in stock since we haven't found any out of stock products on their website
+    let availability = "in_stock";
+    if (availabilitySchemaOrg) {
+      availability = availabilitySchemaOrg.includes("InStock")
+        ? "in_stock"
+        : "out_of_stock";
+    }
+
+    const skuText = (await page
+      .locator(".product__info .product__sku")
       .textContent())!.trim();
+    const sku = skuText.replace("Artikelnummer:", "").trim();
 
     const specKeys = await page
-      .locator("table#product-attribute-specs-table th")
+      .locator(".product__info .sf-property__name")
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     const specVals = await page
-      .locator("table#product-attribute-specs-table td")
+      .locator(".product__info .sf-property__value")
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     if (specKeys.length !== specVals.length) {
-      throw new Error(
+      log.warning(
         "Nordiskarum: Cannot extract specs: number of keys and vals mismatch."
       );
     }
@@ -78,142 +110,100 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     for (let i = 0; i < specKeys.length; i++) {
       specifications.push({ key: specKeys[i], value: specVals[i] });
     }
-    const brand = specifications.find(
-      (spec) => spec.key === "Varumärke"
+    const brand = specifications.find((spec) =>
+      spec.key.includes("Varumärke")
     )?.value;
 
-    const metadata = undefined;
+    const categoryTree = await this.extractCategoryTree(
+      page.locator("li.sf-breadcrumbs__list-item a"),
+      1
+    );
+    categoryTree.pop(); // last category breadcrum is the product itself
+
     return {
-      brand,
       name: productName,
+      url: page.url(),
+
+      brand,
       description,
       price,
       originalPrice,
+      isDiscounted,
       currency: "SEK",
       images,
-      // categoryTree: [], // this will be replaced later by value from when we scrape category
+      categoryTree,
+
+      gtin: undefined,
       sku,
       mpn: sku,
-      metadata,
-      specifications,
-      isDiscounted,
-      url: page.url(),
-      reviews: "unavailable",
+
       availability,
+      reviews: "unavailable",
+      specifications,
+
+      metadata: {},
     };
+  }
+
+  async extractOriginalPriceFromProductDetailsPage(page: Page) {
+    let priceText = await this.extractProperty(
+      page,
+      ".product__info .sf-price__old",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+
+    if (!priceText) {
+      return undefined;
+    }
+
+    const originalPrice = parseInt(
+      priceText.toLowerCase().replace("kr", "").replace(/\s/g, "")
+    );
+    return originalPrice;
+  }
+
+  async extractPriceFromProductDetailsPage(page: Page) {
+    let priceText = await this.extractProperty(
+      page,
+      ".product__info .sf-price__regular",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+
+    if (!priceText) {
+      priceText = await this.extractProperty(
+        page,
+        ".product__info .sf-price__special",
+        (node) => node.textContent()
+      ).then((text) => text?.trim());
+    }
+
+    if (!priceText) {
+      throw new Error("Cannot extract price");
+    }
+
+    const price = parseInt(
+      priceText.toLowerCase().replace("kr", "").replace(/\s/g, "")
+    );
+    return price;
   }
 
   async extractProductImagesFromProductDetailsPage(
     page: Page
   ): Promise<string[]> {
-    const images: string[] = [];
-    const imageLocator = page.locator("div.fotorama__stage__frame img");
-
-    const extractProductImagesOnPage = async (imageLocator: Locator) => {
-      const images: string[] = [];
-      const imageCount = await imageLocator.count();
-      // Only extract up to the 4th image since we frequently get errors from
-      // images 5 and 6, which are also unnecessary.
-      const maxImagesToGrab = Math.min(imageCount, 4);
-      for (let i = 0; i < maxImagesToGrab; i++) {
-        const imageUrl = await imageLocator.nth(i).getAttribute("src");
-        if (imageUrl) {
-          images.push(imageUrl);
-        }
+    // Try to extract from thumbnails:
+    const imageLocator = page.locator(
+      ".m-product-gallery ul.glide__slides img:not(.noscript)"
+    );
+    const imageCount = await imageLocator.count();
+    const images = [];
+    for (let i = 0; i < imageCount; ++i) {
+      const imgUrl = await imageLocator.nth(i).getAttribute("src");
+      if (imgUrl) {
+        images.push(imgUrl);
       }
-      return images;
-    };
-
-    const thumbnailsLocator = page.locator("div.fotorama__nav__shaft img");
-    const thumbnailsCount = await thumbnailsLocator.count();
-
-    if (thumbnailsCount == 0) {
-      log.debug("No thumbnails found, product only have 1 image!");
-      const images = await extractProductImagesOnPage(imageLocator);
-      const imagesDeduplicated = [...new Set(images)];
-      return imagesDeduplicated;
     }
-
-    // NOTE: Not all images are present in the HTML at the same time.
-    // Therefore we try to
-    // (1) grab all product images on page and
-    // (2) click button to cycle to the next image, and repeat (1)
-    for (let i = 0; i < thumbnailsCount; i++) {
-      const foundImages = await extractProductImagesOnPage(imageLocator);
-      images.push(...foundImages);
-
-      const nextImageButton = page.locator("div.fotorama__arr--next");
-      // Use force: true to prevent error: "subtree intercepts pointer events"
-      await nextImageButton.click({ force: true });
-      await page.waitForTimeout(1500); // to make sure images has been loaded
-    }
-
     const imagesDeduplicated = [...new Set(images)];
-    if (imagesDeduplicated.length !== thumbnailsCount) {
-      log.error("Number of images and number of thumbnails mismatch", {
-        imagesCount: imagesDeduplicated.length,
-        thumbnailsCount: thumbnailsCount,
-      });
-    }
     return imagesDeduplicated;
-  }
-
-  async extractCardProductInfo(
-    categoryUrl: string,
-    productCard: Locator
-  ): Promise<ListingProductInfo> {
-    // productCard.page().waitForFunction(() => {
-    //   return window.innerHeight > 100;
-    // });
-
-    const productName = (await productCard
-      .locator(".product-item-name")
-      .textContent())!.trim();
-    const url = <string>(
-      await productCard
-        .locator(".product-item-photo > a")
-        .nth(0)
-        .getAttribute("href")
-    );
-
-    const allPricesLocators = await productCard.locator("span.price-wrapper");
-    const nrPriceLocators = await allPricesLocators.count();
-    const allPrices = [];
-    for (let i = 0; i < nrPriceLocators; i++) {
-      const priceString =
-        (await allPricesLocators.nth(i).getAttribute("data-price-amount")) ||
-        "";
-      allPrices.push(parseInt(priceString));
-    }
-    const isDiscounted = allPrices.length === 2;
-    const price = Math.min(...allPrices);
-    const originalPrice = isDiscounted ? Math.max(...allPrices) : undefined;
-
-    const previewImageUrl = <string>(
-      await productCard.locator(".product-item-photo img").getAttribute("src")
-    );
-
-    // Need to scrape category tree here since we can't do that in Product Page.
-    // See docs/ folder for more details.
-    const categoryTree = await this.extractCategoryTreeOfCategorypage(
-      productCard.page()
-    );
-
-    const currentProductInfo: ListingProductInfo = {
-      //   brand,
-      name: productName,
-      url,
-      price,
-      currency: "SEK",
-      isDiscounted,
-      originalPrice,
-      previewImageUrl,
-      popularityIndex: -1, // this will be overwritten later
-      categoryUrl,
-      categoryTree,
-    };
-
-    return currentProductInfo;
   }
 
   async extractCategoryTreeOfCategorypage(page: Page): Promise<Category[]> {
@@ -252,51 +242,51 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     return new NordiskaRumCrawlerDefinition({
       detailsDataset,
       listingDataset,
-      listingUrlSelector: "a.next",
-      detailsUrlSelector: "div.product-item-photo a",
-      productCardSelector: "li.product-item",
-      cookieConsentSelector: "a.cta-ok",
+      listingUrlSelector: "nav .sf-pagination__item--next a",
+      detailsUrlSelector: ".sf-product-card > a.sf-product-card__link",
+      productCardSelector: ".sf-product-card",
+      cookieConsentSelector: "button#CybotCookiebotDialogBodyLevelButtonAccept",
       launchOptions,
     });
   }
 
-  override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
-    if (!this.productCardSelector) {
-      throw new Error("productCardSelector not defined");
-    }
-    // Scroll to bottom once:
-    const page = ctx.page;
-    await page.evaluate(() => {
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-    await new Promise((f) => setTimeout(f, 100));
+  // override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
+  //   if (!this.productCardSelector) {
+  //     throw new Error("productCardSelector not defined");
+  //   }
+  //   // Scroll to bottom once:
+  //   const page = ctx.page;
+  //   await page.evaluate(() => {
+  //     window.scrollTo(0, document.body.scrollHeight);
+  //   });
+  //   await new Promise((f) => setTimeout(f, 100));
 
-    // Wait for all image src to change
-    // from "data:image/png;base64..."" -> "https://..."
-    const waitTimeLimitMs = 2000; // avoid infinite loop
-    const startWaitTime = Date.now();
-    while (Date.now() - startWaitTime < waitTimeLimitMs) {
-      let allImgUrls: string[] = [];
+  //   // Wait for all image src to change
+  //   // from "data:image/png;base64..."" -> "https://..."
+  //   const waitTimeLimitMs = 2000; // avoid infinite loop
+  //   const startWaitTime = Date.now();
+  //   while (Date.now() - startWaitTime < waitTimeLimitMs) {
+  //     let allImgUrls: string[] = [];
 
-      const nrProductCards = await page
-        .locator(this.productCardSelector)
-        .count();
-      for (let i = 0; i < nrProductCards; i++) {
-        allImgUrls.push(
-          (await page
-            .locator(this.productCardSelector)
-            .nth(i)
-            .locator(".product-item-photo > a")
-            .nth(0)
-            .getAttribute("href")) || ""
-        );
-      }
-      if (allImgUrls.every((url) => url.includes("http"))) {
-        break;
-      }
-    }
+  //     const nrProductCards = await page
+  //       .locator(this.productCardSelector)
+  //       .count();
+  //     for (let i = 0; i < nrProductCards; i++) {
+  //       allImgUrls.push(
+  //         (await page
+  //           .locator(this.productCardSelector)
+  //           .nth(i)
+  //           .locator(".product-item-photo > a")
+  //           .nth(0)
+  //           .getAttribute("href")) || ""
+  //       );
+  //     }
+  //     if (allImgUrls.every((url) => url.includes("http"))) {
+  //       break;
+  //     }
+  //   }
 
-    await super.scrollToBottom(ctx);
-    await this.registerProductCards(ctx);
-  }
+  //   await super.scrollToBottom(ctx);
+  //   await this.registerProductCards(ctx);
+  // }
 }
