@@ -249,44 +249,4 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       launchOptions,
     });
   }
-
-  // override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
-  //   if (!this.productCardSelector) {
-  //     throw new Error("productCardSelector not defined");
-  //   }
-  //   // Scroll to bottom once:
-  //   const page = ctx.page;
-  //   await page.evaluate(() => {
-  //     window.scrollTo(0, document.body.scrollHeight);
-  //   });
-  //   await new Promise((f) => setTimeout(f, 100));
-
-  //   // Wait for all image src to change
-  //   // from "data:image/png;base64..."" -> "https://..."
-  //   const waitTimeLimitMs = 2000; // avoid infinite loop
-  //   const startWaitTime = Date.now();
-  //   while (Date.now() - startWaitTime < waitTimeLimitMs) {
-  //     let allImgUrls: string[] = [];
-
-  //     const nrProductCards = await page
-  //       .locator(this.productCardSelector)
-  //       .count();
-  //     for (let i = 0; i < nrProductCards; i++) {
-  //       allImgUrls.push(
-  //         (await page
-  //           .locator(this.productCardSelector)
-  //           .nth(i)
-  //           .locator(".product-item-photo > a")
-  //           .nth(0)
-  //           .getAttribute("href")) || ""
-  //       );
-  //     }
-  //     if (allImgUrls.every((url) => url.includes("http"))) {
-  //       break;
-  //     }
-  //   }
-
-  //   await super.scrollToBottom(ctx);
-  //   await this.registerProductCards(ctx);
-  // }
 }
