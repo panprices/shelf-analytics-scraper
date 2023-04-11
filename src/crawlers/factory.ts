@@ -279,6 +279,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "https://www.finnishdesignshop.com":
