@@ -25,15 +25,19 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const productName = (await productCard
-      .locator("a.sf-product-card__link h3")
-      .textContent())!.trim();
-    const url = <string>(
-      await productCard
-        .locator("> a.sf-product-card__link")
-        .nth(0)
-        .getAttribute("href")
+    const productName = await this.extractProperty(
+      productCard,
+      "a.sf-product-card__link h3",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    if (!productName) throw new Error("Cannot find productName of productCard");
+
+    const url = await this.extractProperty(
+      productCard,
+      "> a.sf-product-card__link",
+      (node) => node.getAttribute("href")
     );
+    if (!url) throw new Error("Cannot find url of productCard");
 
     const currentProductInfo: ListingProductInfo = {
       name: productName,
@@ -103,9 +107,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     if (specKeys.length !== specVals.length) {
-      log.warning(
-        "Nordiskarum: Cannot extract specs: number of keys and vals mismatch."
-      );
+      log.warning("Cannot extract specs: number of keys and vals mismatch.");
     }
 
     const specifications: Specification[] = [];
