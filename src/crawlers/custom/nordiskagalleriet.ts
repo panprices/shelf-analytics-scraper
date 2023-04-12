@@ -27,7 +27,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
   override async getCurrentVariantUrl(
     ctx: PlaywrightCrawlingContext
   ): Promise<string> {
-    await ctx.page.waitForSelector("#artnr-copy", { timeout: 500 });
+    await ctx.page.waitForSelector("#artnr-copy", { timeout: 5000 });
     const url = ctx.page.url().split("?")[0];
     const sku = await this.extractProperty(ctx.page, "#artnr-copy", (node) =>
       node.textContent().then((t) => t?.trim())
@@ -46,15 +46,26 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
     let option,
       optionVisible = false;
+    let tries = 0;
     do {
       await dropDown.click();
       let options = dropDown.locator(".VB_Egenskap");
       option = options.nth(optionIndex);
       optionVisible = await option.isVisible();
+
+      // Let it crash, and the exception will be caught by the caller. The number of options
+      // will be recounted then
+      if (tries > 5) {
+        break;
+      }
+      tries++;
     } while (!optionVisible);
 
     await option.click();
     await ctx.page.waitForLoadState("networkidle");
+
+    // Wait for the options in subsequent dropdowns to be loaded
+    await ctx.page.waitForTimeout(300);
   }
 
   async hasSelectedOptionForParamIndex(
@@ -93,8 +104,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
     const optionsCount = await dropDown.locator(".VB_Egenskap").count();
     await dropDown.click();
 
-    // If there is only one option, it is the default one, so we don't need to select it
-    return optionsCount <= 1 ? 0 : optionsCount;
+    return optionsCount;
   }
 
   async checkInvalidVariant(

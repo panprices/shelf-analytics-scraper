@@ -30,7 +30,7 @@ async function debugScrapeDetails(targetUrl: string) {
     },
     false,
     {
-      ignoreVariants: true,
+      ignoreVariants: false,
     }
   );
 
@@ -145,7 +145,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );
 
-await debugScrapeDetails("https://www.nordiskagalleriet.no/foscarini/spokes-2");
+await debugScrapeDetails(
+  "https://www.nordiskagalleriet.no/driade/franois-table"
+);
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
