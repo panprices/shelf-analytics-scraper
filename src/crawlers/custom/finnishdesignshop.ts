@@ -278,7 +278,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       sku: sku,
       mpn: mpn,
 
-      categoryUrl: categoryTree[categoryTree.length - 1].url,
+      categoryUrl: categoryTree[categoryTree.length - 1]?.url,
       categoryTree: categoryTree,
 
       metadata: {

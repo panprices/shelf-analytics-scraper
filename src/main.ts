@@ -146,7 +146,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.nordiskagalleriet.no/driade/franois-table"
+  "https://www.finnishdesignshop.com/en-no/product/alley-wall-lamp-large-egg-white"
 );
 
 // await debugScrapeDetails(
