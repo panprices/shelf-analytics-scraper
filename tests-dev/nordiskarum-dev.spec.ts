@@ -22,6 +22,13 @@ test("Category page", async () => {
   expect(result).toHaveLength(26);
 });
 
+test("Category page with only 1 page, no pagination", async () => {
+  const targetUrl = "https://www.nordiskarum.se/mobler/soffor/baddsoffor.html";
+  const result = await exploreCategory(targetUrl, "job_test_1");
+
+  expect(result).toHaveLength(7);
+});
+
 test("Basic product page", async () => {
   const targetUrl =
     "https://www.nordiskarum.se/bornholm-svangd-4-sits-orinoco23.html";

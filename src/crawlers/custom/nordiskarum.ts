@@ -21,6 +21,50 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
+  protected override categoryPageSize: number = 12;
+
+  override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    // Crawl list page in parallel since each page takes too long to load:
+    const categoryUrl = ctx.page.url();
+    if (!categoryUrl.includes("?page=")) {
+      // Initial category page
+      // => Find the number of pages and enqueue all pages to scrape.
+      try {
+        await ctx.page.waitForSelector(this.listingUrlSelector!);
+        const paginationLinks = ctx.page.locator(this.listingUrlSelector!);
+
+        const lastPageLink = paginationLinks.nth(
+          (await paginationLinks.count()) - 2
+        );
+        const lastPageNumberText = await lastPageLink.textContent();
+        if (!lastPageNumberText) {
+          log.debug("No last page found - category only has 1 page");
+          return;
+        }
+
+        const nrPages = parseInt(lastPageNumberText.trim());
+        for (let i = 2; i <= nrPages; i++) {
+          const url = categoryUrl.split("?")[0] + `?page=${i}`;
+
+          await ctx.enqueueLinks({
+            urls: [url],
+            label: "LIST",
+            userData: {
+              ...ctx.request.userData,
+              pageNumber: i,
+            },
+          });
+        }
+
+        log.info(`Enqueued ${nrPages} category pages to explore.`);
+      } catch (e) {
+        log.debug("No pagination found - category only has 1 page");
+      }
+    }
+
+    await super.crawlListPage(ctx);
+  }
+
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
@@ -246,7 +290,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     return new NordiskaRumCrawlerDefinition({
       detailsDataset,
       listingDataset,
-      listingUrlSelector: "nav .sf-pagination__item--next a",
+      listingUrlSelector: "nav.sf-pagination a.sf-link",
       detailsUrlSelector: ".sf-product-card > a.sf-product-card__link",
       productCardSelector: ".sf-product-card",
       cookieConsentSelector: "button#CybotCookiebotDialogBodyLevelButtonAccept",

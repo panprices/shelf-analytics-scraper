@@ -173,6 +173,7 @@ export class CrawlerFactory {
         definition = await NordiskaRumCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
+          maxConcurrency: 5,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];

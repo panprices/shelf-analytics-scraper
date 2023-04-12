@@ -145,9 +145,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );
 
-await debugScrapeDetails(
-  "https://www.finnishdesignshop.com/en-no/product/alley-wall-lamp-large-egg-white"
-);
+// await debugScrapeDetails(
+//   "https://www.finnishdesignshop.com/en-no/product/alley-wall-lamp-large-egg-white"
+// );
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
