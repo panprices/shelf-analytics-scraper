@@ -292,13 +292,17 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.lannamobler.se":
       case "https://www.lanna.no":
+      case "https://www.lanna.fi":
         definition = await LannaMoblerCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.nordiskagalleriet.se":
+      case "https://www.nordiskagalleriet.fi":
       case "https://www.nordiskagalleriet.no":
         definition = await NordiskaGallerietCrawlerDefinition.create(
           launchOptions

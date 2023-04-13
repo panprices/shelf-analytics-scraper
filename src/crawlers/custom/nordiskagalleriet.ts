@@ -65,7 +65,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
     await ctx.page.waitForLoadState("networkidle");
 
     // Wait for the options in subsequent dropdowns to be loaded
-    await ctx.page.waitForTimeout(300);
+    await ctx.page.waitForTimeout(100);
   }
 
   async hasSelectedOptionForParamIndex(

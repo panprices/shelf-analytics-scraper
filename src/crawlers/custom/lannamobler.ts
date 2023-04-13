@@ -48,7 +48,10 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.textContent()
     );
     let [price, currency] = priceCurrencyString?.trim().split(" ") ?? ["0", ""];
-    price = price.replace(".", "").replace(",", ".");
+    price = price
+      .replace(".", "")
+      .replace(",", ".")
+      .replace(/[^0-9.]/g, "");
 
     const schemaOrgString = await this.extractProperty(
       page,
@@ -73,9 +76,13 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       ?.trim()
       .split(" ")[0]
       .replace(".", "")
-      .replace(",", ".");
+      .replace(",", ".")
+      .replace(/[^0-9.]/g, "");
 
-    if (currency.length !== 3 && currency !== "UNKNOWN") {
+    if (
+      (currency === undefined || currency.length !== 3) &&
+      currency !== "UNKNOWN"
+    ) {
       currency = schemaOrg?.offers?.priceCurrency;
     }
     const gtin = schemaOrg?.gtin;
@@ -100,7 +107,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
         "contains(@class, 'slick-slide') " +
         "and not(contains(@class, 'slick-cloned')) " +
         "and not(contains(@class, 'slick-slider'))" +
-        "]/img",
+        "]//img",
       async (node) => {
         const imageCount = await node.count();
         const images = [];
@@ -150,7 +157,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       categoryUrl: categoryTree[categoryTree.length - 1].url,
       categoryTree: categoryTree,
 
-      metadata: {},
+      metadata: { schemaOrg },
 
       availability: availability,
       fetchedAt: new Date().toISOString(),
