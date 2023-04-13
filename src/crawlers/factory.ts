@@ -283,6 +283,7 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "https://www.finnishdesignshop.fi":
       case "https://www.finnishdesignshop.com":
         definition = await FinnishDesignShopCrawlerDefinition.create(
           launchOptions
