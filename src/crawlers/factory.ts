@@ -42,6 +42,7 @@ import { Furniture1CrawlerDefinition } from "./custom/furniture1";
 import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
 import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
 import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
+import { amazonCrawlerDefinition } from "./custom/amazon";
 
 export interface CrawlerFactoryArgs {
   url: string;
@@ -308,6 +309,13 @@ export class CrawlerFactory {
         definition = await NordiskaGallerietCrawlerDefinition.create(
           launchOptions
         );
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "amazon.de":
+        definition = await amazonCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

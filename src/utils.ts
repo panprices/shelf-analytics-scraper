@@ -70,3 +70,18 @@ export function extractNumberFromText(text: string): number {
   const num = parseInt(matches[0]);
   return num;
 }
+
+/**
+ * Convert currency symbol to ISO 4217 code.
+ */
+export function convertCurrencySymbolToISO(symbol: string): string {
+  const symbolToCode: Record<string, string> = {
+    "€": "EUR",
+    $: "USD", // for some reason the quotation mark is not needed and removed by prettier
+  };
+
+  const code = symbolToCode[symbol];
+  if (!code) throw Error(`Unknown currency symbol: ${symbol}`);
+
+  return code;
+}
