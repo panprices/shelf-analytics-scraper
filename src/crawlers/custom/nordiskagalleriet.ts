@@ -179,6 +179,9 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
         priceExtractor
       );
     }
+    const originalPrice = originalPriceString
+      ? parseFloat(originalPriceString)
+      : undefined;
 
     const schemaOrgString = await this.extractProperty(
       page,
@@ -315,7 +318,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
       price: Number(priceString),
       currency: currency,
       isDiscounted: isDiscounted,
-      originalPrice: Number(originalPriceString),
+      originalPrice,
 
       gtin: gtin,
       sku: sku,
