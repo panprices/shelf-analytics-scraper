@@ -10,6 +10,10 @@ import {
 } from "./service";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { join } from "path";
+import { configCrawleeLogger } from "./utils";
+
+// Config logger to make debugging easier
+configCrawleeLogger();
 
 async function debugScrapeDetails(targetUrl: string) {
   const dummyRequest = {
@@ -139,37 +143,6 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
   });
 }
 
-// Berno Mobler
-
-// await debugCategoryExploration(
-//   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
-// );
-
-// await debugScrapeDetails(
-//   "https://www.finnishdesignshop.com/en-no/product/alley-wall-lamp-large-egg-white"
-// );
-
-// await debugScrapeDetails(
-//   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
-// );
-
-// Ellos Home
-// await debugCategoryExploration(
-//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-// );
-
-// await debugCategoryExplorationRecordHARForTests(
-//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-// );
-
-// await debugScrapeDetails(
-//   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
-// );
-
-// await debugScrapeDetailsRecordHARForTests(
-//   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
-// );
-//
-// await debugCategoryExplorationRecordHARForTests(
-//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-// );
+await debugScrapeDetails(
+  "https://www.k-rauta.se/produkt/kortlingshallare-norgips-kb12/7332169003756"
+);

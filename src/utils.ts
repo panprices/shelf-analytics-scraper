@@ -23,11 +23,16 @@ export class CrawleeLoggerForGCP extends LoggerJson {
 }
 
 export function configCrawleeLogger(cloudTrace?: string) {
+  log.setOptions({
+    maxDepth: 10,
+  });
+
+  // Local dev setting:
   if (
     !process.env.PANPRICES_ENVIRONMENT ||
     process.env.PANPRICES_ENVIRONMENT === "local"
   )
-    return; // use default setting for local development
+    return;
 
   // Production setting:
   log.setOptions({
