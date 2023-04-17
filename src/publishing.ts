@@ -55,7 +55,7 @@ export async function persistProductsToDatabase(
     .table("retailer_listings")
     .insert(preprocessedItems)
     .catch((reason) => {
-      log.error(`BigQuery insertion error`, { ...reason });
+      log.error(`BigQuery insertion error`, { reason: reason });
     });
 
   log.info("Published products to BigQuery", {
