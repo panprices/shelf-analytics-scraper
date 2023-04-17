@@ -269,10 +269,10 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
       brand: brand,
       description: description,
-      price: Number(price),
+      price: parseFloat(price),
       currency: currency,
       isDiscounted: isDiscounted,
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
+      originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
 
       gtin: undefined,
       sku: sku,
@@ -283,7 +283,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
       metadata: {
         schemaOrg: schemaOrg,
-        originalPrice: originalPrice ? Number(originalPrice) : undefined,
+        originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
       },
 
       availability: isAvailable === "true" ? "in_stock" : "out_of_stock",
