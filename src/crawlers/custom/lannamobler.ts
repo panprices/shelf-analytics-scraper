@@ -47,11 +47,18 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       ".lm-product-details__current-price",
       (node) => node.textContent()
     );
-    let [price, currency] = priceCurrencyString?.trim().split(" ") ?? ["0", ""];
-    price = price
+    let [priceString, currency] = priceCurrencyString?.trim().split(" ") ?? [
+      "0",
+      "",
+    ];
+    priceString = priceString
       .replace(".", "")
       .replace(",", ".")
       .replace(/[^0-9.]/g, "");
+    if (!priceString) {
+      throw new Error("Cannot extract price of product");
+    }
+    const price = parseFloat(priceString);
 
     const schemaOrgString = await this.extractProperty(
       page,
@@ -72,12 +79,15 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       "//div[@class='lm-product-details__old-price']/span[2]",
       (node) => node.textContent()
     );
-    const originalPrice = originalPriceCurrencyString
+    const originalPriceString = originalPriceCurrencyString
       ?.trim()
       .split(" ")[0]
       .replace(".", "")
       .replace(",", ".")
       .replace(/[^0-9.]/g, "");
+    const originalPrice = originalPriceString
+      ? parseFloat(originalPriceString)
+      : undefined;
 
     if (
       (currency === undefined || currency.length !== 3) &&
@@ -145,10 +155,10 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
       brand: brand,
       description: description,
-      price: Number(price),
+      price,
       currency: currency,
       isDiscounted: isDiscounted,
-      originalPrice: Number(originalPrice),
+      originalPrice,
 
       gtin: gtin,
       sku: sku,
