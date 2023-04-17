@@ -54,8 +54,8 @@ export async function persistProductsToDatabase(
     .dataset("b2b_brand_product_index")
     .table("retailer_listings")
     .insert(preprocessedItems)
-    .catch((response: InsertRowsResponse) => {
-      log.error(`BigQuery insertion error`, { response: response });
+    .catch((reason) => {
+      log.error(`BigQuery insertion error`, { ...reason });
     });
 
   log.info("Published products to BigQuery", {
