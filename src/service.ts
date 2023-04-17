@@ -304,9 +304,9 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
     switch (p.currency) {
       // SEK, USD, EUR
       default: {
-        p.price = p.price * 100;
+        p.price = Math.floor(p.price * 100);
         if (p.originalPrice) {
-          p.originalPrice = p.originalPrice * 100;
+          p.originalPrice = Math.floor(p.originalPrice * 100);
         }
       }
     }
