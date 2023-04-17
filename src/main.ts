@@ -45,9 +45,9 @@ async function debugScrapeDetails(targetUrl: string) {
     nrImages: detailedItems.map((item) => item.images.length),
   });
 
-  log.info("Persisting in BigQuery");
-  await persistProductsToDatabase(detailedItems);
-  log.info("Published to BigQuery");
+  // log.info("Persisting in BigQuery");
+  // await persistProductsToDatabase(detailedItems);
+  // log.info("Published to BigQuery");
 }
 
 async function debugCategoryExploration(targetUrl: string) {
