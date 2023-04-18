@@ -14,7 +14,12 @@ import {
 } from "../../types/offer";
 import { extractRootUrl } from "../../utils";
 import { v4 as uuidv4 } from "uuid";
-import { getVariantUrlsFromSchemaOrg } from "./base-chill";
+import {
+  createCrawlerDefinitionOption,
+  extractCardProductInfo as baseExtractCardProductInfo,
+  extractProductDetails as baseExtractProductDetails,
+  getVariantUrlsFromSchemaOrg,
+} from "./base-chill";
 
 export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   constructor(options: CrawlerDefinitionOptions) {
@@ -134,66 +139,26 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const productInfo = await baseExtractProductDetails(this, page);
+
+    let description;
     try {
-      await page.waitForSelector("h1[data-cy='product_title']");
-    } catch (error) {
-      log.warning(
-        `No product title found, potentially brokenlink. Url: ${page.url()}`
+      const descriptionExpander = page.locator(
+        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
       );
-      throw error;
+      await descriptionExpander.click({ timeout: 5000 });
+      description = await this.extractProperty(
+        descriptionExpander,
+        "..//div[contains(@class, 'accordion--content')]",
+        (node) => node.textContent()
+      ).then((text) => text?.trim());
+    } catch (e) {
+      log.info(`Description not found for product with url: ${page.url()}`);
+      description = undefined;
     }
-    await this.handleCookieConsent(page);
-
-    const metadata: OfferMetadata = {};
-    const schemaOrgString = <string>(
-      await page
-        .locator(
-          "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
-        )
-        .textContent()
-    );
-    metadata.schemaOrg = JSON.parse(schemaOrgString);
-
-    const mpn = metadata.schemaOrg?.mpn;
-
-    const productName = await page
-      .locator("h1[data-cy='product_title']")
-      .textContent();
-    const price_text = await page
-      .locator("div#productInfoPrice div[data-cy='current-price']")
-      .textContent();
-    const price = Number(price_text?.replace(" ", ""));
-
-    const imagesPreviewLocator = await page.locator(
-      "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]//img"
-    );
-    const imagesCount = await imagesPreviewLocator.count();
-    for (let i = 0; i < imagesCount; i++) {
-      const currentImagePreview = imagesPreviewLocator.nth(i);
-      await currentImagePreview.click();
-    }
-
-    const images = await page
-      .locator("div#productInfoImage div.slick-slide div.z3Vk_ img")
-      .evaluateAll((list: HTMLElement[]) =>
-        list.map((element) => <string>element.getAttribute("src"))
-      );
-    const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
-    const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
-
-    const brand = await this.extractProperty(
-      page,
-      "//span[contains(strong/text(), ('Varumärke'))]/span/a",
-      (node) => node.textContent()
-    );
-    const originalPriceString = await this.extractProperty(
-      page,
-      "xpath=(//div[contains(@class, 'productInfoContent--buySectionBlock')]//div[@data-cy = 'original-price'])[1]",
-      (node) => node.textContent()
-    );
 
     let articleNumber = undefined,
-      specArray = [];
+      specifications = [];
     try {
       const specificationsExpander = page.locator(
         "//div[contains(@class, 'accordion--title') and .//span/text() = 'Specifikationer']"
@@ -207,149 +172,35 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
         "//div[contains(@class, 'articleNumber')]/span",
         (node) => node.textContent()
       ).then((text) => text?.trim());
-      const specifications = specificationsExpander.locator("..//tr");
-      const specificationsCount = await specifications.count();
-      specArray = [];
+      const specificationRowLocator = specificationsExpander.locator("..//tr");
+      const specificationsCount = await specificationRowLocator.count();
       for (let i = 0; i < specificationsCount; i++) {
-        const specLocator = specifications.nth(i);
-        const specKey = <string>(
-          await specLocator.locator("xpath=.//td[1]").textContent()
-        );
-        const specValue = <string>(
-          await specLocator.locator("xpath=.//td[2]").textContent()
-        );
-
-        specArray.push({
-          key: specKey,
-          value: specValue,
-        });
+        const specLocator = specificationRowLocator.nth(i);
+        const specKey = await specLocator
+          .locator("xpath=.//td[1]")
+          .textContent()
+          .then((text) => text?.trim());
+        const specValue = await specLocator
+          .locator("xpath=.//td[2]")
+          .textContent()
+          .then((text) => text?.trim());
+        if (specKey && specValue) {
+          specifications.push({
+            key: specKey,
+            value: specValue,
+          });
+        }
       }
     } catch (e) {
       log.info(`Specification not found for product with url: ${page.url()}`);
     }
 
-    let description;
-    try {
-      const descriptionExpander = page.locator(
-        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
-      );
-      await descriptionExpander.click({ timeout: 5000 });
-
-      description = <string>(
-        await this.extractProperty(
-          descriptionExpander,
-          "..//div[contains(@class, 'accordion--content')]",
-          (node) => node.textContent()
-        )
-      );
-    } catch (e) {
-      log.info(`Description not found for product with url: ${page.url()}`);
-      description = "unavailable";
-    }
-
-    let reviewSummary: ProductReviews | "unavailable";
-    try {
-      const averageReviewString = await this.extractProperty(
-        page,
-        "//div[contains(@class, 'accordionRatingContainer')]/span[1]",
-        (node) => node.textContent()
-      );
-      const averageReview = Number(averageReviewString);
-
-      const reviewCountString = <string>(
-        await this.extractProperty(
-          page,
-          "//div[contains(@class, 'accordionRatingContainer')]/span[2]",
-          (node) => node.textContent()
-        )
-      );
-      const reviewCount = Number(
-        reviewCountString.substring(1, reviewCountString.length - 1)
-      );
-
-      await page
-        .locator(
-          "//div[contains(@class, 'accordion--title') and .//span/text() = 'Recensioner']"
-        )
-        .click({ timeout: 5000 });
-
-      await page.locator("#ReviewsDropDownSorting").click();
-      await page.locator(".ReviewSortingDropDown").waitFor();
-
-      await page.locator("#mostRecentReviewSorting").click();
-      await page
-        .locator(
-          "//div[@id = 'ReviewsDropDownSorting']/span[text() = 'Senast inkommet']"
-        )
-        .waitFor();
-      // wait to load the new reviews
-      await new Promise((f) => setTimeout(f, 500));
-
-      const reviewsSelector = page.locator(
-        "//div[contains(@class, 'reviewsList')]/div"
-      );
-      const expandedReviewsCount = await reviewsSelector.count();
-
-      const recentReviews: IndividualReview[] = [];
-      for (let i = 0; i < expandedReviewsCount; i++) {
-        const currentReviewElement = reviewsSelector.nth(i);
-        const fullStarsSelector = currentReviewElement.locator("div.qUxh1");
-
-        const score = await fullStarsSelector.count();
-        const content = <string>(
-          await this.extractProperty(
-            currentReviewElement,
-            "xpath=./div[2]/p",
-            (node) => node.textContent()
-          )
-        );
-        recentReviews.push({
-          score,
-          content,
-        });
-      }
-
-      reviewSummary = {
-        averageReview,
-        reviewCount,
-        recentReviews,
-      };
-    } catch (e) {
-      log.info(`Reviews not found for product with url: ${page.url()}`);
-      reviewSummary = "unavailable";
-    }
-
-    const addToCartLocator = page.locator("#A2C_ACTION");
-    const availability =
-      (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
-
-    const intermediateResult: DetailedProductInfo = {
-      name: <string>productName,
-      price,
-      currency: "SEK",
-      images,
+    return {
+      ...productInfo,
       description,
-      url: page.url(),
-      isDiscounted: originalPriceString !== undefined,
-      brand,
-      categoryTree,
-      reviews: reviewSummary,
-
+      specifications,
       sku: articleNumber,
-      mpn,
-
-      specifications: specArray,
-      availability,
-      metadata,
     };
-
-    if (originalPriceString) {
-      intermediateResult.originalPrice = Number(
-        originalPriceString.replace("SEK", "").replace(/\s/g, "")
-      );
-    }
-
-    return intermediateResult;
   }
 
   override async crawlIntermediateCategoryPage(

@@ -209,13 +209,14 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     for (let i = 0; i < imagesCount; i++) {
       const currentImagePreview = imagesPreviewLocator.nth(i);
       await currentImagePreview.click();
+      await page.waitForTimeout(50);
     }
-
     const images = await page
       .locator("div#productInfoImage figure img")
       .evaluateAll((list: HTMLElement[]) =>
         list.map((element) => <string>element.getAttribute("src"))
       );
+
     const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
 
