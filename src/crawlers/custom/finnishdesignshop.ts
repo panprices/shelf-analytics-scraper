@@ -198,7 +198,10 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       currency = await this.extractProperty(
         page,
         "form span#price span.js-price-sale",
-        (node) => node.textContent().then((t) => t?.replace(/[^A-Z]/g, ""))
+        (node) =>
+          node
+            .textContent()
+            .then((t) => t?.replace(/[^A-Z€]/g, "").replace("€", "EUR"))
       );
 
       originalPrice = await this.extractProperty(
@@ -214,7 +217,9 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       );
 
       price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "").split(",")[0];
-      currency = priceCurrencyString?.replace(/[^A-Z]/g, "");
+      currency = priceCurrencyString
+        ?.replace(/[^A-Z€]/g, "")
+        .replace("€", "EUR");
     }
 
     if (!price) throw new Error("Cannot find price of product");
