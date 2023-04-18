@@ -104,20 +104,7 @@ export async function extractProductDetails(
     .textContent();
   const price = Number(price_text?.replace(" ", ""));
 
-  const imagesPreviewLocator = await page.locator(
-    "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]//img"
-  );
-  const imagesCount = await imagesPreviewLocator.count();
-  for (let i = 0; i < imagesCount; i++) {
-    const currentImagePreview = imagesPreviewLocator.nth(i);
-    await currentImagePreview.click();
-  }
-
-  const images = await page
-    .locator("div#productInfoImage div.slick-slide div.z3Vk_ img")
-    .evaluateAll((list: HTMLElement[]) =>
-      list.map((element) => <string>element.getAttribute("src"))
-    );
+  const images = await extractImagesFromProductPage(page);
   const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
   const categoryTree = await crawlerDefinition.extractCategoryTree(
     breadcrumbLocator,
@@ -216,6 +203,8 @@ export async function extractProductDetails(
     ? Number(originalPriceString.replace("SEK", "").replace(/\s/g, ""))
     : undefined;
 
+  // NOTE: The commented out fields are different for each website, so they are not extracted here.
+  // Implement them in the specific Chilli/Furniturebox/Trademax crawler.
   const intermediateResult = {
     brand,
     name: <string>productName,
@@ -227,6 +216,7 @@ export async function extractProductDetails(
     originalPrice,
 
     gtin: undefined,
+    // sku,
     mpn,
 
     availability,
@@ -238,6 +228,34 @@ export async function extractProductDetails(
   };
 
   return intermediateResult;
+}
+
+export async function extractImagesFromProductPage(
+  page: Page
+): Promise<string[]> {
+  const imagesPreviewLocator = await page.locator(
+    "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]//img"
+  );
+
+  try {
+    await imagesPreviewLocator.waitFor({ timeout: 10000 });
+  } catch (e) {
+    // Probably no images thumbnails -> do nothing and just scrape the main image
+  }
+
+  const imagesCount = await imagesPreviewLocator.count();
+  for (let i = 0; i < imagesCount; i++) {
+    const currentImagePreview = imagesPreviewLocator.nth(i);
+    await currentImagePreview.click();
+    await page.waitForTimeout(50);
+  }
+  const images = await page
+    .locator("div#productInfoImage div.slick-slide div.z3Vk_ img")
+    .evaluateAll((list: HTMLElement[]) =>
+      list.map((element) => <string>element.getAttribute("src"))
+    );
+
+  return images;
 }
 
 export async function getVariantUrlsFromSchemaOrg(
