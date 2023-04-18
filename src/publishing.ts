@@ -74,6 +74,11 @@ export async function persistProductsToDatabase(
  */
 export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
   const reduceToSimpleTypes = (e: any) => {
+    // null is an object, so we need to check for it first
+    if (e === null || e === undefined) {
+      return null;
+    }
+
     const currentType = typeof e;
 
     switch (currentType) {
