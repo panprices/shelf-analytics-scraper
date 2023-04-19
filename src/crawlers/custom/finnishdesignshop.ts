@@ -23,10 +23,30 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     super(options, "same_tab");
   }
 
+  private async waitForSinglePrice(page: Page) {
+    while (true) {
+      const priceLocatorString = "form span#price span.price-localized";
+
+      await page.waitForSelector(priceLocatorString, {
+        timeout: 500,
+      });
+      const priceLocator = page.locator(priceLocatorString);
+      const priceCount = await priceLocator.count();
+      if (priceCount === 1) {
+        return;
+      }
+
+      log.info(`Waiting for single price, found ${priceCount} prices`);
+      // Add a small delay
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+  }
+
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
     await ctx.page.waitForLoadState("networkidle");
+    await this.waitForSinglePrice(ctx.page);
     return super.crawlDetailPage(ctx);
   }
 
