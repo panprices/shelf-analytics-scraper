@@ -545,7 +545,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     } while (true);
 
     if (!isSelectionApplied) {
-      const pageState = this.getCurrentVariantState(ctx);
+      const pageState = await this.getCurrentVariantState(ctx);
       // When no parameters are selected, we ended up at the variantGroupUrl because of the hacky solution.
       // Then we start exploring the variants space, but we stop after the first variant
       await this.exploreVariantsSpace(
@@ -600,7 +600,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     limit?: number
   ): Promise<[any, number]> {
     if (!pageState) {
-      pageState = this.getCurrentVariantState(ctx);
+      pageState = await this.getCurrentVariantState(ctx);
     }
 
     let optionsCount;
