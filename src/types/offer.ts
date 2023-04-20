@@ -73,7 +73,7 @@ export interface DetailedProductInfo extends BaseProductInfo {
   retailerDomain?: string;
 
   images: string[]; // if not applicable return an empty array
-  reviews: ProductReviews | "unavailable";
+  reviews?: ProductReviews | "unavailable";
   specifications: Specification[]; // if not applicable return an empty array
 
   //categoryTree is only optional if we already scraped it in the category page.

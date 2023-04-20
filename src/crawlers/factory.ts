@@ -314,11 +314,12 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "amazon.de":
+      case "https://www.amazon.de":
         definition = await amazonCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
