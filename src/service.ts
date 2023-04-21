@@ -1,7 +1,7 @@
 import { CrawlerFactory } from "./crawlers/factory";
 import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
-import { extractRootUrl } from "./utils";
+import { extractDomainFromUrl } from "./utils";
 import { DetailedProductInfo } from "./types/offer";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
@@ -12,10 +12,10 @@ export async function exploreCategory(
   jobId: string,
   overrides?: PlaywrightCrawlerOptions
 ): Promise<RequestOptions[]> {
-  const rootUrl = extractRootUrl(targetUrl);
+  const domain = extractDomainFromUrl(targetUrl);
 
-  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
-    { url: rootUrl },
+  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForDomain(
+    { domain },
     {
       ...overrides,
       maxConcurrency: 1,
@@ -62,12 +62,12 @@ export async function exploreCategoriesNoCapture(
     return [];
   }
 
-  const rootUrl = extractRootUrl(targetUrls[0]);
+  const domain = extractDomainFromUrl(targetUrls[0]);
 
   const [crawler, crawlerDefinition] =
-    await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
+    await CrawlerFactory.buildPlaywrightCrawlerForDomain(
       {
-        url: rootUrl,
+        domain,
         customQueueSettings: {
           captureLabels: [],
         },
@@ -173,11 +173,11 @@ export async function extractLeafCategories(
     return [];
   }
 
-  const rootUrl = extractRootUrl(targetUrls[0]);
+  const domain = extractDomainFromUrl(targetUrls[0]);
 
-  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
+  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForDomain(
     {
-      url: rootUrl,
+      domain,
       customQueueSettings: {
         captureLabels: ["LIST"],
       },
@@ -221,19 +221,19 @@ export async function scrapeDetails(
     return [];
   }
 
-  const rootUrl = extractRootUrl(detailedPages[0].url);
+  const domain = extractDomainFromUrl(detailedPages[0].url);
   let crawler, crawlerDefinition;
   if (useCheerio) {
     [crawler, crawlerDefinition] =
       await CrawlerFactory.buildCheerioCrawlerForRootUrl({
-        url: rootUrl,
+        domain,
         useCustomQueue: false,
       });
   } else {
     [crawler, crawlerDefinition] =
-      await CrawlerFactory.buildPlaywrightCrawlerForRootUrl(
+      await CrawlerFactory.buildPlaywrightCrawlerForDomain(
         {
-          url: rootUrl,
+          domain,
           useCustomQueue: false,
         },
         overrides,

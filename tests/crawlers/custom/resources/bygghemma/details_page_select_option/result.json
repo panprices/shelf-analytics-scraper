@@ -1,0 +1,514 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matgrupp Venture Home Estelle 140 med 4 Vera Stolar Sammet",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/s_-gr994-__11__88600b99-83ae-48e5-8f31-798f533b3ea7.jpg",
+      "https://img.bygghemma.se/pimages/s_-gr994-__11__9dd0674b-dfbb-400f-8db8-7f44ea62dce9.jpg",
+      "https://img.bygghemma.se/pimages/s_-gr994-__10__5de2395d-9bc2-48b9-9bb1-38362ebc2e08.jpg",
+      "https://img.bygghemma.se/pimages/s_-gr994-__12__a073d9a9-993b-40de-81d2-2c3788ecd88f.jpg",
+      "https://img.bygghemma.se/pimages/_gr994-__13__3bc5ce81-0834-40a4-a527-fd2db0ad4f2e.jpg",
+      "https://img.bygghemma.se/pimages/s_-gr994-__14__d849e122-85df-4d59-81b2-5b02a504e403.jpg"
+    ],
+    "description": "Matgrupp Venture Home Estelle med Vera stolar är en elegant matgrupp med ett vitt marmorbord och fyra stycken stolar i sammet.",
+    "price": 1000400,
+    "isDiscounted": true,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matgrupp",
+        "url": "/inredning-och-belysning/mobler/bord/matgrupp"
+      }
+    ],
+    "sku": "GR994",
+    "articleNumber": "GR994",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "GR994"
+      },
+      {
+        "key": "Färg",
+        "value": "Beige/Svart"
+      },
+      {
+        "key": "Rygghöjd",
+        "value": "42 cm"
+      },
+      {
+        "key": "Sittbredd",
+        "value": "60 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Marmor/Metall/Sammet"
+      },
+      {
+        "key": "Typ",
+        "value": "Matgrupp"
+      },
+      {
+        "key": "Serie",
+        "value": "Estelle"
+      },
+      {
+        "key": "Antal Stolar",
+        "value": "4"
+      },
+      {
+        "key": "Sittdjup",
+        "value": "48 cm"
+      },
+      {
+        "key": "Sitthöjd",
+        "value": "49 cm"
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej"
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej"
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulär"
+      },
+      {
+        "key": "Toppskiva",
+        "value": "Marmor"
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matgrupp Venture Home Estelle 140 med 4 Vera Stolar Sammet",
+        "image": [
+          "//img.bygghemma.se/pimages/s_-gr994-__11__88600b99-83ae-48e5-8f31-798f533b3ea7.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_-gr994-__11__88600b99-83ae-48e5-8f31-798f533b3ea7.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__11__88600b99-83ae-48e5-8f31-798f533b3ea7.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__11__9dd0674b-dfbb-400f-8db8-7f44ea62dce9.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_-gr994-__11__9dd0674b-dfbb-400f-8db8-7f44ea62dce9.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__11__9dd0674b-dfbb-400f-8db8-7f44ea62dce9.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__10__5de2395d-9bc2-48b9-9bb1-38362ebc2e08.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_-gr994-__10__5de2395d-9bc2-48b9-9bb1-38362ebc2e08.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__10__5de2395d-9bc2-48b9-9bb1-38362ebc2e08.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__12__a073d9a9-993b-40de-81d2-2c3788ecd88f.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_-gr994-__12__a073d9a9-993b-40de-81d2-2c3788ecd88f.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__12__a073d9a9-993b-40de-81d2-2c3788ecd88f.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/_gr994-__13__3bc5ce81-0834-40a4-a527-fd2db0ad4f2e.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/_gr994-__13__3bc5ce81-0834-40a4-a527-fd2db0ad4f2e.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/_gr994-__13__3bc5ce81-0834-40a4-a527-fd2db0ad4f2e.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__14__d849e122-85df-4d59-81b2-5b02a504e403.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_-gr994-__14__d849e122-85df-4d59-81b2-5b02a504e403.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_-gr994-__14__d849e122-85df-4d59-81b2-5b02a504e403.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Matgrupp Venture Home Estelle med Vera stolar är en elegant matgrupp med ett vitt marmorbord och fyra stycken stolar i sammet.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471-1061473",
+        "mpn": "GR994",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "10004.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    },
+    "productGroupUrl": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471",
+    "variant": 0
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471-1117266",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matgrupp Venture Home Estelle 140 med 4 Vera Stolar Sammet",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/gr14037__11__6f6dad82-2cba-4213-95a1-a3709b8b58da.jpg",
+      "https://img.bygghemma.se/pimages/s_gr14037__10__34b4e921-26a8-43f3-ae77-8fe104190ffe.jpg",
+      "https://img.bygghemma.se/pimages/s_gr14037__12__5f7c38a6-a79c-4860-bc2e-28d49b696e2b.jpg",
+      "https://img.bygghemma.se/pimages/gr14037gr14037__10__cb7734c5-20a2-408f-a2ee-66acb2e3fd13.jpg"
+    ],
+    "description": "Matgrupp Venture Home Estelle med Vera stolar är en elegant matgrupp med ett vitt marmorbord och fyra stycken stolar i sammet.",
+    "price": 1115200,
+    "isDiscounted": true,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matgrupp",
+        "url": "/inredning-och-belysning/mobler/bord/matgrupp"
+      }
+    ],
+    "sku": "GR14037",
+    "articleNumber": "GR14037",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "GR14037"
+      },
+      {
+        "key": "Färg",
+        "value": "Svart/Beige"
+      },
+      {
+        "key": "Rygghöjd",
+        "value": "42 cm"
+      },
+      {
+        "key": "Sittbredd",
+        "value": "60 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Marmor/Metall/Sammet"
+      },
+      {
+        "key": "Typ",
+        "value": "Matgrupp"
+      },
+      {
+        "key": "Serie",
+        "value": "Estelle"
+      },
+      {
+        "key": "Antal Stolar",
+        "value": "4"
+      },
+      {
+        "key": "Sittdjup",
+        "value": "48 cm"
+      },
+      {
+        "key": "Sitthöjd",
+        "value": "49 cm"
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej"
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej"
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulär"
+      },
+      {
+        "key": "Toppskiva",
+        "value": "Marmor"
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matgrupp Venture Home Estelle 140 med 4 Vera Stolar Sammet",
+        "image": [
+          "//img.bygghemma.se/pimages/gr14037__11__6f6dad82-2cba-4213-95a1-a3709b8b58da.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/gr14037__11__6f6dad82-2cba-4213-95a1-a3709b8b58da.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/gr14037__11__6f6dad82-2cba-4213-95a1-a3709b8b58da.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14037__10__34b4e921-26a8-43f3-ae77-8fe104190ffe.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_gr14037__10__34b4e921-26a8-43f3-ae77-8fe104190ffe.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14037__10__34b4e921-26a8-43f3-ae77-8fe104190ffe.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14037__12__5f7c38a6-a79c-4860-bc2e-28d49b696e2b.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_gr14037__12__5f7c38a6-a79c-4860-bc2e-28d49b696e2b.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14037__12__5f7c38a6-a79c-4860-bc2e-28d49b696e2b.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/gr14037gr14037__10__cb7734c5-20a2-408f-a2ee-66acb2e3fd13.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/gr14037gr14037__10__cb7734c5-20a2-408f-a2ee-66acb2e3fd13.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/gr14037gr14037__10__cb7734c5-20a2-408f-a2ee-66acb2e3fd13.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Matgrupp Venture Home Estelle med Vera stolar är en elegant matgrupp med ett vitt marmorbord och fyra stycken stolar i sammet.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471-1117266",
+        "mpn": "GR14037",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "11152.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    },
+    "productGroupUrl": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471",
+    "variant": 1
+  },
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.bygghemma.se",
+    "jobId": "job_test_1",
+    "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471-1117264",
+    "brand": "Venture Home",
+    "popularityIndex": 1,
+    "name": "Matgrupp Venture Home Estelle 140 med 4 Vera Stolar Sammet",
+    "label": "DETAIL",
+    "images": [
+      "https://img.bygghemma.se/pimages/s_gr14011__3__558448b2-817e-43df-8a14-f09d7687c9f9.jpg",
+      "https://img.bygghemma.se/pimages/s_gr14011__2__95b13869-144f-47ac-a16f-e8de1d70b6df.jpg",
+      "https://img.bygghemma.se/pimages/s_gr14011__4__fb7c669e-719e-4b0e-a7ff-727400095a51.jpg",
+      "https://img.bygghemma.se/pimages/s_gr14011__5__ecd3db6f-f08d-4507-b409-f93437838fe3.jpg"
+    ],
+    "description": "Matgrupp Venture Home Estelle med Vera stolar är en elegant matgrupp med ett vitt marmorbord och fyra stycken stolar i sammet.",
+    "price": 1000400,
+    "isDiscounted": true,
+    "currency": "SEK",
+    "categoryTree": [
+      {
+        "name": "Inredning & belysning",
+        "url": "/inredning-och-belysning"
+      },
+      {
+        "name": "Möbler",
+        "url": "/inredning-och-belysning/mobler"
+      },
+      {
+        "name": "Bord",
+        "url": "/inredning-och-belysning/mobler/bord"
+      },
+      {
+        "name": "Matgrupp",
+        "url": "/inredning-och-belysning/mobler/bord/matgrupp"
+      }
+    ],
+    "sku": "GR14011",
+    "articleNumber": "GR14011",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Home"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "GR14011"
+      },
+      {
+        "key": "Färg",
+        "value": "Svart/Svart"
+      },
+      {
+        "key": "Rygghöjd",
+        "value": "42 cm"
+      },
+      {
+        "key": "Sittbredd",
+        "value": "60 cm"
+      },
+      {
+        "key": "Material",
+        "value": "Marmor/Metall/Sammet"
+      },
+      {
+        "key": "Typ",
+        "value": "Matgrupp"
+      },
+      {
+        "key": "Serie",
+        "value": "Estelle"
+      },
+      {
+        "key": "Antal Stolar",
+        "value": "4"
+      },
+      {
+        "key": "Sittdjup",
+        "value": "48 cm"
+      },
+      {
+        "key": "Sitthöjd",
+        "value": "49 cm"
+      },
+      {
+        "key": "Iläggsskiva",
+        "value": "Nej"
+      },
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej"
+      },
+      {
+        "key": "Form bord",
+        "value": "Rektangulär"
+      },
+      {
+        "key": "Toppskiva",
+        "value": "Marmor"
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "http://schema.org/",
+        "@type": "Product",
+        "name": "Matgrupp Venture Home Estelle 140 med 4 Vera Stolar Sammet",
+        "image": [
+          "//img.bygghemma.se/pimages/s_gr14011__3__558448b2-817e-43df-8a14-f09d7687c9f9.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_gr14011__3__558448b2-817e-43df-8a14-f09d7687c9f9.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__3__558448b2-817e-43df-8a14-f09d7687c9f9.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__2__95b13869-144f-47ac-a16f-e8de1d70b6df.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_gr14011__2__95b13869-144f-47ac-a16f-e8de1d70b6df.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__2__95b13869-144f-47ac-a16f-e8de1d70b6df.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__4__fb7c669e-719e-4b0e-a7ff-727400095a51.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_gr14011__4__fb7c669e-719e-4b0e-a7ff-727400095a51.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__4__fb7c669e-719e-4b0e-a7ff-727400095a51.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__5__ecd3db6f-f08d-4507-b409-f93437838fe3.jpg?auto=format,compress&w=414&h=414&dpr=2&q=30",
+          "//img.bygghemma.se/pimages/s_gr14011__5__ecd3db6f-f08d-4507-b409-f93437838fe3.jpg?auto=format,compress&w=673&h=673&dpr=1&q=40",
+          "//img.bygghemma.se/pimages/s_gr14011__5__ecd3db6f-f08d-4507-b409-f93437838fe3.jpg?auto=format,compress&w=1080&h=1080&dpr=1&q=40"
+        ],
+        "description": "Matgrupp Venture Home Estelle med Vera stolar är en elegant matgrupp med ett vitt marmorbord och fyra stycken stolar i sammet.",
+        "url": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471-1117264",
+        "mpn": "GR14011",
+        "brand": {
+          "@type": "Thing",
+          "name": "Venture Home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "10004.00",
+          "priceCurrency": "SEK",
+          "itemCondition": "http://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Bygghemma.se"
+          },
+          "availability": "http://schema.org/InStock"
+        },
+        "breadCrumbsStructured": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "varumarken",
+                "item": "https://www.bygghemma.se/varumarken/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "venture-home",
+                "item": "https://www.bygghemma.se/varumarken/venture-home/"
+              }
+            ]
+          }
+        ],
+        "video": {
+          "videos": []
+        }
+      }
+    },
+    "productGroupUrl": "https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-estelle-140-med-4-vera-stolar-sammet/p-1061471",
+    "variant": 2
+  }
+]

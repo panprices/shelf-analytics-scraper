@@ -6,7 +6,7 @@ import {
 import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { log, PlaywrightCrawlingContext } from "crawlee";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -284,7 +284,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    const rootUrl = extractRootUrl(ctx.page.url());
+    const rootUrl = extractDomainFromUrl(ctx.page.url());
     const subCategoriesIdentifier =
       "//div[contains(@class, 'subcategories')]/a";
 

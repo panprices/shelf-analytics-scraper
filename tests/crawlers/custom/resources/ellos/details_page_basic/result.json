@@ -1,0 +1,69 @@
+[
+  {
+    "jobId": "job_test_1",
+    "url": "https://www.ellos.se/ellos-home/overkast-indra/1705327-01",
+    "brand": "Ellos Home",
+    "popularityIndex": 1,
+    "name": "Ellos Home Överkast Indra",
+    "label": "DETAIL",
+    "fetchedAt": "2023-01-27T08:37:40.146Z",
+    "description": "Överkast i bomull med tuftat mönster.Överkastet finns i två storlekar:180x260 cm (passar till säng 120x200 cm och 140x200 cm)260x260 cm (passar till säng 160x200 cm och 180x200 cm)Produkten är certifierad enligt STANDARD 100 by OEKO-TEX®. Certifieringen garanterar att produkten är testad och fri från ämnen som kan vara skadliga för hälsan och miljön.Licensnummer & testinstitut: 18.HIN.42893 HOHENSTEIN HTTIEllos samarbetar med Better Cotton Initiative för att förbättra bomullsodlingen globalt. BCI är en global ideell organisation som utbildar bomullsodlare i metoder för mer hållbar bomullsodling och arbetar för en mer effektiv användning av vatten och minskad användning av bekämpningsmedel. BCI tillför förbättrade sociala, ekonomiska och miljömässiga villkor för bomullsbönderna. När du köper den här produkten stödjer du, tillsammans med Ellos, ansvarsfullt odlad bomull. Det betyder inte att produkten är tillverkad av fysiskt spårbar Better Cotton.",
+    "price": 149900,
+    "currency": "SEK",
+    "isDiscounted": true,
+    "originalPrice": 199900,
+    "sku": "1705327-01-24",
+    "availability": "in_stock",
+    "images": [
+      "https://assets.ellosgroup.com/i/ellos/ell_1705327-01_Fm_M0075892",
+      "https://assets.ellosgroup.com/i/ellos/ell_1705327-01_Fs",
+      "https://assets.ellosgroup.com/i/ellos/ell_1705327-01_De_01"
+    ],
+    "reviews": {
+      "recentReviews": []
+    },
+    "specifications": [],
+    "categoryTree": [
+      {
+        "name": "Textilier",
+        "url": "/hem-inredning/textilier"
+      },
+      {
+        "name": "Överkast",
+        "url": "/hem-inredning/overkast"
+      },
+      {
+        "name": "Enkelsäng",
+        "url": "/hem-inredning/overkast/enkelsang"
+      }
+    ],
+    "metadata": {
+      "schemaOrg": {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "Överkast Indra",
+        "color": "Cremevit",
+        "image": [
+          "https://assets.ellosgroup.com/i/ellos/ell_1705327-01_Fm_M0075892",
+          "https://assets.ellosgroup.com/i/ellos/ell_1705327-01_Fs",
+          "https://assets.ellosgroup.com/i/ellos/ell_1705327-01_De_01"
+        ],
+        "description": "Överkast i bomull med tuftat mönster. Överkastet finns i två storlekar: 180x260 cm (passar till säng 120x200 cm och 140x200 cm) 260x260 cm (passar till säng 160x200 cm och 180x200 cm) Produkten är certifierad enligt STANDARD 100 by OEKO-TEX®. Certifieringen garanterar att produkten är testad och fri från ämnen som kan vara skadliga för hälsan och miljön. Licensnummer & testinstitut: 18.HIN.42893 HOHENSTEIN HTTI Ellos samarbetar med Better Cotton Initiative för att förbättra bomullsodlingen globalt. BCI är en global ideell organisation som utbildar bomullsodlare i metoder för mer hållbar bomullsodling och arbetar för en mer effektiv användning av vatten och minskad användning av bekämpningsmedel. BCI tillför förbättrade sociala, ekonomiska och miljömässiga villkor för bomullsbönderna. När du köper den här produkten stödjer du, tillsammans med Ellos, ansvarsfullt odlad bomull. Det betyder inte att produkten är tillverkad av fysiskt spårbar Better Cotton.",
+        "sku": "1705327-01",
+        "brand": {
+          "@type": "Brand",
+          "name": "Ellos Home",
+          "url": "https://www.ellos.se/brand/ellos-home"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://www.ellos.se/ellos-home/overkast-indra/1705327-01",
+          "priceCurrency": "SEK",
+          "price": 1499,
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    "retailerDomain": "https://www.ellos.se"
+  }
+]

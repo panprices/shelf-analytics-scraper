@@ -9,7 +9,7 @@ import {
   publishMatchingProducts,
   sendRequestBatch,
 } from "./publishing";
-import { configCrawleeLogger, extractRootUrl } from "./utils";
+import { configCrawleeLogger, extractDomainFromUrl } from "./utils";
 import { CHROMIUM_USER_DATA_DIR, CRAWLEE_STORAGE_DIR } from "./constants";
 import fastFolderSize from "fast-folder-size";
 
@@ -33,7 +33,7 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
     log.info(`Category explored`, {
       categoryUrl: body.url,
       nrProductsFound: detailedPages.length,
-      retailer: extractRootUrl(body.url),
+      retailer: extractDomainFromUrl(body.url),
       jobId: body.jobContext.jobId,
     });
   } catch (error) {
@@ -85,7 +85,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     log.info("Product details scraped", {
       nrUrls: body.productDetails.length,
       nrProductsFound: products.length,
-      retailer: extractRootUrl(body.productDetails[0].url),
+      retailer: extractDomainFromUrl(body.productDetails[0].url),
       jobId: req.body.jobContext.jobId,
     });
   } catch (error) {

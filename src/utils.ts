@@ -48,10 +48,16 @@ export function configCrawleeLogger(cloudTrace?: string) {
     });
   }
 }
-
-export function extractRootUrl(url: string): string {
+/**
+ * Extract domain from URL.
+ *
+ * Example: https://www.homeroom.se/venture-home/kontinentalsang-fjaras-tyg-medium/1651926-03-23
+ *  => homeroom.se
+ */
+export function extractDomainFromUrl(url: string): string {
   const parsedUrl = new URL(url);
-  return `${parsedUrl.protocol}//${parsedUrl.host}`;
+  const domain = parsedUrl.hostname.replace(/^www\./, "");
+  return domain;
 }
 
 /**

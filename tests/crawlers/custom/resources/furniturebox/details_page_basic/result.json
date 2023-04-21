@@ -1,0 +1,114 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.furniturebox.se",
+    "jobId": "job_test_1",
+    "url": "https://www.furniturebox.se/utomhus/utestolar/hangstol/lukse-hangstol-gra-p844655",
+    "popularityIndex": 1,
+    "name": "LUKSE Hängstol Grå",
+    "label": "DETAIL",
+    "price": 999900,
+    "currency": "SEK",
+    "images": [
+      "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2463053.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDYpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyNDYzMDUzfQ%3D%3D",
+      "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018640.jpg?w=762&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDIpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQwfQ%3D%3D",
+      "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018642.jpg?w=762&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDQpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQyfQ%3D%3D",
+      "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018641.jpg?w=762&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDMpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQxfQ%3D%3D",
+      "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018643.jpg?w=762&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDUpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQzfQ%3D%3D"
+    ],
+    "description": "Denna hängande flätad fåtölj är perfekt för älskare av boho-stil och entusiaster av modern design. Häng denna ovanliga möbel i vardagsrummet eller sovrummet och njut av extraordinär komfort. Skapa ett mysigt läshörna i din interiör eller på balkongen. Material: konstrotting. Ytterligare material: polyester, stål. Materialkomposition: 100% polyester Vikt: 12 Montering: Kräver installation Vikt kapacitet: 90 Kudde dimensioner: 133x100 Stoppning tjocklek: 15 Produktfördelar: Bred och djup sits, Precist utförande, Modern design, Både för inomhus och utomhusbruk, Många olika användningsmöjligheter\n\n Skötselråd Utemöbler",
+    "isDiscounted": false,
+    "categoryTree": [
+      {
+        "name": "Utemöbler",
+        "url": "/utomhus"
+      },
+      {
+        "name": "Utestolar & fåtöljer",
+        "url": "/utomhus/utestolar"
+      },
+      {
+        "name": "Hängstol",
+        "url": "/utomhus/utestolar/hangstol"
+      }
+    ],
+    "reviews": "unavailable",
+    "sku": "205063",
+    "specifications": [
+      {
+        "key": "Serie",
+        "value": "Kartberg"
+      },
+      {
+        "key": "Färgnamn",
+        "value": "Grå"
+      },
+      {
+        "key": "Färg",
+        "value": "grå  grå"
+      },
+      {
+        "key": "Vikt",
+        "value": "300 kg"
+      },
+      {
+        "key": "Utseende",
+        "value": "Rotting Konstrotting"
+      },
+      {
+        "key": "Bredd",
+        "value": "100 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "121 cm"
+      },
+      {
+        "key": "Djup",
+        "value": "70 cm"
+      },
+      {
+        "key": "Bäddmått",
+        "value": "80x200 cm"
+      },
+      {
+        "key": "Materialtyp",
+        "value": "Stål 100% polyester Polyester Polyrattan"
+      }
+    ],
+    "availability": "in_stock",
+    "metadata": {
+      "schemaOrg": {
+        "name": "LUKSE Hängstol Grå",
+        "offers": [
+          {
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "SEK",
+            "url": "https://www.furniturebox.se/utomhus/utestolar/hangstol/lukse-hangstol-gra-p844655",
+            "price": 9999,
+            "itemCondition": "https://schema.org/NewCondition",
+            "@type": "Offer"
+          }
+        ],
+        "description": "Köp LUKSE Hängstol Grå på Vinterkampanj hos Furniturebox. Vi har ett stort utbud av Hängstol och levererar lagervaror inom 2-6 dagar!",
+        "sku": "1344655",
+        "mpn": "205063",
+        "category": "Hängstol",
+        "image": [
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2463053.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDYpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyNDYzMDUzfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2463053.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDYpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyNDYzMDUzfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018640.jpg?w=762&h=508&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDIpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQwfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018640.jpg?w=2286&h=1524&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDIpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQwfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018642.jpg?w=762&h=508&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDQpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQyfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018642.jpg?w=2286&h=1524&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDQpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQyfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018641.jpg?w=762&h=508&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDMpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQxfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018641.jpg?w=2286&h=1524&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDMpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQxfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018643.jpg?w=762&h=508&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDUpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQzfQ%3D%3D",
+          "https://images.furniturebox.se/utomhus-utestolar-hangstol/lukse-hangstol-gra-2018643.jpg?w=2286&h=1524&hash=eyJ2IjozLCJ0IjoicHJvZHVjdCIsIm4iOiIxMzQ0NjU1KDUpLmpwZyIsIm9fdHlwZSI6IkZCX1dFQl9TRTpwcm9kdWN0cyIsIm9faWQiOiI4NDQ2NTUiLCJpIjoyMDE4NjQzfQ%3D%3D"
+        ],
+        "@type": "Product",
+        "@context": "https://schema.org"
+      }
+    }
+  }
+]
