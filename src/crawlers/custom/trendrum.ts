@@ -19,7 +19,7 @@ import {
   SchemaOrg,
   Specification,
 } from "../../types/offer";
-import { extractNumberFromText, extractRootUrl } from "../../utils";
+import { extractNumberFromText, extractDomainFromUrl } from "../../utils";
 import { count } from "console";
 
 export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
@@ -129,7 +129,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
         ...request.userData,
         ...productDetails,
         fetchedAt: new Date().toISOString(),
-        retailerDomain: extractRootUrl(ctx.page.url()),
+        retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });
     }
   }

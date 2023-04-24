@@ -1,0 +1,805 @@
+[
+  {
+    "url": "https://www.homeroom.se/hanah-home/hallmobel-palma/1724155-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hallmöbel - Palma",
+      "url": "https://www.homeroom.se/hanah-home/hallmobel-palma/1724155-01",
+      "popularityIndex": 1,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-inverness/1720608-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Inverness",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-inverness/1720608-01",
+      "popularityIndex": 2,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-inverness/1720618-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Inverness",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-inverness/1720618-01",
+      "popularityIndex": 3,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-milford/1582092-03",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Milford",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-milford/1582092-03",
+      "popularityIndex": 4,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-80-cm/1621944-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Confetti, 80 cm",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-80-cm/1621944-01",
+      "popularityIndex": 5,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/vagghylla-malone/1622861-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Vägghylla Malone",
+      "url": "https://www.homeroom.se/rowico-home/vagghylla-malone/1622861-01",
+      "popularityIndex": 6,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/kroklist-milford-80-cm/1582407-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Kroklist Milford, 80  cm",
+      "url": "https://www.homeroom.se/rowico-home/kroklist-milford-80-cm/1582407-02",
+      "popularityIndex": 7,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-100-cm/1621941-04",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Confetti, 100 cm",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-100-cm/1621941-04",
+      "popularityIndex": 8,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-milford/1582092-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Milford",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-milford/1582092-01",
+      "popularityIndex": 9,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/kroklist-milford-80-cm/1582407-03",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Kroklist Milford, 80  cm",
+      "url": "https://www.homeroom.se/rowico-home/kroklist-milford-80-cm/1582407-03",
+      "popularityIndex": 10,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/kroklist-milford-80-cm/1582407-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Kroklist Milford, 80  cm",
+      "url": "https://www.homeroom.se/rowico-home/kroklist-milford-80-cm/1582407-01",
+      "popularityIndex": 11,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-jersey/1622886-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Jersey",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-jersey/1622886-01",
+      "popularityIndex": 12,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-100-cm/1621941-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Confetti, 100 cm",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-100-cm/1621941-01",
+      "popularityIndex": 13,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-80-cm/1621944-03",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Confetti, 80 cm",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-80-cm/1621944-03",
+      "popularityIndex": 14,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/methro-dubbel-hatthylla-80-cm/1023713",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Methro dubbel hatthylla 80 cm",
+      "url": "https://www.homeroom.se/rowico-home/methro-dubbel-hatthylla-80-cm/1023713",
+      "popularityIndex": 15,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-100-cm/1621941-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Confetti, 100 cm",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-100-cm/1621941-02",
+      "popularityIndex": 16,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-milford/1582092-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Milford",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-milford/1582092-02",
+      "popularityIndex": 17,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-80-cm/1621944-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Confetti, 80 cm",
+      "url": "https://www.homeroom.se/rowico-home/hatthylla-confetti-80-cm/1621944-02",
+      "popularityIndex": 18,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordform/kladhangare-august/1687558-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Klädhängare August",
+      "url": "https://www.homeroom.se/nordform/kladhangare-august/1687558-01",
+      "popularityIndex": 19,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/martinsen/hatthylla-stord/1647712-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Stord",
+      "url": "https://www.homeroom.se/martinsen/hatthylla-stord/1647712-01",
+      "popularityIndex": 20,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordform/kladhangare-august/1687553-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Klädhängare August",
+      "url": "https://www.homeroom.se/nordform/kladhangare-august/1687553-01",
+      "popularityIndex": 21,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordform/kladhangare-august/1687561-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Klädhängare August",
+      "url": "https://www.homeroom.se/nordform/kladhangare-august/1687561-01",
+      "popularityIndex": 22,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-zitti/1664208-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Zitti",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-zitti/1664208-02",
+      "popularityIndex": 23,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/house-nordic/hatthylla-bakersfiels/1601668-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Bakersfiels",
+      "url": "https://www.homeroom.se/house-nordic/hatthylla-bakersfiels/1601668-01",
+      "popularityIndex": 24,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/kave-home/kladhangare-marcolina/1596559-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Klädhängare, Marcolina",
+      "url": "https://www.homeroom.se/kave-home/kladhangare-marcolina/1596559-01",
+      "popularityIndex": 25,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordform/kladhangare-august/1687564-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Klädhängare August",
+      "url": "https://www.homeroom.se/nordform/kladhangare-august/1687564-01",
+      "popularityIndex": 26,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos-home/hatthylla-elis/1676133-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Elis",
+      "url": "https://www.homeroom.se/ellos-home/hatthylla-elis/1676133-01",
+      "popularityIndex": 27,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-town/1664200-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Town",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-town/1664200-01",
+      "popularityIndex": 28,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-zitti/1664208-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Zitti",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-zitti/1664208-01",
+      "popularityIndex": 29,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/house-nordic/hatthylla-vita/1696488-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Vita",
+      "url": "https://www.homeroom.se/house-nordic/hatthylla-vita/1696488-01",
+      "popularityIndex": 30,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos-home/hatthylla-kryss/1044700-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Kryss",
+      "url": "https://www.homeroom.se/ellos-home/hatthylla-kryss/1044700-01",
+      "popularityIndex": 31,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordic-furniture-group/hatthylla-basse/1667897-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Basse",
+      "url": "https://www.homeroom.se/nordic-furniture-group/hatthylla-basse/1667897-01",
+      "popularityIndex": 32,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-stor-twist/1664202-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla stor Twist",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-stor-twist/1664202-01",
+      "popularityIndex": 33,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/create-collection/hatthylla-alex/1685366-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Alex",
+      "url": "https://www.homeroom.se/create-collection/hatthylla-alex/1685366-01",
+      "popularityIndex": 34,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hylla-zitti/1664209-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hylla Zitti",
+      "url": "https://www.homeroom.se/torkelson/hylla-zitti/1664209-01",
+      "popularityIndex": 35,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/tamburmajor-zitti/1661877-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Tamburmajor Zitti",
+      "url": "https://www.homeroom.se/torkelson/tamburmajor-zitti/1661877-01",
+      "popularityIndex": 36,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/kave-home/hallforvaring-belgrad/1544556-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hallförvaring, Belgrad",
+      "url": "https://www.homeroom.se/kave-home/hallforvaring-belgrad/1544556-01",
+      "popularityIndex": 37,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/martinsen/hatthylla-nancy/1647706-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Nancy",
+      "url": "https://www.homeroom.se/martinsen/hatthylla-nancy/1647706-01",
+      "popularityIndex": 38,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-liten-twist/1664203-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla liten Twist",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-liten-twist/1664203-01",
+      "popularityIndex": 39,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordic-furniture-group/tamburmajor-maija/1564286-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Tamburmajor Maija",
+      "url": "https://www.homeroom.se/nordic-furniture-group/tamburmajor-maija/1564286-01",
+      "popularityIndex": 40,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/nordic-furniture-group/kladstallning-marion/1564283-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Klädställning  Marion",
+      "url": "https://www.homeroom.se/nordic-furniture-group/kladstallning-marion/1564283-01",
+      "popularityIndex": 41,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/create-collection/hatthylla-alex/1685366-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Alex",
+      "url": "https://www.homeroom.se/create-collection/hatthylla-alex/1685366-02",
+      "popularityIndex": 42,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/create-collection/hatthylla-twin/1705585-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Twin",
+      "url": "https://www.homeroom.se/create-collection/hatthylla-twin/1705585-01",
+      "popularityIndex": 43,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-liten-twist/1664203-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla liten Twist",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-liten-twist/1664203-02",
+      "popularityIndex": 44,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos-home/hatthylla-cookie/1678658-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Cookie",
+      "url": "https://www.homeroom.se/ellos-home/hatthylla-cookie/1678658-01",
+      "popularityIndex": 45,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos-home/hatthylla-elis/1676133-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Elis",
+      "url": "https://www.homeroom.se/ellos-home/hatthylla-elis/1676133-02",
+      "popularityIndex": 46,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/loft24/entryway-set-geo/1701009-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Entryway Set Geo",
+      "url": "https://www.homeroom.se/loft24/entryway-set-geo/1701009-01",
+      "popularityIndex": 47,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/create-collection/hatthylla-twin/1705585-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Twin",
+      "url": "https://www.homeroom.se/create-collection/hatthylla-twin/1705585-02",
+      "popularityIndex": 48,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/loft24/entryway-set-geo/1701009-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Entryway Set Geo",
+      "url": "https://www.homeroom.se/loft24/entryway-set-geo/1701009-02",
+      "popularityIndex": 49,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-liten-twist/1664203-03",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla liten Twist",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-liten-twist/1664203-03",
+      "popularityIndex": 50,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos-home/hatthylla-kryss/1044700-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Kryss",
+      "url": "https://www.homeroom.se/ellos-home/hatthylla-kryss/1044700-02",
+      "popularityIndex": 51,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hatthylla-stor-twist/1664202-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla stor Twist",
+      "url": "https://www.homeroom.se/torkelson/hatthylla-stor-twist/1664202-02",
+      "popularityIndex": 52,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/torkelson/hylla-zitti/1664209-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hylla Zitti",
+      "url": "https://www.homeroom.se/torkelson/hylla-zitti/1664209-02",
+      "popularityIndex": 53,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos-home/hatthylla-plain/1032011-03",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hatthylla Plain",
+      "url": "https://www.homeroom.se/ellos-home/hatthylla-plain/1032011-03",
+      "popularityIndex": 54,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-03",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "LEOVYA hängare",
+      "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-03",
+      "popularityIndex": 55,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "LEOVYA hängare",
+      "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-02",
+      "popularityIndex": 56,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-04",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "LEOVYA hängare",
+      "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-04",
+      "popularityIndex": 57,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-05",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "LEOVYA hängare",
+      "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-05",
+      "popularityIndex": 58,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=1",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "LEOVYA hängare",
+      "url": "https://www.homeroom.se/jotex/leovya-hangare/1651575-01",
+      "popularityIndex": 59,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/cole-hatthylla/1666120-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "COLE hatthylla",
+      "url": "https://www.homeroom.se/jotex/cole-hatthylla/1666120-02",
+      "popularityIndex": 60,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/skarhamn-set-med-skohylla-och-hatthylla/1701638-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "SKÄRHAMN set med skohylla och hatthylla",
+      "url": "https://www.homeroom.se/jotex/skarhamn-set-med-skohylla-och-hatthylla/1701638-01",
+      "popularityIndex": 61,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/preston-hatthylla/1652641-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "PRESTON hatthylla",
+      "url": "https://www.homeroom.se/jotex/preston-hatthylla/1652641-02",
+      "popularityIndex": 62,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/preston-hatthylla/1652641-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "PRESTON hatthylla",
+      "url": "https://www.homeroom.se/jotex/preston-hatthylla/1652641-01",
+      "popularityIndex": 63,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/london-hatthylla/1679386-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "LONDON hatthylla",
+      "url": "https://www.homeroom.se/jotex/london-hatthylla/1679386-01",
+      "popularityIndex": 64,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/virton-hatthylla/1683409-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "VIRTON hatthylla",
+      "url": "https://www.homeroom.se/jotex/virton-hatthylla/1683409-01",
+      "popularityIndex": 65,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/cole-hatthylla/1666120-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "COLE hatthylla",
+      "url": "https://www.homeroom.se/jotex/cole-hatthylla/1666120-01",
+      "popularityIndex": 66,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/ellos/hallforvaring-denver/1537486-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "Hallförvaring Denver",
+      "url": "https://www.homeroom.se/ellos/hallforvaring-denver/1537486-01",
+      "popularityIndex": 67,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/vernon-hatthylla-kladhangare/1649165-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "VERNON hatthylla/klädhängare",
+      "url": "https://www.homeroom.se/jotex/vernon-hatthylla-kladhangare/1649165-01",
+      "popularityIndex": 68,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/everly-hatthylla/1667415-02",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "EVERLY hatthylla",
+      "url": "https://www.homeroom.se/jotex/everly-hatthylla/1667415-02",
+      "popularityIndex": 69,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/oslo-hatthylla/1673594-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "OSLO hatthylla",
+      "url": "https://www.homeroom.se/jotex/oslo-hatthylla/1673594-01",
+      "popularityIndex": 70,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/eddison-hatthylla/1665119-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "EDDISON hatthylla",
+      "url": "https://www.homeroom.se/jotex/eddison-hatthylla/1665119-01",
+      "popularityIndex": 71,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/everly-hatthylla/1667415-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "EVERLY hatthylla",
+      "url": "https://www.homeroom.se/jotex/everly-hatthylla/1667415-01",
+      "popularityIndex": 72,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  },
+  {
+    "url": "https://www.homeroom.se/jotex/reykjavik-hatthylla/1673592-01",
+    "userData": {
+      "jobId": "job_test_1",
+      "name": "REYKJAVIK hatthylla",
+      "url": "https://www.homeroom.se/jotex/reykjavik-hatthylla/1673592-01",
+      "popularityIndex": 73,
+      "categoryUrl": "https://www.homeroom.se/mobler/hallmobler/hatthyllor?page=2",
+      "label": "DETAIL"
+    }
+  }
+]

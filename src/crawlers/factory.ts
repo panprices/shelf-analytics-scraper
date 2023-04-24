@@ -33,7 +33,7 @@ import { Ebuy24CrawlerDefinition } from "./custom/ebuy24";
 import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox";
 import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
 import { CHROMIUM_USER_DATA_DIR } from "../constants";
-import { extractRootUrl } from "../utils";
+import { extractDomainFromUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
@@ -45,7 +45,7 @@ import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 
 export interface CrawlerFactoryArgs {
-  url: string;
+  domain: string;
   useCustomQueue?: boolean;
   customQueueSettings?: CustomQueueSettings;
 }
@@ -58,7 +58,7 @@ export interface CrawlerFactoryArgs {
  */
 
 export class CrawlerFactory {
-  static async buildPlaywrightCrawlerForRootUrl(
+  static async buildPlaywrightCrawlerForDomain(
     args: CrawlerFactoryArgs,
     overrides?: PlaywrightCrawlerOptions,
     launchOptions?: CrawlerLaunchOptions
@@ -68,7 +68,7 @@ export class CrawlerFactory {
       args.useCustomQueue = true;
     }
 
-    const url = args.url;
+    const domain = args.domain;
     const requestQueue = args.useCustomQueue
       ? await CustomRequestQueue.open(
           "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4(),
@@ -142,8 +142,8 @@ export class CrawlerFactory {
     ];
 
     let definition, options;
-    switch (url) {
-      case "https://www.homeroom.se":
+    switch (domain) {
+      case "homeroom.se":
         definition = await HomeroomCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -151,7 +151,7 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.ellos.se":
+      case "ellos.se":
         definition = await EllosCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -159,7 +159,7 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.venturedesign.se":
+      case "venturedesign.se":
         definition = await VentureDesignCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -170,7 +170,7 @@ export class CrawlerFactory {
           ],
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.nordiskarum.se":
+      case "nordiskarum.se":
         definition = await NordiskaRumCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -178,14 +178,14 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.k-rauta.se":
+      case "k-rauta.se":
         definition = await KrautaCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.bygghemma.se":
+      case "bygghemma.se":
         definition = await BygghemmaCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -201,7 +201,7 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.gardenstore.se":
+      case "gardenstore.se":
         definition = await GardenStoreCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -225,7 +225,7 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.trademax.se":
+      case "trademax.se":
         definition = await TrademaxCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -238,7 +238,7 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.chilli.se":
+      case "chilli.se":
         definition = await ChilliCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -250,7 +250,7 @@ export class CrawlerFactory {
           ],
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.furniturebox.se":
+      case "furniturebox.se":
         definition = await FurnitureboxCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -269,14 +269,14 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.trendrum.se":
+      case "trendrum.se":
         definition = await TrendrumCrawlerDefinition.create();
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.baldai1.lt":
+      case "baldai1.lt":
         definition = await Furniture1CrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -284,8 +284,8 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.finnishdesignshop.fi":
-      case "https://www.finnishdesignshop.com":
+      case "finnishdesignshop.fi":
+      case "finnishdesignshop.com":
         definition = await FinnishDesignShopCrawlerDefinition.create(
           launchOptions
         );
@@ -294,18 +294,18 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.lannamobler.se":
-      case "https://www.lanna.no":
-      case "https://www.lanna.fi":
+      case "lannamobler.se":
+      case "lanna.no":
+      case "lanna.fi":
         definition = await LannaMoblerCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.nordiskagalleriet.se":
-      case "https://www.nordiskagalleriet.fi":
-      case "https://www.nordiskagalleriet.no":
+      case "nordiskagalleriet.se":
+      case "nordiskagalleriet.fi":
+      case "nordiskagalleriet.no":
         definition = await NordiskaGallerietCrawlerDefinition.create(
           launchOptions
         );
@@ -314,7 +314,7 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://www.amazon.de":
+      case "amazon.de":
         definition = await AmazonCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -325,8 +325,8 @@ export class CrawlerFactory {
       // Comment to help the script understand where to add new cases
     }
 
-    log.warning(`Asked for unknown root url: ${url}`);
-    throw Error(`Asked for unknown root url: ${url}`);
+    log.warning(`Asked for unknown root url: ${domain}`);
+    throw Error(`Asked for unknown root url: ${domain}`);
   }
 
   static async buildCheerioCrawlerForRootUrl(
@@ -337,7 +337,7 @@ export class CrawlerFactory {
       args.useCustomQueue = true;
     }
 
-    const url = args.url;
+    const url = args.domain;
     const requestQueue = args.useCustomQueue
       ? await CustomRequestQueue.open(
           "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4(),
@@ -352,11 +352,11 @@ export class CrawlerFactory {
       maxRequestRetries: 2,
     };
 
-    const rootUrl = extractRootUrl(url);
+    const rootUrl = extractDomainFromUrl(url);
     switch (rootUrl) {
-      case "https://www.chilli.se":
-      case "https://www.trademax.se":
-      case "https://www.furniturebox.se":
+      case "chilli.se":
+      case "trademax.se":
+      case "furniturebox.se":
         const definition = await ChilliCheerioCrawlerDefinition.create();
         const options: CheerioCrawlerOptions = {
           ...defaultOptions,

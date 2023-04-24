@@ -12,7 +12,7 @@ import {
   OfferMetadata,
   ProductReviews,
 } from "../../types/offer";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   createCrawlerDefinitionOption,
@@ -216,7 +216,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   async crawlIntermediateLowerCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    const rootUrl = extractRootUrl(ctx.page.url());
+    const rootUrl = extractDomainFromUrl(ctx.page.url());
     const subCategoryLocator =
       "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]";
 

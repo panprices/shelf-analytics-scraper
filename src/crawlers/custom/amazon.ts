@@ -8,7 +8,7 @@ import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   convertCurrencySymbolToISO,
   extractNumberFromText,
-  extractRootUrl,
+  extractDomainFromUrl,
 } from "../../utils";
 import { log } from "crawlee";
 

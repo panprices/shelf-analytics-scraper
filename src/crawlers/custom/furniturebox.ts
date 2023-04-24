@@ -18,7 +18,7 @@ import {
   extractProductDetails as baseExtractProductDetails,
   getVariantUrlsFromSchemaOrg,
 } from "./base-chill";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 
 export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
@@ -185,7 +185,7 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    const rootUrl = extractRootUrl(ctx.page.url());
+    const rootUrl = extractDomainFromUrl(ctx.page.url());
     const subCategoriesSelector = "div#toggleCategoriesSlider a";
 
     // Wait for page to load:

@@ -1,7 +1,7 @@
 import { Page } from "playwright";
 import { DetailedProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 
 export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -171,7 +171,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
       availability: availability,
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(page.url()),
+      retailerDomain: extractDomainFromUrl(page.url()),
 
       images: images, // if not applicable return an empty array
       reviews: "unavailable",

@@ -10,7 +10,7 @@ import {
   CheerioCrawlingContext,
 } from "crawlee";
 import { DetailedProductInfo } from "../../types/offer";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 import { AbstractCheerioCrawlerDefinition } from "../abstract";
 
 export class ChilliCheerioCrawlerDefinition extends AbstractCheerioCrawlerDefinition {

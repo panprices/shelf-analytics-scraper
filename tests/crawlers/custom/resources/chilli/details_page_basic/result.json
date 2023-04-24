@@ -1,0 +1,139 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.chilli.se",
+    "jobId": "job_test_1",
+    "url": "https://www.chilli.se/utem%C3%B6bler/utebord/matbord-utomhus/matbord-kenya-200-cm-beige-p1509863",
+    "popularityIndex": 1,
+    "name": "Matbord Kenya 200 cm",
+    "label": "DETAIL",
+    "price": 275700,
+    "currency": "SEK",
+    "images": [
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4382890.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEwKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzgyODkwfQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390799.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDExKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwNzk5fQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390800.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEyKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAwfQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390801.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEzKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAxfQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390802.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE0KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAyfQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390803.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE1KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAzfQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390804.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE2KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA0fQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390805.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE3KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA1fQ%3D%3D",
+      "https://images.chilli.se/utem%C3%B6bler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390806.jpg?w=762&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE4KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA2fQ%3D%3D"
+    ],
+    "description": " Skötselråd för Utemöbler",
+    "isDiscounted": false,
+    "categoryTree": [
+      {
+        "name": "Utemöbler & utemiljö",
+        "url": "/utem%C3%B6bler"
+      },
+      {
+        "name": "Utebord & trädgårdsbord",
+        "url": "/utem%C3%B6bler/utebord"
+      },
+      {
+        "name": "Matbord utomhus",
+        "url": "/utem%C3%B6bler/utebord/matbord-utomhus"
+      }
+    ],
+    "reviews": "unavailable",
+    "articleNumber": "2009863",
+    "sku": "9519-244",
+    "specifications": [
+      {
+        "key": "Förlängningsbart",
+        "value": "Nej"
+      },
+      {
+        "key": "Färgnamn",
+        "value": "Beige"
+      },
+      {
+        "key": "Färg",
+        "value": "beige utebord"
+      },
+      {
+        "key": "Färg ben",
+        "value": "beige"
+      },
+      {
+        "key": "Form",
+        "value": "Runt matbord utomhus"
+      },
+      {
+        "key": "Vikt ",
+        "value": "16 kg"
+      },
+      {
+        "key": "Montering krävs",
+        "value": "Nej"
+      },
+      {
+        "key": "Bredd",
+        "value": "90 cm"
+      },
+      {
+        "key": "Längd",
+        "value": "200 cm"
+      },
+      {
+        "key": "Höjd",
+        "value": "75 cm"
+      },
+      {
+        "key": "Höjd till bordsskiva",
+        "value": "75 cm"
+      },
+      {
+        "key": "Material ben",
+        "value": "Alumnium"
+      },
+      {
+        "key": "Material bordsskiva",
+        "value": "Aluminium"
+      }
+    ],
+    "availability": "in_stock",
+    "metadata": {
+      "schemaOrg": {
+        "name": "Matbord Kenya 200 cm",
+        "offers": [
+          {
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "SEK",
+            "url": "https://www.chilli.se/utem%C3%B6bler/utebord/matbord-utomhus/matbord-kenya-200-cm-beige-p1509863",
+            "price": 2757,
+            "itemCondition": "https://schema.org/NewCondition",
+            "@type": "Offer"
+          }
+        ],
+        "description": "Black Friday hos Chilli. Köp Matbord Kenya 200 cm fraktfritt & med snabb leverans direkt till dörren - Välkommen!",
+        "sku": "2009863",
+        "mpn": "9519-244",
+        "category": "Matbord utomhus",
+        "image": [
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4382890.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEwKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzgyODkwfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4382890.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEwKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzgyODkwfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390799.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDExKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwNzk5fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390799.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDExKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwNzk5fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390800.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEyKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAwfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390800.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEyKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAwfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390801.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEzKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAxfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390801.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDEzKS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAxfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390802.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE0KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAyfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390802.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE0KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAyfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390803.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE1KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAzfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390803.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE1KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODAzfQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390804.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE2KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA0fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390804.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE2KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA0fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390805.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE3KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA1fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390805.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE3KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA1fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390806.jpg?w=762&h=508&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE4KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA2fQ%3D%3D",
+          "https://images.chilli.se/utemöbler-utebord-matbord-utomhus/matbord-kenya-200-cm-beige-4390806.jpg?w=2286&h=1524&hash=eyJ2IjoyLCJ0IjoicHJvZHVjdCIsIm4iOiIyMDA5ODYzKDE4KS5qcGciLCJvX3R5cGUiOiJDSElMTElfV0VCX1NFOnByb2R1Y3RzIiwib19pZCI6IjE1MDk4NjMiLCJpIjo0MzkwODA2fQ%3D%3D"
+        ],
+        "@type": "Product",
+        "@context": "https://schema.org"
+      }
+    }
+  }
+]

@@ -6,7 +6,7 @@ import {
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 import { PlaywrightCrawlingContext, Dictionary, log } from "crawlee";
 
 /**
@@ -325,7 +325,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
       availability: isAvailable === "true" ? "in_stock" : "out_of_stock",
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(page.url()),
+      retailerDomain: extractDomainFromUrl(page.url()),
 
       images: images.filter((i) => i !== undefined).map((i) => i as string), // if not applicable return an empty array
       reviews: "unavailable",

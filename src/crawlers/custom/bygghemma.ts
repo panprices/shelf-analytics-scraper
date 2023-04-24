@@ -6,7 +6,7 @@ import {
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 import {
   DetailedProductInfo,
   ListingProductInfo,
@@ -51,7 +51,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
 
     await this._detailsDataset.pushData(<DetailedProductInfo>{
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(ctx.page.url()),
+      retailerDomain: extractDomainFromUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
       variantGroupUrl: variantGroupUrl,

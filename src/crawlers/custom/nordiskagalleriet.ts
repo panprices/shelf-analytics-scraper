@@ -6,7 +6,7 @@ import {
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
 export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
@@ -331,7 +331,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
 
       availability: availability,
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(page.url()),
+      retailerDomain: extractDomainFromUrl(page.url()),
 
       images: images, // if not applicable return an empty array
       reviews: {

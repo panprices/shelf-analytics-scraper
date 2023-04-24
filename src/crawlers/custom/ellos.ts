@@ -13,7 +13,7 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
-import { extractNumberFromText, extractRootUrl } from "../../utils";
+import { extractNumberFromText, extractDomainFromUrl } from "../../utils";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   // protected override categoryPageSize: number = 56;
@@ -83,7 +83,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
 
     await this._detailsDataset.pushData(<DetailedProductInfo>{
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(ctx.page.url()),
+      retailerDomain: extractDomainFromUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
       variantGroupUrl: variantGroupUrl,

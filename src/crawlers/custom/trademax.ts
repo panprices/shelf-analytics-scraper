@@ -12,7 +12,7 @@ import {
   OfferMetadata,
   ProductReviews,
 } from "../../types/offer";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 import { v4 as uuidv4, v4 } from "uuid";
 import { json } from "body-parser";
 
@@ -406,7 +406,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   async crawlIntermediateLowerCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    const rootUrl = extractRootUrl(ctx.page.url());
+    const rootUrl = extractDomainFromUrl(ctx.page.url());
     const subCategoryLocator =
       "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]";
 

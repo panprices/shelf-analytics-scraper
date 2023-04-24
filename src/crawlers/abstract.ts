@@ -15,7 +15,7 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
 } from "../types/offer";
-import { extractRootUrl } from "../utils";
+import { extractDomainFromUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
 
 export interface CrawlerDefinitionOptions {
@@ -145,7 +145,7 @@ export abstract class AbstractCrawlerDefinition
       ...request.userData,
       ...productDetails,
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(ctx.page.url()),
+      retailerDomain: extractDomainFromUrl(ctx.page.url()),
     });
   }
 
@@ -513,7 +513,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
 
     await this._detailsDataset.pushData(<DetailedProductInfo>{
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(ctx.page.url()),
+      retailerDomain: extractDomainFromUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
       variantGroupUrl: variantGroupUrl,
@@ -811,7 +811,7 @@ export abstract class AbstractCheerioCrawlerDefinition
 
     await this._detailsDataset.pushData(<DetailedProductInfo>{
       fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(ctx.request.url),
+      retailerDomain: extractDomainFromUrl(ctx.request.url),
       ...request.userData,
       ...productDetails,
     });

@@ -1,0 +1,70 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.gardenstore.se",
+    "jobId": "job_test_1",
+    "url": "https://www.gardenstore.se/gr19635-matgrupp-venture-design-sleek-plaza-matbord-195-95-6-matstolar",
+    "brand": "Venture Design",
+    "popularityIndex": 1,
+    "name": "Matgrupp Venture Design Sleek Plaza Matbord 195×95 + 6 Matstolar",
+    "label": "DETAIL",
+    "description": "Sleek Plaza Matbord 195×95 + 6 Matstolar Från Venture Design\nVenture Design snygga och sittvänliga grå matstolar Plaza i kombination med matbord Sleek går hem i de flesta hushåll. Ett bord med gott om plats för middagar och umgänge. Möblera för guldkant i vardagen – det ska kännas skönt att komma hem!\nSpecifikationer:\n\nBORDSFORM: Rektangulär",
+    "price": 1123300,
+    "currency": "SEK",
+    "isDiscounted": false,
+    "sku": "GR19635",
+    "articleNumber": "GR19635",
+    "availability": "in_stock",
+    "images": [
+      "https://www.gardenstore.se/media/catalog/product/g/a/gardenstore-gr19635-image1.jpg",
+      "https://www.gardenstore.se/media/catalog/product/g/a/gardenstore-gr19635-image2.jpg",
+      "https://www.gardenstore.se/media/catalog/product/g/a/gardenstore-gr19635-image3.jpg",
+      "https://www.gardenstore.se/media/catalog/product/g/a/gardenstore-gr19635-image5.jpg"
+    ],
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Artikelnummer",
+        "value": "GR19635"
+      },
+      {
+        "key": "Tillverkarens Art.nr",
+        "value": "GR19635"
+      },
+      {
+        "key": "Varumärke",
+        "value": "Venture Design"
+      },
+      {
+        "key": "Färginfo",
+        "value": "Svart"
+      },
+      {
+        "key": "Bredd",
+        "value": "95 cm"
+      },
+      {
+        "key": "Längd",
+        "value": "195 cm"
+      },
+      {
+        "key": "Färg",
+        "value": "Grå"
+      }
+    ],
+    "categoryTree": [
+      {
+        "name": "Varumärken",
+        "url": "https://www.gardenstore.se/varumarke"
+      },
+      {
+        "name": "Venture Design",
+        "url": "https://www.gardenstore.se/varumarken/venture-design"
+      },
+      {
+        "name": "Venture Design Inomhusmöbler",
+        "url": "https://www.gardenstore.se/varumarken/venture-design/venture-design-mobler"
+      }
+    ]
+  }
+]
