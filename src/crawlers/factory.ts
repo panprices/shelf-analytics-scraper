@@ -209,7 +209,7 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://unoliving.com":
+      case "unoliving.com":
         definition = await UnolivingCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -217,7 +217,7 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://ebuy24.dk":
+      case "ebuy24.dk":
         definition = await Ebuy24CrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
@@ -262,7 +262,7 @@ export class CrawlerFactory {
           ],
         };
         return [new PlaywrightCrawler(options), definition];
-      case "https://bernomobler.se":
+      case "bernomobler.se":
         definition = await BernoMoblerCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
