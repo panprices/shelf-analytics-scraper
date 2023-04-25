@@ -219,6 +219,12 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     let currency: string | null | undefined;
     let originalPrice: string | null | undefined = undefined;
 
+    const currencyExtractor = (t: string | null | undefined) =>
+      t
+        ?.replace(/[^A-Z€£]/g, "")
+        .replace("€", "EUR")
+        .replace("£", "GBP");
+
     if (isDiscounted) {
       price = await this.extractProperty(
         page,
@@ -230,10 +236,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       currency = await this.extractProperty(
         page,
         "form span#price span.js-price-sale",
-        (node) =>
-          node
-            .textContent()
-            .then((t) => t?.replace(/[^A-Z€]/g, "").replace("€", "EUR"))
+        (node) => node.textContent().then(currencyExtractor)
       );
 
       originalPrice = await this.extractProperty(
@@ -249,9 +252,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       );
 
       price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "").split(",")[0];
-      currency = priceCurrencyString
-        ?.replace(/[^A-Z€]/g, "")
-        .replace("€", "EUR");
+      currency = currencyExtractor(priceCurrencyString);
     }
 
     if (!price) throw new Error("Cannot find price of product");
