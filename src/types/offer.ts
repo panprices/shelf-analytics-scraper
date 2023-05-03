@@ -43,8 +43,8 @@ export interface BaseProductInfo {
   description?: string;
   price?: number;
   currency?: string;
-  isDiscounted?: boolean;
   originalPrice?: number;
+  isDiscounted?: boolean;
 
   gtin?: string;
   sku?: string;
@@ -53,6 +53,9 @@ export interface BaseProductInfo {
   popularityIndex?: number;
   categoryUrl?: string;
   categoryTree?: Category[];
+
+  fetchedAt?: string;
+  retailerDomain?: string;
 
   metadata?: OfferMetadata;
 }
@@ -64,19 +67,13 @@ export interface ListingProductInfo extends BaseProductInfo {
 }
 
 export interface DetailedProductInfo extends BaseProductInfo {
-  price: number;
-  currency: string;
-  isDiscounted: boolean;
-
   availability: string;
-  fetchedAt?: string;
-  retailerDomain?: string;
 
   images: string[]; // if not applicable return an empty array
   reviews?: ProductReviews | "unavailable";
   specifications: Specification[]; // if not applicable return an empty array
 
-  //categoryTree is only optional if we already scraped it in the category page.
+  // categoryTree: Category[]; is only optional if we already scraped it in the category page.
 
   matchingType?: string; // {match, unknown}
   variantGroupUrl?: string;

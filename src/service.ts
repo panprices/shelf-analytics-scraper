@@ -303,14 +303,18 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
       }
     }
 
-    p.currency = p.currency.toUpperCase();
-    if (p.currency.length !== 3 && p.currency !== "UNKNOWN") {
-      throw new Error(`Unknown currency '${p.currency}'`);
+    if (p.currency) {
+      p.currency = p.currency.toUpperCase();
+      if (p.currency.length !== 3 && p.currency !== "UNKNOWN") {
+        throw new Error(`Unknown currency '${p.currency}'`);
+      }
     }
     switch (p.currency) {
       // SEK, USD, EUR
       default: {
-        p.price = Math.floor(p.price * 100);
+        if (p.price) {
+          p.price = Math.floor(p.price * 100);
+        }
         if (p.originalPrice) {
           p.originalPrice = Math.floor(p.originalPrice * 100);
         }
