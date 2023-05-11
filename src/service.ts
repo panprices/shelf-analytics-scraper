@@ -264,18 +264,24 @@ async function extractProductDetails(
     }
   });
 
-  postProcessProductDetails(products);
+  try {
+    postProcessProductDetails(products);
+  } catch (e) {
+    log.error("Error when post processing product details", { error: e });
+  }
   return products;
 }
 
 function postProcessProductDetails(products: DetailedProductInfo[]) {
   products.forEach((p) => {
-    p.images = p.images.map((i) => {
-      if (i.startsWith("/")) {
-        return p.retailerDomain + i;
-      }
-      return i;
-    });
+    p.images = p.images
+      .filter((imgUrl) => !!imgUrl)
+      .map((imgUrl) => {
+        if (imgUrl.startsWith("/")) {
+          return p.retailerDomain + imgUrl;
+        }
+        return imgUrl;
+      });
 
     for (let i = 0; i < (p.categoryTree?.length ?? 0); i++) {
       const category = p.categoryTree?.[i];
