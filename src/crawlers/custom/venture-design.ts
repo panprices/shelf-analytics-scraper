@@ -284,11 +284,38 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    const rootUrl = extractDomainFromUrl(ctx.page.url());
+    /* Entry point:
+      "https://www.venturedesign.se/innemobler",
+      "https://www.venturedesign.se/utemobler",
+      "https://www.venturedesign.se/nyheter",
+    */
+
+    // If in top level category, enqueue subcategories
+    await ctx.enqueueLinks({
+      selector: ".categories-with-icons-item a",
+      label: "INTERMEDIATE_CATEGORY",
+    });
+
+    try {
+      await this.enqueueSubCategoryLinks(ctx);
+    } catch (e) {
+      log.warning("No subcategories found", { url: ctx.page.url() });
+    }
+  }
+
+  /**
+   * Enqueues subcategory links
+   * Example page: https://www.venturedesign.se/utemobler/loungegrupper
+   */
+  async enqueueSubCategoryLinks(ctx: PlaywrightCrawlingContext) {
+    const rootUrl = new URL(ctx.page.url()).origin;
     const subCategoriesIdentifier =
       "//div[contains(@class, 'subcategories')]/a";
 
-    await ctx.page.locator(subCategoriesIdentifier).nth(0).waitFor();
+    await ctx.page
+      .locator(subCategoriesIdentifier)
+      .nth(0)
+      .waitFor({ timeout: 15000 });
 
     const subCategoriesLocator = ctx.page.locator(subCategoriesIdentifier);
     const subCategoriesCount = await subCategoriesLocator.count();
