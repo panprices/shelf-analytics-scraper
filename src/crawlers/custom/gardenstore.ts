@@ -113,7 +113,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
-    const outOfStockLocator = page.locator("div.stock.unavailable");
+    const outOfStockLocator = page.locator(".stock.unavailable");
     const availability =
       (await outOfStockLocator.count()) > 0 ? "out_of_stock" : "in_stock";
 
