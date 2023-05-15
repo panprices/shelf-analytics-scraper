@@ -240,7 +240,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       specifications: specArray,
       brand,
       isDiscounted,
-      url: page.url(),
+      url: variantUrl,
       reviews,
       availability,
     };

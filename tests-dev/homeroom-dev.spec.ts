@@ -14,7 +14,7 @@ function dummyRequest(targetUrl: string) {
   };
 }
 
-test.only("Category page", async () => {
+test("Category page", async () => {
   const targetUrl = "https://www.homeroom.se/utemobler-tradgard/mobelskydd";
   const result = await exploreCategory(targetUrl, "job_test_1");
 
@@ -52,6 +52,12 @@ test("Poster with size variants", async () => {
     false,
   ]);
   expect(result.map((p) => p.price)).toEqual([20300, 22100, 32900, 35400]);
+  expect(result.map((p) => p.variantGroupUrl)).toEqual([
+    "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
+    "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
+    "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
+    "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
+  ]);
 });
 
 test("Product page with both colour and size variants", async () => {
@@ -60,6 +66,12 @@ test("Product page with both colour and size variants", async () => {
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
   expect(result).toHaveLength(4);
+  expect(result.map((p) => p.variantGroupUrl)).toEqual([
+    "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-01",
+    "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-01",
+    "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-02",
+    "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-02",
+  ]);
 });
 
 test("Only 1 image", async () => {
