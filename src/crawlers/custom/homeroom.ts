@@ -1,6 +1,10 @@
 import { Locator, Page } from "playwright";
-import { Dataset, log, PlaywrightCrawlingContext } from "crawlee";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import {
+  AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import {
   DetailedProductInfo,
   IndividualReview,
@@ -9,9 +13,10 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
+import { extractDomainFromUrl, extractNumberFromText } from "../../utils";
+import { url } from "inspector";
 
-export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
+export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 58;
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -49,11 +54,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       log.info(
         `Category has ${nrProducts} products. Enqueued ${nrPages} pages to explore.`
       );
-      // await ctx.enqueueLinks({
-      //   urls: urlsToExplore,
-      //   label: "LIST",
-      //   userData: ctx.request.userData,
-      // });
 
       return;
     }
@@ -64,12 +64,19 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    await super.crawlDetailPage(ctx);
+    const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
+    const hasVariants = nrDropdownVariants > 0;
 
-    if (this.launchOptions?.ignoreVariants) {
-      return;
+    if (hasVariants) {
+      for (let i = 0; i < nrDropdownVariants; i++) {
+        await this.selectOptionForParamIndex(ctx, 0, i);
+        await this.crawlSingleDetailPage(ctx, ctx.page.url(), i);
+      }
+    } else {
+      await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
     }
-    // Enqueue the variant groups where you have a.href:
+
+    // Enqueue the variant groups where you have a.href (choose color variants):
     await ctx.enqueueLinks({
       selector: "div.product-info ul.color-picker-list a",
       label: "DETAIL",
@@ -77,28 +84,24 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
-  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    const productName = (<string>(
-      await page.locator("h1.product-title").textContent()
-    )).trim();
+  override async extractProductDetails(
+    page: Page
+  ): Promise<DetailedProductInfo> {
+    const productName = await this.extractProperty(
+      page,
+      "h1.product-title",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    if (!productName) {
+      throw new Error("Cannot extract productName");
+    }
 
     const metadata: OfferMetadata = {};
     const breadcrumbLocator = page.locator("ul.breadcrumbs > li > a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator);
 
-    let priceString = <string>(
-      await page.locator("div.price > p").first().textContent()
-    );
-    priceString = priceString.trim().replace(/\s+/g, " ");
-    let price: number, currency;
-    if (priceString !== "Slutsåld!") {
-      const parts = priceString.split(" ");
-      currency = (<string>parts[parts.length - 1]).trim();
-      price = Number(priceString.replace(currency, "").replace(/\s/g, ""));
-    } else {
-      // Product is out of stock
-      throw new Error("Cannot extract price: Product is out of stock");
-    }
+    const price = await this.extractPriceFromProductPage(page);
+    const currency = "SEK";
 
     const isDiscounted = (await page.locator("p.original-price").count()) > 0;
     if (isDiscounted) {
@@ -214,6 +217,16 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews = "unavailable";
     }
 
+    // Change the url here for variants.
+    // This is due to choosing variants from the dropdown doesn't change the url,
+    // so we have to change it manually.
+    // https://www.homeroom.se/venture-home/abc/1651926-01
+    // -> https://www.homeroom.se/venture-home/abc/{sku-of-this-variant}
+    const urlParts = page.url().split("/");
+    urlParts.pop();
+    const variantUrl = urlParts.join("/") + "/" + sku;
+    log.info("Variant url: " + variantUrl);
+
     return {
       name: productName,
       price,
@@ -227,10 +240,38 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       specifications: specArray,
       brand,
       isDiscounted,
-      url: page.url(),
+      url: variantUrl,
       reviews,
       availability,
     };
+  }
+  async extractPriceFromProductPage(page: Page): Promise<number | undefined> {
+    let priceString;
+    try {
+      priceString = await page
+        .locator("div.price > p")
+        .first()
+        .textContent({ timeout: 10000 });
+    } catch (e) {
+      log.info("Cannot extract price: Product is probably out of stock", {
+        url: page.url(),
+      });
+      return undefined;
+    }
+    if (!priceString || priceString.includes("Slutsåld!")) {
+      log.info("Cannot extract price: Product is out of stock", {
+        url: page.url(),
+      });
+      return undefined;
+    }
+
+    priceString = priceString.trim().replace(/\s+/g, " ");
+    let price: number, currency;
+    const parts = priceString.split(" ");
+    currency = (<string>parts[parts.length - 1]).trim();
+    price = parseInt(priceString.replace(currency, "").replace(/\s/g, ""));
+
+    return price;
   }
 
   async extractCardProductInfo(
@@ -260,6 +301,92 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
     return currentProductInfo;
   }
 
+  async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void> {
+    // const dropDownButtonLocator = ctx.page.locator(
+    //   "button.cta-outline-variant-1-l"
+    // );
+    // const hasDropDrownVariants = (await dropDownButtonLocator.count()) > 0;
+    // if (hasDropDrownVariants) {
+    //   await dropDownButtonLocator.click();
+    //   await ctx.page.waitForSelector("table.picker-sizes tbody tr");
+
+    //   await ctx.page
+    //     .locator("table.picker-sizes tbody tr:not(.no-stock)")
+    //     .nth(optionIndex)
+    //     .click();
+    // }
+
+    const dropDownButtonLocator = ctx.page
+      .locator(".size-picker .type-outline")
+      .nth(paramIndex);
+    await dropDownButtonLocator.click();
+    await ctx.page.waitForSelector("table.picker-sizes tbody tr");
+    await ctx.page
+      .locator("table.picker-sizes tbody tr:not(.no-stock)")
+      .nth(optionIndex)
+      .click();
+    await ctx.page.waitForTimeout(3000);
+  }
+  async hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number
+  ): Promise<boolean> {
+    return false;
+  }
+  async getOptionsForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    paramIndex: number
+  ): Promise<number> {
+    const dropDownButtonLocator = ctx.page
+      .locator(".size-picker .type-outline")
+      .nth(paramIndex);
+    const hasDropDrownVariants = (await dropDownButtonLocator.count()) > 0;
+    if (hasDropDrownVariants) {
+      // Open sidebar:
+      await dropDownButtonLocator.click();
+      await ctx.page.waitForSelector("table.picker-sizes tbody tr");
+
+      // Only count valid options, aka options that are not out of stock:
+      const optionsCount = await ctx.page
+        .locator("table.picker-sizes tbody tr:not(.no-stock)")
+        .count();
+
+      // Turn off sidebar:
+      await ctx.page
+        .locator("div.overlay-inner .overlay-header button")
+        .click();
+      await ctx.page.waitForTimeout(3000);
+
+      return optionsCount;
+    }
+
+    return 0;
+  }
+  async checkInvalidVariant(
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number[]
+  ): Promise<boolean> {
+    return false;
+  }
+
+  override async waitForChanges(
+    ctx: PlaywrightCrawlingContext,
+    currentState: any,
+    _: number = 1000 // ms
+  ) {
+    // Wait for network to be idle
+    await ctx.page.waitForLoadState("networkidle");
+
+    // Wait for 5 more second just in case
+    await ctx.page.waitForTimeout(5000);
+
+    return currentState;
+  }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<HomeroomCrawlerDefinition> {
@@ -272,6 +399,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
       productCardSelector: "//article[contains(@class, 'product-card')]",
       cookieConsentSelector: "a.cta-ok",
+      dynamicProductCardLoading: true,
       launchOptions,
     });
   }
