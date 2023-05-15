@@ -64,6 +64,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    await this.handleCookieConsent(ctx.page);
     const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
     const hasVariants = nrDropdownVariants > 0;
 
@@ -306,19 +307,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     paramIndex: number,
     optionIndex: number
   ): Promise<void> {
-    // const dropDownButtonLocator = ctx.page.locator(
-    //   "button.cta-outline-variant-1-l"
-    // );
-    // const hasDropDrownVariants = (await dropDownButtonLocator.count()) > 0;
-    // if (hasDropDrownVariants) {
-    //   await dropDownButtonLocator.click();
-    //   await ctx.page.waitForSelector("table.picker-sizes tbody tr");
-
-    //   await ctx.page
-    //     .locator("table.picker-sizes tbody tr:not(.no-stock)")
-    //     .nth(optionIndex)
-    //     .click();
-    // }
+    await this.handleCookieConsent(ctx.page);
 
     const dropDownButtonLocator = ctx.page
       .locator(".size-picker .type-outline")
