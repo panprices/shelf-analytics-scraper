@@ -54,11 +54,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       log.info(
         `Category has ${nrProducts} products. Enqueued ${nrPages} pages to explore.`
       );
-      // await ctx.enqueueLinks({
-      //   urls: urlsToExplore,
-      //   label: "LIST",
-      //   userData: ctx.request.userData,
-      // });
 
       return;
     }
@@ -366,7 +361,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
         .click();
       await ctx.page.waitForTimeout(3000);
 
-      console.log("optionsCount", optionsCount);
       return optionsCount;
     }
 
@@ -405,6 +399,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
       productCardSelector: "//article[contains(@class, 'product-card')]",
       cookieConsentSelector: "a.cta-ok",
+      dynamicProductCardLoading: true,
       launchOptions,
     });
   }
