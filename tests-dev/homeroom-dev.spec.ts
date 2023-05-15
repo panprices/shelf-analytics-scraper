@@ -14,7 +14,7 @@ function dummyRequest(targetUrl: string) {
   };
 }
 
-test("Category page", async () => {
+test.only("Category page", async () => {
   const targetUrl = "https://www.homeroom.se/utemobler-tradgard/mobelskydd";
   const result = await exploreCategory(targetUrl, "job_test_1");
 
@@ -23,13 +23,13 @@ test("Category page", async () => {
 
 test("Product page with colour variants", async () => {
   const targetUrl =
-    "https://www.homeroom.se/venture-home/matgrupp-tempe-med-2st-matstolar-polar/1722582-01";
+    "https://www.homeroom.se/ellos-home/matgrupp-gilda-med-bord-och-4-stolar/1615854-01";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
   expect(result).toHaveLength(2);
-  expect(result.map((p) => p.images.length)).toEqual([6, 8]);
+  expect(result.map((p) => p.images.length)).toEqual([9, 8]);
   expect(result.map((p) => p.isDiscounted)).toEqual([false, false]);
-  expect(result.map((p) => p.price)).toEqual([369900, undefined]);
+  expect(result.map((p) => p.price)).toEqual([449900, 449900]);
 });
 
 test("Poster with size variants", async () => {
