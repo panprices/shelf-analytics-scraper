@@ -19,8 +19,12 @@ steps:
       - --platform
       - managed
       - --cpu=1
-      - --memory=4Gi
+      - --memory=3Gi
       - --concurrency=1 # should only run 1 scraper at a time
       - --timeout=3600s # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
+      - --set-env-vars=PANPRICES_ENVIRONMENT=production
+      - --set-env-vars=SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC=trigger_schedule_product_scrapes
+      - --set-env-vars=SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC=trigger_shelf_analytics_update_products
+      - --set-env-vars=CRAWLEE_AVAILABLE_MEMORY_RATIO=1
 images:
   - gcr.io/panprices/test-crawlee
