@@ -61,23 +61,35 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     await super.crawlListPage(ctx);
   }
 
+  /**
+   *
+   * Crawl the detail page.
+   * If there are dropdown (size) variants, we would also scrape the "productGroup"
+   * info as the 1st variant.
+   * This is due to the need of getting prices for previously matched products
+   * whose urls are the productGroup urls.
+   */
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
     await this.handleCookieConsent(ctx.page);
+    await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
+
     const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
     const hasVariants = nrDropdownVariants > 0;
 
     if (hasVariants) {
       for (let i = 0; i < nrDropdownVariants; i++) {
         await this.selectOptionForParamIndex(ctx, 0, i);
-        await this.crawlSingleDetailPage(ctx, ctx.page.url(), i);
+
+        // Start counting variants from 1 (and not 0) so that we scrape the 1st variant twice.
+        // The 1st time the url will be the productGroup url for HACKY solution,
+        // and the 2nd time with proper url.
+        await this.crawlSingleDetailPage(ctx, ctx.page.url(), i + 1);
       }
-    } else {
-      await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
     }
 
-    // Enqueue the variant groups where you have a.href (choose color variants):
+    // Enqueue the variant groups where you have a.href:
     await ctx.enqueueLinks({
       selector: "div.product-info ul.color-picker-list a",
       label: "DETAIL",
