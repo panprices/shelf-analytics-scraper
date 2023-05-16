@@ -72,7 +72,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    await this.handleCookieConsent(ctx.page);
     await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
 
     const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
@@ -100,6 +99,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   override async extractProductDetails(
     page: Page
   ): Promise<DetailedProductInfo> {
+    await this.handleCookieConsent(page);
+
     const productName = await this.extractProperty(
       page,
       "h1.product-title",
