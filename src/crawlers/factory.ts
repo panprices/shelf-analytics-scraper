@@ -147,7 +147,7 @@ export class CrawlerFactory {
         definition = await HomeroomCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
-          maxConcurrency: 5,
+          maxConcurrency: 4,
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];

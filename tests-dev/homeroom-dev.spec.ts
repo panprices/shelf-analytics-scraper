@@ -37,9 +37,10 @@ test("Poster with size variants", async () => {
     "https://www.homeroom.se/venture-home/poster-circles/1703384-01";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
-  expect(result).toHaveLength(4);
-  expect(result.map((p) => p.images.length)).toEqual([2, 2, 2, 2]);
+  expect(result).toHaveLength(4 + 1);
+  expect(result.map((p) => p.images.length)).toEqual([2, 2, 2, 2, 2]);
   expect(result.map((p) => p.sku)).toEqual([
+    "1703384-01",
     "1703384-01-345",
     "1703384-01-118",
     "1703384-01-136",
@@ -50,9 +51,13 @@ test("Poster with size variants", async () => {
     false,
     false,
     false,
+    false,
   ]);
-  expect(result.map((p) => p.price)).toEqual([20300, 22100, 32900, 35400]);
+  expect(result.map((p) => p.price)).toEqual([
+    20300, 20300, 22100, 32900, 44900,
+  ]);
   expect(result.map((p) => p.variantGroupUrl)).toEqual([
+    "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
     "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
     "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
     "https://www.homeroom.se/venture-home/poster-circles/1703384-01",
@@ -65,10 +70,12 @@ test("Product page with both colour and size variants", async () => {
     "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-01";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
-  expect(result).toHaveLength(4);
+  expect(result).toHaveLength(4 + 2);
   expect(result.map((p) => p.variantGroupUrl)).toEqual([
     "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-01",
     "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-01",
+    "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-01",
+    "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-02",
     "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-02",
     "https://www.homeroom.se/venture-home/ullmatta-loump/1675496-02",
   ]);

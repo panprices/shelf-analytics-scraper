@@ -3,6 +3,7 @@ import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
 } from "../abstract";
 import {
@@ -18,6 +19,10 @@ import { url } from "inspector";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 58;
+
+  public constructor(options: CrawlerDefinitionOptions) {
+    super(options, "same_tab");
+  }
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     const categoryUrl = ctx.page.url();
@@ -75,20 +80,12 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
 
     const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
-    const hasVariants = nrDropdownVariants > 0;
-
-    if (hasVariants) {
-      for (let i = 0; i < nrDropdownVariants; i++) {
-        await this.selectOptionForParamIndex(ctx, 0, i);
-
-        // Start counting variants from 1 (and not 0) so that we scrape the 1st variant twice.
-        // The 1st time the url will be the productGroup url for HACKY solution,
-        // and the 2nd time with proper url.
-        await this.crawlSingleDetailPage(ctx, ctx.page.url(), i + 1);
-      }
+    const hasDropdownVariants = nrDropdownVariants > 0;
+    if (hasDropdownVariants) {
+      await this.crawlDetailPageWithVariantsLogic(ctx);
     }
 
-    // Enqueue the variant groups where you have a.href:
+    // Enqueue the colour variant groups where you have a.href:
     await ctx.enqueueLinks({
       selector: "div.product-info ul.color-picker-list a",
       label: "DETAIL",
@@ -333,7 +330,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       .locator("table.picker-sizes tbody tr:not(.no-stock)")
       .nth(optionIndex)
       .click();
-    await ctx.page.waitForTimeout(3000);
+    await ctx.page.waitForTimeout(5000);
   }
   async hasSelectedOptionForParamIndex(
     _: PlaywrightCrawlingContext<Dictionary<any>>,
