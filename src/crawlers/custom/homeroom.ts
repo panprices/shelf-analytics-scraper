@@ -327,7 +327,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const dropDownButtonLocator = ctx.page
       .locator(".size-picker .type-outline")
       .nth(paramIndex);
-    await dropDownButtonLocator.click();
+    await dropDownButtonLocator.click({ force: true });
     await ctx.page.waitForSelector("table.picker-sizes tbody tr");
     await ctx.page
       .locator("table.picker-sizes tbody tr:not(.no-stock)")
