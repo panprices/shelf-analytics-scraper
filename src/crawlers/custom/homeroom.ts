@@ -99,11 +99,13 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   override async extractProductDetails(
     page: Page
   ): Promise<DetailedProductInfo> {
+    const productNameSelector = "h1.product-title";
+    await page.waitForSelector(productNameSelector);
     await this.handleCookieConsent(page);
 
     const productName = await this.extractProperty(
       page,
-      "h1.product-title",
+      productNameSelector,
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName) {
