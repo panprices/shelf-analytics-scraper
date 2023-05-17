@@ -133,7 +133,11 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     if (!description.includes("Artikelnummer:")) {
       throw new Error("Cannot extract sku.");
     }
-    const sku = description.split("Artikelnummer:")[1].split("\n")[0].trim();
+    const sku = description
+      .split("Artikelnummer:")
+      .pop()!
+      .split("\n")[0]
+      .trim();
 
     const brand = (await this.extractProperty(
       page,
