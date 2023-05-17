@@ -95,9 +95,16 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     paramIndex: number,
     optionIndex: number
   ): Promise<void> {
-    const parameterLocator = ctx.page
-      .locator("ul.product-variations")
-      .nth(paramIndex);
+    const allParametersLocator = ctx.page.locator(
+      "ul.product-variations:visible"
+    );
+    const parametersCount = await allParametersLocator.count();
+    if (paramIndex >= parametersCount) {
+      log.info("Had variants initially but option was auto-selected");
+      return;
+    }
+
+    const parameterLocator = allParametersLocator.nth(paramIndex);
     const options = parameterLocator.locator("li");
     const option = await options.nth(optionIndex);
 
@@ -141,8 +148,8 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     paramIndex: number
   ): Promise<number> {
     const allParametersLocator = ctx.page.locator("ul.product-variations");
-    const paramtersCount = await allParametersLocator.count();
-    if (paramIndex >= paramtersCount) {
+    const parametersCount = await allParametersLocator.count();
+    if (paramIndex >= parametersCount) {
       return 0;
     }
 
@@ -153,14 +160,19 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
   /**
    * Assumed to be impossible
-   * @param _
-   * @param __
+   * @param ctx
+   * @param currentOption
    */
   async checkInvalidVariant(
-    _: PlaywrightCrawlingContext<Dictionary<any>>,
-    __: number[]
+    ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    currentOption: number[]
   ): Promise<boolean> {
-    return false;
+    const availableOptionsCount = await this.getOptionsForParamIndex(
+      ctx,
+      currentOption.length - 1
+    );
+
+    return availableOptionsCount === 0;
   }
 
   /**
@@ -198,7 +210,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const brand = await this.extractProperty(
       page,
-      '(//div[contains(@class, "product-info-col")]/h2)[1]/a',
+      '(//div[contains(@class, "product-info-col")]//h2)[1]/a',
       (node) => node.textContent()
     );
 

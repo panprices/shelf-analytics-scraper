@@ -143,10 +143,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 
 // await debugCategoryExploration(
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
-// );
-
+// );{
 await debugScrapeDetails(
-  "https://www.finnishdesignshop.fi/fi-fi/tuote/on2-wood-vuodesohva-saippuavahattu-tammi-beige-diamonds-289"
+  "https://www.finnishdesignshop.com/en-se/product/replacement-webbing-50-mm"
 );
 
 // await debugScrapeDetails(
