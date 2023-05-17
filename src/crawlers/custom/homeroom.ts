@@ -478,7 +478,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
 
     // Try to expand description box fully if needed:
     const expandButton = page.locator(".long-description button");
-    if (await expandButton.isVisible()) {
+    if (
+      (await expandButton.isVisible()) &&
+      (await expandButton.textContent())?.includes("Visa mer")
+    ) {
       await expandButton.click();
     }
 

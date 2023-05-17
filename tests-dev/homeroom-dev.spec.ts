@@ -83,3 +83,11 @@ test("Only 1 image", async () => {
   expect(result.map((p) => p.images.length)).toEqual([1]);
   expect(result.map((p) => p.sku)).toEqual(["1560334-01-0"]);
 });
+
+test("Product page with long description", async () => {
+  const targetUrl =
+    "https://www.homeroom.se/ellos-home/ullmatta-carezza/1635249-01";
+  const result = await scrapeDetails([dummyRequest(targetUrl)]);
+
+  expect(result[0].sku).toEqual("1635249-01");
+});
