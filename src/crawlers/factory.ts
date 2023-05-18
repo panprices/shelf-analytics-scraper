@@ -46,6 +46,7 @@ import { AmazonCrawlerDefinition } from "./custom/amazon";
 
 export interface CrawlerFactoryArgs {
   domain: string;
+  type: "scrapeDetails" | "categoryExploration";
   useCustomQueue?: boolean;
   customQueueSettings?: CustomQueueSettings;
 }
@@ -58,7 +59,7 @@ export interface CrawlerFactoryArgs {
  */
 
 export class CrawlerFactory {
-  static async buildPlaywrightCrawlerForDomain(
+  static async buildPlaywrightCrawler(
     args: CrawlerFactoryArgs,
     overrides?: PlaywrightCrawlerOptions,
     launchOptions?: CrawlerLaunchOptions
@@ -145,11 +146,20 @@ export class CrawlerFactory {
     switch (domain) {
       case "homeroom.se":
         definition = await HomeroomCrawlerDefinition.create(launchOptions);
-        options = {
-          ...defaultOptions,
-          maxConcurrency: 4,
-          requestHandler: definition.router,
-        };
+        // Would be nice to use pattern matching here instead of this if:
+        if (args.type === "categoryExploration") {
+          options = {
+            ...defaultOptions,
+            maxConcurrency: 5,
+            requestHandler: definition.router,
+          };
+        } else {
+          options = {
+            ...defaultOptions,
+            maxConcurrency: 2, // homeroom is laggy when opening many pages at once
+            requestHandler: definition.router,
+          };
+        }
         return [new PlaywrightCrawler(options), definition];
       case "ellos.se":
         definition = await EllosCrawlerDefinition.create(launchOptions);
@@ -329,7 +339,7 @@ export class CrawlerFactory {
     throw Error(`Asked for unknown root url: ${domain}`);
   }
 
-  static async buildCheerioCrawlerForRootUrl(
+  static async buildCheerioCrawler(
     args: CrawlerFactoryArgs
   ): Promise<[CheerioCrawler, AbstractCheerioCrawlerDefinition]> {
     if (args.useCustomQueue === undefined) {
