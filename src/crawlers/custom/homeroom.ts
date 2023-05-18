@@ -334,7 +334,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       .locator("table.picker-sizes tbody tr:not(.no-stock)")
       .nth(optionIndex)
       .click();
-    await ctx.page.waitForTimeout(5000);
+    await ctx.page.waitForTimeout(3000);
   }
   async hasSelectedOptionForParamIndex(
     _: PlaywrightCrawlingContext<Dictionary<any>>,
@@ -386,8 +386,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     // Wait for network to be idle
     await ctx.page.waitForLoadState("networkidle");
 
-    // Wait for 5 more second just in case
-    await ctx.page.waitForTimeout(5000);
+    // Wait for 1 more second just in case
+    await ctx.page.waitForTimeout(1000);
 
     return currentState;
   }
