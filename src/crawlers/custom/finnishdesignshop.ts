@@ -263,7 +263,14 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
         (node) => node.textContent()
       );
 
-      price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "").split(",")[0];
+      price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "");
+
+      // Handle custom number formatting depending on locale
+      if (page.url().includes("/en-no/")) {
+        price = price?.split(",")[0];
+      } else if (page.url().includes("/en-gb/")) {
+        price = price?.replace(",", "");
+      }
       currency = currencyExtractor(priceCurrencyString);
     }
 
