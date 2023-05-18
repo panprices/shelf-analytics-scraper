@@ -14,8 +14,8 @@ export async function exploreCategory(
 ): Promise<RequestOptions[]> {
   const domain = extractDomainFromUrl(targetUrl);
 
-  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForDomain(
-    { domain },
+  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawler(
+    { domain, type: "categoryExploration" },
     {
       ...overrides,
       maxConcurrency: 1,
@@ -65,9 +65,10 @@ export async function exploreCategoriesNoCapture(
   const domain = extractDomainFromUrl(targetUrls[0]);
 
   const [crawler, crawlerDefinition] =
-    await CrawlerFactory.buildPlaywrightCrawlerForDomain(
+    await CrawlerFactory.buildPlaywrightCrawler(
       {
         domain,
+        type: "categoryExploration",
         customQueueSettings: {
           captureLabels: [],
         },
@@ -175,9 +176,10 @@ export async function extractLeafCategories(
 
   const domain = extractDomainFromUrl(targetUrls[0]);
 
-  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawlerForDomain(
+  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawler(
     {
       domain,
+      type: "categoryExploration",
       customQueueSettings: {
         captureLabels: ["LIST"],
       },
@@ -224,21 +226,21 @@ export async function scrapeDetails(
   const domain = extractDomainFromUrl(detailedPages[0].url);
   let crawler, crawlerDefinition;
   if (useCheerio) {
-    [crawler, crawlerDefinition] =
-      await CrawlerFactory.buildCheerioCrawlerForRootUrl({
-        domain,
-        useCustomQueue: false,
-      });
+    [crawler, crawlerDefinition] = await CrawlerFactory.buildCheerioCrawler({
+      domain,
+      type: "scrapeDetails",
+      useCustomQueue: false,
+    });
   } else {
-    [crawler, crawlerDefinition] =
-      await CrawlerFactory.buildPlaywrightCrawlerForDomain(
-        {
-          domain,
-          useCustomQueue: false,
-        },
-        overrides,
-        launchOptions
-      );
+    [crawler, crawlerDefinition] = await CrawlerFactory.buildPlaywrightCrawler(
+      {
+        domain,
+        type: "scrapeDetails",
+        useCustomQueue: false,
+      },
+      overrides,
+      launchOptions
+    );
   }
 
   await crawler.run(detailedPages);
