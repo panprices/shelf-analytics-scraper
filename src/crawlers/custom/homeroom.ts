@@ -160,15 +160,17 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const specificationsCount = await specifications.count();
     const specArray = [];
     for (let i = 0; i < specificationsCount; i++) {
-      const spec = <string>await specifications
+      const spec = await specifications
         .nth(i)
         .textContent()
-        .then((s) => s!.trim());
+        .then((s) => s?.trim());
 
-      specArray.push({
-        key: (<string>spec.split("\n")[0]).trim(),
-        value: (<string>spec.split("\n")[1]).trim(),
-      });
+      if (spec && spec.split("\n").length > 1) {
+        specArray.push({
+          key: spec.split("\n")[0].trim(),
+          value: spec.split("\n")[1].trim(),
+        });
+      }
     }
     const buyButtonLocator = page.locator("//button//span[text() = 'Handla']");
     const availability =
