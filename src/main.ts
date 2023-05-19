@@ -173,3 +173,9 @@ await debugScrapeDetails(
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
+
+// await debugScrapeDetails(
+//   "https://www.homeroom.se/jotex/lori-plain-ullmatta-200x300-cm/1691351-01"
+// );
+
+await debugLeafCategoryExtraction(["https://www.homeroom.se/"]);
