@@ -51,6 +51,7 @@ export interface BaseProductInfo {
   mpn?: string;
 
   popularityIndex?: number;
+  popularityCategory?: Category[];
   categoryUrl?: string;
   categoryTree?: Category[];
 

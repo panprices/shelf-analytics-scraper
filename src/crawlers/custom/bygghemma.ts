@@ -204,13 +204,17 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       previewImageUrl !== undefined
         ? cleanImageUrl(previewImageUrl)
         : undefined;
-
+    const categoryTree = await this.extractCategoryTree(
+      productCard.page().locator("a.PMDfl"),
+      0
+    );
     return {
       name: productName,
       url,
       previewImageUrl: previewImageUrlCleaned,
       categoryUrl,
       popularityIndex: -1, // this will be overwritten later
+      popularityCategory: categoryTree,
     };
   }
 
