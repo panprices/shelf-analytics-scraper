@@ -129,6 +129,7 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     "brand",
     "description",
     "popularity_index",
+    "popularity_category",
     "category_tree",
     "images",
     "is_discounted",
