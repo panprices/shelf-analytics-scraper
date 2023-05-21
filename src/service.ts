@@ -2,7 +2,7 @@ import { CrawlerFactory } from "./crawlers/factory";
 import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractDomainFromUrl } from "./utils";
-import { DetailedProductInfo } from "./types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
 import { findCategoryTree } from "./category-tree-mapping";
@@ -34,21 +34,41 @@ export async function exploreCategory(
   let detailedPages = [];
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
-    if (request === null) {
+    if (!request) {
       break;
+    }
+
+    const product = request.userData as ListingProductInfo;
+    try {
+      postProcessListingProduct(product);
+    } catch (e) {
+      log.error("Error when post processing listing products", { error: e });
     }
 
     detailedPages.push({
       url: request.url,
       userData: {
         jobId: jobId,
-        ...request.userData,
+        ...product,
       },
     });
     await inWaitQueue.markRequestHandled(request);
   }
 
   return detailedPages;
+}
+
+function postProcessListingProduct(p: ListingProductInfo): void {
+  // Convert dynamic category url to absolute url:
+  if (p.categoryUrl?.startsWith("/")) {
+    p.categoryUrl = new URL(p.categoryUrl, p.url).href;
+  }
+  for (let i = 0; i < (p.popularityCategory?.length ?? 0); i++) {
+    const category = p.popularityCategory?.[i];
+    if (category?.url.startsWith("/")) {
+      category.url = new URL(category.url, p.url).href;
+    }
+  }
 }
 
 /**
@@ -283,15 +303,14 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
         return imgUrl;
       });
 
+    if (p.categoryUrl?.startsWith("/")) {
+      p.categoryUrl = p.retailerDomain + p.categoryUrl;
+    }
     for (let i = 0; i < (p.categoryTree?.length ?? 0); i++) {
       const category = p.categoryTree?.[i];
       if (category?.url.startsWith("/")) {
         category.url = p.retailerDomain + category.url;
       }
-    }
-
-    if (p.categoryUrl?.startsWith("/")) {
-      p.categoryUrl = p.retailerDomain + p.categoryUrl;
     }
 
     if (p.gtin) {
