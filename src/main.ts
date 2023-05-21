@@ -143,11 +143,10 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 
 // await debugCategoryExploration(
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
+// );{
+// await debugScrapeDetails(
+//   "https://www.finnishdesignshop.com/en-se/product/replacement-webbing-50-mm"
 // );
-
-await debugScrapeDetails(
-  "https://www.finnishdesignshop.fi/fi-fi/tuote/on2-wood-vuodesohva-saippuavahattu-tammi-beige-diamonds-289"
-);
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
@@ -174,8 +173,6 @@ await debugScrapeDetails(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 
-// await debugScrapeDetails(
-//   "https://www.homeroom.se/jotex/lori-plain-ullmatta-200x300-cm/1691351-01"
-// );
-
-await debugLeafCategoryExtraction(["https://www.homeroom.se/"]);
+await debugScrapeDetails(
+  "https://www.homeroom.se/jotex/lori-plain-ullmatta-200x300-cm/1691351-01"
+);
