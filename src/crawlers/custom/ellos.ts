@@ -6,6 +6,7 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import {
+  Category,
   DetailedProductInfo,
   IndividualReview,
   ListingProductInfo,
@@ -178,14 +179,41 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page()
+    );
+
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
       categoryUrl,
       popularityIndex: -1, // will be overwritten later
+      popularityCategory: categoryTree,
     };
 
     return currentProductInfo;
+  }
+
+  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
+    const categoryTree = await this.extractCategoryTree(
+      page.locator("ul.navigation-breadcrumb-items li a[href]"),
+      0
+    );
+
+    const currentCategoryName = await page
+      .locator(".product-list-header h1")
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = page.url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
+    return categoryTree;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -272,8 +300,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     const imageUrls = schemaOrg.image;
 
     const categoryTree = await this.extractCategoryTree(
-      page.locator("ul.navigation-breadcrumb-items li a"),
-      1
+      page.locator("ul.navigation-breadcrumb-items li a[href]"),
+      0
     );
 
     // Change the url here for variants.
