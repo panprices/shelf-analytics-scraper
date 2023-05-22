@@ -300,18 +300,19 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
       .filter((imgUrl) => !!imgUrl)
       .map((imgUrl) => {
         if (imgUrl.startsWith("/")) {
-          return p.retailerDomain + imgUrl;
+          return new URL(imgUrl, p.url).href;
         }
         return imgUrl;
       });
 
+    // Convert dynamic category url to absolute url:
     if (p.categoryUrl?.startsWith("/")) {
-      p.categoryUrl = p.retailerDomain + p.categoryUrl;
+      p.categoryUrl = new URL(p.categoryUrl, p.url).href;
     }
     for (let i = 0; i < (p.categoryTree?.length ?? 0); i++) {
       const category = p.categoryTree?.[i];
       if (category?.url.startsWith("/")) {
-        category.url = p.retailerDomain + category.url;
+        category.url = new URL(category.url, p.url).href;
       }
     }
 
