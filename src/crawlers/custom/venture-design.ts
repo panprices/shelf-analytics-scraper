@@ -75,9 +75,6 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const price = 0;
-    const currency = "unavailable";
-
     const name = <string>(
       await this.extractProperty(productCard, "h4", (node) =>
         node.textContent()
@@ -93,15 +90,18 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
         node.getAttribute("href")
       )
     );
+    const breadcrumbLocator = productCard
+      .page()
+      .locator("div.breadcrumb-container >> a");
+    const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
+
     return {
       name,
-      categoryUrl,
-      price,
-      currency,
-      popularityIndex: -1,
-      previewImageUrl,
       url,
-      isDiscounted: false,
+      categoryUrl,
+      previewImageUrl,
+      popularityIndex: -1,
+      popularityCategory: categoryTree,
     };
   }
 

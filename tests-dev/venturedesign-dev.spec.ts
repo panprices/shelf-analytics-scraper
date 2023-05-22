@@ -1,24 +1,29 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
+import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
 
-function dummyRequest(targetUrl: string) {
-  return {
-    url: targetUrl,
-    userData: {
-      jobId: "job_test_1",
-      url: targetUrl,
-      popularityIndex: 1,
-      label: "DETAIL",
-
-      categoryUrl: "https://bernomobler.se/collections/rektangulara-matbord",
-    },
-  };
-}
-
 test("Category page", async () => {
   const targetUrl = "https://www.venturedesign.se/innemobler/bord/matbord";
-  const result = await exploreCategory(targetUrl, "job_test_1");
+  const result = (await exploreCategory(targetUrl, "job_test_1")).map(
+    (res) => res.userData as ListingProductInfo
+  );
 
-  expect(result).toHaveLength(109);
+  expect(result).toHaveLength(116);
+  expect(result.map((p) => p.popularityCategory)).toEqual(
+    Array(116).fill([
+      {
+        name: "Innemöbler",
+        url: "https://www.venturedesign.se/innemobler",
+      },
+      {
+        name: "Bord",
+        url: "https://www.venturedesign.se/innemobler/bord",
+      },
+      {
+        name: "Matbord",
+        url: "https://www.venturedesign.se/innemobler/bord/matbord",
+      },
+    ])
+  );
 });

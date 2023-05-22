@@ -1,4 +1,5 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
+import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
 
@@ -16,12 +17,36 @@ function dummyRequest(targetUrl: string) {
 
 test("Category page", async () => {
   const targetUrl = "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord";
-  const result = await exploreCategory(targetUrl, "job_test_1");
+  const result = (await exploreCategory(targetUrl, "job_test_1")).map(
+    (res) => res.userData as ListingProductInfo
+  );
 
-  expect(result).toHaveLength(108);
+  expect(result).toHaveLength(104);
+  expect(result.map((p) => p.popularityCategory)).toEqual(
+    Array(104).fill([
+      {
+        name: "Hem",
+        url: "https://www.ellos.se/hem-inredning",
+      },
+      {
+        name: "Möbler",
+        url: "https://www.ellos.se/hem-inredning/mobler",
+      },
+      {
+        name: "Bord",
+        url: "https://www.ellos.se/hem-inredning/mobler/bord",
+      },
+      {
+        name: "Skrivbord",
+        url: "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord",
+      },
+    ])
+  );
 });
 
-test("Product page with 2 variants", async () => {
+// Skip this because one of the variant is out of stock and is not displayed
+// on the page anymore.
+test.skip("Product page with 2 variants", async () => {
   const targetUrl =
     "https://www.ellos.se/venture-home/matgrupp-tempe-med-2st-matstolar-polar/1722582-02";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
@@ -37,12 +62,10 @@ test("Long description and Parse correct SKU", async () => {
   const targetUrl = "https://www.ellos.se/ellos-home/overkast-indra/1705327-01";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
-  console.log(result[0].description);
   expect(result[0].description?.length).toBeGreaterThan(500);
   expect(result[0].description).toContain(
-    "Det betyder inte att produkten är tillverkad av fysiskt spårbar Better Cotton"
+    "För mer information om Better Cotton, besök bettercotton.org/learnmore."
   );
 
-  console.log(result[0].sku);
   expect(result[0].sku).toEqual("1705327-01-24");
 });
