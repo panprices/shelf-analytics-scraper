@@ -7,6 +7,7 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import {
+  Category,
   DetailedProductInfo,
   IndividualReview,
   ListingProductInfo,
@@ -310,14 +311,39 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       )
     );
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page()
+    );
+
     const currentProductInfo: ListingProductInfo = {
       name,
       url,
       popularityIndex: -1,
       categoryUrl,
+      popularityCategory: categoryTree,
     };
 
     return currentProductInfo;
+  }
+
+  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
+    const breadcrumbLocator = page.locator("ul.breadcrumbs > li > a");
+    const categoryTree = await this.extractCategoryTree(breadcrumbLocator);
+
+    const currentCategoryName = await page
+      .locator(".content-wrapper-category-header h1")
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = page.url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
+    return categoryTree;
   }
 
   async selectOptionForParamIndex(

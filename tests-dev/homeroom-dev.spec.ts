@@ -1,4 +1,5 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
+import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
 
@@ -15,10 +16,25 @@ function dummyRequest(targetUrl: string) {
 }
 
 test("Category page", async () => {
-  const targetUrl = "https://www.homeroom.se/utemobler-tradgard/mobelskydd";
-  const result = await exploreCategory(targetUrl, "job_test_1");
+  const targetUrl =
+    "https://www.homeroom.se/utemobler-tradgard/solstolar-solsangar";
+  const result = (await exploreCategory(targetUrl, "job_test_1")).map(
+    (res) => res.userData as ListingProductInfo
+  );
 
-  expect(result).toHaveLength(46);
+  expect(result).toHaveLength(79);
+  expect(result.map((p) => p.popularityCategory)).toEqual(
+    Array(79).fill([
+      {
+        name: "Utemöbler & trädgård",
+        url: "https://www.homeroom.se/utemobler-tradgard",
+      },
+      {
+        name: "Solstolar & solsängar",
+        url: "https://www.homeroom.se/utemobler-tradgard/solstolar-solsangar",
+      },
+    ])
+  );
 });
 
 test("Product page with colour variants", async () => {

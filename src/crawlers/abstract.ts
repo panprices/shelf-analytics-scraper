@@ -364,10 +364,11 @@ export abstract class AbstractCrawlerDefinition
     const breadcrumbCount = await breadcrumbLocator.count();
     const categoryTree = [];
     for (let i = startIndex; i < breadcrumbCount; i++) {
-      const name = (<string>(
-        await breadcrumbLocator.nth(i).textContent()
-      )).trim();
-      const url = <string>await breadcrumbLocator
+      const name = await breadcrumbLocator
+        .nth(i)
+        .textContent()
+        .then((text) => text?.trim());
+      const url = await breadcrumbLocator
         .nth(i)
         .getAttribute("href")
         .then((url) => {
@@ -376,6 +377,10 @@ export abstract class AbstractCrawlerDefinition
           }
           return url;
         });
+      if (!name || !url) {
+        log.error(`Could not extract category name or url from breadcrumb`);
+        continue;
+      }
 
       categoryTree.push({
         name,
