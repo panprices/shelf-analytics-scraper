@@ -6,6 +6,7 @@ import {
 import { Locator, Page, selectors } from "playwright";
 import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
+  Category,
   DetailedProductInfo,
   IndividualReview,
   ListingProductInfo,
@@ -128,13 +129,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const imageUrl = <string>(
-      await this.extractProperty(
-        productCard,
-        "xpath=(..//img)[1]",
-        this.extractImageFromSrcSet
-      )
-    );
     const name = <string>(
       await this.extractProperty(
         productCard,
@@ -142,40 +136,45 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         (node) => node.textContent()
       )
     );
-    const priceText = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//div[@data-cy = 'current-price']",
-        (node) => node.first().textContent()
-      )
-    );
-    const originalPriceText = await this.extractProperty(
-      productCard,
-      "..//div[@data-cy = 'original-price']",
-      (node) => node.first().textContent()
-    );
-    const isDiscounted = originalPriceText !== undefined;
     const url = <string>(
       await this.extractProperty(productCard, "..//a[1]", (node) =>
         node.getAttribute("href")
       )
     );
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page()
+    );
+
     const result: ListingProductInfo = {
       name,
-      previewImageUrl: imageUrl,
-      price: Number(priceText.replace(/\s/g, "")),
-      isDiscounted,
       url,
-      currency: "SEK",
       categoryUrl,
       popularityIndex: -1,
+      popularityCategory: categoryTree,
     };
-    if (isDiscounted) {
-      result.originalPrice = Number(originalPriceText!.replace(/\s/g, ""));
-    }
 
     return result;
+  }
+
+  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
+    const breadcrumbLocator = page.locator("div#breadcrumbs a");
+    const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
+
+    const currentCategoryName = await page
+      .locator("div#breadcrumbs > div > span")
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = page.url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
+    return categoryTree;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -217,7 +216,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         list.map((element) => <string>element.getAttribute("src"))
       );
 
-    const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
+    const breadcrumbLocator = page.locator("div#breadcrumbs a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
 
     const brand = await this.extractProperty(
