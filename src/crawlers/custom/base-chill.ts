@@ -6,6 +6,7 @@
 import { log } from "crawlee";
 import { Locator, Page } from "playwright";
 import {
+  Category,
   DetailedProductInfo,
   IndividualReview,
   ListingProductInfo,
@@ -37,19 +38,19 @@ export async function extractCardProductInfo(
   categoryUrl: string,
   productCard: Locator
 ): Promise<ListingProductInfo> {
-  const productName = <string>(
-    await crawlerDefinition.extractProperty(
-      productCard,
-      "..//h3[contains(@class, 'ProductCardTitle__global')]",
-      (node) => node.textContent()
-    )
+  const productName = await crawlerDefinition.extractProperty(
+    productCard,
+    "..//h3[contains(@class, 'ProductCardTitle__global')]",
+    (node) => node.textContent(),
+    false
   );
   if (!productName) throw new Error("Cannot find productName of productCard");
 
   const url = await crawlerDefinition.extractProperty(
     productCard,
     "..//a[1]",
-    (node) => node.getAttribute("href")
+    (node) => node.getAttribute("href"),
+    false
   );
   if (!url) throw new Error("Cannot find url of productCard");
 
@@ -59,13 +60,45 @@ export async function extractCardProductInfo(
     crawlerDefinition.extractImageFromSrcSet
   );
 
+  const categoryTree = await extractCategoryTreeFromCategoryPage(
+    crawlerDefinition,
+    productCard.page()
+  );
+
   return {
     name: productName,
     previewImageUrl: imageUrl,
     url,
     categoryUrl,
     popularityIndex: -1,
+    popularityCategory: categoryTree,
   };
+}
+
+async function extractCategoryTreeFromCategoryPage(
+  crawlerDefinition: AbstractCrawlerDefinition,
+  page: Page
+): Promise<Category[]> {
+  const breadcrumbLocator = page.locator("div#breadcrumbs a");
+  const categoryTree = await crawlerDefinition.extractCategoryTree(
+    breadcrumbLocator,
+    1
+  );
+
+  const currentCategoryName = await page
+    .locator("div#breadcrumbs > div > span")
+    .textContent()
+    .then((text) => text?.trim());
+  if (!currentCategoryName) {
+    throw new Error("Cannot extract category name of category page");
+  }
+  const currentCategoryUrl = page.url().split("?")[0];
+
+  categoryTree.push({
+    name: currentCategoryName,
+    url: currentCategoryUrl,
+  });
+  return categoryTree;
 }
 
 export async function extractProductDetails(
