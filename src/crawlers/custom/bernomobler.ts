@@ -19,6 +19,7 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
+import { findCategoryTree } from "../../category-tree-mapping";
 
 export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
@@ -35,11 +36,13 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = findCategoryTree(categoryUrl);
     return {
       name: productName,
       url,
       popularityIndex: -1, // will be overwritten later
       categoryUrl,
+      popularityCategory: categoryTree ? categoryTree : undefined,
     };
   }
 
