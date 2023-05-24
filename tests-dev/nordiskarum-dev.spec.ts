@@ -1,4 +1,5 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
+import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
 
@@ -17,16 +18,34 @@ function dummyRequest(targetUrl: string) {
 test("Category page", async () => {
   const targetUrl =
     "https://www.nordiskarum.se/mobler/soffor/4-sits-soffor.html";
-  const result = await exploreCategory(targetUrl, "job_test_1");
+  const result = (await exploreCategory(targetUrl, "job_test_1")).map(
+    (res) => res.userData as ListingProductInfo
+  );
 
   expect(result).toHaveLength(26);
+  expect(result.map((p) => p.popularityCategory)).toEqual(
+    Array(26).fill([
+      {
+        name: "Möbler",
+        url: "https://www.nordiskarum.se/mobler.html",
+      },
+      {
+        name: "Soffor",
+        url: "https://www.nordiskarum.se/mobler/soffor.html",
+      },
+      {
+        name: "4-sits soffor",
+        url: "https://www.nordiskarum.se/mobler/soffor/4-sits-soffor.html",
+      },
+    ])
+  );
 });
 
 test("Category page with only 1 page, no pagination", async () => {
   const targetUrl = "https://www.nordiskarum.se/mobler/soffor/baddsoffor.html";
   const result = await exploreCategory(targetUrl, "job_test_1");
 
-  expect(result).toHaveLength(7);
+  expect(result).toHaveLength(6);
 });
 
 test("Basic product page", async () => {
