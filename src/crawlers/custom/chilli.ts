@@ -88,54 +88,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const imageUrl = <string>(
-      await this.extractProperty(
-        productCard,
-        "xpath=(..//img)[1]",
-        this.extractImageFromSrcSet
-      )
-    );
-    const name = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//h3[contains(@class, 'ProductCardTitle__global')]",
-        (node) => node.textContent()
-      )
-    );
-    const priceText = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//div[@data-cy = 'current-price']",
-        (node) => node.first().textContent()
-      )
-    );
-    const originalPriceText = await this.extractProperty(
-      productCard,
-      "..//div[@data-cy = 'original-price']",
-      (node) => node.first().textContent()
-    );
-    const isDiscounted = originalPriceText !== undefined;
-    const url = <string>(
-      await this.extractProperty(productCard, "..//a[1]", (node) =>
-        node.getAttribute("href")
-      )
-    );
-
-    const result: ListingProductInfo = {
-      name,
-      previewImageUrl: imageUrl,
-      price: Number(priceText.replace(/\s/g, "")),
-      isDiscounted,
-      url,
-      currency: "SEK",
-      categoryUrl,
-      popularityIndex: -1,
-    };
-    if (isDiscounted) {
-      result.originalPrice = Number(originalPriceText!.replace(/\s/g, ""));
-    }
-
-    return result;
+    return baseExtractCardProductInfo(this, categoryUrl, productCard);
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {

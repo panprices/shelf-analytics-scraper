@@ -1,4 +1,5 @@
-import { scrapeDetails } from "../src/service";
+import { exploreCategory, scrapeDetails } from "../src/service";
+import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
 
@@ -13,6 +14,36 @@ function dummyRequest(targetUrl: string) {
     },
   };
 }
+
+test("Category page", async () => {
+  const targetUrl =
+    "https://www.furniturebox.se/mobler/koksmobler/barmobler/barbord";
+  const result = (await exploreCategory(targetUrl, "job_test_1")).map(
+    (res) => res.userData as ListingProductInfo
+  );
+
+  expect(result).toHaveLength(119);
+  expect(result.map((p) => p.popularityCategory)).toEqual(
+    Array(119).fill([
+      {
+        name: "Möbler",
+        url: "https://www.furniturebox.se/mobler",
+      },
+      {
+        name: "Matplats",
+        url: "https://www.furniturebox.se/mobler/koksmobler",
+      },
+      {
+        name: "Barmöbler",
+        url: "https://www.furniturebox.se/mobler/koksmobler/barmobler",
+      },
+      {
+        name: "Barbord",
+        url: "https://www.furniturebox.se/mobler/koksmobler/barmobler/barbord",
+      },
+    ])
+  );
+});
 
 // 1 variant groups - 3 variants
 test("Simple test", async () => {

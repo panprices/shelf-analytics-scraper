@@ -308,20 +308,26 @@ export abstract class AbstractCrawlerDefinition
     }
   }
 
+  /**
+   * Extract a property on the webpage.
+   *
+   * If `optional` is false, the method will auto-wait for the element to be present
+   * before trying extracting the property (or timeout). Default to true.
+   */
   async extractProperty(
     rootElement: Locator | Page,
     path: string,
-    extractor: (node: Locator) => Promise<string | null | undefined>
+    extractor: (node: Locator) => Promise<string | null | undefined>,
+    optional: boolean = true
   ): Promise<string | undefined> {
     const tag = await rootElement.locator(path);
+
     const elementExists = (await tag.count()) > 0;
-    if (!elementExists) {
+    if (optional && !elementExists) {
       return undefined;
     }
 
-    const intermediateResult: string | null | undefined = tag
-      ? await extractor(tag)
-      : null;
+    const intermediateResult = await extractor(tag);
     return intermediateResult !== null ? intermediateResult : undefined;
   }
 

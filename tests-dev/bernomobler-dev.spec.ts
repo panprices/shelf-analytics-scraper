@@ -1,4 +1,5 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
+import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
 
@@ -18,9 +19,23 @@ function dummyRequest(targetUrl: string) {
 
 test("Category page", async () => {
   const targetUrl = "https://bernomobler.se/collections/runda-matbord";
-  const result = await exploreCategory(targetUrl, "job_test_1");
+  const result = (await exploreCategory(targetUrl, "job_test_1")).map(
+    (res) => res.userData as ListingProductInfo
+  );
 
-  expect(result).toHaveLength(97);
+  expect(result).toHaveLength(112);
+  expect(result.map((p) => p.popularityCategory)).toEqual(
+    Array(112).fill([
+      {
+        name: "Matrum",
+        url: "https://bernomobler.se/collections/matrum",
+      },
+      {
+        name: "Runda matbord",
+        url: "https://bernomobler.se/collections/runda-matbord",
+      },
+    ])
+  );
 });
 
 test("Basic product page", async () => {
@@ -31,9 +46,9 @@ test("Basic product page", async () => {
   expect(result).toHaveLength(1);
   expect(result.map((res) => res.images.length)).toEqual([4]);
   expect(result.map((p) => p.isDiscounted)).toEqual([false]);
-  expect(result.map((p) => p.price)).toEqual([129500]);
+  expect(result.map((p) => p.price)).toEqual([141900]);
+  expect(result[0].name).toEqual("Rise avlastningsbord");
   expect(result[0].description?.length).toBeGreaterThan(500);
-  expect(result[0].name).toEqual("Rise avlastningsbord dubbel teak-look/svart");
 });
 
 test("Product page with discount", async () => {
