@@ -265,8 +265,8 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     return {
       images,
       url: page.url(),
-      // price,
-      // currency,
+      price: 0,
+      currency: "SEK",
       isDiscounted: false,
       description,
       availability: "out_of_stock",
