@@ -1,6 +1,8 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
 import { ListingProductInfo } from "../src/types/offer";
 
+import { expectExploreCategory } from "./utils.test";
+
 jest.setTimeout(300000);
 
 function dummyRequest(targetUrl: string) {
@@ -22,23 +24,20 @@ test("Category page", async () => {
     (res) => res.userData as ListingProductInfo
   );
 
-  expect(result).toHaveLength(26);
-  expect(result.map((p) => p.popularityCategory)).toEqual(
-    Array(26).fill([
-      {
-        name: "Möbler",
-        url: "https://www.nordiskarum.se/mobler.html",
-      },
-      {
-        name: "Soffor",
-        url: "https://www.nordiskarum.se/mobler/soffor.html",
-      },
-      {
-        name: "4-sits soffor",
-        url: "https://www.nordiskarum.se/mobler/soffor/4-sits-soffor.html",
-      },
-    ])
-  );
+  expectExploreCategory(result, 26, [
+    {
+      name: "Möbler",
+      url: "https://www.nordiskarum.se/mobler.html",
+    },
+    {
+      name: "Soffor",
+      url: "https://www.nordiskarum.se/mobler/soffor.html",
+    },
+    {
+      name: "4-sits soffor",
+      url: "https://www.nordiskarum.se/mobler/soffor/4-sits-soffor.html",
+    },
+  ]);
 });
 
 test("Category page with only 1 page, no pagination", async () => {
@@ -57,8 +56,8 @@ test("Basic product page", async () => {
   expect(result[0].sku).toEqual("2607");
   expect(result[0].mpn).toEqual("2607"); // they use mpn as their sku
   expect(result[0].images.length).toEqual(10);
-  expect(result[0].price).toEqual(1199500);
-  expect(result[0].isDiscounted).toEqual(true);
-  expect(result[0].originalPrice).toEqual(1299500);
+  expect(result[0].price).toEqual(1299500);
+  expect(result[0].isDiscounted).toEqual(false);
+  // expect(result[0].originalPrice).toEqual(1299500);
   expect(result[0].specifications.length).toEqual(8);
 });

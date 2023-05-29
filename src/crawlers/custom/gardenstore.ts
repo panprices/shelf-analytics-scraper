@@ -57,32 +57,9 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
-    // const previewImageUrl = await this.extractProperty(
-    //   productCard,
-    //   "img.product-image-photo",
-    //   (node) => node.getAttribute("href")
-    // );
-    // if (!previewImageUrl)
-    //   throw new Error("Cannot find previewImageUrl of productCard");
-
-    // const priceString = await this.extractProperty(
-    //   productCard,
-    //   "span[data-price-type='finalPrice']",
-    //   (node) => node.textContent()
-    // );
-    // if (!priceString) throw new Error("Cannot find price of productCard");
-    // const price = extractPriceFromPriceString(priceString);
-
-    // const originalPriceString = await this.extractProperty(
-    //   productCard,
-    //   "span[data-price-type='oldPrice']",
-    //   (node) => node.textContent()
-    // );
-    // const isDiscounted = originalPriceString === undefined ? false : true;
-    // const originalPrice =
-    //   originalPriceString == undefined
-    //     ? undefined
-    //     : extractPriceFromPriceString(originalPriceString);
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page()
+    );
 
     const currentProductInfo: ListingProductInfo = {
       name: productName,
@@ -90,10 +67,34 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       // previewImageUrl,
       popularityIndex: -1, // will be overwritten later
       categoryUrl,
+      popularityCategory: categoryTree,
     };
 
     return currentProductInfo;
   }
+
+  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
+    const categoryTree = await this.extractCategoryTree(
+      page.locator("div.breadcrumbs li a"),
+      1
+    );
+
+    const currentCategoryName = await page
+      .locator("div.breadcrumbs li strong")
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = page.url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
+    return categoryTree;
+  }
+
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const productNameSelector = "div.product-info-main h1.page-title";
     await page.waitForSelector(productNameSelector);

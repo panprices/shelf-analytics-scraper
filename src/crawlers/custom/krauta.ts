@@ -21,6 +21,61 @@ import {
 import { extractNumberFromText } from "../../utils";
 
 export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo> {
+    const productName = await this.extractProperty(
+      productCard,
+      "h2",
+      (node) => node.textContent(),
+      false
+    );
+    if (!productName) throw new Error("Cannot find productName of productCard");
+
+    const url = await this.extractProperty(
+      productCard,
+      "a.product-card",
+      (node) => node.getAttribute("href"),
+      false
+    );
+    if (!url) throw new Error("Cannot find url of productCard");
+
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page()
+    );
+
+    const currentProductInfo: ListingProductInfo = {
+      name: productName,
+      url,
+      popularityIndex: -1, // this will be overwritten later
+      categoryUrl,
+      popularityCategory: categoryTree,
+    };
+
+    return currentProductInfo;
+  }
+
+  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
+    const breadcrumbLocator = page.locator("div.category-page--breadcrumbs a");
+    const categoryTree = await this.extractCategoryTree(breadcrumbLocator);
+
+    const currentCategoryName = await page
+      .locator(".subcategory-header h1")
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = page.url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
+    return categoryTree;
+  }
+
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const brand = await this.extractProperty(
       page,
@@ -181,59 +236,6 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       specifications,
       reviews,
     };
-  }
-
-  async extractCardProductInfo(
-    categoryUrl: string,
-    productCard: Locator
-  ): Promise<ListingProductInfo> {
-    const productName = await this.extractProperty(productCard, "h2", (node) =>
-      node.textContent()
-    );
-    if (!productName) throw new Error("Cannot find productName of productCard");
-
-    const url = await this.extractProperty(
-      productCard,
-      "a.product-card",
-      (node) => node.getAttribute("href")
-    );
-    if (!url) throw new Error("Cannot find url of productCard");
-
-    // const originalPriceString = await this.extractProperty(
-    //   productCard,
-    //   ".price-view__before-discount",
-    //   (node) => node.textContent()
-    // );
-    // const originalPrice = originalPriceString
-    //   ? extractPriceFromText(originalPriceString)
-    //   : undefined;
-    // const isDiscounted = originalPriceString ? true : false;
-
-    // const priceString = await this.extractProperty(
-    //   productCard,
-    //   ".price-view__sale-price-container",
-    //   (node) => node.textContent()
-    // );
-    // if (!priceString) throw new Error("Cannot find price of productCard");
-
-    // const price = extractPriceFromText(priceString);
-
-    // const previewImageUrl = await this.extractPreviewImageOfProductCard(
-    //   productCard
-    // );
-
-    // if (!previewImageUrl)
-    //   throw new Error("Cannot find previewImage of productCard");
-
-    const currentProductInfo: ListingProductInfo = {
-      // brand,
-      name: productName,
-      url,
-      popularityIndex: -1, // this will be overwritten later
-      categoryUrl,
-    };
-
-    return currentProductInfo;
   }
 
   static async create(
