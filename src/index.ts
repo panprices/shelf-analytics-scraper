@@ -3,10 +3,15 @@ import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
 import { exploreCategory, scrapeDetails } from "./service";
 import { log } from "crawlee";
-import { RequestBatch, RequestCategoryExploration } from "./types/offer";
+import {
+  ListingProductInfo,
+  RequestBatch,
+  RequestCategoryExploration,
+} from "./types/offer";
 import {
   persistProductsToDatabase,
   publishMatchingProducts,
+  updateProductsPopularity,
   sendRequestBatch,
 } from "./publishing";
 import { configCrawleeLogger, extractDomainFromUrl } from "./utils";
@@ -42,6 +47,10 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
 
   if (!body.jobContext.skipPublishing) {
     await sendRequestBatch(detailedPages, req.body.jobContext);
+    await updateProductsPopularity(
+      detailedPages.map((p) => p.userData as ListingProductInfo),
+      body.jobContext
+    );
   }
 
   track_and_log_number_of_requests_handled();
