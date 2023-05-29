@@ -168,12 +168,12 @@ export async function updateProductsPopularity(
   jobContext: JobContext
 ) {
   const pubSubClient = new PubSub();
-  if (!process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_POPULARITY_TOPIC) {
+  if (!process.env.SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC) {
     throw new Error(
-      "Cannot find env variable 'SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC'"
+      "Cannot find env variable 'SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC'"
     );
   }
-  const topic = process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_POPULARITY_TOPIC;
+  const topic = process.env.SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC;
 
   log.info(`Publishing popularity info`, {
     nrProducts: products.length,
