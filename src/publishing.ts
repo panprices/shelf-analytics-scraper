@@ -1,7 +1,12 @@
 import _ from "lodash";
 import { Dictionary, log, RequestOptions } from "crawlee";
 import { PubSub } from "@google-cloud/pubsub";
-import { DetailedProductInfo, JobContext, RequestBatch } from "./types/offer";
+import {
+  DetailedProductInfo,
+  JobContext,
+  ListingProductInfo,
+  RequestBatch,
+} from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
 import { InsertRowsResponse } from "@google-cloud/bigquery/build/src/table";
 
@@ -158,6 +163,36 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
   });
 }
 
+export async function updateProductsPopularity(
+  products: ListingProductInfo[],
+  jobContext: JobContext
+) {
+  const pubSubClient = new PubSub();
+  if (!process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_POPULARITY_TOPIC) {
+    throw new Error(
+      "Cannot find env variable 'SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC'"
+    );
+  }
+  const topic = process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_POPULARITY_TOPIC;
+
+  log.info(`Publishing popularity info`, {
+    nrProducts: products.length,
+  });
+
+  const payload = {
+    products: products,
+    jobContext: jobContext,
+  };
+  try {
+    const messageId = await pubSubClient
+      .topic(topic)
+      .publishMessage({ json: payload });
+    log.info(`Message ${messageId} published.`);
+  } catch (error) {
+    log.error(`Received error while publishing`, { error });
+  }
+}
+
 export async function publishMatchingProducts(
   products: DetailedProductInfo[],
   jobContext: JobContext
@@ -185,6 +220,6 @@ export async function publishMatchingProducts(
       .publishMessage({ json: payload });
     log.info(`Message ${messageId} published.`);
   } catch (error) {
-    log.error(`Received error while publishing: ${error}`);
+    log.error(`Received error while publishing`, { error });
   }
 }

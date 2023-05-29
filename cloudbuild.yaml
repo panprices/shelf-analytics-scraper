@@ -25,6 +25,7 @@ steps:
       - --set-env-vars=PANPRICES_ENVIRONMENT=production
       - --set-env-vars=SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC=trigger_schedule_product_scrapes
       - --set-env-vars=SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC=trigger_shelf_analytics_update_products
+      - --set-env-vars=SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC=trigger_shelf_analytics_update_products_popularity
       - --set-env-vars=CRAWLEE_AVAILABLE_MEMORY_RATIO=1
 images:
   - gcr.io/panprices/test-crawlee

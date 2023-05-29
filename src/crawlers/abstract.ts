@@ -300,11 +300,14 @@ export abstract class AbstractCrawlerDefinition
         );
       }
 
-      await enqueueLinks({
-        urls: [currentProductInfo.url],
-        label: "DETAIL",
-        userData: currentProductInfo,
-      });
+      (currentProductInfo.retailerDomain = extractDomainFromUrl(
+        currentProductInfo.url
+      )),
+        await enqueueLinks({
+          urls: [currentProductInfo.url],
+          label: "DETAIL",
+          userData: currentProductInfo,
+        });
     }
   }
 
