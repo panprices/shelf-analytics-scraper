@@ -1,4 +1,4 @@
-import { exploreCategory, scrapeDetails } from "../src/service";
+import { exploreCategory, scrapeDetails } from "../../../src/service";
 import { PlaywrightCrawlingContext } from "crawlee";
 import * as fs from "fs";
 

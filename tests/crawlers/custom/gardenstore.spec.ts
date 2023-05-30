@@ -1,4 +1,4 @@
-import { scrapeDetails } from "../src/service";
+import { scrapeDetails } from "../../../src/service";
 import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";

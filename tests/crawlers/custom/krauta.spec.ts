@@ -1,8 +1,8 @@
-import { scrapeDetails } from "../src/service";
+import { scrapeDetails } from "../../../src/service";
 import { BrowserLaunchContext, log, PlaywrightCrawlingContext } from "crawlee";
 import { BrowserContext } from "playwright-core";
 import * as fs from "fs";
-import { extractPriceFromText } from "../src/crawlers/custom/krauta";
+import { extractPriceFromText } from "../../../src/crawlers/custom/krauta";
 
 jest.setTimeout(300000);
 
