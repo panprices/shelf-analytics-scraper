@@ -366,6 +366,11 @@ export abstract class AbstractCrawlerDefinition
     return false;
   }
 
+  /**
+   * Extract the category tree from a category page.
+   *
+   * @param startIndex set to 1 if the first breadcrumb is the homepage
+   */
   async extractCategoryTree(
     breadcrumbLocator: Locator,
     startIndex: number = 0
@@ -397,6 +402,38 @@ export abstract class AbstractCrawlerDefinition
       });
     }
 
+    return categoryTree;
+  }
+
+  /**
+   * Extract the category tree from a category page.
+   * It will extract the category tree from the breadcrumb,
+   * and add the current category (url extracted from the current page) at the end.
+   *
+   * @param startIndex set to 1 if the first breadcrumb is the homepage
+   */
+  async extractCategoryTreeFromCategoryPage(
+    breadcrumbLocator: Locator,
+    startIndex: number = 0,
+    currentCategoryNameLocator: Locator
+  ): Promise<Category[]> {
+    const categoryTree = await this.extractCategoryTree(
+      breadcrumbLocator,
+      startIndex
+    );
+
+    const currentCategoryName = await currentCategoryNameLocator
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = breadcrumbLocator.page().url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
     return categoryTree;
   }
 

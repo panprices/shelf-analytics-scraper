@@ -54,11 +54,18 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator("div.breadcrumbs li a"),
+      1,
+      productCard.page().locator("div.breadcrumbs li strong")
+    );
+
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
       popularityIndex: -1, // will be overwritten later
       categoryUrl,
+      popularityCategory: categoryTree,
     };
 
     return currentProductInfo;

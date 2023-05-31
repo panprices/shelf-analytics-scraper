@@ -22,9 +22,9 @@ test("Category page", async () => {
     (res) => res.userData as ListingProductInfo
   );
 
-  expect(result).toHaveLength(98);
+  expect(result).toHaveLength(95);
   expect(result.map((p) => p.popularityCategory)).toEqual(
-    Array(98).fill([
+    Array(95).fill([
       {
         name: "Möbler",
         url: "https://www.chilli.se/m%C3%B6bler",

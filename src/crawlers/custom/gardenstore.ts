@@ -58,7 +58,9 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     if (!url) throw new Error("Cannot find url of productCard");
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page()
+      productCard.page().locator("div.breadcrumbs li a"),
+      1,
+      productCard.page().locator("div.breadcrumbs li strong")
     );
 
     const currentProductInfo: ListingProductInfo = {
@@ -71,28 +73,6 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return currentProductInfo;
-  }
-
-  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
-    const categoryTree = await this.extractCategoryTree(
-      page.locator("div.breadcrumbs li a"),
-      1
-    );
-
-    const currentCategoryName = await page
-      .locator("div.breadcrumbs li strong")
-      .textContent()
-      .then((text) => text?.trim());
-    if (!currentCategoryName) {
-      throw new Error("Cannot extract category name of category page");
-    }
-    const currentCategoryUrl = page.url().split("?")[0];
-
-    categoryTree.push({
-      name: currentCategoryName,
-      url: currentCategoryUrl,
-    });
-    return categoryTree;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {

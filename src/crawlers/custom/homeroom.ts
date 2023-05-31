@@ -181,59 +181,64 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       .locator("//div[@class = 'reviews-container']")
       .isVisible();
     let reviews: ProductReviews | "unavailable";
-    if (reviewsSectionAvailable) {
-      const reviewSelector = page.locator("//ul[@class = 'review-list']/li");
-      const visibleReviewCount = await reviewSelector.count();
-      const recentReviews: IndividualReview[] = [];
-      for (let i = 0; i < visibleReviewCount; i++) {
-        const reviewLocator = reviewSelector.nth(i);
 
-        const reviewTitle = await this.extractProperty(
-          reviewLocator,
-          ".review-title",
-          (node) => node.textContent()
-        );
-        const reviewText = await this.extractProperty(
-          reviewLocator,
-          ".review-text",
-          (node) => node.textContent()
-        );
+    try {
+      if (reviewsSectionAvailable) {
+        const reviewSelector = page.locator("//ul[@class = 'review-list']/li");
+        const visibleReviewCount = await reviewSelector.count();
+        const recentReviews: IndividualReview[] = [];
+        for (let i = 0; i < visibleReviewCount; i++) {
+          const reviewLocator = reviewSelector.nth(i);
 
-        const reviewValue = await this.extractProperty(
-          reviewLocator,
-          ".stars-filled",
-          (node) => node.getAttribute("style")
-        )
-          .then((s) => Number(/width:(\d+)%;/g.exec(s!)![1]))
-          .then((v) => (v / 100) * 5);
-
-        recentReviews.push({
-          content: reviewTitle + "\n" + reviewText,
-          score: reviewValue,
-        });
-      }
-
-      reviews = {
-        reviewCount: Number(
-          await this.extractProperty(
-            page,
-            "//div[@class = 'product-info']//span[contains(@class, 'product-rating')]/a/span",
+          const reviewTitle = await this.extractProperty(
+            reviewLocator,
+            ".review-title",
             (node) => node.textContent()
+          );
+          const reviewText = await this.extractProperty(
+            reviewLocator,
+            ".review-text",
+            (node) => node.textContent()
+          );
+
+          const reviewValue = await this.extractProperty(
+            reviewLocator,
+            ".stars-filled",
+            (node) => node.getAttribute("style")
           )
-        ),
-        averageReview: Number(
-          (<string>(
+            .then((s) => Number(/width:(\d+)%;/g.exec(s!)![1]))
+            .then((v) => (v / 100) * 5);
+
+          recentReviews.push({
+            content: reviewTitle + "\n" + reviewText,
+            score: reviewValue,
+          });
+        }
+
+        reviews = {
+          reviewCount: Number(
             await this.extractProperty(
               page,
-              "//div[contains(@class, 'ratings')]/p/strong",
-              (node) =>
-                node.textContent().then((s) => s!.replace("av 5", "").trim())
+              "//div[@class = 'product-info']//span[contains(@class, 'product-rating')]/a/span",
+              (node) => node.textContent()
             )
-          ))?.trim()
-        ),
-        recentReviews,
-      };
-    } else {
+          ),
+          averageReview: Number(
+            (<string>(
+              await this.extractProperty(
+                page,
+                "//div[contains(@class, 'ratings')]/p/strong",
+                (node) =>
+                  node.textContent().then((s) => s!.replace("av 5", "").trim())
+              )
+            ))?.trim()
+          ),
+          recentReviews,
+        };
+      } else {
+        reviews = "unavailable";
+      }
+    } catch {
       reviews = "unavailable";
     }
 
@@ -312,7 +317,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     );
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page()
+      productCard.page().locator("ul.breadcrumbs > li > a"),
+      0,
+      productCard.page().locator(".content-wrapper-category-header h1")
     );
 
     const currentProductInfo: ListingProductInfo = {
@@ -324,26 +331,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     };
 
     return currentProductInfo;
-  }
-
-  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
-    const breadcrumbLocator = page.locator("ul.breadcrumbs > li > a");
-    const categoryTree = await this.extractCategoryTree(breadcrumbLocator);
-
-    const currentCategoryName = await page
-      .locator(".content-wrapper-category-header h1")
-      .textContent()
-      .then((text) => text?.trim());
-    if (!currentCategoryName) {
-      throw new Error("Cannot extract category name of category page");
-    }
-    const currentCategoryUrl = page.url().split("?")[0];
-
-    categoryTree.push({
-      name: currentCategoryName,
-      url: currentCategoryUrl,
-    });
-    return categoryTree;
   }
 
   async selectOptionForParamIndex(

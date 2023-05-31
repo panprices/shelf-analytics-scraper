@@ -1,5 +1,6 @@
 import { exploreCategory, scrapeDetails } from "../src/service";
 import { ListingProductInfo } from "../src/types/offer";
+import { expectExploreCategory } from "./utils.test";
 
 jest.setTimeout(300000);
 
@@ -21,27 +22,24 @@ test("Category page", async () => {
     (res) => res.userData as ListingProductInfo
   );
 
-  expect(result).toHaveLength(104);
-  expect(result.map((p) => p.popularityCategory)).toEqual(
-    Array(104).fill([
-      {
-        name: "Hem",
-        url: "https://www.ellos.se/hem-inredning",
-      },
-      {
-        name: "Möbler",
-        url: "https://www.ellos.se/hem-inredning/mobler",
-      },
-      {
-        name: "Bord",
-        url: "https://www.ellos.se/hem-inredning/mobler/bord",
-      },
-      {
-        name: "Skrivbord",
-        url: "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord",
-      },
-    ])
-  );
+  expectExploreCategory(result, 105, [
+    {
+      name: "Hem",
+      url: "https://www.ellos.se/hem-inredning",
+    },
+    {
+      name: "Möbler",
+      url: "https://www.ellos.se/hem-inredning/mobler",
+    },
+    {
+      name: "Bord",
+      url: "https://www.ellos.se/hem-inredning/mobler/bord",
+    },
+    {
+      name: "Skrivbord",
+      url: "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord",
+    },
+  ]);
 });
 
 // Skip this because one of the variant is out of stock and is not displayed

@@ -84,7 +84,17 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     if (!url) throw new Error("Cannot find url of productCard");
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page()
+      productCard
+        .page()
+        .locator(
+          "li.sf-breadcrumbs__list-item a:not(.sf-breadcrumbs__breadcrumb--current)"
+        ),
+      1,
+      productCard
+        .page()
+        .locator(
+          "li.sf-breadcrumbs__list-item a.sf-breadcrumbs__breadcrumb--current"
+        )
     );
 
     return {
@@ -94,33 +104,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       popularityIndex: -1, // this will be overwritten later
       popularityCategory: categoryTree,
     };
-  }
-
-  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
-    const categoryTree = await this.extractCategoryTree(
-      page.locator(
-        "li.sf-breadcrumbs__list-item a:not(.sf-breadcrumbs__breadcrumb--current)"
-      ),
-      1
-    );
-
-    const currentCategoryName = await page
-      .locator(
-        "li.sf-breadcrumbs__list-item a.sf-breadcrumbs__breadcrumb--current"
-      )
-      .first()
-      .textContent()
-      .then((text) => text?.trim());
-    if (!currentCategoryName) {
-      throw new Error("Cannot extract category name of category page");
-    }
-    const currentCategoryUrl = page.url().split("?")[0];
-
-    categoryTree.push({
-      name: currentCategoryName,
-      url: currentCategoryUrl,
-    });
-    return categoryTree;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {

@@ -56,8 +56,8 @@ test("Basic product page", async () => {
   expect(result[0].sku).toEqual("2607");
   expect(result[0].mpn).toEqual("2607"); // they use mpn as their sku
   expect(result[0].images.length).toEqual(10);
-  expect(result[0].price).toEqual(1299500);
-  expect(result[0].isDiscounted).toEqual(false);
-  // expect(result[0].originalPrice).toEqual(1299500);
+  expect(result[0].price).toEqual(1199500);
+  expect(result[0].isDiscounted).toEqual(true);
+  expect(result[0].originalPrice).toEqual(1299500);
   expect(result[0].specifications.length).toEqual(8);
 });

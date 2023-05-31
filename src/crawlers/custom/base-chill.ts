@@ -60,10 +60,12 @@ export async function extractCardProductInfo(
     crawlerDefinition.extractImageFromSrcSet
   );
 
-  const categoryTree = await extractCategoryTreeFromCategoryPage(
-    crawlerDefinition,
-    productCard.page()
-  );
+  const categoryTree =
+    await crawlerDefinition.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator("div#breadcrumbs a"),
+      1,
+      productCard.page().locator("div#breadcrumbs > div > span")
+    );
 
   return {
     name: productName,
@@ -73,32 +75,6 @@ export async function extractCardProductInfo(
     popularityIndex: -1,
     popularityCategory: categoryTree,
   };
-}
-
-async function extractCategoryTreeFromCategoryPage(
-  crawlerDefinition: AbstractCrawlerDefinition,
-  page: Page
-): Promise<Category[]> {
-  const breadcrumbLocator = page.locator("div#breadcrumbs a");
-  const categoryTree = await crawlerDefinition.extractCategoryTree(
-    breadcrumbLocator,
-    1
-  );
-
-  const currentCategoryName = await page
-    .locator("div#breadcrumbs > div > span")
-    .textContent()
-    .then((text) => text?.trim());
-  if (!currentCategoryName) {
-    throw new Error("Cannot extract category name of category page");
-  }
-  const currentCategoryUrl = page.url().split("?")[0];
-
-  categoryTree.push({
-    name: currentCategoryName,
-    url: currentCategoryUrl,
-  });
-  return categoryTree;
 }
 
 export async function extractProductDetails(

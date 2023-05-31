@@ -42,7 +42,9 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     if (!url) throw new Error("Cannot find url of productCard");
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page()
+      productCard.page().locator("div.category-page--breadcrumbs a"),
+      0,
+      productCard.page().locator(".subcategory-header h1")
     );
 
     const currentProductInfo: ListingProductInfo = {
@@ -54,26 +56,6 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return currentProductInfo;
-  }
-
-  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
-    const breadcrumbLocator = page.locator("div.category-page--breadcrumbs a");
-    const categoryTree = await this.extractCategoryTree(breadcrumbLocator);
-
-    const currentCategoryName = await page
-      .locator(".subcategory-header h1")
-      .textContent()
-      .then((text) => text?.trim());
-    if (!currentCategoryName) {
-      throw new Error("Cannot extract category name of category page");
-    }
-    const currentCategoryUrl = page.url().split("?")[0];
-
-    categoryTree.push({
-      name: currentCategoryName,
-      url: currentCategoryUrl,
-    });
-    return categoryTree;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {

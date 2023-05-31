@@ -143,7 +143,9 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     );
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page()
+      productCard.page().locator("div#breadcrumbs a"),
+      0,
+      productCard.page().locator("div#breadcrumbs > div > span")
     );
 
     const result: ListingProductInfo = {
@@ -155,26 +157,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return result;
-  }
-
-  async extractCategoryTreeFromCategoryPage(page: Page): Promise<Category[]> {
-    const breadcrumbLocator = page.locator("div#breadcrumbs a");
-    const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
-
-    const currentCategoryName = await page
-      .locator("div#breadcrumbs > div > span")
-      .textContent()
-      .then((text) => text?.trim());
-    if (!currentCategoryName) {
-      throw new Error("Cannot extract category name of category page");
-    }
-    const currentCategoryUrl = page.url().split("?")[0];
-
-    categoryTree.push({
-      name: currentCategoryName,
-      url: currentCategoryUrl,
-    });
-    return categoryTree;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
