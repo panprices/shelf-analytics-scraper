@@ -44,7 +44,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const priceCurrencyString = await this.extractProperty(
       page,
-      ".lm-product-details__current-price",
+      "//div[@class='lm-product-details__current-price']/span",
       (node) => node.textContent()
     );
     let [priceString, currency] = priceCurrencyString?.trim().split(" ") ?? [
@@ -76,7 +76,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const originalPriceCurrencyString = await this.extractProperty(
       page,
-      "//div[@class='lm-product-details__old-price']/span[2]",
+      "//div[@class='lm-product-details__old-price']/span",
       (node) => node.textContent()
     );
     const originalPriceString = originalPriceCurrencyString
