@@ -48,7 +48,7 @@ async function debugScrapeDetails(targetUrl: string) {
 
 async function debugCategoryExploration(targetUrl: string) {
   const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
-    headless: false,
+    headless: true,
   });
 
   log.info(`Categories explored`, {
@@ -144,9 +144,10 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // await debugCategoryExploration(
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );{
-await debugScrapeDetails(
-  "https://www.lannamobler.se/hallmobler/bankar-och-pallar/pieces-anyone-blackvintage-cognac/"
-);
+// await debugScrapeDetails(
+//   "https://www.lannamobler.se/hallmobler/bankar-och-pallar/pieces-anyone-blackvintage-cognac/"
+// );
+await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
