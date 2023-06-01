@@ -230,17 +230,17 @@ export abstract class AbstractCrawlerDefinition
     for (
       let currentScrollY = startY;
       currentScrollY < scrollHeight;
-      currentScrollY += 500
+      currentScrollY += 330
     ) {
+      if (this.crawlerOptions.dynamicProductCardLoading) {
+        await this.registerProductCards(ctx);
+      }
       await page.evaluate(
         (scrollPosition: number) => window.scrollTo(0, scrollPosition),
         currentScrollY
       );
-      await new Promise((f) => setTimeout(f, 200));
-
-      if (this.crawlerOptions.dynamicProductCardLoading) {
-        await this.registerProductCards(ctx);
-      }
+      await new Promise((f) => setTimeout(f, 50));
+      await ctx.page.waitForLoadState("networkidle");
     }
 
     // Scroll slightly up. This is needed to avoid the view staying at the bottom after new elements are loaded
@@ -289,6 +289,11 @@ export abstract class AbstractCrawlerDefinition
       }
       currentProductInfo.url = new URL(currentProductInfo.url).href; // encode the url
 
+      // Skip already processed products
+      if (this.productInfos.has(currentProductInfo.url)) {
+        continue;
+      }
+
       const pageNumber = ctx.request.userData.pageNumber;
       if (pageNumber && this.categoryPageSize) {
         currentProductInfo.popularityIndex =
@@ -300,14 +305,14 @@ export abstract class AbstractCrawlerDefinition
         );
       }
 
-      (currentProductInfo.retailerDomain = extractDomainFromUrl(
+      currentProductInfo.retailerDomain = extractDomainFromUrl(
         currentProductInfo.url
-      )),
-        await enqueueLinks({
-          urls: [currentProductInfo.url],
-          label: "DETAIL",
-          userData: currentProductInfo,
-        });
+      );
+      await enqueueLinks({
+        urls: [currentProductInfo.url],
+        label: "DETAIL",
+        userData: currentProductInfo,
+      });
     }
   }
 
