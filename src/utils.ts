@@ -31,8 +31,11 @@ export function configCrawleeLogger(cloudTrace?: string) {
   if (
     !process.env.PANPRICES_ENVIRONMENT ||
     process.env.PANPRICES_ENVIRONMENT === "local"
-  )
-    return;
+  ) {
+    log.setOptions({
+      level: LogLevel.DEBUG,
+    });
+  }
 
   // Production setting:
   log.setOptions({
@@ -42,6 +45,7 @@ export function configCrawleeLogger(cloudTrace?: string) {
   if (cloudTrace && project) {
     const [trace] = cloudTrace.split("/");
     log.setOptions({
+      level: LogLevel.INFO,
       data: {
         "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
       },
