@@ -11,7 +11,8 @@ import {
   extractNumberFromText,
   extractDomainFromUrl,
 } from "../../utils";
-import { log, PlaywrightCrawlingContext } from "crawlee";
+import { log, PlaywrightCrawlingContext, playwrightUtils } from "crawlee";
+import _ from "lodash";
 
 /**
  * NOTE 1: this crawler has only been tested on amazon.de.
@@ -22,8 +23,69 @@ import { log, PlaywrightCrawlingContext } from "crawlee";
  * Doesn't work for German. Be sure to feed it with English URLs only.
  * To convert a page to English, add `/-/en/`. For example:
  * https://www.amazon.de/dp/B07XVKG5ZQ -> https://www.amazon.de/-/en/dp/B07XVKG5ZQ
+ *
+ * NOTE 3: Amazon really don't like page.waitForLoadState("networkidle").
+ * It will just time out. So avoid using it whenever possible.
  */
 export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
+  /**
+   * Handle infinite scroll.
+   * Usually you just need to scroll down and then more products will be loaded,
+   * but sometimes it doesn't do that automatically. Then you need to click a button.
+   * As of 2023-06-07, this can be replicated in your browser by going to a category page
+   * -> scroll down really fast to the bottom -> scroll up a bit.
+   */
+  override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
+    const page = ctx.page;
+
+    let lastScrollHeight = 0;
+    let currentScrollHeight = await page.evaluate(
+      () => document.body.scrollHeight
+    );
+    let pageExpanded = false;
+
+    // Scroll until the page doesn't expand anymore
+    do {
+      log.debug(`Scrolling... ${lastScrollHeight} -> ${currentScrollHeight}`);
+      await super.scrollToBottom(ctx);
+
+      // Check if the page expanded after scrolling
+      lastScrollHeight = currentScrollHeight;
+      currentScrollHeight = await page.evaluate(
+        () => document.body.scrollHeight
+      );
+      pageExpanded = lastScrollHeight < currentScrollHeight;
+      if (pageExpanded) {
+        log.debug("Page expanded automatically after scrolling");
+        continue;
+      }
+
+      // Check if there is a "load more" button to expand the page with more products
+      const loadMoreButton = page.locator(
+        "div#ProductGrid-Ct9ptr3yu4 button.ShowMoreButton__button__gp7D2"
+      );
+      if ((await loadMoreButton.count()) > 0) {
+        await this.handleCookieConsent(page);
+        await loadMoreButton.click();
+
+        const startWaitTime = Date.now();
+        let timedOut = false;
+        do {
+          log.debug("Waiting for button click to take effect");
+          await new Promise((f) => setTimeout(f, 1000));
+
+          const newScrollHeight = await page.evaluate(
+            () => document.body.scrollHeight
+          );
+          pageExpanded = newScrollHeight > currentScrollHeight;
+          timedOut = Date.now() - startWaitTime > 10000;
+        } while (!pageExpanded && !timedOut);
+      }
+    } while (pageExpanded);
+
+    await this.registerProductCards(ctx);
+  }
+
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
@@ -53,6 +115,8 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    await playwrightUtils.saveSnapshot(page);
+
     const productNameSelector = "h1#title";
     await page.waitForSelector(productNameSelector);
 
@@ -71,23 +135,9 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
-    const price = await this.extractPriceFromProductPage(page);
-    const currencySymbol = await this.extractProperty(
-      page,
-      "div#buybox #corePrice_feature_div .a-price-symbol",
-      (node) => node.textContent()
-    ).then((text) => text?.trim());
-
-    let currency;
-    if (!currencySymbol) {
-      log.error("Cannot extract currency, default to EUR", {
-        url: page.url(),
-        currencySymbol,
-      });
-      currency = "EUR";
-    } else {
-      currency = convertCurrencySymbolToISO(currencySymbol);
-    }
+    const [price, currency] = await this.extractPriceAndCurrencyFromProductPage(
+      page
+    );
 
     const specifications = await this.extractSpecifications(page);
 
@@ -163,7 +213,13 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     return images;
   }
 
-  async extractPriceFromProductPage(page: Page): Promise<number | undefined> {
+  async extractPriceAndCurrencyFromProductPage(
+    page: Page
+  ): Promise<[number, string]> {
+    let priceText;
+    let currency;
+
+    // Buybox price type 1
     const priceWhole = await this.extractProperty(
       page,
       "div#buybox #corePrice_feature_div .a-price-whole",
@@ -176,16 +232,49 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.textContent()
     ).then((text) => text?.trim());
 
-    if (!priceWhole || !priceFraction) {
-      return 0;
+    if (priceWhole && priceFraction) {
+      priceText =
+        extractNumberFromText(priceWhole) +
+        "." +
+        extractNumberFromText(priceFraction);
+      const price = parseFloat(priceText);
+
+      const currencySymbol = await this.extractProperty(
+        page,
+        "div#buybox #corePrice_feature_div .a-price-symbol",
+        (node) => node.textContent()
+      ).then((text) => text?.trim());
+
+      if (!currencySymbol) {
+        log.error("Cannot extract currency, default to EUR", {
+          url: page.url(),
+          currencySymbol,
+        });
+        currency = "EUR";
+      } else {
+        currency = convertCurrencySymbolToISO(currencySymbol);
+      }
+
+      return [price, currency];
     }
 
-    const priceText =
-      extractNumberFromText(priceWhole) +
-      "." +
-      extractNumberFromText(priceFraction);
-    const price = parseFloat(priceText);
-    return price;
+    // Buybox price type 2
+    priceText = await this.extractProperty(
+      page,
+      "div#buybox #price_inside_buybox",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    if (priceText && priceText.startsWith("€")) {
+      priceText = priceText.substring(1);
+      const price = parseFloat(priceText);
+      return [price, "EUR"];
+    }
+
+    log.error("Cannot extract price and currency from product page", {
+      url: page.url(),
+    });
+
+    return [0, "EUR"];
   }
 
   async extractSpecifications(page: Page): Promise<Specification[]> {
@@ -272,9 +361,17 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractAvailability(page: Page): Promise<Availability> {
-    const availabilityText = await page
-      .locator("div#availability")
-      .textContent();
+    const availabilityText = await this.extractProperty(
+      page,
+      "div#availability",
+      (node) => node.textContent()
+    );
+
+    if (!availabilityText) {
+      log.debug("No availability text found");
+      return Availability.OutOfStock;
+    }
+
     if (
       availabilityText?.toLowerCase().includes("unavailable") ||
       availabilityText?.toLowerCase().includes("out of stock")
@@ -305,12 +402,11 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     return new AmazonCrawlerDefinition({
       detailsDataset,
       listingDataset,
-      productCardSelector:
-        "div#ProductGrid-Ct9ptr3yu4 ul li.ProductGridItem__itemOuter__KUtvv",
+      productCardSelector: "ul li.ProductGridItem__itemOuter__KUtvv",
       detailsUrlSelector: "main div.grid article a",
       // listingUrlSelector: "",
       // cookieConsentSelector: "",
-      dynamicProductCardLoading: true,
+      dynamicProductCardLoading: false,
       launchOptions,
     });
   }
