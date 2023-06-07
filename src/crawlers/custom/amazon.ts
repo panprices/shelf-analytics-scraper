@@ -14,10 +14,13 @@ import {
 import { log, PlaywrightCrawlingContext } from "crawlee";
 
 /**
- * IMPORTANT!: a lot of the css selection is done in English.
- * Doesn't work for German. Be sure to feed it with English URLs only.
+ * NOTE 1: this crawler has only been tested on amazon.de.
+ * Toan have seen that other domains (.com, .co.uk, .it, ...) have different layouts
+ * and might require different selectors.
  *
- * To convert an page to English, add `/-/en/`. For example:
+ * NOTE 2: a lot of the selection is based on having the text in English.
+ * Doesn't work for German. Be sure to feed it with English URLs only.
+ * To convert a page to English, add `/-/en/`. For example:
  * https://www.amazon.de/dp/B07XVKG5ZQ -> https://www.amazon.de/-/en/dp/B07XVKG5ZQ
  */
 export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
