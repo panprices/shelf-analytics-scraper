@@ -35,6 +35,11 @@ export interface ProductReviews {
   recentReviews: IndividualReview[];
 }
 
+export enum Availability {
+  InStock = "in_stock",
+  OutOfStock = "out_of_stock",
+}
+
 export interface BaseProductInfo {
   name: string;
   url: string;
