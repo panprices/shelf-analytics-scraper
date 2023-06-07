@@ -1,5 +1,6 @@
 import { Locator, Page } from "playwright";
 import {
+  Availability,
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
@@ -10,12 +11,19 @@ import {
   extractNumberFromText,
   extractDomainFromUrl,
 } from "../../utils";
-import { log } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
+/**
+ * NOTE 1: this crawler has only been tested on amazon.de.
+ * Toan have seen that other domains (.com, .co.uk, .it, ...) have different layouts
+ * and might require different selectors.
+ *
+ * NOTE 2: a lot of the selection is based on having the text in English.
+ * Doesn't work for German. Be sure to feed it with English URLs only.
+ * To convert a page to English, add `/-/en/`. For example:
+ * https://www.amazon.de/dp/B07XVKG5ZQ -> https://www.amazon.de/-/en/dp/B07XVKG5ZQ
+ */
 export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
-  /**
-   * This retailer does not use category scraping, it gets the URLs from sitemap
-   */
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
@@ -72,7 +80,10 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
 
     let currency;
     if (!currencySymbol) {
-      log.error("Cannot extract currency, default to EUR", { url: page.url() });
+      log.error("Cannot extract currency, default to EUR", {
+        url: page.url(),
+        currencySymbol,
+      });
       currency = "EUR";
     } else {
       currency = convertCurrencySymbolToISO(currencySymbol);
@@ -83,26 +94,22 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     const brand = specifications.find(
       (spec) => spec.key === "Manufacturer"
     )?.value;
-    const mpn = specifications.find(
+    let mpn = specifications.find(
       (spec) => spec.key === "Item model number"
     )?.value;
+    if (!mpn) {
+      mpn = specifications.find((spec) => spec.key === "Model Number")?.value;
+    }
 
-    const additionalInfo = await this.extractAdditionalProductInfo(page);
-    const asin = additionalInfo.find((spec) => spec.key === "ASIN")?.value;
+    const asin = specifications.find((spec) => spec.key === "ASIN")?.value;
+
+    const availability = await this.extractAvailability(page);
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("div#wayfinding-breadcrumbs_container li a")
     );
 
-    const imageLocator = await page.locator("div#main-image-container img");
-    const imagesCount = await imageLocator.count();
-    const images = [];
-    for (let i = 0; i < imagesCount; i++) {
-      const imgUrl = await imageLocator.nth(i).getAttribute("src");
-      if (imgUrl) {
-        images.push(imgUrl);
-      }
-    }
+    const images = await this.extractImagesFromProductPage(page);
 
     return {
       name: productName,
@@ -123,7 +130,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
 
       metadata: {},
 
-      availability: "in_stock",
+      availability,
 
       images,
       reviews: undefined,
@@ -131,7 +138,32 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
-  async extractPriceFromProductPage(page: Page): Promise<number> {
+  async extractImagesFromProductPage(page: Page) {
+    // Hover over the thumbnail to load the full size images
+    const thumbnailLocator = await page.locator(
+      "div#altImages .imageThumbnail"
+    );
+    const thumbnailCount = await thumbnailLocator.count();
+    for (let i = 0; i < thumbnailCount; i++) {
+      await thumbnailLocator.nth(i).hover();
+      await new Promise((f) => setTimeout(f, 200));
+    }
+
+    // Extract the full size images
+    const imageLocator = await page.locator("div.imgTagWrapper img");
+    const imagesCount = await imageLocator.count();
+    const images = [];
+    for (let i = 0; i < imagesCount; i++) {
+      const imgUrl = await imageLocator.nth(i).getAttribute("src");
+      if (imgUrl) {
+        images.push(imgUrl);
+      }
+    }
+
+    return images;
+  }
+
+  async extractPriceFromProductPage(page: Page): Promise<number | undefined> {
     const priceWhole = await this.extractProperty(
       page,
       "div#buybox #corePrice_feature_div .a-price-whole",
@@ -145,7 +177,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     ).then((text) => text?.trim());
 
     if (!priceWhole || !priceFraction) {
-      throw new Error("Cannot extract price");
+      return 0;
     }
 
     const priceText =
@@ -157,6 +189,15 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractSpecifications(page: Page): Promise<Specification[]> {
+    return [
+      ...(await this.extractSpecificationTechnicalDetails(page)),
+      ...(await this.extractSpecificationAdditionalProductInfo(page)),
+    ];
+  }
+
+  async extractSpecificationTechnicalDetails(
+    page: Page
+  ): Promise<Specification[]> {
     const specifications: Specification[] = [];
     const specKeys = await page
       .locator("div#prodDetails table#productDetails_techSpec_section_1 tr th")
@@ -190,7 +231,9 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     return specifications;
   }
 
-  async extractAdditionalProductInfo(page: Page): Promise<Specification[]> {
+  async extractSpecificationAdditionalProductInfo(
+    page: Page
+  ): Promise<Specification[]> {
     const additionalInfo: Specification[] = [];
     const infoKeys = await page
       .locator(
@@ -226,6 +269,31 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       });
     }
     return additionalInfo;
+  }
+
+  async extractAvailability(page: Page): Promise<Availability> {
+    const availabilityText = await page
+      .locator("div#availability")
+      .textContent();
+    if (
+      availabilityText?.toLowerCase().includes("unavailable") ||
+      availabilityText?.toLowerCase().includes("out of stock")
+    ) {
+      return Availability.OutOfStock;
+    }
+
+    return Availability.InStock;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    // Entry point: https://www.amazon.de/-/en/stores/VentureHome/page/E5D1A8C2-2630-4D5F-80DF-8EC90CEA6CC0?ref_=ast_bln
+
+    await ctx.enqueueLinks({
+      selector: "nav div.level2  li:not(.Navigation__isHeading__ArXQd) a",
+      label: "LIST",
+    });
   }
 
   static async create(
