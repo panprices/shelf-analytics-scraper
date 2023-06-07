@@ -230,7 +230,7 @@ export abstract class AbstractCrawlerDefinition
     for (
       let currentScrollY = startY;
       currentScrollY < scrollHeight;
-      currentScrollY += 330
+      currentScrollY += 500
     ) {
       if (this.crawlerOptions.dynamicProductCardLoading) {
         await this.registerProductCards(ctx);
@@ -239,8 +239,8 @@ export abstract class AbstractCrawlerDefinition
         (scrollPosition: number) => window.scrollTo(0, scrollPosition),
         currentScrollY
       );
-      await new Promise((f) => setTimeout(f, 50));
-      await ctx.page.waitForLoadState("networkidle");
+      await new Promise((f) => setTimeout(f, 200));
+      // await ctx.page.waitForLoadState("networkidle");
     }
 
     // Scroll slightly up. This is needed to avoid the view staying at the bottom after new elements are loaded
