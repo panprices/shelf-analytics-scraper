@@ -101,6 +101,7 @@ export abstract class AbstractCrawlerDefinition
 
   protected readonly listingUrlSelector?: string;
   protected readonly productCardSelector?: string;
+  protected readonly searchUrlSelector?: string;
   protected readonly launchOptions?: CrawlerLaunchOptions;
 
   protected readonly crawlerOptions: CrawlerDefinitionOptions;
@@ -128,6 +129,7 @@ export abstract class AbstractCrawlerDefinition
 
     this.listingUrlSelector = options.listingUrlSelector;
     this.productCardSelector = options.productCardSelector;
+    this.searchUrlSelector = options.searchUrlSelector;
     this.launchOptions = options?.launchOptions;
     this.crawlerOptions = options;
 
