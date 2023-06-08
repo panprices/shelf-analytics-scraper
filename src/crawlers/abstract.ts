@@ -209,6 +209,8 @@ export abstract class AbstractCrawlerDefinition
    * we are searching for to be on the first page.
    */
   async crawlSearchPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    TODO: Wait for page to load, some scrolling, some logging
+
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
       label: "LIST",
