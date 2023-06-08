@@ -6,13 +6,8 @@ import {
   Specification,
 } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import {
-  convertCurrencySymbolToISO,
-  extractNumberFromText,
-  extractDomainFromUrl,
-} from "../../utils";
+import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
 import { log, PlaywrightCrawlingContext, playwrightUtils } from "crawlee";
-import _ from "lodash";
 
 /**
  * NOTE 1: this crawler has only been tested on amazon.de.
@@ -138,22 +133,24 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     const [price, currency] = await this.extractPriceAndCurrencyFromProductPage(
       page
     );
+    const availability = await this.extractAvailability(page);
+    if (availability !== Availability.OutOfStock && (!price || price === 0)) {
+      log.error("Cannot extract price and currency from product page", {
+        url: page.url(),
+      });
+    }
 
     const specifications = await this.extractSpecifications(page);
 
     const brand = specifications.find(
       (spec) => spec.key === "Manufacturer"
     )?.value;
-    let mpn = specifications.find(
-      (spec) => spec.key === "Item model number"
+
+    const mpn = specifications.find(
+      (spec) => spec.key === "Item model number" || spec.key === "Model Number"
     )?.value;
-    if (!mpn) {
-      mpn = specifications.find((spec) => spec.key === "Model Number")?.value;
-    }
 
     const asin = specifications.find((spec) => spec.key === "ASIN")?.value;
-
-    const availability = await this.extractAvailability(page);
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("div#wayfinding-breadcrumbs_container li a")
@@ -270,10 +267,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       return [price, "EUR"];
     }
 
-    log.error("Cannot extract price and currency from product page", {
-      url: page.url(),
-    });
-
+    // No price and currency data found. Potentially out of stock.
     return [0, "EUR"];
   }
 
@@ -284,6 +278,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     ];
   }
 
+  /** A.k.a. the left table  */
   async extractSpecificationTechnicalDetails(
     page: Page
   ): Promise<Specification[]> {
@@ -320,6 +315,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     return specifications;
   }
 
+  /** A.k.a. the right table  */
   async extractSpecificationAdditionalProductInfo(
     page: Page
   ): Promise<Specification[]> {
