@@ -40,6 +40,11 @@ export interface CrawlerDefinitionOptions {
   listingUrlSelector?: string; // undefined if we don't implement category scraping
 
   /**
+   * Selector for urls of products in the search results page
+   */
+  searchUrlSelector?: string; // undefined if we don't implement searching
+
+  /**
    * Selector for individual product cards to be scraped for information available as part of the listings
    */
   productCardSelector?: string; // undefined if we don't implement category scraping
@@ -185,8 +190,27 @@ export abstract class AbstractCrawlerDefinition
     }
   }
 
-  getSearchUrl(query: string): string {
+  /**
+   * Convert a query string to a search url for the given website
+   * @param query the search query
+   * @param retailerDomain used as a base for the search url, in case a scraper
+   * can scrape multiple websites/countries (such as amazon.de, amazon.co.uk)
+   */
+  getSearchUrl(query: string, retailerDomain: string): string {
     throw new Error("Search function not implemented for the given website");
+  }
+
+  /**
+   * Extract urls from the current search result page and enqueue them for
+   * further product details scraping.
+   * NOTE: this does not care about pagination. We expect the product that
+   * we are searching for to be on the first page.
+   */
+  async crawlSearchPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: this.searchUrlSelector,
+      label: "LIST",
+    });
   }
 
   async crawlIntermediateCategoryPage(

@@ -198,11 +198,11 @@ export async function searchForProducts(
       overrides
     );
 
-  const searchUrl = crawlerDefinition.getSearchUrl(query);
+  const searchUrl = crawlerDefinition.getSearchUrl(query, retailerDomain);
   await crawler.run([
     {
       url: searchUrl,
-      label: "LIST",
+      label: "SEARCH",
     },
   ]);
 
