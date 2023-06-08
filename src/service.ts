@@ -187,6 +187,28 @@ export async function exploreCategoryEndToEndCheerio(
   return result;
 }
 
+export async function searchForProducts(
+  query: string,
+  retailerDomain: string,
+  overrides?: PlaywrightCrawlerOptions
+): Promise<DetailedProductInfo[]> {
+  const [crawler, crawlerDefinition] =
+    await CrawlerFactory.buildPlaywrightCrawler(
+      { domain: retailerDomain, type: "search" },
+      overrides
+    );
+
+  const searchUrl = crawlerDefinition.getSearchUrl(query);
+  await crawler.run([
+    {
+      url: searchUrl,
+      label: "LIST",
+    },
+  ]);
+
+  return await extractProductDetails(crawlerDefinition);
+}
+
 export async function extractLeafCategories(
   targetUrls: string[]
 ): Promise<string[]> {

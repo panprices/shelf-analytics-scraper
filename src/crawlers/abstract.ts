@@ -185,6 +185,10 @@ export abstract class AbstractCrawlerDefinition
     }
   }
 
+  getSearchUrl(query: string): string {
+    throw new Error("Search function not implemented for the given website");
+  }
+
   async crawlIntermediateCategoryPage(
     _: PlaywrightCrawlingContext
   ): Promise<void> {

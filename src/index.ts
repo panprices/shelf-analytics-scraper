@@ -1,12 +1,13 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
-import { exploreCategory, scrapeDetails } from "./service";
+import { exploreCategory, scrapeDetails, searchForProducts } from "./service";
 import { log } from "crawlee";
 import {
   ListingProductInfo,
   RequestBatch,
   RequestCategoryExploration,
+  RequestSearch,
 } from "./types/offer";
 import {
   persistProductsToDatabase,
@@ -52,6 +53,30 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
       body.jobContext
     );
   }
+
+  track_and_log_number_of_requests_handled();
+  res.status(204).send("OK");
+});
+
+app.post("/search", async (req: Request, res: Response) => {
+  const body = <RequestSearch>req.body;
+
+  const cloudTrace = req.get("X-Cloud-Trace-Context");
+  configCrawleeLogger(cloudTrace);
+
+  const products = await searchForProducts(body.query, body.retailer);
+  try {
+    log.info("Search completed", {
+      query: body.query,
+      nrProductsFound: products.length,
+      retailer: body.retailer,
+      jobId: req.body.jobContext.jobId,
+    });
+  } catch (error) {
+    /* logging failed, do nothing */
+  }
+
+  await persistProductsToDatabase(products);
 
   track_and_log_number_of_requests_handled();
   res.status(204).send("OK");
