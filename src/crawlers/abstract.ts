@@ -40,14 +40,14 @@ export interface CrawlerDefinitionOptions {
   listingUrlSelector?: string; // undefined if we don't implement category scraping
 
   /**
-   * Selector for urls of products in the search results page
-   */
-  searchUrlSelector?: string; // undefined if we don't implement searching
-
-  /**
    * Selector for individual product cards to be scraped for information available as part of the listings
    */
   productCardSelector?: string; // undefined if we don't implement category scraping
+
+  /**
+   * Selector for urls of products in the search results page
+   */
+  searchUrlSelector?: string; // undefined if we don't implement searching
 
   /**
    * Selector for the cookie consent button
