@@ -619,8 +619,8 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     }
   }
 
-  async getCurrentVariantUrl(ctx: PlaywrightCrawlingContext): Promise<string> {
-    return Promise.resolve(ctx.page.url());
+  async getCurrentVariantUrl(page: Page): Promise<string> {
+    return Promise.resolve(page.url());
   }
 
   async recoverState(
@@ -682,7 +682,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         pageState = await this.getCurrentVariantState(ctx);
         newPageState = await this.waitForChanges(ctx, pageState, 10000);
 
-        const url = await this.getCurrentVariantUrl(ctx);
+        const url = await this.getCurrentVariantUrl(ctx.page);
         if (this.variantCrawlingStrategy === "new_tabs") {
           await ctx.enqueueLinks({
             urls: [url],

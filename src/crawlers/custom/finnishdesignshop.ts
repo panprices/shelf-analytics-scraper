@@ -74,15 +74,13 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     return { sku };
   }
 
-  override async getCurrentVariantUrl(
-    ctx: PlaywrightCrawlingContext
-  ): Promise<string> {
-    await ctx.page.waitForSelector("form span#price span.price-localized", {
+  override async getCurrentVariantUrl(page: Page): Promise<string> {
+    await page.waitForSelector("form span#price span.price-localized", {
       timeout: 500,
     });
-    const url = ctx.page.url().split("?")[0];
+    const url = page.url().split("?")[0];
     const sku = await this.extractProperty(
-      ctx.page,
+      page,
       "form span#price span.price-localized",
       (node) => node.getAttribute("data-sku")
     );

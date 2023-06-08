@@ -144,10 +144,10 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // await debugCategoryExploration(
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );{
-// await debugScrapeDetails(
-//   "https://www.lannamobler.se/hallmobler/bankar-och-pallar/pieces-anyone-blackvintage-cognac/"
-// );
-await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
+await debugScrapeDetails(
+  "https://www.nordiskagalleriet.se/maze-interior/step#sku=10366431"
+);
+// await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
 
 // await debugScrapeDetails(
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"

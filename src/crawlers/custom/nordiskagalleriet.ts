@@ -24,16 +24,14 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
     return { sku };
   }
 
-  override async getCurrentVariantUrl(
-    ctx: PlaywrightCrawlingContext
-  ): Promise<string> {
-    await ctx.page.waitForSelector("#artnr-copy", { timeout: 5000 });
-    const url = ctx.page.url().split("?")[0];
-    const sku = await this.extractProperty(ctx.page, "#artnr-copy", (node) =>
+  override async getCurrentVariantUrl(page: Page): Promise<string> {
+    await page.waitForSelector("#artnr-copy", { timeout: 5000 });
+    const url = page.url().split("#")[0];
+    const sku = await this.extractProperty(page, "#artnr-copy", (node) =>
       node.textContent().then((t) => t?.trim())
     );
-    log.info(`Current variant url: ${url}?sku=${sku}`);
-    return `${url}?sku=${sku}`;
+    log.info(`Current variant url: ${url}#sku=${sku}`);
+    return `${url}#sku=${sku}`;
   }
 
   async selectOptionForParamIndex(
@@ -311,7 +309,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
       name: name,
       // For pages with variants we modify the URL to store the different products
       // Otherwise we just return the original URL
-      url: hasVariants ? `${page.url()}#sku=${sku}` : page.url(),
+      url: hasVariants ? await this.getCurrentVariantUrl(page) : page.url(),
 
       brand: brand,
       description: description,
