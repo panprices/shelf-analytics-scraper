@@ -120,6 +120,7 @@ export abstract class AbstractCrawlerDefinition
       crawlerDefinition.crawlDetailPage(_)
     );
     this._router.addHandler("LIST", (_) => crawlerDefinition.crawlListPage(_));
+    this._router.addHandler("SEARCH", (_) => crawlerDefinition.crawlSearchPage(_));
     this._router.addHandler("INTERMEDIATE_CATEGORY", (_) =>
       crawlerDefinition.crawlIntermediateCategoryPage(_)
     );
@@ -213,7 +214,7 @@ export abstract class AbstractCrawlerDefinition
 
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
-      label: "LIST",
+      label: "DETAIL",
     });
   }
 
