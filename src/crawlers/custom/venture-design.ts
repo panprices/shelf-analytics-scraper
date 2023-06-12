@@ -92,7 +92,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     );
     const breadcrumbLocator = productCard
       .page()
-      .locator("div.breadcrumb-container >> a");
+      .locator("div.breadcrumb-container a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
 
     return {
@@ -115,7 +115,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     const fullImageUrl = <string>(
       await this.extractProperty(
         page,
-        "div.article-detail-image >> div.v-thumb >> img",
+        "div.article-detail-image div.v-thumb img",
         (node) => node.getAttribute("src")
       )
     );
@@ -127,7 +127,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
       const fullImageUrl = <string>(
         await this.extractProperty(
           page,
-          "div.article-detail-image >> div.v-thumb >> img",
+          "div.article-detail-image div.v-thumb img",
           (node) => node.getAttribute("src")
         )
       );
@@ -166,7 +166,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
         const fullImageUrl = <string>(
           await this.extractProperty(
             page,
-            "div.article-detail-image >> div.v-thumb >> img",
+            "div.article-detail-image div.v-thumb img",
             (node) => node.getAttribute("src")
           )
         );
@@ -178,7 +178,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
       }
 
       const arrowSelector = page.locator(
-        "div.article-detail-image >> button.slick-next"
+        "div.article-detail-image button.slick-next"
       );
       await arrowSelector.click();
     }
@@ -198,13 +198,15 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     let images: string[];
     if (oneImageOnly) {
       const imageUrl = <string>(
-        await this.extractProperty(page, "div.v-thumb >> img", (node) =>
+        await this.extractProperty(page, "div.v-thumb img", (node) =>
           node.getAttribute("src")
         )
       );
       images = [imageUrl];
     } else {
-      const scrollButtonLocator = page.locator("button.slick-next");
+      const scrollButtonLocator = page.locator(
+        "div.article-detail-image button.slick-next"
+      );
       const useInfiniteScrollStrategy = await scrollButtonLocator.isVisible();
 
       images = useInfiniteScrollStrategy
@@ -219,7 +221,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
         (node) => node.textContent()
       )
     );
-    const breadcrumbLocator = page.locator("div.breadcrumb-container >> a");
+    const breadcrumbLocator = page.locator("div.breadcrumb-container a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
     const name = <string>(
       await this.extractProperty(
@@ -401,7 +403,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     return new VentureDesignCrawlerDefinition({
       detailsDataset,
       listingDataset,
-      detailsUrlSelector: "article.article >> a",
+      detailsUrlSelector: "article.article a",
       productCardSelector: "article.article",
       launchOptions,
     });
