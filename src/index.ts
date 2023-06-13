@@ -76,7 +76,7 @@ app.post("/search", async (req: Request, res: Response) => {
     /* logging failed, do nothing */
   }
 
-  await persistProductsToDatabase(products);
+  await persistProductsToDatabase(products, body.jobContext.jobId);
 
   track_and_log_number_of_requests_handled();
   res.status(204).send("OK");
@@ -115,6 +115,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     useCheerio,
     body.launchOptions
   );
+
   try {
     log.info("Product details scraped", {
       nrUrls: body.productDetails.length,
@@ -126,7 +127,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     /* logging failed, do nothing */
   }
 
-  await persistProductsToDatabase(products);
+  await persistProductsToDatabase(products, body.jobContext.jobId);
 
   const matchingProducts = products.filter((p) => p.matchingType === "match");
   if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {

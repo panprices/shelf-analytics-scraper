@@ -46,15 +46,22 @@ export async function sendRequestBatch(
 }
 
 export async function persistProductsToDatabase(
-  savedItems: DetailedProductInfo[]
+  products: DetailedProductInfo[],
+  jobId: string
 ) {
-  if (savedItems.length === 0) {
+  if (products.length === 0) {
     log.warning("No products to publish to BigQuery");
     return;
   }
 
+  // Add jobId to each product
+
   const bigquery = new BigQuery();
-  const preprocessedItems = prepareForBigQuery(savedItems);
+  const itemsToPersist = products.map((item) => {
+    return { ...item, jobId: jobId };
+  });
+
+  const preprocessedItems = prepareForBigQuery(itemsToPersist);
   await bigquery
     .dataset("b2b_brand_product_index")
     .table("retailer_listings")
@@ -64,7 +71,7 @@ export async function persistProductsToDatabase(
     });
 
   log.info("Published products to BigQuery", {
-    nrProducts: savedItems.length,
+    nrProducts: products.length,
   });
 }
 

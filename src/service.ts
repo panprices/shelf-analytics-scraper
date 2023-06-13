@@ -181,10 +181,6 @@ export async function exploreCategoryEndToEndCheerio(
       nrImages: detailedProducts.map((item) => item.images.length),
     });
 
-    log.info("Persisting in BigQuery");
-    await persistProductsToDatabase(detailedProducts);
-    log.info("Published to BigQuery");
-
     result = [...result, ...detailedProducts];
   }
 
