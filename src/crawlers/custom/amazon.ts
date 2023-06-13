@@ -267,6 +267,18 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       return [price, "EUR"];
     }
 
+    // Buybox price type 3 - buybox is used product
+    priceText = await this.extractProperty(
+      page,
+      "div#buybox #usedBuySection .offer-price",
+      (node) => node.first().textContent()
+    ).then((text) => text?.trim());
+    if (priceText && priceText.startsWith("€")) {
+      priceText = priceText.substring(1);
+      const price = parseFloat(priceText);
+      return [price, "EUR"];
+    }
+
     // No price and currency data found. Potentially out of stock.
     return [0, "EUR"];
   }
@@ -357,17 +369,16 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractAvailability(page: Page): Promise<Availability> {
+    // Method 1: identify using the availability text
     const availabilityText = await this.extractProperty(
       page,
       "div#availability",
       (node) => node.textContent()
     );
-
     if (!availabilityText) {
       log.debug("No availability text found");
       return Availability.OutOfStock;
     }
-
     if (
       availabilityText?.toLowerCase().includes("unavailable") ||
       availabilityText?.toLowerCase().includes("out of stock")
@@ -375,7 +386,38 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       return Availability.OutOfStock;
     }
 
+    // Method 2: identify using the "Add to Cart/Basket" button
+    const addToCartButtonText = await this.extractProperty(
+      page,
+      "div#buybox #add-to-cart-button-ubb",
+      (node) => node.textContent()
+    );
+    if (!addToCartButtonText) {
+      log.debug(
+        "No add to cart button text found - product is probably out of stock"
+      );
+      return Availability.OutOfStock;
+    }
+
     return Availability.InStock;
+  }
+
+  override getSearchUrl(
+    query: string,
+    retailerDomain: string = "amazon.de"
+  ): string {
+    return `https://www.${retailerDomain}/s?k=${query}`;
+  }
+
+  override async isEmptySearchResultPage(page: Page): Promise<boolean> {
+    const resultText = await page
+      .locator(".s-result-list .s-result-item:first-child")
+      .textContent();
+    if (resultText?.includes("No results")) {
+      return true;
+    }
+
+    return false;
   }
 
   override async crawlIntermediateCategoryPage(
@@ -388,14 +430,6 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       label: "LIST",
     });
   }
-
-  override getSearchUrl(
-    query: string,
-    retailerDomain: string = "amazon.de"
-  ): string {
-    return `https://www.${retailerDomain}/s?k=${query}`;
-  }
-
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<AmazonCrawlerDefinition> {

@@ -212,21 +212,35 @@ export abstract class AbstractCrawlerDefinition
    * we are searching for to be on the first page.
    */
   async crawlSearchPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    // TODO: Wait for page to load, some scrolling, some logging
     if (!this.searchUrlSelector) {
       log.info("No selector defined to get urls on search page, skipping");
       return;
     }
 
+    try {
+      if (await this.isEmptySearchResultPage(ctx.page)) {
+        log.info("Empty search result", { url: ctx.page.url() });
+        return;
+      }
+    } catch (error) {
+      log.warning("Cannot identify if the page has any search result or not", {
+        error,
+      });
+    }
+
     await ctx.page.locator(this.searchUrlSelector).nth(0).waitFor();
     await this.scrollToBottom(ctx);
-    // const productUrls = ctx.page.locator(this.searchUrlSelector);
 
     log.debug("Enqueuing product urls from search page");
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
       label: "DETAIL",
     });
+  }
+
+  /** Override this to check for empty search result */
+  async isEmptySearchResultPage(_: Page): Promise<boolean> {
+    return false;
   }
 
   async crawlIntermediateCategoryPage(
