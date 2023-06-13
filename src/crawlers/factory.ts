@@ -46,7 +46,7 @@ import { AmazonCrawlerDefinition } from "./custom/amazon";
 
 export interface CrawlerFactoryArgs {
   domain: string;
-  type: "scrapeDetails" | "categoryExploration";
+  type: "scrapeDetails" | "categoryExploration" | "search";
   useCustomQueue?: boolean;
   customQueueSettings?: CustomQueueSettings;
 }

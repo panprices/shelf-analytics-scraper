@@ -104,3 +104,12 @@ export interface RequestBatch {
 export interface RequestCategoryExploration extends RequestOptions {
   jobContext: JobContext;
 }
+
+export interface RequestSearch extends RequestOptions {
+  /** The query used to search, such as GTIN or SKU of a product. */
+  query: string;
+  /** E.g. amazon.de */
+  retailer: string;
+
+  jobContext: JobContext;
+}

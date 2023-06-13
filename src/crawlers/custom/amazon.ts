@@ -389,6 +389,13 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
+  override getSearchUrl(
+    query: string,
+    retailerDomain: string = "amazon.de"
+  ): string {
+    return `https://www.${retailerDomain}/s?k=${query}`;
+  }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<AmazonCrawlerDefinition> {
@@ -401,6 +408,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "ul li.ProductGridItem__itemOuter__KUtvv",
       detailsUrlSelector: "main div.grid article a",
       // listingUrlSelector: "",
+      searchUrlSelector: "div.s-card-container h2 a",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
       launchOptions,
