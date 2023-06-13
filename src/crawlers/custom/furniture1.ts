@@ -77,11 +77,10 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       throw new Error("Cannot extract productName");
     }
 
-    const description = await this.extractProperty(
-      page,
-      "div#content_product_tab_11",
-      (node) => node.textContent()
-    ).then((text) => text?.trim());
+    // Furniture1 doesn't really have descriptions. Only specifications.
+    // There's an "ADDITIONAL INFORMATION" section, but it's generic information
+    // for all products of that type.
+    const description = undefined;
 
     const schemaOrgString = await page
       .locator(
