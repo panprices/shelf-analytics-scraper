@@ -208,6 +208,7 @@ export async function searchForProducts(
     );
 
   const searchUrl = crawlerDefinition.getSearchUrl(query, retailerDomain);
+  log.info("Searching for products", { url: searchUrl });
   await crawler.run([
     {
       url: searchUrl,
