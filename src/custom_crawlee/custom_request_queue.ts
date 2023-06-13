@@ -46,9 +46,7 @@ export class CustomRequestQueue extends RequestQueue {
     this.inWaitQueue = inWaitQueue;
     this.syncedQueue = syncedQueue;
 
-    this.captureLabels = customSettings
-      ? customSettings.captureLabels
-      : ["DETAIL"];
+    this.captureLabels = customSettings ? customSettings.captureLabels : [];
   }
 
   override async addRequest(

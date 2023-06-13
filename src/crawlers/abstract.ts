@@ -201,7 +201,7 @@ export abstract class AbstractCrawlerDefinition
    * @param retailerDomain used as a base for the search url, in case a scraper
    * can scrape multiple websites/countries (such as amazon.de, amazon.co.uk)
    */
-  getSearchUrl(query: string, retailerDomain: string): string {
+  getSearchUrl(_: string, __: string): string {
     throw new Error("Search function not implemented for the given website");
   }
 
@@ -213,7 +213,16 @@ export abstract class AbstractCrawlerDefinition
    */
   async crawlSearchPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     // TODO: Wait for page to load, some scrolling, some logging
+    if (!this.searchUrlSelector) {
+      log.info("No selector defined to get urls on search page, skipping");
+      return;
+    }
 
+    await ctx.page.locator(this.searchUrlSelector).nth(0).waitFor();
+    await this.scrollToBottom(ctx);
+    // const productUrls = ctx.page.locator(this.searchUrlSelector);
+
+    log.debug("Enqueuing product urls from search page");
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
       label: "DETAIL",

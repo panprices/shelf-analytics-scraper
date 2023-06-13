@@ -15,7 +15,11 @@ export async function exploreCategory(
   const domain = extractDomainFromUrl(targetUrl);
 
   const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawler(
-    { domain, type: "categoryExploration" },
+    {
+      domain,
+      type: "categoryExploration",
+      customQueueSettings: { captureLabels: ["DETAIL"] },
+    },
     {
       ...overrides,
       maxConcurrency: 1,
@@ -194,7 +198,12 @@ export async function searchForProducts(
 ): Promise<DetailedProductInfo[]> {
   const [crawler, crawlerDefinition] =
     await CrawlerFactory.buildPlaywrightCrawler(
-      { domain: retailerDomain, type: "search" },
+      {
+        domain: retailerDomain,
+        type: "search",
+        // Don't capture anything - let it continue scraping found products pages
+        customQueueSettings: { captureLabels: [] },
+      },
       overrides
     );
 
@@ -374,8 +383,8 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
     }
 
     if (!p.popularityIndex) {
-      log.error(
-        "Cannot find Popularity Index! Set to -1 temporarily to avoid missing data, but need fix asap."
+      log.warning(
+        "Cannot find Popularity Index! Set to -1 temporarily to avoid missing data."
       );
       p.popularityIndex = -1;
     }
