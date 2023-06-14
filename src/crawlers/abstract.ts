@@ -235,6 +235,9 @@ export abstract class AbstractCrawlerDefinition
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
       label: "DETAIL",
+      userData: {
+        url: ctx.page.url(),
+      },
     });
   }
 

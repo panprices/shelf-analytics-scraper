@@ -75,8 +75,9 @@ app.post("/search", async (req: Request, res: Response) => {
   } catch (error) {
     /* logging failed, do nothing */
   }
-
-  await persistProductsToDatabase(products, body.jobContext.jobId);
+  if (!body.jobContext.skipPublishing) {
+    await sendRequestBatch(products, req.body.jobContext);
+  }
 
   track_and_log_number_of_requests_handled();
   res.status(204).send("OK");
