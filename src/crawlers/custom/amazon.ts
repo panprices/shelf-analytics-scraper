@@ -441,6 +441,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsUrlSelector: "main div.grid article a",
       // listingUrlSelector: "",
       searchUrlSelector: "div.s-card-container h2 a",
+      searchMaxUrls: 8,
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
       launchOptions,

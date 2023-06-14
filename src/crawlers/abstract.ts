@@ -50,6 +50,15 @@ export interface CrawlerDefinitionOptions {
   searchUrlSelector?: string; // undefined if we don't implement searching
 
   /**
+   * Max number of urls to be scraped from the search results page.
+   * Usually the result that we are looking for is within the first 10 results
+   * or so.
+   *
+   * Set to undefined if we don't implement searching OR if we want to scrape all the results.
+   * */
+  searchMaxUrls?: number;
+
+  /**
    * Selector for the cookie consent button
    */
   cookieConsentSelector?: string;
@@ -102,6 +111,7 @@ export abstract class AbstractCrawlerDefinition
   protected readonly listingUrlSelector?: string;
   protected readonly productCardSelector?: string;
   protected readonly searchUrlSelector?: string;
+  protected readonly searchMaxUrls?: number;
   protected readonly launchOptions?: CrawlerLaunchOptions;
 
   protected readonly crawlerOptions: CrawlerDefinitionOptions;
@@ -133,6 +143,7 @@ export abstract class AbstractCrawlerDefinition
     this.listingUrlSelector = options.listingUrlSelector;
     this.productCardSelector = options.productCardSelector;
     this.searchUrlSelector = options.searchUrlSelector;
+    this.searchMaxUrls = options.searchMaxUrls;
     this.launchOptions = options?.launchOptions;
     this.crawlerOptions = options;
 
@@ -238,6 +249,7 @@ export abstract class AbstractCrawlerDefinition
       userData: {
         url: ctx.page.url(),
       },
+      limit: this.searchMaxUrls,
     });
   }
 
