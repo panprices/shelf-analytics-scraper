@@ -110,8 +110,6 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    await playwrightUtils.saveSnapshot(page);
-
     const productNameSelector = "h1#title";
     await page.waitForSelector(productNameSelector);
 
