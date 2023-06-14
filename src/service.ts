@@ -191,14 +191,13 @@ export async function searchForProducts(
   query: string,
   retailerDomain: string,
   overrides?: PlaywrightCrawlerOptions
-): Promise<DetailedProductInfo[]> {
+): Promise<RequestOptions[]> {
   const [crawler, crawlerDefinition] =
     await CrawlerFactory.buildPlaywrightCrawler(
       {
         domain: retailerDomain,
         type: "search",
-        // Don't capture anything - let it continue scraping found products pages
-        customQueueSettings: { captureLabels: [] },
+        customQueueSettings: { captureLabels: ["DETAIL"] },
       },
       overrides
     );
@@ -212,7 +211,32 @@ export async function searchForProducts(
     },
   ]);
 
-  return await extractProductDetails(crawlerDefinition);
+  const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
+
+  let detailedPages = [];
+  while (true) {
+    const request = await inWaitQueue.fetchNextRequest();
+    if (!request) {
+      break;
+    }
+
+    const product = request.userData as ListingProductInfo;
+    try {
+      postProcessListingProduct(product);
+    } catch (e) {
+      log.error("Error when post processing listing products", { error: e });
+    }
+
+    detailedPages.push({
+      url: request.url,
+      userData: {
+        ...product,
+      },
+    });
+    await inWaitQueue.markRequestHandled(request);
+  }
+
+  return detailedPages;
 }
 
 export async function extractLeafCategories(
