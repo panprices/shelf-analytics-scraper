@@ -27,29 +27,30 @@ export function configCrawleeLogger(cloudTrace?: string) {
     maxDepth: 10,
   });
 
-  // Local dev setting:
-  if (
-    !process.env.PANPRICES_ENVIRONMENT ||
-    process.env.PANPRICES_ENVIRONMENT === "local"
-  ) {
-    log.setOptions({
-      level: LogLevel.DEBUG,
-    });
-  }
+  switch (process.env.PANPRICES_ENVIRONMENT) {
+    // Local dev setting:
+    case "local":
+      log.setOptions({
+        level: LogLevel.DEBUG,
+      });
+      break;
 
-  // Production setting:
-  log.setOptions({
-    logger: new CrawleeLoggerForGCP(),
-  });
-  const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
-  if (cloudTrace && project) {
-    const [trace] = cloudTrace.split("/");
-    log.setOptions({
-      level: LogLevel.INFO,
-      data: {
-        "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
-      },
-    });
+    case "sandbox":
+    case "production":
+    default:
+      log.setOptions({
+        logger: new CrawleeLoggerForGCP(),
+        level: LogLevel.INFO,
+      });
+      const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
+      if (cloudTrace && project) {
+        const [trace] = cloudTrace.split("/");
+        log.setOptions({
+          data: {
+            "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
+          },
+        });
+      }
   }
 }
 /**
