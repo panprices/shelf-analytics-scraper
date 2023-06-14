@@ -65,29 +65,23 @@ export class CustomRequestQueue extends RequestQueue {
       };
     }
 
-    const result = await super.addRequest(requestLike, options);
-    /**
-     * We only care about overriding the normal behaviour for pages with a capture label
-     */
-    if (requestLike.label && !this.captureLabels.includes(requestLike.label)) {
+    if (requestLike.label && this.captureLabels.includes(requestLike.label)) {
+      /**
+       * Add the request to the secondary `inWaitQueue` instead.
+       *
+       * Elements in the `inWaitQueue` will be later sent to the server for scheduling, we remove it from the primary
+       * queue to prevent the current crawler from processing it
+       */
+      this.log.info(
+        `Cached individual url for later processing: ${requestLike.url}`
+      );
+      const result = await this.inWaitQueue.addRequest(requestLike, options);
+
       return result;
     }
 
-    /**
-     * Add the request to the secondary `inWaitQueue` and remove it from the primary queue.
-     *
-     * Elements in the `inWaitQueue` will be later sent to the server for scheduling, we remove it from the primary
-     * queue to prevent the current crawler from processing it
-     */
-    const registeredRequest = (await this.client.getRequest(
-      result.requestId
-    )) as unknown as RequestOptions;
-    await this.inWaitQueue.addRequest(registeredRequest);
-    await this.client.deleteRequest(result.requestId);
-    this.log.info(
-      `Cached individual url for later processing: ${requestLike.url}`
-    );
-
+    // Default behavior for pages without a capture label
+    const result = await super.addRequest(requestLike, options);
     return result;
   }
 
@@ -95,39 +89,40 @@ export class CustomRequestQueue extends RequestQueue {
     requestsLike: (Request | RequestOptions)[],
     options: RequestQueueOperationOptions = {}
   ): Promise<BatchAddRequestsResult> {
-    const result = await super.addRequests(requestsLike, options);
-
-    const delegatedRequests = [];
-    for (const unprocessed of result.processedRequests) {
+    const delegatedRequests = []; // those that should be in the inWaitQueue
+    const normalRequests = []; // those that should be in the standard queue
+    for (const request of requestsLike) {
       const alreadyKnownRequest = await this.checkRequestIsKnownInAnyQueue(
-        unprocessed.uniqueKey
+        <string>request.uniqueKey
       );
-
       if (alreadyKnownRequest) {
         continue;
       }
 
-      const request = requestsLike.filter(
-        (r) => r.uniqueKey == unprocessed.uniqueKey
-      )[0];
-      const label =
-        request instanceof Request
-          ? request.userData.label
-          : (<RequestOptions>request).label;
-      if (label && !this.captureLabels.includes(label)) {
-        continue;
+      if (request.label && this.captureLabels.includes(request.label)) {
+        delegatedRequests.push(request);
+        this.log.info(
+          `Cached part of batch url for later processing: ${request.url}`
+        );
+      } else {
+        normalRequests.push(request);
       }
-
-      await this.client.deleteRequest(unprocessed.requestId);
-      request.id = undefined;
-      delegatedRequests.push(request);
-      this.log.info(
-        `Cached part of batch url for later processing: ${request.url}`
-      );
     }
-    await this.inWaitQueue.addRequests(delegatedRequests);
 
-    return result;
+    const result1 = await this.inWaitQueue.addRequests(
+      delegatedRequests,
+      options
+    );
+    const result2 = await super.addRequests(normalRequests, options);
+
+    return {
+      processedRequests: result1.processedRequests.concat(
+        result2.processedRequests
+      ),
+      unprocessedRequests: result1.unprocessedRequests.concat(
+        result2.unprocessedRequests
+      ),
+    };
   }
 
   /**
