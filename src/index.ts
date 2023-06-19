@@ -118,6 +118,8 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   );
 
   try {
+    log.debug("Product details scraped", products);
+    log.debug(JSON.stringify(products, null, 2));
     log.info("Product details scraped", {
       nrUrls: body.productDetails.length,
       nrProductsFound: products.length,

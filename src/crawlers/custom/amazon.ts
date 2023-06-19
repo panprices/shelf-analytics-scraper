@@ -3,6 +3,7 @@ import {
   Availability,
   DetailedProductInfo,
   ListingProductInfo,
+  ProductReviews,
   Specification,
 } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
@@ -148,7 +149,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       (spec) => spec.key === "Item model number" || spec.key === "Model Number"
     )?.value;
 
-    const asin = specifications.find((spec) => spec.key === "ASIN")?.value;
+    const asin = extractASINFromUrl(page.url());
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("div#wayfinding-breadcrumbs_container li a")
@@ -156,9 +157,11 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const images = await this.extractImagesFromProductPage(page);
 
+    const reviews = await this.extractReviews(page);
+
     return {
       name: productName,
-      url: page.url(),
+      url: standardiseAmazonUrl(page.url()),
 
       brand,
       description,
@@ -178,9 +181,37 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       availability,
 
       images,
-      reviews: undefined,
+      reviews,
       specifications,
     };
+  }
+  async extractReviews(page: Page): Promise<ProductReviews | undefined> {
+    const reviewCountText = await this.extractProperty(
+      page,
+      "#averageCustomerReviews #acrCustomerReviewText",
+      (node) => node.first().textContent()
+    ).then((text) => text?.trim());
+    if (!reviewCountText) {
+      return undefined;
+    }
+
+    const reviewRatingText = await this.extractProperty(
+      page,
+      "#averageCustomerReviews #acrPopover a > span",
+      (node) => node.first().textContent()
+    ).then((text) => text?.trim());
+    if (!reviewRatingText) {
+      return undefined;
+    }
+
+    const reviews: ProductReviews = {
+      reviewCount: parseInt(
+        reviewCountText.replace(/,/g, "").replace(/./g, "")
+      ),
+      averageReview: parseFloat(reviewRatingText.trim()),
+      recentReviews: [],
+    };
+    return reviews;
   }
 
   async extractImagesFromProductPage(page: Page) {
@@ -282,10 +313,15 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractSpecifications(page: Page): Promise<Specification[]> {
-    return [
-      ...(await this.extractSpecificationTechnicalDetails(page)),
-      ...(await this.extractSpecificationAdditionalProductInfo(page)),
-    ];
+    // Info on the AdditionalProductInfo table is not really
+    // "product specification", but rather additional "metadata" of the product.
+    // Thus we do not include it anymore.
+    // return [
+    //   ...(await this.extractSpecificationTechnicalDetails(page)),
+    //   ...(await this.extractSpecificationAdditionalProductInfo(page)),
+    // ];
+
+    return await this.extractSpecificationTechnicalDetails(page);
   }
 
   /** A.k.a. the left table  */
@@ -428,6 +464,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       label: "LIST",
     });
   }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<AmazonCrawlerDefinition> {
@@ -447,4 +484,19 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       launchOptions,
     });
   }
+}
+
+export function extractASINFromUrl(url: string): string {
+  // /dp/{ASIN} or /gp/{ASIN}
+  const asinMatch = url.match(/\/[dg]p\/([^\/?]+)/);
+  if (asinMatch) {
+    return asinMatch[1];
+  }
+  throw new Error("Could not extract ASIN from URL");
+}
+
+export function standardiseAmazonUrl(url: string): string {
+  const asin = extractASINFromUrl(url);
+  const rootUrl = new URL(url).origin;
+  return `${rootUrl}/-/en/dp/${asin}`;
 }
