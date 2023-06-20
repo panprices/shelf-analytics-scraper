@@ -325,7 +325,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const currentProductInfo: ListingProductInfo = {
       name,
       url,
-      popularityIndex: -1,
       categoryUrl,
       popularityCategory: categoryTree,
     };

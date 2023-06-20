@@ -50,7 +50,6 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
-      popularityIndex: -1, // this will be overwritten later
       categoryUrl,
       popularityCategory: categoryTree,
     };

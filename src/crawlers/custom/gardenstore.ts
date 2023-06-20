@@ -67,7 +67,6 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       name: productName,
       url,
       // previewImageUrl,
-      popularityIndex: -1, // will be overwritten later
       categoryUrl,
       popularityCategory: categoryTree,
     };

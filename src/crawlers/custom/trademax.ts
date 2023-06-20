@@ -152,7 +152,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       name,
       url,
       categoryUrl,
-      popularityIndex: -1,
       popularityCategory: categoryTree,
     };
 

@@ -189,7 +189,6 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       name: productName,
       url,
       categoryUrl,
-      popularityIndex: -1, // will be overwritten later
       popularityCategory: categoryTree,
     };
 

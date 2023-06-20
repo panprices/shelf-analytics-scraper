@@ -101,7 +101,6 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       name: productName,
       url,
       categoryUrl,
-      popularityIndex: -1, // this will be overwritten later
       popularityCategory: categoryTree,
     };
   }
