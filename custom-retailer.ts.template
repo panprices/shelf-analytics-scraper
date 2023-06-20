@@ -1,7 +1,7 @@
 import { Page } from "playwright";
 import { DetailedProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractRootUrl } from "../../utils";
+import { extractDomainFromUrl } from "../../utils";
 
 export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinition {
   /**
