@@ -3,7 +3,6 @@ import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { extractDomainFromUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
-import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
 import { findCategoryTree } from "./category-tree-mapping";
 
@@ -14,18 +13,19 @@ export async function exploreCategory(
 ): Promise<RequestOptions[]> {
   const domain = extractDomainFromUrl(targetUrl);
 
-  const [crawler, _] = await CrawlerFactory.buildPlaywrightCrawler(
-    {
-      domain,
-      type: "categoryExploration",
-      customQueueSettings: { captureLabels: ["DETAIL"] },
-    },
-    {
-      ...overrides,
-      maxConcurrency: 1,
-      requestHandlerTimeoutSecs: 3600,
-    }
-  );
+  const [crawler, crawlerDefinition] =
+    await CrawlerFactory.buildPlaywrightCrawler(
+      {
+        domain,
+        type: "categoryExploration",
+        customQueueSettings: { captureLabels: ["DETAIL"] },
+      },
+      {
+        ...overrides,
+        maxConcurrency: 1,
+        requestHandlerTimeoutSecs: 3600,
+      }
+    );
   await crawler.run([
     {
       url: targetUrl,
@@ -44,7 +44,7 @@ export async function exploreCategory(
 
     const product = request.userData as ListingProductInfo;
     try {
-      postProcessListingProduct(product);
+      postProcessListingProduct(product, crawlerDefinition);
     } catch (e) {
       log.error("Error when post processing listing products", { error: e });
     }
@@ -62,7 +62,10 @@ export async function exploreCategory(
   return detailedPages;
 }
 
-function postProcessListingProduct(p: ListingProductInfo): void {
+function postProcessListingProduct(
+  p: ListingProductInfo,
+  crawlerDefinition: CrawlerDefinition<any>
+): void {
   // Convert dynamic category url to absolute url:
   if (p.categoryUrl?.startsWith("/")) {
     p.categoryUrl = new URL(p.categoryUrl, p.url).href;
@@ -72,6 +75,10 @@ function postProcessListingProduct(p: ListingProductInfo): void {
     if (category?.url.startsWith("/")) {
       category.url = new URL(category.url, p.url).href;
     }
+  }
+
+  if (crawlerDefinition.normalizeProductUrl) {
+    p.url = crawlerDefinition.normalizeProductUrl(p.url);
   }
 }
 
@@ -197,6 +204,8 @@ export async function searchForProducts(
       {
         domain: retailerDomain,
         type: "search",
+        // Do not continue to explore the product page.
+        // Capture those pages and publish them to the scheduler later.
         customQueueSettings: { captureLabels: ["DETAIL"] },
       },
       overrides
@@ -212,7 +221,6 @@ export async function searchForProducts(
   ]);
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
-
   let detailedPages = [];
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
@@ -222,13 +230,16 @@ export async function searchForProducts(
 
     const product = request.userData as ListingProductInfo;
     try {
-      postProcessListingProduct(product);
+      postProcessListingProduct(product, crawlerDefinition);
     } catch (e) {
       log.error("Error when post processing listing products", { error: e });
     }
+    const normalizedRequestUrl = crawlerDefinition.normalizeProductUrl(
+      request.url
+    );
 
     detailedPages.push({
-      url: request.url,
+      url: normalizedRequestUrl,
       userData: {
         ...product,
       },
@@ -339,14 +350,17 @@ async function extractProductDetails(
   });
 
   try {
-    postProcessProductDetails(products);
+    postProcessProductDetails(products, crawlerDefinition);
   } catch (e) {
     log.error("Error when post processing product details", { error: e });
   }
   return products;
 }
 
-function postProcessProductDetails(products: DetailedProductInfo[]) {
+function postProcessProductDetails(
+  products: DetailedProductInfo[],
+  crawlerDefinition: CrawlerDefinition<any>
+) {
   products.forEach((p) => {
     p.images = p.images
       .filter((imgUrl) => !!imgUrl)
@@ -408,6 +422,10 @@ function postProcessProductDetails(products: DetailedProductInfo[]) {
         "Cannot find Popularity Index! Set to -1 temporarily to avoid missing data."
       );
       p.popularityIndex = -1;
+    }
+
+    if (crawlerDefinition.normalizeProductUrl) {
+      p.url = crawlerDefinition.normalizeProductUrl(p.url);
     }
   });
 

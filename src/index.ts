@@ -66,6 +66,7 @@ app.post("/search", async (req: Request, res: Response) => {
 
   const products = await searchForProducts(body.query, body.retailer);
   try {
+    log.debug(JSON.stringify(products, null, 2));
     log.info("Search completed", {
       query: body.query,
       nrProductsFound: products.length,
@@ -118,7 +119,6 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   );
 
   try {
-    log.debug("Product details scraped", products);
     log.debug(JSON.stringify(products, null, 2));
     log.info("Product details scraped", {
       nrUrls: body.productDetails.length,
