@@ -243,8 +243,6 @@ export abstract class AbstractCrawlerDefinition
     await ctx.page.locator(this.searchUrlSelector).nth(0).waitFor();
     await this.scrollToBottom(ctx);
 
-    const urls = await ctx.page.locator(this.searchUrlSelector);
-
     log.debug("Enqueuing product urls from search page");
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
@@ -554,6 +552,7 @@ export abstract class AbstractCrawlerDefinition
     return categoryTree;
   }
 
+  /** Override this if we need to normalize the product URL */
   normalizeProductUrl(url: string): string {
     return url;
   }

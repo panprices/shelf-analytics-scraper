@@ -1,6 +1,6 @@
 import {
   extractASINFromUrl,
-  normaliseAmazonUrl,
+  normalizeAmazonUrl,
 } from "../src/crawlers/custom/amazon";
 
 // Normally these tests would go under tests/crawlers/custom/amazon.test.ts,
@@ -47,7 +47,7 @@ describe("standardiseAmazonUrl", () => {
       "https://www.amazon.com/-/en/dp/B01M11FLUJ",
     ],
   ])("Extract ASIN from a valid Amazon product URL", (url, expectedResult) => {
-    const newUrl = normaliseAmazonUrl(url);
+    const newUrl = normalizeAmazonUrl(url);
     expect(newUrl).toEqual(expectedResult);
   });
 });
