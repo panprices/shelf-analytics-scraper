@@ -161,7 +161,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
 
     return {
       name: productName,
-      url: standardiseAmazonUrl(page.url()),
+      url: normaliseAmazonUrl(page.url()),
 
       brand,
       description,
@@ -465,6 +465,10 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
+  override normalizeProductUrl(url: string): string {
+    return normaliseAmazonUrl(url);
+  }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<AmazonCrawlerDefinition> {
@@ -495,7 +499,7 @@ export function extractASINFromUrl(url: string): string {
   throw new Error("Could not extract ASIN from URL");
 }
 
-export function standardiseAmazonUrl(url: string): string {
+export function normaliseAmazonUrl(url: string): string {
   const asin = extractASINFromUrl(url);
   const rootUrl = new URL(url).origin;
   return `${rootUrl}/-/en/dp/${asin}`;

@@ -97,6 +97,7 @@ export interface CheerioCrawlerDefinitionOptions {
  */
 export interface CrawlerDefinition<Context extends CrawlingContext> {
   crawlDetailPage(ctx: Context): Promise<void>;
+  normalizeProductUrl(url: string): string;
   get detailsDataset(): Dataset;
   get router(): Router<Context>;
 }
@@ -242,13 +243,12 @@ export abstract class AbstractCrawlerDefinition
     await ctx.page.locator(this.searchUrlSelector).nth(0).waitFor();
     await this.scrollToBottom(ctx);
 
+    const urls = await ctx.page.locator(this.searchUrlSelector);
+
     log.debug("Enqueuing product urls from search page");
     await ctx.enqueueLinks({
       selector: this.searchUrlSelector,
       label: "DETAIL",
-      userData: {
-        url: ctx.page.url(),
-      },
       limit: this.searchMaxUrls,
     });
   }
@@ -390,6 +390,45 @@ export abstract class AbstractCrawlerDefinition
   }
 
   /**
+   * Extracts the information about a product from a product card.
+   *
+   * It is specific to each source, and should be implemented in a specific class.
+   *
+   * @param categoryUrl
+   * @param productCard
+   */
+  abstract extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo | undefined>;
+
+  async extractSchemaOrgFromAttributes(
+    page: Page
+  ): Promise<{ [key: string]: any }> {
+    const schemaOrgProduct = await page.locator(
+      '//*[@itemtype="http://schema.org/Product"]'
+    );
+
+    const propsLocator = schemaOrgProduct.locator("//*[@itemprop]");
+
+    return await propsLocator.evaluateAll((nodes) => {
+      return nodes
+        .map((node) => {
+          let content = node.getAttribute("content");
+          let prop = node.getAttribute("itemprop") as string;
+
+          if (!content) {
+            content = node.textContent;
+          }
+          return {
+            [prop]: content,
+          };
+        })
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    });
+  }
+
+  /**
    * Extract a property on the webpage.
    *
    * If `optional` is false, the method will auto-wait for the element to be present
@@ -515,18 +554,9 @@ export abstract class AbstractCrawlerDefinition
     return categoryTree;
   }
 
-  /**
-   * Extracts the information about a product from a product card.
-   *
-   * It is specific to each source, and should be implemented in a specific class.
-   *
-   * @param categoryUrl
-   * @param productCard
-   */
-  abstract extractCardProductInfo(
-    categoryUrl: string,
-    productCard: Locator
-  ): Promise<ListingProductInfo | undefined>;
+  normalizeProductUrl(url: string): string {
+    return url;
+  }
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
     return this._router;
@@ -534,32 +564,6 @@ export abstract class AbstractCrawlerDefinition
 
   get detailsDataset(): Dataset {
     return this._detailsDataset;
-  }
-
-  async extractSchemaOrgFromAttributes(
-    page: Page
-  ): Promise<{ [key: string]: any }> {
-    const schemaOrgProduct = await page.locator(
-      '//*[@itemtype="http://schema.org/Product"]'
-    );
-
-    const propsLocator = schemaOrgProduct.locator("//*[@itemprop]");
-
-    return await propsLocator.evaluateAll((nodes) => {
-      return nodes
-        .map((node) => {
-          let content = node.getAttribute("content");
-          let prop = node.getAttribute("itemprop") as string;
-
-          if (!content) {
-            content = node.textContent;
-          }
-          return {
-            [prop]: content,
-          };
-        })
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
-    });
   }
 
   static async openDatasets(): Promise<[Dataset, Dataset]> {
@@ -949,6 +953,10 @@ export abstract class AbstractCheerioCrawlerDefinition
   abstract extractProductDetails(
     ctx: CheerioCrawlingContext
   ): DetailedProductInfo;
+
+  normalizeProductUrl(url: string): string {
+    return url;
+  }
 
   get detailsDataset(): Dataset {
     return this._detailsDataset;
