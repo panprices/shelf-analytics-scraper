@@ -80,6 +80,6 @@ fs.readFile(factoryFilePath, "utf8", (err, data) => {
       return;
     }
 
-    console.log(`Created: ${factoryFilePath}`);
+    console.log(`Updated: ${factoryFilePath}`);
   });
 });
