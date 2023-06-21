@@ -87,7 +87,6 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
-      popularityIndex: -1, // will be overwritten later
       categoryUrl,
     };
 

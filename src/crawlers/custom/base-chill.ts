@@ -54,12 +54,6 @@ export async function extractCardProductInfo(
   );
   if (!url) throw new Error("Cannot find url of productCard");
 
-  const imageUrl = await crawlerDefinition.extractProperty(
-    productCard,
-    "xpath=(..//img)[1]",
-    crawlerDefinition.extractImageFromSrcSet
-  );
-
   const categoryTree =
     await crawlerDefinition.extractCategoryTreeFromCategoryPage(
       productCard.page().locator("div#breadcrumbs a"),
@@ -69,10 +63,8 @@ export async function extractCardProductInfo(
 
   return {
     name: productName,
-    previewImageUrl: imageUrl,
     url,
     categoryUrl,
-    popularityIndex: -1,
     popularityCategory: categoryTree,
   };
 }

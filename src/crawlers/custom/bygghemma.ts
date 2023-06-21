@@ -213,7 +213,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       url,
       previewImageUrl: previewImageUrlCleaned,
       categoryUrl,
-      popularityIndex: -1, // this will be overwritten later
       popularityCategory: categoryTree,
     };
   }

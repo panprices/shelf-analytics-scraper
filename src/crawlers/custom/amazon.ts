@@ -105,7 +105,6 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     return {
       name,
       url,
-      popularityIndex: -1, // will be overwritten later
       categoryUrl,
     };
   }

@@ -417,13 +417,6 @@ function postProcessProductDetails(
       p.categoryTree = findCategoryTree(p.categoryUrl);
     }
 
-    if (!p.popularityIndex) {
-      log.warning(
-        "Cannot find Popularity Index! Set to -1 temporarily to avoid missing data."
-      );
-      p.popularityIndex = -1;
-    }
-
     if (crawlerDefinition.normalizeProductUrl) {
       p.url = crawlerDefinition.normalizeProductUrl(p.url);
     }

@@ -100,7 +100,6 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
       url,
       categoryUrl,
       previewImageUrl,
-      popularityIndex: -1,
       popularityCategory: categoryTree,
     };
   }

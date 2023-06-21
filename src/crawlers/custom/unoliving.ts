@@ -63,7 +63,6 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
-      popularityIndex: -1, // will be overwritten later
       categoryUrl,
       popularityCategory: categoryTree,
     };
