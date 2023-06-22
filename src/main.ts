@@ -145,7 +145,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );{
 await debugScrapeDetails(
-  "https://www.nordiskagalleriet.se/maze-interior/step#sku=10366431"
+  "https://www.venturedesign.se/products/silar-matbord-120-160x80-polar-matstolar-gra-gr19804"
 );
 // await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
 
