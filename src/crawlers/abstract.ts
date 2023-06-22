@@ -288,7 +288,11 @@ export abstract class AbstractCrawlerDefinition
    */
   handleFoundProductFromCard(url: string, product: ListingProductInfo): number {
     if (this.productInfos.has(url)) {
-      return this.productInfos.get(url)!.popularityIndex;
+      const existingPopularityIndex =
+        this.productInfos.get(url)!.popularityIndex;
+      if (existingPopularityIndex) {
+        return existingPopularityIndex;
+      }
     }
 
     product.popularityIndex = this.productInfos.size + 1;
