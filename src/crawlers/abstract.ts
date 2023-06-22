@@ -17,6 +17,7 @@ import {
 } from "../types/offer";
 import { extractDomainFromUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
+import { IllFormattedPageError } from "../types/errors";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -160,15 +161,27 @@ export abstract class AbstractCrawlerDefinition
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     log.info(`Looking at product with url ${ctx.page.url()}`);
-    const productDetails = await this.extractProductDetails(ctx.page);
-    const request = ctx.request;
+    try {
+      const productDetails = await this.extractProductDetails(ctx.page);
+      const request = ctx.request;
 
-    await this._detailsDataset.pushData(<DetailedProductInfo>{
-      ...request.userData,
-      ...productDetails,
-      fetchedAt: new Date().toISOString(),
-      retailerDomain: extractDomainFromUrl(ctx.page.url()),
-    });
+      await this._detailsDataset.pushData(<DetailedProductInfo>{
+        ...request.userData,
+        ...productDetails,
+        fetchedAt: new Date().toISOString(),
+        retailerDomain: extractDomainFromUrl(ctx.page.url()),
+      });
+    } catch (e) {
+      if (e instanceof IllFormattedPageError) {
+        log.warning(
+          `Ill formatted page ${ctx.page.url()}, skipping: ${
+            (<IllFormattedPageError>e).message
+          }`
+        );
+        return;
+      }
+      throw e;
+    }
   }
 
   /**
@@ -640,17 +653,30 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     variantGroupUrl: string,
     variant: number
   ): Promise<void> {
-    const productDetails = await this.extractProductDetails(ctx.page);
-    const request = ctx.request;
+    try {
+      const productDetails = await this.extractProductDetails(ctx.page);
+      const request = ctx.request;
 
-    await this._detailsDataset.pushData(<DetailedProductInfo>{
-      fetchedAt: new Date().toISOString(),
-      retailerDomain: extractDomainFromUrl(ctx.page.url()),
-      ...request.userData,
-      ...productDetails,
-      variantGroupUrl: variantGroupUrl,
-      variant: variant,
-    });
+      await this._detailsDataset.pushData(<DetailedProductInfo>{
+        fetchedAt: new Date().toISOString(),
+        retailerDomain: extractDomainFromUrl(ctx.page.url()),
+        ...request.userData,
+        ...productDetails,
+        variantGroupUrl: variantGroupUrl,
+        variant: variant,
+      });
+    } catch (e) {
+      if (e instanceof IllFormattedPageError) {
+        log.warning(
+          `Ill formatted page ${ctx.page.url()}, skipping: ${
+            (<IllFormattedPageError>e).message
+          }`
+        );
+        return;
+      }
+
+      throw e;
+    }
   }
 
   async crawlDetailPageNoVariantExploration(

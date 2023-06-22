@@ -7,6 +7,7 @@ import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import { extractDomainFromUrl } from "../../utils";
+import { IllFormattedPageError } from "../../types/errors";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -229,6 +230,10 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
         (node) => node.textContent().then((s) => s!.trim())
       )
     );
+
+    if (!name) {
+      throw new IllFormattedPageError("No name found");
+    }
 
     const specifications = page.locator(
       "//div[contains(@class, 'container') " +
