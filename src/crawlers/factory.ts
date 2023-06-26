@@ -338,7 +338,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          headless: false,
+          headless: false, // wayfair will throw captcha if headless
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
