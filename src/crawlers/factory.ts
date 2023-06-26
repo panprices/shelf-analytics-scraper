@@ -43,6 +43,7 @@ import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
 import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
 import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
+import { WayfairCrawlerDefinition } from "./custom/wayfair";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -330,6 +331,14 @@ export class CrawlerFactory {
           ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.DE,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "wayfair.de":
+        definition = await WayfairCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+          headless: false,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases

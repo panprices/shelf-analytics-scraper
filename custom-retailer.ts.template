@@ -1,7 +1,6 @@
 import { Page } from "playwright";
 import { DetailedProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractRootUrl } from "../../utils";
 
 export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -34,8 +33,6 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
       metadata: {},
 
       availability: "in_stock",
-      fetchedAt: new Date().toISOString(),
-      retailerDomain: extractRootUrl(page.url()),
 
       images: [], // if not applicable return an empty array
       reviews: "unavailable",

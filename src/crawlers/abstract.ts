@@ -14,6 +14,7 @@ import {
   Category,
   DetailedProductInfo,
   ListingProductInfo,
+  Specification,
 } from "../types/offer";
 import { extractDomainFromUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
@@ -472,6 +473,33 @@ export abstract class AbstractCrawlerDefinition
       return null;
     }
     return srcset.split(",")[0].split(" ")[0];
+  }
+
+  async extractSpecificationsFromTable(
+    specKeyLocator: Locator,
+    specValueLocator: Locator
+  ): Promise<Specification[]> {
+    const specKeys = await specKeyLocator
+      .allTextContents()
+      .then((texts) => texts.map((text) => text.trim()));
+
+    const specValues = await specValueLocator
+      .allTextContents()
+      .then((texts) => texts.map((text) => text.trim()));
+
+    if (specKeys.length !== specValues.length) {
+      log.error("Cannot extract specifications: key/value mismatch");
+      return [];
+    }
+
+    const specifications: Specification[] = [];
+    for (let i = 0; i < specKeys.length; i++) {
+      specifications.push({
+        key: specKeys[i],
+        value: specValues[i],
+      });
+    }
+    return specifications;
   }
 
   async handleCookieConsent(page: Page): Promise<void> {

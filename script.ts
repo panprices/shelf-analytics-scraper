@@ -1,3 +1,8 @@
+/**
+ * Example usage:
+ * npm run create-retailer amazon.de Amazon
+ */
+
 import * as fs from "fs";
 
 // read url and retailerName from CLI arguments
@@ -38,7 +43,9 @@ fs.readFile("custom-retailer.ts.template", "utf8", (err, data) => {
         return;
       }
 
-      console.log("New file saved successfully!");
+      console.log(
+        `Created: src/crawlers/custom/${retailerName.toLowerCase()}.ts`
+      );
     }
   );
 });
@@ -73,6 +80,6 @@ fs.readFile(factoryFilePath, "utf8", (err, data) => {
       return;
     }
 
-    console.log("New file saved successfully!");
+    console.log(`Updated: ${factoryFilePath}`);
   });
 });
