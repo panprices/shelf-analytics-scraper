@@ -57,7 +57,15 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
     } else {
       originalPrice = extractPriceAndCurrencyFromText(originalPriceText)[0];
     }
-    const isDiscounted = originalPrice !== undefined;
+
+    const onSaleText = await this.extractProperty(
+      page,
+      "div[data-enzyme-id='PdpLayout-infoBlock'] .SFPrice span:first-child",
+      (node) => node.last().textContent()
+    );
+    const isDiscounted =
+      originalPrice !== undefined ||
+      (onSaleText !== undefined && onSaleText.includes("Im Angebot"));
 
     const outOfStockOverlayExist =
       (await page.locator(".OutOfStockOverlay").count()) > 0;
@@ -116,7 +124,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews,
       specifications, // if not applicable return an empty array
 
-      variantGroupUrl: "",
+      variantGroupUrl: undefined,
       variant: 0, // 0, 1, 2, 3, ...
 
       metadata: {},
@@ -151,7 +159,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
     const priceAndCurrencyText = await this.extractProperty(
       page,
       "div[data-enzyme-id='PdpLayout-infoBlock'] .SFPrice span:first-child",
-      (node) => node.textContent(),
+      (node) => node.first().textContent(),
       false
     ).then((text) => text?.trim());
     if (!priceAndCurrencyText) {
