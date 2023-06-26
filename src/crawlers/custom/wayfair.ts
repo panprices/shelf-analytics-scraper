@@ -11,6 +11,7 @@ import {
   extractNumberFromText,
 } from "../../utils";
 import { log } from "crawlee";
+import { CaptchaEncounteredError, PageNotFoundError } from "../../types/errors";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -21,6 +22,14 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const url = page.url();
+    if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
+      throw new PageNotFoundError("Redirected to homepage");
+    }
+    if (url.includes("https://www.wayfair.de/v/captcha")) {
+      throw new CaptchaEncounteredError("Captcha encountered");
+    }
+
     const name = await this.extractProperty(
       page,
       "div[data-enzyme-id='PdpLayout-infoBlock'] header h1",

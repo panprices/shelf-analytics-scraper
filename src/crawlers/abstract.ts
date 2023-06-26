@@ -18,7 +18,11 @@ import {
 } from "../types/offer";
 import { extractDomainFromUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
-import { IllFormattedPageError } from "../types/errors";
+import {
+  CaptchaEncounteredError,
+  IllFormattedPageError,
+  PageNotFoundError,
+} from "../types/errors";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -173,12 +177,15 @@ export abstract class AbstractCrawlerDefinition
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });
     } catch (e) {
-      if (e instanceof IllFormattedPageError) {
-        log.warning(
-          `Ill formatted page ${ctx.page.url()}, skipping: ${
-            (<IllFormattedPageError>e).message
-          }`
-        );
+      if (
+        e instanceof IllFormattedPageError ||
+        e instanceof PageNotFoundError ||
+        e instanceof CaptchaEncounteredError
+      ) {
+        log.warning(`Known error encountered`, {
+          url: ctx.page.url(),
+          error: e,
+        });
         return;
       }
       throw e;
@@ -698,15 +705,17 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         variant: variant,
       });
     } catch (e) {
-      if (e instanceof IllFormattedPageError) {
-        log.warning(
-          `Ill formatted page ${ctx.page.url()}, skipping: ${
-            (<IllFormattedPageError>e).message
-          }`
-        );
+      if (
+        e instanceof IllFormattedPageError ||
+        e instanceof PageNotFoundError ||
+        e instanceof CaptchaEncounteredError
+      ) {
+        log.warning(`Known error encountered`, {
+          url: ctx.page.url(),
+          error: e,
+        });
         return;
       }
-
       throw e;
     }
   }
