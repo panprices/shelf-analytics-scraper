@@ -20,6 +20,7 @@ import { extractDomainFromUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   CaptchaEncounteredError,
+  GotBlockedError,
   IllFormattedPageError,
   PageNotFoundError,
 } from "../types/errors";
@@ -165,7 +166,7 @@ export abstract class AbstractCrawlerDefinition
    * @param ctx
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    log.info(`Looking at product with url ${ctx.page.url()}`);
+    log.debug(`Looking at product with url ${ctx.page.url()}`);
     try {
       const productDetails = await this.extractProductDetails(ctx.page);
       const request = ctx.request;
@@ -177,20 +178,44 @@ export abstract class AbstractCrawlerDefinition
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });
     } catch (e) {
-      if (
-        e instanceof IllFormattedPageError ||
-        e instanceof PageNotFoundError ||
-        e instanceof CaptchaEncounteredError
-      ) {
-        log.warning(`Known error encountered`, {
-          url: ctx.page.url(),
-          errorType: e.name,
-          error: e,
-        });
-        return;
-      }
-      throw e;
+      this.handleCrawlDetailPageError(e, ctx);
     }
+  }
+
+  handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext): void {
+    // Known errors: just log and continue
+    if (
+      error instanceof IllFormattedPageError ||
+      error instanceof PageNotFoundError
+    ) {
+      log.info(`Known error encountered`, {
+        url: ctx.request.url,
+        errorType: error.name,
+        errorMessage: error.message,
+      });
+      return;
+    }
+
+    // Known but severe errors: log AND throw it
+    if (error instanceof CaptchaEncounteredError) {
+      log.error(`Captcha encountered`, {
+        url: ctx.request.url,
+        errorType: error.name,
+        errorMessage: error.message,
+      });
+      throw error;
+    }
+    if (error instanceof GotBlockedError) {
+      log.error(`Got blocked`, {
+        url: ctx.request.url,
+        errorType: error.name,
+        errorMessage: error.message,
+      });
+      throw error;
+    }
+
+    // Unknown error, throw it
+    throw error;
   }
 
   /**
@@ -706,19 +731,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         variant: variant,
       });
     } catch (e) {
-      if (
-        e instanceof IllFormattedPageError ||
-        e instanceof PageNotFoundError ||
-        e instanceof CaptchaEncounteredError
-      ) {
-        log.warning(`Known error encountered`, {
-          url: ctx.page.url(),
-          errorType: e.name,
-          error: e,
-        });
-        return;
-      }
-      throw e;
+      this.handleCrawlDetailPageError(e, ctx);
     }
   }
 

@@ -1,22 +1,29 @@
-class IllFormattedPageError extends Error {
+import { NonRetryableError } from "crawlee";
+
+export class IllFormattedPageError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "IllFormattedPageError";
   }
 }
 
-class PageNotFoundError extends Error {
+export class PageNotFoundError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "PageNotFoundError";
   }
 }
 
-class CaptchaEncounteredError extends Error {
+export class CaptchaEncounteredError extends NonRetryableError {
   constructor(message: string) {
     super(message);
     this.name = "CaptchaEncounteredError";
   }
 }
 
-export { IllFormattedPageError, PageNotFoundError, CaptchaEncounteredError };
+export class GotBlockedError extends NonRetryableError {
+  constructor(message: string) {
+    super(message);
+    this.name = "GotBlockedError";
+  }
+}

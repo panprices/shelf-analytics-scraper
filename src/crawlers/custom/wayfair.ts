@@ -11,7 +11,11 @@ import {
   extractNumberFromText,
 } from "../../utils";
 import { log } from "crawlee";
-import { CaptchaEncounteredError, PageNotFoundError } from "../../types/errors";
+import {
+  CaptchaEncounteredError,
+  GotBlockedError,
+  PageNotFoundError,
+} from "../../types/errors";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -24,6 +28,9 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const url = page.url();
 
+    if (url.includes("https://www.wayfair.de/blocked.php")) {
+      throw new GotBlockedError("Got blocked");
+    }
     if (url.includes("https://www.wayfair.de/v/captcha")) {
       throw new CaptchaEncounteredError("Captcha encountered");
     }
