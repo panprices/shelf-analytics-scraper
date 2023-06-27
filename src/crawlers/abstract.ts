@@ -189,7 +189,8 @@ export abstract class AbstractCrawlerDefinition
       error instanceof PageNotFoundError
     ) {
       log.info(`Known error encountered`, {
-        url: ctx.request.url,
+        url: ctx.page.url(),
+        requestUrl: ctx.request.url,
         errorType: error.name,
         errorMessage: error.message,
       });
@@ -199,7 +200,8 @@ export abstract class AbstractCrawlerDefinition
     // Known but severe errors: log AND throw it
     if (error instanceof CaptchaEncounteredError) {
       log.error(`Captcha encountered`, {
-        url: ctx.request.url,
+        url: ctx.page.url(),
+        requestUrl: ctx.request.url,
         errorType: error.name,
         errorMessage: error.message,
       });
@@ -207,7 +209,8 @@ export abstract class AbstractCrawlerDefinition
     }
     if (error instanceof GotBlockedError) {
       log.error(`Got blocked`, {
-        url: ctx.request.url,
+        url: ctx.page.url(),
+        requestUrl: ctx.request.url,
         errorType: error.name,
         errorMessage: error.message,
       });
