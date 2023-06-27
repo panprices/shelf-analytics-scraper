@@ -166,7 +166,7 @@ export abstract class AbstractCrawlerDefinition
    * @param ctx
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    log.debug(`Looking at product with url ${ctx.page.url()}`);
+    log.info(`Looking at product with url ${ctx.page.url()}`);
     try {
       const productDetails = await this.extractProductDetails(ctx.page);
       const request = ctx.request;
@@ -837,7 +837,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       // We only expect state changes for products with variants
       // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
       if (parameterIndex !== 0) {
-        pageState = await this.getCurrentVariantState(ctx);
+        // pageState = await this.getCurrentVariantState(ctx);
         newPageState = await this.waitForChanges(ctx, pageState, 10000);
 
         const url = await this.getCurrentVariantUrl(ctx.page);
@@ -947,7 +947,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     log.info("Wait for state to change, current state: ", currentState);
     const startTime = Date.now();
 
-    // Wait for 1 more second just in case
+    // Wait for 1 more second just in case there are no network requests yet
     await ctx.page.waitForTimeout(1000);
 
     await ctx.page.waitForLoadState("networkidle");
