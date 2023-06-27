@@ -184,6 +184,7 @@ export abstract class AbstractCrawlerDefinition
       ) {
         log.warning(`Known error encountered`, {
           url: ctx.page.url(),
+          errorType: e.name,
           error: e,
         });
         return;
@@ -712,6 +713,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       ) {
         log.warning(`Known error encountered`, {
           url: ctx.page.url(),
+          errorType: e.name,
           error: e,
         });
         return;

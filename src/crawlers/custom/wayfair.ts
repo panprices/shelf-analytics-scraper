@@ -23,11 +23,15 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const url = page.url();
+
+    if (url.includes("https://www.wayfair.de/v/captcha")) {
+      throw new CaptchaEncounteredError("Captcha encountered");
+    }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
       throw new PageNotFoundError("Redirected to homepage");
     }
-    if (url.includes("https://www.wayfair.de/v/captcha")) {
-      throw new CaptchaEncounteredError("Captcha encountered");
+    if (!url.includes("/pdp/")) {
+      throw new PageNotFoundError("Redirected to another page");
     }
 
     const name = await this.extractProperty(
