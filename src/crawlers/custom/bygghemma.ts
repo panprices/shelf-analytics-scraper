@@ -114,7 +114,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     return false;
   }
 
-  override async getOptionsForParamIndex(
+  override async getOptionsCountForParamIndex(
     ctx: PlaywrightCrawlingContext,
     paramIndex: number
   ): Promise<number> {

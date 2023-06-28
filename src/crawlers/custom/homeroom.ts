@@ -80,7 +80,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   ): Promise<void> {
     await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
 
-    const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
+    const nrDropdownVariants = await this.getOptionsCountForParamIndex(ctx, 0);
     const hasDropdownVariants = nrDropdownVariants > 0;
     if (hasDropdownVariants) {
       await this.crawlDetailPageWithVariantsLogic(ctx);
@@ -356,7 +356,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   ): Promise<boolean> {
     return false;
   }
-  async getOptionsForParamIndex(
+  async getOptionsCountForParamIndex(
     ctx: PlaywrightCrawlingContext<Dictionary<any>>,
     paramIndex: number
   ): Promise<number> {

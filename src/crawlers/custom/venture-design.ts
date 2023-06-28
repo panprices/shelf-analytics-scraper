@@ -357,7 +357,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     // The group URL is also the first variant so we scrape it
     await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
 
-    const hasVariants = (await this.getOptionsForParamIndex(ctx, 0)) > 0;
+    const hasVariants = (await this.getOptionsCountForParamIndex(ctx, 0)) > 0;
     if (hasVariants) {
       await super.crawlDetailPage(ctx);
     }
@@ -380,7 +380,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
     return true;
   }
 
-  override async getOptionsForParamIndex(
+  override async getOptionsCountForParamIndex(
     ctx: PlaywrightCrawlingContext,
     paramIndex: number
   ): Promise<number> {

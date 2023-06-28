@@ -745,7 +745,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     let currentParamIndex = 0;
     do {
       let paramExists =
-        (await this.getOptionsForParamIndex(ctx, currentParamIndex)) > 0;
+        (await this.getOptionsCountForParamIndex(ctx, currentParamIndex)) > 0;
       if (!paramExists) {
         break;
       }
@@ -816,26 +816,26 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     pageState?: any,
     limit?: number
   ): Promise<[any, number]> {
-    log.info("Exploring variants space", {
-      parameterIndex: parameterIndex,
-      currentOption: currentOption,
-      variantGroupUrl: variantGroupUrl,
-      pageState: pageState,
-    });
     if (!pageState) {
       pageState = await this.getCurrentVariantState(ctx);
     }
 
     let optionsCount;
     try {
-      optionsCount = await this.getOptionsForParamIndex(ctx, parameterIndex);
+      optionsCount = await this.getOptionsCountForParamIndex(
+        ctx,
+        parameterIndex
+      );
     } catch (e) {
       log.warning("Failed to get options for param index: " + parameterIndex);
       log.info("Trying to recover by navigation to group url");
 
       await this.recoverState(ctx, currentOption, variantGroupUrl);
       try {
-        optionsCount = await this.getOptionsForParamIndex(ctx, parameterIndex);
+        optionsCount = await this.getOptionsCountForParamIndex(
+          ctx,
+          parameterIndex
+        );
       } catch (e) {
         log.error(JSON.stringify(e));
         optionsCount = 0;
@@ -846,7 +846,6 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       // We only expect state changes for products with variants
       // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
       if (parameterIndex !== 0) {
-        // pageState = await this.getCurrentVariantState(ctx);
         newPageState = await this.waitForChanges(ctx, pageState, 10000);
 
         const url = await this.getCurrentVariantUrl(ctx.page);
@@ -942,8 +941,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
   }
 
   /**
-   * The logic: wait 1 second after changing the parameters, then wait for network idle, check the url changed
-   * then wait again for network idle and one more second
+   * Wait for the page state to change and return the new state.
    * @param ctx
    * @param currentState
    * @param timeout
@@ -952,28 +950,21 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     ctx: PlaywrightCrawlingContext,
     currentState: any,
     timeout: number = 1000 // ms
-  ) {
+  ): Promise<any> {
     log.info("Wait for state to change, current state: ", currentState);
     const startTime = Date.now();
-
-    // Wait for 1 more second just in case there are no network requests yet
-    await ctx.page.waitForTimeout(1000);
-
-    await ctx.page.waitForLoadState("networkidle");
 
     let newState = {};
     do {
       if (Date.now() - startTime > timeout) {
-        // Shouldn't throw error but just return result since it's likely that
-        // the image wasn't changed after choosing another option.
         log.warning("Timeout while waiting for state to change");
         return currentState;
       }
-
       try {
         newState = await this.getCurrentVariantState(ctx);
       } catch (error) {
-        // Page changed during image extraction => just try again
+        // Could be that the page changed while trying to extract the current state
+        // => ignore the error and just try again
       }
       await ctx.page.waitForTimeout(timeout / 10);
     } while (
@@ -981,12 +972,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       // expect changes in all keys
       Object.keys(newState).some((key) => newState[key] === currentState[key])
     );
-    // Wait for network to be idle
-    await ctx.page.waitForLoadState("networkidle");
 
-    // Wait for 1 more second just in case
-    await ctx.page.waitForTimeout(1000);
-    newState = await this.getCurrentVariantState(ctx);
     return newState;
   }
 
@@ -1001,7 +987,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     paramIndex: number
   ): Promise<boolean>;
 
-  abstract getOptionsForParamIndex(
+  abstract getOptionsCountForParamIndex(
     _: PlaywrightCrawlingContext,
     paramIndex: number
   ): Promise<number>;
