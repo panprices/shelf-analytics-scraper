@@ -816,6 +816,12 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     pageState?: any,
     limit?: number
   ): Promise<[any, number]> {
+    log.info("Exploring variants space", {
+      parameterIndex: parameterIndex,
+      currentOption: currentOption,
+      variantGroupUrl: variantGroupUrl,
+      pageState: pageState,
+    });
     if (!pageState) {
       pageState = await this.getCurrentVariantState(ctx);
     }
@@ -980,7 +986,6 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
 
     // Wait for 1 more second just in case
     await ctx.page.waitForTimeout(1000);
-    const newUrl = ctx.page.url();
     newState = await this.getCurrentVariantState(ctx);
     return newState;
   }
