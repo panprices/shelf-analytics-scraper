@@ -141,7 +141,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       .then((count) => count > 0);
   }
 
-  async getOptionsForParamIndex(
+  async getOptionsCountForParamIndex(
     ctx: PlaywrightCrawlingContext<Dictionary<any>>,
     paramIndex: number
   ): Promise<number> {
@@ -165,7 +165,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     ctx: PlaywrightCrawlingContext<Dictionary<any>>,
     currentOption: number[]
   ): Promise<boolean> {
-    const availableOptionsCount = await this.getOptionsForParamIndex(
+    const availableOptionsCount = await this.getOptionsCountForParamIndex(
       ctx,
       currentOption.length - 1
     );

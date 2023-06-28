@@ -85,7 +85,7 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
     return dropDownValue?.toLowerCase() !== dropDownDefault?.toLowerCase();
   }
 
-  async getOptionsForParamIndex(
+  async getOptionsCountForParamIndex(
     ctx: PlaywrightCrawlingContext<Dictionary<any>>,
     paramIndex: number
   ): Promise<number> {

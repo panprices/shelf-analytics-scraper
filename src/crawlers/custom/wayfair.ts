@@ -4,22 +4,26 @@ import {
   DetailedProductInfo,
   ProductReviews,
 } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import {
   convertCurrencySymbolToISO,
   extractDomainFromUrl,
   extractNumberFromText,
 } from "../../utils";
-import { log } from "crawlee";
+import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
 import {
   CaptchaEncounteredError,
   GotBlockedError,
   PageNotFoundError,
 } from "../../types/errors";
 
-export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
+export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   /**
-   * This retailer does not use category scraping, it gets the URLs from sitemap
+   * This retailer does not do category scraping
    */
   extractCardProductInfo(): Promise<undefined> {
     return Promise.resolve(undefined);
@@ -206,17 +210,73 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinition {
     return undefined;
   }
 
+  override async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary>,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void> {
+    const clickOptionGroupSelector = ctx.page.locator(
+      "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-hb-id='Grid']"
+    );
+    const clickOptionGroupCount = await clickOptionGroupSelector.count();
+    if (paramIndex >= clickOptionGroupCount) {
+      return;
+    }
+
+    const option = clickOptionGroupSelector
+      .nth(paramIndex)
+      .locator("div[data-hb-id='Grid.Item']")
+      .nth(optionIndex);
+    await option.click();
+  }
+
+  override async hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext<Dictionary<any>>,
+    __: number
+  ): Promise<boolean> {
+    return false;
+  }
+
+  override async getOptionsCountForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary>,
+    paramIndex: number
+  ): Promise<number> {
+    const clickOptionGroupSelector = ctx.page.locator(
+      "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-hb-id='Grid']"
+    );
+    const clickOptionGroupCount = await clickOptionGroupSelector.count();
+
+    if (paramIndex > clickOptionGroupCount) {
+      return 0;
+    }
+
+    return await clickOptionGroupSelector
+      .nth(paramIndex)
+      .locator("div[data-hb-id='Grid.Item']")
+      .count();
+  }
+
+  override async checkInvalidVariant(
+    _: PlaywrightCrawlingContext<Dictionary>,
+    __: number[]
+  ): Promise<boolean> {
+    return false;
+  }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<WayfairCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
-    return new WayfairCrawlerDefinition({
-      detailsDataset,
-      listingDataset,
-      launchOptions,
-    });
+    return new WayfairCrawlerDefinition(
+      {
+        detailsDataset,
+        listingDataset,
+        launchOptions,
+      },
+      "same_tab"
+    );
   }
 }
 /** "1.519,99 €" -> [1519.99, "EUR"] */
