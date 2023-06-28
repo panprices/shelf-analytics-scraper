@@ -62,3 +62,22 @@ test("Product with price > 1000 EUR", async () => {
   expect(result[0].sku).toEqual("VTDG5305");
   expect(result[0].availability).toEqual("out_of_stock");
 });
+
+test("With variants", async () => {
+  const targetUrl =
+    "https://www.wayfair.de/moebel/pdp/zipcode-design-essgruppe-dolson-mit-4-stuehlen-d003098335.html";
+  const result = await scrapeDetails([dummyRequest(targetUrl)]);
+  expect(result.length).toEqual(4);
+  expect(result.map((item) => item.sku)).toEqual([
+    "D003098335",
+    "D003098335",
+    "D003098335",
+    "D003098335",
+  ]);
+  expect(result.map((item) => item.url)).toEqual([
+    "https://www.wayfair.de/moebel/pdp/zipcode-design-essgruppe-dolson-mit-4-stuehlen-d003098335.html?piid=566167318",
+    "https://www.wayfair.de/moebel/pdp/zipcode-design-essgruppe-dolson-mit-4-stuehlen-d003098335.html?piid=566167316",
+    "https://www.wayfair.de/moebel/pdp/zipcode-design-essgruppe-dolson-mit-4-stuehlen-d003098335.html?piid=566167317",
+    "https://www.wayfair.de/moebel/pdp/zipcode-design-essgruppe-dolson-mit-4-stuehlen-d003098335.html?piid=566167319",
+  ]);
+});

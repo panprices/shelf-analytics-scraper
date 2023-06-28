@@ -215,21 +215,19 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     paramIndex: number,
     optionIndex: number
   ): Promise<void> {
-    const allParametersLocator = ctx.page.locator(
+    const clickOptionGroupSelector = ctx.page.locator(
       "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-hb-id='Grid']"
     );
-    const parametersCount = await allParametersLocator.count();
-    if (paramIndex >= parametersCount) {
+    const clickOptionGroupCount = await clickOptionGroupSelector.count();
+    if (paramIndex >= clickOptionGroupCount) {
       return;
     }
 
-    const parameterLocator = allParametersLocator.nth(paramIndex);
-    const options = parameterLocator.locator("div[data-hb-id='Grid.Item']");
-    const option = await options.nth(optionIndex);
-
+    const option = clickOptionGroupSelector
+      .nth(paramIndex)
+      .locator("div[data-hb-id='Grid.Item']")
+      .nth(optionIndex);
     await option.click();
-
-    // await ctx.page.waitForLoadState("networkidle");
   }
 
   override async hasSelectedOptionForParamIndex(
@@ -243,14 +241,18 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     ctx: PlaywrightCrawlingContext<Dictionary>,
     paramIndex: number
   ): Promise<number> {
-    if (paramIndex > 0) {
+    const clickOptionGroupSelector = ctx.page.locator(
+      "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-hb-id='Grid']"
+    );
+    const clickOptionGroupCount = await clickOptionGroupSelector.count();
+
+    if (paramIndex > clickOptionGroupCount) {
       return 0;
     }
 
-    return await ctx.page
-      .locator(
-        "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-hb-id='Grid'] div[data-hb-id='Grid.Item']"
-      )
+    return await clickOptionGroupSelector
+      .nth(paramIndex)
+      .locator("div[data-hb-id='Grid.Item']")
       .count();
   }
 
