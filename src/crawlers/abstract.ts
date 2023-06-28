@@ -885,7 +885,8 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
       } catch (e) {
         log.info(
-          `Option ${optionIndex} for parameter ${parameterIndex} is not available`
+          `Option ${optionIndex} for parameter ${parameterIndex} is not available`,
+          { error: e }
         );
         log.warning(
           "Option became unavailable, switching to product group page"

@@ -193,17 +193,61 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     return extractPriceAndCurrencyFromText(priceAndCurrencyText);
   }
 
+  /** Extract MPN from the a JS script tag */
   async extractMPN(page: Page): Promise<string | undefined> {
+    let webpackData;
+    try {
+      webpackData = await this.extractWebpackEntryData(page);
+    } catch (e) {
+      log.warning("Cannot extract webpack data from page", {
+        url: page.url(),
+      });
+      return undefined;
+    }
+
+    const variantPIID = await this.extractPIIDFromUrl(page.url());
+    if (variantPIID) {
+      const partNumbersByOption: any[] =
+        webpackData.application?.props.title.manufacturerPartNumber
+          .partNumbersByOption;
+      if (partNumbersByOption) {
+        // find where partNumbersByOption.optionKey === variantPIID
+        const partNumber = partNumbersByOption.find(
+          (option) => option.optionKey === variantPIID
+        )?.partNumber;
+        return partNumber;
+      }
+    } else {
+      // No variant, just return the MPN of the product
+      return webpackData.application?.props.title.manufacturerPartNumber
+        .partNumber;
+    }
+
+    return undefined;
+  }
+
+  /** https://www.wayfair.de/moebel/pdp/perspections-essgruppe-vowinckel-mit-4-stuehlen-d000827215.html?piid=1033586268%2C1033586259
+   * -> 1033586268,1033586259
+   */
+  async extractPIIDFromUrl(url: string): Promise<string | null> {
+    const urlSearchParams = new URLSearchParams(url.split("?")[1]);
+    const piid = urlSearchParams.get("piid");
+
+    return piid;
+  }
+
+  async extractWebpackEntryData(page: Page): Promise<any> {
     const candidateScriptTexts = await page
       .locator("script[type='text/javascript']:not([src])")
       .allTextContents();
 
     for (const scriptText of candidateScriptTexts) {
       if (scriptText.startsWith('window["WEBPACK_ENTRY_DATA"]')) {
-        const mpnMatch = scriptText.match(/"partNumber":"(.+?)"/);
-        if (mpnMatch) {
-          return mpnMatch[1];
-        }
+        // remove the window["WEBPACK_ENTRY_DATA"] and the last semicolon ;
+        const jsonText = scriptText
+          .replace('window["WEBPACK_ENTRY_DATA"]=', "")
+          .slice(0, -1);
+        return JSON.parse(jsonText);
       }
     }
 
@@ -227,7 +271,15 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
       .nth(paramIndex)
       .locator("div[data-hb-id='Grid.Item']")
       .nth(optionIndex);
-    await option.click();
+
+    if (!(await option.isVisible())) {
+      // Click on the group header to show the options:
+      const clickOptionHeader = ctx.page.locator(
+        "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='option-category']"
+      );
+      await clickOptionHeader.nth(paramIndex).click();
+    }
+    await option.click({ force: true });
   }
 
   override async hasSelectedOptionForParamIndex(
@@ -275,7 +327,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
         listingDataset,
         launchOptions,
       },
-      "same_tab"
+      "new_tabs"
     );
   }
 }
