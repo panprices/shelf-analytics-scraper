@@ -373,21 +373,24 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets();
 
-    return new BygghemmaCrawlerDefinition({
-      detailsDataset,
-      listingDataset,
-      /*
+    return new BygghemmaCrawlerDefinition(
+      {
+        detailsDataset,
+        listingDataset,
+        /*
       - For a leaf category, pressing the "next" button will go to the next page using JS. But the a.href points to the next page of the 2nd-to-last category instead.
       For example, see [this page](https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matbord-och-koksbord/?page=2) and search for `div.WfGIO a`.
       However, there is a <link data-page rel='next' href='...'> that point to the correct next page. We use that instead.
       */
-      listingUrlSelector: "link[rel='next']",
-      detailsUrlSelector: "div.xqHsK >div.FSL6m > a",
-      productCardSelector: "main div.xqHsK",
-      cookieConsentSelector: "button#ccc-notify-accept",
-      dynamicProductCardLoading: false,
-      launchOptions,
-    });
+        listingUrlSelector: "link[rel='next']",
+        detailsUrlSelector: "div.xqHsK >div.FSL6m > a",
+        productCardSelector: "main div.xqHsK",
+        cookieConsentSelector: "button#ccc-notify-accept",
+        dynamicProductCardLoading: false,
+        launchOptions,
+      },
+      "same_tab"
+    );
   }
 }
 
