@@ -31,7 +31,6 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const url = page.url();
-
     if (url.includes("https://www.wayfair.de/blocked.php")) {
       throw new GotBlockedError("Got blocked");
     }
@@ -44,6 +43,8 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     if (!url.includes("/pdp/")) {
       throw new PageNotFoundError("Redirected to another page");
     }
+
+    await this.handleCookieConsent(page);
 
     const name = await this.extractProperty(
       page,
@@ -326,6 +327,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
         detailsDataset,
         listingDataset,
         launchOptions,
+        cookieConsentSelector: "button[data-enzyme-id='BannerAcceptAll']",
       },
       "new_tabs"
     );
