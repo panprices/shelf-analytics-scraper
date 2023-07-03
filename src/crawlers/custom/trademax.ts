@@ -144,7 +144,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
       productCard.page().locator("div#breadcrumbs a"),
-      0,
+      1,
       productCard.page().locator("div#breadcrumbs > div > span")
     );
 
