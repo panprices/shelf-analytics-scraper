@@ -176,7 +176,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     }
     const schemaOrg = JSON.parse(schemaOrgString);
 
-    const brand = schemaOrg?.brand.name;
+    const brand = schemaOrg?.brand?.name;
     const gtin = schemaOrg?.gtin;
     const sku = schemaOrg?.sku;
 

@@ -49,8 +49,14 @@ export async function exploreCategory(
       log.error("Error when post processing listing products", { error: e });
     }
 
+    // Normalize the request url so that we can check for it in postges later
+    // and determine if we should proceed with scraping the product or not.
+    const normalizedRequestUrl = crawlerDefinition.normalizeProductUrl(
+      request.url
+    );
+
     detailedPages.push({
-      url: request.url,
+      url: normalizedRequestUrl,
       userData: {
         jobId: jobId,
         ...product,
@@ -229,11 +235,9 @@ export async function searchForProducts(
     }
 
     const product = request.userData as ListingProductInfo;
-    try {
-      postProcessListingProduct(product, crawlerDefinition);
-    } catch (e) {
-      log.error("Error when post processing listing products", { error: e });
-    }
+
+    // Normalize the request url so that we can check for it in postges later
+    // and determine if we should proceed with scraping the product or not.
     const normalizedRequestUrl = crawlerDefinition.normalizeProductUrl(
       request.url
     );

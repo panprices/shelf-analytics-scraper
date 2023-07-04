@@ -160,7 +160,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
 
     return {
       name: productName,
-      url: normalizeAmazonUrl(page.url()),
+      url: page.url(),
 
       brand,
       description,
