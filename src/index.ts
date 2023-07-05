@@ -120,12 +120,19 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   try {
     log.debug(JSON.stringify(products, null, 2));
-    log.info("Product details scraped", {
-      nrUrls: body.productDetails.length,
-      nrProductsFound: products.length,
-      retailer: extractDomainFromUrl(body.productDetails[0].url),
-      jobId: req.body.jobContext.jobId,
-    });
+    const retailerDomains = [...new Set(products.map((p) => p.retailerDomain))];
+    for (const domain of retailerDomains) {
+      log.info("Product details scraped", {
+        nrUrls: body.productDetails.filter(
+          (p) => extractDomainFromUrl(p.url) === domain
+        ).length,
+        nrProductsFound: products.filter(
+          (p) => extractDomainFromUrl(p.url) === domain
+        ).length,
+        retailer: domain,
+        jobId: req.body.jobContext.jobId,
+      });
+    }
   } catch (error) {
     /* logging failed, do nothing */
   }

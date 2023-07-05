@@ -35,7 +35,7 @@ export async function exploreCategory(
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
 
-  let detailedPages = [];
+  let requestOptions = [];
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
     if (!request) {
@@ -55,7 +55,7 @@ export async function exploreCategory(
       request.url
     );
 
-    detailedPages.push({
+    requestOptions.push({
       url: normalizedRequestUrl,
       userData: {
         jobId: jobId,
@@ -65,7 +65,7 @@ export async function exploreCategory(
     await inWaitQueue.markRequestHandled(request);
   }
 
-  return detailedPages;
+  return requestOptions;
 }
 
 function postProcessListingProduct(
@@ -227,14 +227,12 @@ export async function searchForProducts(
   ]);
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
-  let detailedPages = [];
+  let requestOptions = [];
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
     if (!request) {
       break;
     }
-
-    const product = request.userData as ListingProductInfo;
 
     // Normalize the request url so that we can check for it in postges later
     // and determine if we should proceed with scraping the product or not.
@@ -242,16 +240,14 @@ export async function searchForProducts(
       request.url
     );
 
-    detailedPages.push({
+    requestOptions.push({
       url: normalizedRequestUrl,
-      userData: {
-        ...product,
-      },
+      userData: request.userData,
     });
     await inWaitQueue.markRequestHandled(request);
   }
 
-  return detailedPages;
+  return requestOptions;
 }
 
 export async function extractLeafCategories(
@@ -310,29 +306,40 @@ export async function scrapeDetails(
     return [];
   }
 
-  const domain = extractDomainFromUrl(detailedPages[0].url);
-  let crawler, crawlerDefinition;
-  if (useCheerio) {
-    [crawler, crawlerDefinition] = await CrawlerFactory.buildCheerioCrawler({
-      domain,
-      type: "scrapeDetails",
-      useCustomQueue: false,
-    });
-  } else {
-    [crawler, crawlerDefinition] = await CrawlerFactory.buildPlaywrightCrawler(
-      {
+  const allProducts = [];
+
+  // Build a crawler for each domain and scrape the product details.
+  const domains = detailedPages.map((p) => extractDomainFromUrl(p.url));
+  for (const domain of domains) {
+    const pagesToScrape = detailedPages.filter(
+      (p) => extractDomainFromUrl(p.url) === domain
+    );
+    let crawler, crawlerDefinition;
+    if (useCheerio) {
+      [crawler, crawlerDefinition] = await CrawlerFactory.buildCheerioCrawler({
         domain,
         type: "scrapeDetails",
         useCustomQueue: false,
-      },
-      overrides,
-      launchOptions
-    );
+      });
+    } else {
+      [crawler, crawlerDefinition] =
+        await CrawlerFactory.buildPlaywrightCrawler(
+          {
+            domain,
+            type: "scrapeDetails",
+            useCustomQueue: false,
+          },
+          overrides,
+          launchOptions
+        );
+    }
+    await crawler.run(pagesToScrape);
+
+    const products = await extractProductDetails(crawlerDefinition);
+    allProducts.push(...products);
   }
 
-  await crawler.run(detailedPages);
-
-  return await extractProductDetails(crawlerDefinition);
+  return allProducts;
 }
 
 async function extractProductDetails(
