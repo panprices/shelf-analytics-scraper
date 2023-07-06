@@ -107,21 +107,25 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     // Wait for images
-    await page
-      .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
-      .first()
-      .waitFor({ state: "attached" });
+    try {
+      await page
+        .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
+        .first()
+        .waitFor({ state: "attached", timeout: 10000 });
+    } catch (e) {
+      log.warning("Cannot find product images", { url: page.url() });
+    }
 
     const productName = await this.extractProperty(
       page,
-      ".product__info .sf-product-name",
+      "div.product__info .sf-product-name",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName) throw new Error("Cannot extract productName");
 
     const description = await this.extractProperty(
       page,
-      ".product__info .product__description",
+      "div.product__info .product__description",
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
@@ -149,17 +153,17 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const skuText = await this.extractProperty(
       page,
-      ".product__info .product__sku",
+      "div.product__info .product__sku",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     const sku = skuText?.replace("Artikelnummer:", "").trim();
 
     const specKeys = await page
-      .locator(".product__info .sf-property__name")
+      .locator("div.product__info .sf-property__name")
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     const specVals = await page
-      .locator(".product__info .sf-property__value")
+      .locator("div.product__info .sf-property__value")
       .allTextContents()
       .then((textContents) => textContents.map((text) => text.trim()));
     if (specKeys.length !== specVals.length) {
@@ -209,7 +213,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractOriginalPriceFromProductDetailsPage(page: Page) {
     let priceText = await this.extractProperty(
       page,
-      ".product__info .sf-price__old",
+      "div.product__info .sf-price__old",
       (node) => node.textContent()
     ).then((text) => text?.trim());
 
@@ -226,14 +230,14 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractPriceFromProductDetailsPage(page: Page) {
     let priceText = await this.extractProperty(
       page,
-      ".product__info .sf-price__regular",
+      "div.product__info .sf-price__regular",
       (node) => node.textContent()
     ).then((text) => text?.trim());
 
     if (!priceText) {
       priceText = await this.extractProperty(
         page,
-        ".product__info .sf-price__special",
+        "div.product__info .sf-price__special",
         (node) => node.textContent()
       ).then((text) => text?.trim());
     }
