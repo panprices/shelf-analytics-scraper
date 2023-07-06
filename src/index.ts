@@ -120,7 +120,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   try {
     log.debug(JSON.stringify(products, null, 2));
-    const retailerDomains = [...new Set(products.map((p) => p.retailerDomain))];
+    const retailerDomains = new Set(products.map((p) => p.retailerDomain));
     for (const domain of retailerDomains) {
       log.info("Product details scraped", {
         nrUrls: body.productDetails.filter(

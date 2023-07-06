@@ -309,7 +309,9 @@ export async function scrapeDetails(
   const allProducts = [];
 
   // Build a crawler for each domain and scrape the product details.
-  const domains = detailedPages.map((p) => extractDomainFromUrl(p.url));
+  const domains = new Set(
+    detailedPages.map((p) => extractDomainFromUrl(p.url))
+  );
   for (const domain of domains) {
     const pagesToScrape = detailedPages.filter(
       (p) => extractDomainFromUrl(p.url) === domain
