@@ -1,13 +1,13 @@
 import { NonRetryableError } from "crawlee";
 
-export class IllFormattedPageError extends Error {
+export class IllFormattedPageError extends NonRetryableError {
   constructor(message: string) {
     super(message);
     this.name = "IllFormattedPageError";
   }
 }
 
-export class PageNotFoundError extends Error {
+export class PageNotFoundError extends NonRetryableError {
   constructor(message: string) {
     super(message);
     this.name = "PageNotFoundError";
