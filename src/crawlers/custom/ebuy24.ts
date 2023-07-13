@@ -19,6 +19,7 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
+import { PageNotFoundError } from "../../types/errors";
 
 export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
   override listingUrlSelector = "ul.pagination.small li:last-child a[href]";
@@ -94,6 +95,10 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    if ((await page.locator("article.m-notfound-article").count()) > 0) {
+      throw new PageNotFoundError("Page not found");
+    }
+
     const productNameSelector = "h1.m-product-title";
     await page.waitForSelector(productNameSelector, { timeout: 5000 });
 
