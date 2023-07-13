@@ -55,7 +55,9 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
   }
 
   track_and_log_number_of_requests_handled();
-  res.status(204).send("OK");
+  res.status(200).send({
+    nrProductsFound: detailedPages.length,
+  });
 });
 
 app.post("/search", async (req: Request, res: Response) => {
@@ -81,7 +83,10 @@ app.post("/search", async (req: Request, res: Response) => {
   }
 
   track_and_log_number_of_requests_handled();
-  res.status(204).send("OK");
+
+  res.status(200).send({
+    nrProductsFound: products.length,
+  });
 });
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
@@ -148,7 +153,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   // }
 
   track_and_log_number_of_requests_handled();
-  res.status(204).send("OK");
+  res.status(200).send({
+    nrProductsFound: products.length,
+  });
 });
 
 const port = parseInt(<string>process.env.PORT) || 8080;
