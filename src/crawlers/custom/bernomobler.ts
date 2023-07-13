@@ -20,6 +20,7 @@ import {
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
 import { findCategoryTree } from "../../category-tree-mapping";
+import { PageNotFoundError } from "../../types/errors";
 
 export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
@@ -46,6 +47,10 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    if ((await page.locator("header.section-header--404").count()) > 0) {
+      throw new PageNotFoundError("Page not found");
+    }
+
     const productNameSelector =
       "div.product-grid__content .product-single__title";
     await page.waitForSelector(productNameSelector);
