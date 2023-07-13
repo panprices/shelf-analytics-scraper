@@ -13,6 +13,7 @@ import {
   OfferMetadata,
   Specification,
 } from "../../types/offer";
+import { PageNotFoundError } from "../../types/errors";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   async prepareHeadlessScreen(ctx: PlaywrightCrawlingContext) {
@@ -36,27 +37,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       "div#modal button"
     );
     await super.crawlDetailPageWithVariantsLogic(ctx);
-  }
-
-  // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma solution
-  // where you set the variant = 0, 1, 2, ..., and the variant 0 will have
-  // its url changed to the variantGroupUrl.
-  override async crawlSingleDetailPage(
-    ctx: PlaywrightCrawlingContext,
-    variantGroupUrl: string,
-    variant: number
-  ): Promise<void> {
-    const productDetails = await this.extractProductDetails(ctx.page);
-    const request = ctx.request;
-
-    await this._detailsDataset.pushData(<DetailedProductInfo>{
-      fetchedAt: new Date().toISOString(),
-      retailerDomain: extractDomainFromUrl(ctx.page.url()),
-      ...request.userData,
-      ...productDetails,
-      variantGroupUrl: variantGroupUrl,
-      variant: variant,
-    });
   }
 
   override async selectOptionForParamIndex(
@@ -218,6 +198,10 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    if (!isProductPage(page.url())) {
+      throw new PageNotFoundError("Page not found");
+    }
+
     log.info(`Looking at product with url ${page.url()}`);
     const productNamePart1 = await this.extractProperty(
       page,
@@ -394,6 +378,14 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     );
   }
 }
+
+const isProductPage = (url: string): boolean => {
+  const match = url.match(/p-\d+/);
+  if (!match) {
+    return false;
+  }
+  return true;
+};
 
 /* Remove auto formatter as query parameters */
 const cleanImageUrl = (imgUrl: string): string => {
