@@ -142,7 +142,15 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     /* logging failed, do nothing */
   }
 
-  await persistProductsToDatabase(products, body.jobContext.jobId);
+  try {
+    await persistProductsToDatabase(products, body.jobContext.jobId);
+  } catch (error) {
+    // error should be logged already, thus do nothing here
+  } finally {
+    log.info("Published products to BigQuery", {
+      nrProducts: products.length,
+    });
+  }
 
   const matchingProducts = products.filter((p) => p.matchingType === "match");
   if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {

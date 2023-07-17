@@ -8,7 +8,6 @@ import {
   RequestBatch,
 } from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
-import { InsertRowsResponse } from "@google-cloud/bigquery/build/src/table";
 
 export async function sendRequestBatch(
   detailedPages: RequestOptions[],
@@ -55,24 +54,19 @@ export async function persistProductsToDatabase(
   }
 
   // Add jobId to each product
-
-  const bigquery = new BigQuery();
   const itemsToPersist = products.map((item) => {
     return { ...item, jobId: jobId };
   });
 
   const preprocessedItems = prepareForBigQuery(itemsToPersist);
-  await bigquery
+  await new BigQuery()
     .dataset("b2b_brand_product_index")
     .table("retailer_listings")
     .insert(preprocessedItems)
-    .catch((reason) => {
-      log.error(`BigQuery insertion error`, { reason: reason });
+    .catch((error) => {
+      log.error(`BigQuery insertion error`, { error: error });
+      throw error;
     });
-
-  log.info("Published products to BigQuery", {
-    nrProducts: products.length,
-  });
 }
 
 /**
@@ -85,21 +79,19 @@ export async function persistProductsToDatabase(
  * @param items
  */
 export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
-  const reduceToSimpleTypes = (e: any) => {
-    // null is an object, so we need to check for it first
-    if (e === null || e === undefined) {
+  const reduceToSimpleTypes = (value: any) => {
+    // null is an object, so we need to check for it first. Else it will be stringified.
+    if (value === null || value === undefined) {
       return undefined;
     }
 
-    const currentType = typeof e;
-
-    switch (currentType) {
+    switch (typeof value) {
       case "boolean":
       case "number":
       case "string":
-        return e;
+        return value;
       case "object":
-        return JSON.stringify(e);
+        return JSON.stringify(value);
       default:
         return undefined;
     }
@@ -121,18 +113,25 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
   const stringifiedSnakeCased = items.map((i) => {
     const transformed = {};
     for (let key in i) {
+      // Ignore undefined properties. Important so that we don't try to insert
+      // the value "undefined" to columns of type "REPEATED" on BigQuery.
+      if (i[key] === undefined) {
+        continue;
+      }
+
       if (Array.isArray(i[key])) {
         transformed[convertToSnakeCase(key)] = Array.from(i[key]).map(
           reduceToSimpleTypes
         );
-
         continue;
       }
+
       transformed[convertToSnakeCase(key)] = reduceToSimpleTypes(i[key]);
     }
 
     return transformed;
   });
+
   const bigqueryFields = [
     "name",
     "fetched_at",
