@@ -62,7 +62,9 @@ export async function persistProductsToDatabase(
   await new BigQuery()
     .dataset("b2b_brand_product_index")
     .table("retailer_listings")
-    .insert(preprocessedItems)
+    .insert(preprocessedItems, {
+      ignoreUnknownValues: true,
+    })
     .catch((error) => {
       log.error(`BigQuery insertion error`, { error: error });
       throw error;
@@ -79,43 +81,16 @@ export async function persistProductsToDatabase(
  * @param items
  */
 export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
-  const reduceToSimpleTypes = (value: any) => {
-    // null is an object, so we need to check for it first. Else it will be stringified.
-    if (value === null || value === undefined) {
-      return undefined;
-    }
-
-    switch (typeof value) {
-      case "boolean":
-      case "number":
-      case "string":
-        return value;
-      case "object":
-        return JSON.stringify(value);
-      default:
-        return undefined;
-    }
-  };
-
-  const convertToSnakeCase = (key: string) => {
-    const wordBreaks = key.match(/[A-Z]/g);
-    if (!wordBreaks) {
-      return key;
-    }
-
-    for (let capitalLetter of wordBreaks) {
-      key = key.replace(capitalLetter, `_${capitalLetter.toLocaleLowerCase()}`);
-    }
-
-    return key;
-  };
-
   const stringifiedSnakeCased = items.map((i) => {
     const transformed = {};
     for (let key in i) {
-      // Ignore undefined properties. Important so that we don't try to insert
-      // the value "undefined" to columns of type "REPEATED" on BigQuery.
-      if (i[key] === undefined) {
+      // Ignore null/undefined properties.
+      // Important so that we don't try to insert the value "undefined" or "null"
+      // to columns of type "REPEATED" on BigQuery.
+      // This works since in case the column is NULLABLE and we do not explicitly input "null",
+      // BigQuery will auto put NULL there. So there's no different between
+      // explicitly passing null and omit the field.
+      if (i[key] === undefined || i[key] === null) {
         continue;
       }
 
@@ -132,41 +107,36 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
     return transformed;
   });
 
-  const bigqueryFields = [
-    "name",
-    "fetched_at",
-    "retailer_domain",
-    "url",
-    "brand",
-    "description",
-    "popularity_index",
-    "popularity_category",
-    "category_tree",
-    "images",
-    "is_discounted",
-    "original_price",
-    "price",
-    "currency",
-    "gtin",
-    "sku",
-    "mpn",
-    "specifications",
-    "availability",
-    "reviews",
-    "variant_group_url",
-    "metadata",
-    "job_id",
-  ];
+  return stringifiedSnakeCased;
+}
 
-  return stringifiedSnakeCased.map((product) => {
-    const filteredProduct = {};
-    for (let f of bigqueryFields) {
-      if (f in product) {
-        filteredProduct[f] = product[f];
-      }
-    }
-    return filteredProduct;
-  });
+function reduceToSimpleTypes(value: any): any {
+  // null is an object, so we need to check for it first. Else it will be stringified.
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
+  switch (typeof value) {
+    case "boolean":
+    case "number":
+    case "string":
+      return value;
+    case "object":
+      return JSON.stringify(value);
+    default:
+      return undefined;
+  }
+}
+
+function convertToSnakeCase(key: string) {
+  const wordBreaks = key.match(/[A-Z]/g);
+  if (!wordBreaks) {
+    return key;
+  }
+  for (let capitalLetter of wordBreaks) {
+    key = key.replace(capitalLetter, `_${capitalLetter.toLocaleLowerCase()}`);
+  }
+  return key;
 }
 
 export async function updateProductsPopularity(
