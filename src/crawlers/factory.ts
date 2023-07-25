@@ -157,18 +157,28 @@ export class CrawlerFactory {
         } else {
           options = {
             ...defaultOptions,
-            maxConcurrency: 2, // homeroom is laggy when opening many pages at once
+            maxConcurrency: 2, // homeroom/ellos is laggy when opening many pages at once
             requestHandler: definition.router,
           };
         }
         return [new PlaywrightCrawler(options), definition];
       case "ellos.se":
         definition = await EllosCrawlerDefinition.create(launchOptions);
-        options = {
-          ...defaultOptions,
-          requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.DE,
-        };
+        if (args.type === "categoryExploration") {
+          options = {
+            ...defaultOptions,
+            // maxConcurrency: 5, unlike homeroom, ellos doesn't support category scraping with multiple tabs
+            requestHandler: definition.router,
+            proxyConfiguration: proxyConfiguration.DE,
+          };
+        } else {
+          options = {
+            ...defaultOptions,
+            maxConcurrency: 2, // homeroom/ellos is laggy when opening many pages at once
+            requestHandler: definition.router,
+            proxyConfiguration: proxyConfiguration.DE,
+          };
+        }
         return [new PlaywrightCrawler(options), definition];
       case "venturedesign.se":
         definition = await VentureDesignCrawlerDefinition.create(launchOptions);
@@ -242,7 +252,7 @@ export class CrawlerFactory {
           ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -254,7 +264,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -266,7 +276,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
