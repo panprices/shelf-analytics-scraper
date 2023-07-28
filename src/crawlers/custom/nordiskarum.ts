@@ -111,7 +111,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       await page
         .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
         .first()
-        .waitFor({ state: "attached", timeout: 10000 });
+        .waitFor({ state: "attached", timeout: 30000 });
     } catch (e) {
       log.warning("Cannot find product images", { url: page.url() });
     }
