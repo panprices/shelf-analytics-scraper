@@ -20,6 +20,7 @@ import { json } from "body-parser";
 import jsdom from "jsdom";
 import fs from "fs";
 import { getVariantUrlsFromSchemaOrg } from "./base-chill";
+import { PageNotFoundError } from "../../types/errors";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   protected override categoryPageSize: number = 36;
@@ -83,6 +84,9 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     await super.crawlDetailPage(ctx);
 
     if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
+    if (!isProductPage(ctx.page.url())) {
       return;
     }
 
@@ -159,6 +163,10 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    if (!isProductPage(page.url())) {
+      throw new PageNotFoundError("Page not found");
+    }
+
     await page.waitForSelector("h1[data-cy='product_title']");
     await this.handleCookieConsent(page);
 
@@ -423,4 +431,12 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       launchOptions,
     });
   }
+}
+
+function isProductPage(url: string): boolean {
+  const match = url.match(/p\d+/);
+  if (!match) {
+    return false;
+  }
+  return true;
 }
