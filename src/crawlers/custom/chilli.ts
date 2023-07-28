@@ -19,6 +19,7 @@ import {
   extractCardProductInfo as baseExtractCardProductInfo,
   extractProductDetails as baseExtractProductDetails,
   getVariantUrlsFromSchemaOrg,
+  isProductPage,
 } from "./base-chill";
 
 export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
@@ -37,6 +38,9 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     await super.crawlDetailPage(ctx);
 
     if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
+    if (!isProductPage(ctx.page.url())) {
       return;
     }
 

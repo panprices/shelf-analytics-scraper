@@ -14,12 +14,7 @@ import {
   ProductReviews,
 } from "../../types/offer";
 import { extractDomainFromUrl } from "../../utils";
-import { v4 as uuidv4, v4 } from "uuid";
-import { json } from "body-parser";
-
-import jsdom from "jsdom";
-import fs from "fs";
-import { getVariantUrlsFromSchemaOrg } from "./base-chill";
+import { isProductPage, getVariantUrlsFromSchemaOrg } from "./base-chill";
 import { PageNotFoundError } from "../../types/errors";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
@@ -431,12 +426,4 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       launchOptions,
     });
   }
-}
-
-function isProductPage(url: string): boolean {
-  const match = url.match(/p\d+/);
-  if (!match) {
-    return false;
-  }
-  return true;
 }

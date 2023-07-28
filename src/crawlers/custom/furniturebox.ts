@@ -17,6 +17,7 @@ import {
   extractCardProductInfo as baseExtractCardProductInfo,
   extractProductDetails as baseExtractProductDetails,
   getVariantUrlsFromSchemaOrg,
+  isProductPage,
 } from "./base-chill";
 import { extractDomainFromUrl } from "../../utils";
 
@@ -34,6 +35,9 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
     await super.crawlDetailPage(ctx);
 
     if (this.launchOptions?.ignoreVariants) {
+      return;
+    }
+    if (!isProductPage(ctx.page.url())) {
       return;
     }
 

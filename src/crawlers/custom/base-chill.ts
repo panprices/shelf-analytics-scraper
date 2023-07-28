@@ -17,6 +17,7 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
 } from "../abstract";
+import { PageNotFoundError } from "../../types/errors";
 
 export async function createCrawlerDefinitionOption(): Promise<CrawlerDefinitionOptions> {
   const [detailsDataset, listingDataset] =
@@ -73,6 +74,10 @@ export async function extractProductDetails(
   crawlerDefinition: AbstractCrawlerDefinition,
   page: Page
 ) {
+  if (!isProductPage(page.url())) {
+    throw new PageNotFoundError("Page not found");
+  }
+
   try {
     await page.waitForSelector("h1[data-cy='product_title']", {
       timeout: 15000,
@@ -257,6 +262,14 @@ export async function extractImagesFromProductPage(
     );
 
   return images;
+}
+
+export function isProductPage(url: string): boolean {
+  const match = url.match(/p\d+/);
+  if (!match) {
+    return false;
+  }
+  return true;
 }
 
 export async function getVariantUrlsFromSchemaOrg(
