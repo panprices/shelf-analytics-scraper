@@ -29,3 +29,20 @@ Add the following `overrides` option to the crawler:
           launcher:
         },
 ```
+
+# Kubernetes
+
+## Installation
+
+Most of the operations on kubernetes can be performed through CLI using the following client: 
+
+```commandline
+gcloud components install kubectl
+```
+
+## Update the pod configuration
+
+To update the pod configuration run the following command:
+```commandline
+kubectl apply -f test-crawlee-4x.yaml
+```
