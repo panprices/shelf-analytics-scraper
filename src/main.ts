@@ -145,7 +145,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );{
 await debugScrapeDetails(
-  "https://www.venturedesign.se/products/silar-matbord-120-160x80-polar-matstolar-gra-gr19804"
+  "https://www.nordiskarum.se/trondheim-x-josefin-lustig-ullmatta-400x400cm-beige/white-51074-320.html"
 );
 // await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
 

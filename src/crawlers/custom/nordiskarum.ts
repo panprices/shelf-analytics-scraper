@@ -247,7 +247,11 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     const price = parseInt(
-      priceText.toLowerCase().replace("kr", "").replace(/\s/g, "")
+      priceText
+        .toLowerCase()
+        .replace("kr", "")
+        .replace(/\s/g, "")
+        .replace(",", "")
     );
     return price;
   }
