@@ -828,7 +828,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       );
     } catch (e) {
       log.warning("Failed to get options for param index: " + parameterIndex);
-      log.info("Trying to recover by navigation to group url");
+      log.debug("Trying to recover by navigation to group url");
 
       await this.recoverState(ctx, currentOption, variantGroupUrl);
       try {
@@ -884,7 +884,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       try {
         await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
       } catch (e) {
-        log.info(
+        log.debug(
           `Option ${optionIndex} for parameter ${parameterIndex} is not available`,
           { error: e }
         );
@@ -952,7 +952,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     currentState: any,
     timeout: number = 1000 // ms
   ): Promise<any> {
-    log.info("Wait for state to change, current state: ", currentState);
+    log.debug("Wait for state to change, current state: ", currentState);
     const startTime = Date.now();
 
     let newState = {};
