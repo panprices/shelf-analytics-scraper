@@ -29,11 +29,12 @@ app.get("/", (_: any, res: Response) => {
 });
 
 app.post("/exploreCategory", async (req: Request, res: Response) => {
-  const body = <RequestCategoryExploration>req.body;
+  log.info("/exploreCategory", req.body);
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
 
+  const body = <RequestCategoryExploration>req.body;
   const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
   try {
     log.info(`Category explored`, {
@@ -61,11 +62,12 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
 });
 
 app.post("/search", async (req: Request, res: Response) => {
-  const body = <RequestSearch>req.body;
+  log.info("/search", req.body);
 
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
 
+  const body = <RequestSearch>req.body;
   const products = await searchForProducts(body.query, body.retailer);
   try {
     log.debug(JSON.stringify(products, null, 2));
@@ -90,31 +92,13 @@ app.post("/search", async (req: Request, res: Response) => {
 });
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
+  log.info("/scrapeDetails", req.body);
+
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
 
-  log.info("/scrapeDetails");
-
   const body = <RequestBatch>req.body;
   const useCheerio = body.jobContext.scraperProductPage === "cheerio";
-  log.info("Request", body);
-
-  // let [shouldUploadCache, cacheSize] = [false, 0];
-  // if (
-  //   retailer_url.includes("trademax.se") ||
-  //   retailer_url.includes("chilli.se") ||
-  //   retailer_url.includes("furniturebox.se")
-  // ) {
-  //   [shouldUploadCache, cacheSize] = await downloadCache(
-  //     body.jobContext,
-  //     DETAILS_CACHE_MARKER_FILE
-  //   );
-  // }
-
-  // log.info("Check for browser cache", {
-  //   cacheFound: shouldUploadCache,
-  //   cacheSize,
-  // });
 
   const products = await scrapeDetails(
     body.productDetails,
@@ -123,17 +107,32 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     body.launchOptions
   );
 
+  // Logging some details to help with debugging issues on production:
   try {
     log.debug(JSON.stringify(products, null, 2));
-    const retailerDomains = new Set(products.map((p) => p.retailerDomain));
+
+    const retailerDomains = new Set(
+      body.productDetails.map((p) => extractDomainFromUrl(p.url))
+    );
     for (const domain of retailerDomains) {
+      const requestUrls = body.productDetails
+        .filter((p) => extractDomainFromUrl(p.url) === domain)
+        .map((p) => p.url);
+      const productsFound = products.filter(
+        (p) => extractDomainFromUrl(p.url) === domain
+      );
+      const urlsFound = [
+        ...productsFound.map((p) => p.url),
+        ...productsFound.map((p) => p.variantGroupUrl),
+      ];
+      const urlsNotFound = requestUrls.filter(
+        (url) => !urlsFound.includes(url)
+      );
       log.info("Product details scraped", {
-        nrUrls: body.productDetails.filter(
-          (p) => extractDomainFromUrl(p.url) === domain
-        ).length,
-        nrProductsFound: products.filter(
-          (p) => extractDomainFromUrl(p.url) === domain
-        ).length,
+        nrUrls: requestUrls.length,
+        nrProductsFound: productsFound.length,
+        nrProductsNotFound: urlsNotFound.length,
+        urlsNotFound,
         retailer: domain,
         jobId: req.body.jobContext.jobId,
       });
@@ -156,9 +155,6 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {
     await publishMatchingProducts(matchingProducts, body.jobContext);
   }
-  // if (shouldUploadCache && cacheSize < 10e6 /* 10MB */) {
-  //   await uploadCache(body.jobContext, CATEGORY_CACHE_MARKER_FILE);
-  // }
 
   track_and_log_number_of_requests_handled();
   res.status(200).send({
