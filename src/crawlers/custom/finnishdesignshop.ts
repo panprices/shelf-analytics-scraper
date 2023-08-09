@@ -25,12 +25,12 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
   private async waitForSinglePrice(page: Page) {
     const priceLocatorString = "form span#price span.price-localized";
-    const maxWaitLoops = 5;
+    const maxWaitLoops = 3;
     let currentWaitLoop = 0;
     while (true) {
       try {
         await page.waitForSelector(priceLocatorString, {
-          timeout: 500,
+          timeout: 2000,
         });
         const priceLocator = page.locator(priceLocatorString);
         const priceCount = await priceLocator.count();
@@ -45,7 +45,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
         log.info(`Waiting for single price, found ${priceCount} prices`);
       } catch (e) {
-        log.info("Waiting for price threw an error");
+        log.debug("Waiting for price threw an error");
       }
       // Add a small delay
       await new Promise((resolve) => setTimeout(resolve, 300));
