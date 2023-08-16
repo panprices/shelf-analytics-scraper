@@ -1,4 +1,27 @@
 import { log, LoggerJson, LogLevel } from "crawlee";
+import { AsyncLocalStorage } from "async_hooks";
+import { v4 as uuidv4 } from "uuid";
+
+export const localContext = new AsyncLocalStorage();
+
+/**
+ * Add a log trace value to a local context.
+ * Then the trace can be attached to all log lines to help debugging on production.
+ */
+export const loggingMiddleware = (req, res, next) => {
+  const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
+  const cloudTrace = req.get("X-Cloud-Trace-Context");
+
+  let trace;
+  if (cloudTrace && project) {
+    const [traceId] = cloudTrace.split("/");
+    trace = `projects/${project}/traces/${traceId}`;
+  } else {
+    trace = uuidv4();
+  }
+
+  return localContext.run({ trace }, next);
+};
 
 export class CrawleeLoggerForGCP extends LoggerJson {
   override _log(
@@ -8,11 +31,14 @@ export class CrawleeLoggerForGCP extends LoggerJson {
     exception?: any,
     opts?: Record<string, any>
   ): string {
+    const additionalLogData = localContext.getStore() || {};
+
     return super._log(
       level,
       message,
       {
         ...data,
+        ...additionalLogData,
         level: undefined, // use severity instead
         severity: LogLevel[level],
       },
@@ -42,15 +68,15 @@ export function configCrawleeLogger(cloudTrace?: string) {
         logger: new CrawleeLoggerForGCP(),
         level: LogLevel.INFO,
       });
-      const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
-      if (cloudTrace && project) {
-        const [trace] = cloudTrace.split("/");
-        log.setOptions({
-          data: {
-            "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
-          },
-        });
-      }
+    // const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
+    // if (cloudTrace && project) {
+    //   const [trace] = cloudTrace.split("/");
+    //   log.setOptions({
+    //     data: {
+    //       "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
+    //     },
+    //   });
+    // }
   }
 }
 /**

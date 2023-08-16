@@ -15,13 +15,19 @@ import {
   updateProductsPopularity,
   sendRequestBatch,
 } from "./publishing";
-import { configCrawleeLogger, extractDomainFromUrl } from "./utils";
+import {
+  configCrawleeLogger,
+  extractDomainFromUrl,
+  loggingMiddleware,
+} from "./utils";
 import { CHROMIUM_USER_DATA_DIR, CRAWLEE_STORAGE_DIR } from "./constants";
 import fastFolderSize from "fast-folder-size";
 
 dotenv.config();
+
 const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
+app.use(loggingMiddleware);
 
 app.get("/", (_: any, res: Response) => {
   res.send(`Hello World!`);
