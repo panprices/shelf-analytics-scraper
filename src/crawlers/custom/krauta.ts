@@ -63,12 +63,12 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       "a.product-heading__brand-name",
       (node) => node.textContent()
     ).then((text) => text?.trim());
-    if (!brand) throw new Error("Cannot extract brand");
 
     const productName = await this.extractProperty(
       page,
       "h1.product-heading__product-name",
-      (node) => node.textContent()
+      (node) => node.textContent(),
+      false
     ).then((text) => text?.trim());
     if (!productName) throw new Error("Cannot extract productName");
 
@@ -168,35 +168,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       categories.push(category);
     }
 
-    const reviewCount = await this.extractProperty(
-      page,
-      "div.testfreaks-reviews .tf-based span",
-      (node) => node.first().textContent()
-    ).then((reviewCountText) => {
-      if (!reviewCountText) {
-        return 0;
-      }
-      return extractNumberFromText(reviewCountText);
-    });
-
-    const extractReviews = async () => {
-      const averageReview = await this.extractProperty(
-        page,
-        "div.testfreaks-reviews .tf-rating",
-        (node) => node.textContent()
-      ).then((ratingString) => {
-        if (!ratingString) throw new Error("Cannot extract average reviews");
-        return parseFloat(ratingString);
-      });
-
-      const reviews: ProductReviews = {
-        reviewCount,
-        averageReview,
-        recentReviews: [],
-      };
-      return reviews;
-    };
-    const reviews = reviewCount > 0 ? await extractReviews() : "unavailable";
+    const reviews = await this.extractReviewsFromProductPage(page);
 
     return {
       url: page.url(),
@@ -219,21 +191,42 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
-  static async create(
-    launchOptions?: CrawlerLaunchOptions
-  ): Promise<KrautaCrawlerDefinition> {
-    const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
-
-    return new KrautaCrawlerDefinition({
-      detailsDataset,
-      listingDataset,
-      listingUrlSelector: "a[rel='next']",
-      detailsUrlSelector: "article.product-list__card a.product-card",
-      productCardSelector: "article.product-list__card",
-      dynamicProductCardLoading: false,
-      launchOptions,
+  async extractReviewsFromProductPage(
+    page: Page
+  ): Promise<ProductReviews | undefined> {
+    const reviewCount = await this.extractProperty(
+      page,
+      "div.testfreaks-reviews .tf-based span",
+      (node) => node.first().textContent()
+    ).then((reviewCountText) => {
+      if (!reviewCountText) {
+        return 0;
+      }
+      return extractNumberFromText(reviewCountText);
     });
+
+    const extractReviews = async () => {
+      const averageReview = await this.extractProperty(
+        page,
+        "div.testfreaks-reviews .tf-rating",
+        (node) => node.textContent()
+      ).then((ratingString) => {
+        if (!ratingString) {
+          throw new Error("Cannot extract average reviews");
+        }
+        return parseFloat(ratingString);
+      });
+
+      const reviews: ProductReviews = {
+        reviewCount,
+        averageReview,
+        recentReviews: [],
+      };
+      return reviews;
+    };
+    const reviews = reviewCount > 0 ? await extractReviews() : undefined;
+
+    return reviews;
   }
 
   async extractPreviewImageOfProductCard(
@@ -258,6 +251,23 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().getAttribute("src")
     );
     return previewImageUrl;
+  }
+
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<KrautaCrawlerDefinition> {
+    const [detailsDataset, listingDataset] =
+      await AbstractCrawlerDefinition.openDatasets();
+
+    return new KrautaCrawlerDefinition({
+      detailsDataset,
+      listingDataset,
+      listingUrlSelector: "a[rel='next']",
+      detailsUrlSelector: "article.product-list__card a.product-card",
+      productCardSelector: "article.product-list__card",
+      dynamicProductCardLoading: false,
+      launchOptions,
+    });
   }
 }
 
