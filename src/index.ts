@@ -24,15 +24,14 @@ const app = express();
 app.use(bodyParser.json({ limit: "50mb" }));
 
 app.get("/", (_: any, res: Response) => {
-  const name = process.env.NAME || "World";
-  res.send(`Hello ${name}!`);
+  res.send(`Hello World!`);
 });
 
 app.post("/exploreCategory", async (req: Request, res: Response) => {
-  log.info("/exploreCategory", req.body);
-
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
+
+  log.info("/exploreCategory", req.body);
 
   const body = <RequestCategoryExploration>req.body;
   const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
@@ -62,10 +61,10 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
 });
 
 app.post("/search", async (req: Request, res: Response) => {
-  log.info("/search", req.body);
-
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
+
+  log.info("/search", req.body);
 
   const body = <RequestSearch>req.body;
   const products = await searchForProducts(body.query, body.retailer);
@@ -92,10 +91,10 @@ app.post("/search", async (req: Request, res: Response) => {
 });
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
-  log.info("/scrapeDetails", req.body);
-
   const cloudTrace = req.get("X-Cloud-Trace-Context");
   configCrawleeLogger(cloudTrace);
+
+  log.info("/scrapeDetails", req.body);
 
   const body = <RequestBatch>req.body;
   const useCheerio = body.jobContext.scraperProductPage === "cheerio";
