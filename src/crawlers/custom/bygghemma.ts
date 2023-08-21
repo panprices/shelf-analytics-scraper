@@ -36,7 +36,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       ctx.page,
       "div#modal button"
     );
-    await super.crawlDetailPageWithVariantsLogic(ctx);
+    await super.crawlDetailPage(ctx);
   }
 
   override async selectOptionForParamIndex(

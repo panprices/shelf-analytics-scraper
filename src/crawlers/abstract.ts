@@ -159,11 +159,9 @@ export abstract class AbstractCrawlerDefinition
   }
 
   /**
-   * Get details about an individual product by looking at the product page
+   * Get details about an individual product by looking at the product page.
    *
    * This method also saves to a crawlee `Dataset`. In the future it has to save to an external storage like firestore
-   *
-   * @param ctx
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     log.info(`Looking at product with url ${ctx.page.url()}`);
@@ -178,47 +176,8 @@ export abstract class AbstractCrawlerDefinition
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });
     } catch (e) {
-      this.handleCrawlDetailPageError(e, ctx);
+      handleCrawlDetailPageError(e, ctx);
     }
-  }
-
-  handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext): void {
-    // Known errors: just log and continue
-    if (
-      error instanceof IllFormattedPageError ||
-      error instanceof PageNotFoundError
-    ) {
-      log.info(`Known error encountered`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-      return;
-    }
-
-    // Known but severe errors: log AND throw it
-    if (error instanceof CaptchaEncounteredError) {
-      log.error(`Captcha encountered`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-      throw error;
-    }
-    if (error instanceof GotBlockedError) {
-      log.error(`Got blocked`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-      throw error;
-    }
-
-    // Unknown error, throw it
-    throw error;
   }
 
   /**
@@ -726,15 +685,15 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       const request = ctx.request;
 
       await this._detailsDataset.pushData(<DetailedProductInfo>{
-        fetchedAt: new Date().toISOString(),
-        retailerDomain: extractDomainFromUrl(ctx.page.url()),
         ...request.userData,
         ...productDetails,
+        fetchedAt: new Date().toISOString(),
+        retailerDomain: extractDomainFromUrl(ctx.page.url()),
         variantGroupUrl: variantGroupUrl,
         variant: variant,
       });
     } catch (e) {
-      this.handleCrawlDetailPageError(e, ctx);
+      handleCrawlDetailPageError(e, ctx);
     }
   }
 
@@ -1041,4 +1000,46 @@ export abstract class AbstractCheerioCrawlerDefinition
   get router(): RouterHandler<CheerioCrawlingContext> {
     return this._router;
   }
+}
+
+function handleCrawlDetailPageError(
+  error: any,
+  ctx: PlaywrightCrawlingContext
+): void {
+  // Known errors: just log and continue
+  if (
+    error instanceof IllFormattedPageError ||
+    error instanceof PageNotFoundError
+  ) {
+    log.info(`Known error encountered`, {
+      url: ctx.page.url(),
+      requestUrl: ctx.request.url,
+      errorType: error.name,
+      errorMessage: error.message,
+    });
+    return;
+  }
+
+  // Known but severe errors: log AND throw it
+  if (error instanceof CaptchaEncounteredError) {
+    log.error(`Captcha encountered`, {
+      url: ctx.page.url(),
+      requestUrl: ctx.request.url,
+      errorType: error.name,
+      errorMessage: error.message,
+    });
+    throw error;
+  }
+  if (error instanceof GotBlockedError) {
+    log.error(`Got blocked`, {
+      url: ctx.page.url(),
+      requestUrl: ctx.request.url,
+      errorType: error.name,
+      errorMessage: error.message,
+    });
+    throw error;
+  }
+
+  // Unknown error, throw it
+  throw error;
 }

@@ -78,6 +78,7 @@ export class CrawlerFactory {
           args.customQueueSettings
         )
       : await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4());
+
     const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
       browserPoolOptions: {
@@ -401,26 +402,89 @@ export class CrawlerFactory {
   }
 }
 
-const proxyConfiguration = {
+export const proxyConfiguration = {
+  // Using Oxylabs proxy rotator.
+  // This means that each individual request will be done by a different IP.
   DE: new ProxyConfiguration({
     proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60003"],
   }),
   SE: new ProxyConfiguration({
     proxyUrls: ["http://panprices:BB4NC4WQmx@panprices.oxylabs.io:60002"],
   }),
-  SHARED_DATACENTER_GLOBAL: new ProxyConfiguration({
-    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.pr.oxylabs.io:10000"],
+
+  // Using Crawlee's default proxy rotator.
+  // This mean that each request in a session will keep the same IP.
+  // We don't use it right now since Toan think it's easier to be noticed
+  // and blocked this way.
+  SE_CRAWLEE_IP_ROTATE: new ProxyConfiguration({
+    proxyUrls: [
+      "103.69.158.128",
+      "103.69.158.130",
+      "103.69.158.131",
+      "103.69.158.132",
+      "103.69.158.133",
+      "103.69.158.135",
+      "103.69.158.136",
+      "103.69.158.137",
+      "103.69.158.141",
+      "103.69.158.143",
+      "103.69.158.145",
+      "103.69.158.146",
+      "103.69.158.147",
+      "103.69.158.148",
+      "103.69.158.150",
+      "103.69.158.151",
+      "103.69.158.152",
+      "103.69.158.156",
+      "103.69.158.158",
+      "103.69.158.160",
+      "103.69.158.161",
+      "103.69.158.162",
+      "103.69.158.163",
+      "103.69.158.165",
+      "103.69.158.166",
+      "103.69.158.167",
+      "103.69.158.168",
+      "103.69.158.171",
+      "103.69.158.173",
+      "103.69.158.175",
+      "103.69.158.176",
+      "103.69.158.177",
+      "103.69.158.178",
+      "103.69.158.180",
+      "103.69.158.181",
+      "103.69.158.182",
+      "103.69.158.183",
+      "103.69.158.186",
+      "103.69.158.188",
+      "103.69.158.190",
+      "103.69.158.192",
+      "103.69.158.195",
+      "103.69.158.196",
+      "103.69.158.197",
+      "103.69.158.198",
+      "103.69.158.200",
+      "103.69.158.201",
+      "103.69.158.203",
+      "103.69.158.205",
+      "103.69.158.207",
+    ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
   }),
-  SHARED_DATACENTER_DE: new ProxyConfiguration({
-    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.de-pr.oxylabs.io:40000"],
-  }),
-  SHARED_DATACENTER_FR: new ProxyConfiguration({
-    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.fr-pr.oxylabs.io:42000"],
-  }),
-  SHARED_DATACENTER_UK: new ProxyConfiguration({
-    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.gb-pr.oxylabs.io:46000"],
-  }),
-  SHARED_DATACENTER_NL: new ProxyConfiguration({
-    proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.nl-pr.oxylabs.io:44000"],
-  }),
+
+  // Deprecated. We don't use shared datacenter proxies anymore.
+  // SHARED_DATACENTER_GLOBAL: new ProxyConfiguration({
+  //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.pr.oxylabs.io:10000"],
+  // }),
+  // SHARED_DATACENTER_DE: new ProxyConfiguration({
+  //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.de-pr.oxylabs.io:40000"],
+  // }),
+  // SHARED_DATACENTER_FR: new ProxyConfiguration({
+  //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.fr-pr.oxylabs.io:42000"],
+  // }),
+  // SHARED_DATACENTER_UK: new ProxyConfiguration({
+  //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.gb-pr.oxylabs.io:46000"],
+  // }),
+  // SHARED_DATACENTER_NL: new ProxyConfiguration({
+  //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.nl-pr.oxylabs.io:44000"],
+  // }),
 };

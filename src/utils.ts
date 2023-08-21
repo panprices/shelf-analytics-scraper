@@ -1,26 +1,59 @@
 import { log, LoggerJson, LogLevel } from "crawlee";
+import { Request, Response, NextFunction } from "express";
 import { AsyncLocalStorage } from "async_hooks";
 import { v4 as uuidv4 } from "uuid";
+import { LocalContextStore } from "./types/utils";
 
-export const localContext = new AsyncLocalStorage();
+export const localContext = new AsyncLocalStorage<LocalContextStore>();
 
 /**
- * Add a log trace value to a local context.
- * Then the trace can be attached to all log lines to help debugging on production.
+ * Config logging for local dev and to debug on GCP.
  */
-export const loggingMiddleware = (req, res, next) => {
-  const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
-  const cloudTrace = req.get("X-Cloud-Trace-Context");
+export const loggingMiddleware = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  let contextStore: LocalContextStore = {};
 
-  let trace;
-  if (cloudTrace && project) {
-    const [traceId] = cloudTrace.split("/");
-    trace = `projects/${project}/traces/${traceId}`;
-  } else {
-    trace = uuidv4();
+  // Config logging
+  log.setOptions({
+    maxDepth: 10,
+  });
+  switch (process.env.PANPRICES_ENVIRONMENT) {
+    case "local":
+      log.setOptions({
+        level: LogLevel.DEBUG,
+      });
+
+      break;
+    case "sandbox":
+    case "production":
+    default:
+      log.setOptions({
+        logger: new CrawleeLoggerForGCP(),
+        level: LogLevel.INFO,
+      });
+
+      // Add a log trace value to a local context.
+      // Then the trace can be attached to all log lines.
+      const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
+      const cloudTrace =
+        req.get("X-Cloud-Trace-Context") ||
+        `projects/${project}/traces/${uuidv4()}`;
+      contextStore = {
+        logData: {
+          "logging.googleapis.com/trace": cloudTrace,
+        },
+      };
   }
 
-  return localContext.run({ trace }, next);
+  // Log request data for easier debug on GCP
+  log.info(req.path, {
+    payload: req.body,
+  });
+
+  localContext.run(contextStore, () => next());
 };
 
 export class CrawleeLoggerForGCP extends LoggerJson {
@@ -31,14 +64,16 @@ export class CrawleeLoggerForGCP extends LoggerJson {
     exception?: any,
     opts?: Record<string, any>
   ): string {
-    const additionalLogData = localContext.getStore() || {};
+    const additionalLogData = localContext.getStore()?.logData;
+    if (additionalLogData) {
+      data = { ...data, ...additionalLogData };
+    }
 
     return super._log(
       level,
       message,
       {
         ...data,
-        ...additionalLogData,
         level: undefined, // use severity instead
         severity: LogLevel[level],
       },
@@ -48,37 +83,6 @@ export class CrawleeLoggerForGCP extends LoggerJson {
   }
 }
 
-export function configCrawleeLogger(cloudTrace?: string) {
-  log.setOptions({
-    maxDepth: 10,
-  });
-
-  switch (process.env.PANPRICES_ENVIRONMENT) {
-    // Local dev setting:
-    case "local":
-      log.setOptions({
-        level: LogLevel.DEBUG,
-      });
-      break;
-
-    case "sandbox":
-    case "production":
-    default:
-      log.setOptions({
-        logger: new CrawleeLoggerForGCP(),
-        level: LogLevel.INFO,
-      });
-    // const project = process.env.GOOGLE_CLOUD_PROJECT || "panprices";
-    // if (cloudTrace && project) {
-    //   const [trace] = cloudTrace.split("/");
-    //   log.setOptions({
-    //     data: {
-    //       "logging.googleapis.com/trace": `projects/${project}/traces/${trace}`,
-    //     },
-    //   });
-    // }
-  }
-}
 /**
  * Extract domain from URL.
  *

@@ -15,11 +15,7 @@ import {
   updateProductsPopularity,
   sendRequestBatch,
 } from "./publishing";
-import {
-  configCrawleeLogger,
-  extractDomainFromUrl,
-  loggingMiddleware,
-} from "./utils";
+import { extractDomainFromUrl, loggingMiddleware } from "./utils";
 import { CHROMIUM_USER_DATA_DIR, CRAWLEE_STORAGE_DIR } from "./constants";
 import fastFolderSize from "fast-folder-size";
 
@@ -34,11 +30,6 @@ app.get("/", (_: any, res: Response) => {
 });
 
 app.post("/exploreCategory", async (req: Request, res: Response) => {
-  const cloudTrace = req.get("X-Cloud-Trace-Context");
-  configCrawleeLogger(cloudTrace);
-
-  log.info("/exploreCategory", req.body);
-
   const body = <RequestCategoryExploration>req.body;
   const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
   try {
@@ -67,11 +58,6 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
 });
 
 app.post("/search", async (req: Request, res: Response) => {
-  const cloudTrace = req.get("X-Cloud-Trace-Context");
-  configCrawleeLogger(cloudTrace);
-
-  log.info("/search", req.body);
-
   const body = <RequestSearch>req.body;
   const products = await searchForProducts(body.query, body.retailer);
   try {
@@ -97,11 +83,6 @@ app.post("/search", async (req: Request, res: Response) => {
 });
 
 app.post("/scrapeDetails", async (req: Request, res: Response) => {
-  const cloudTrace = req.get("X-Cloud-Trace-Context");
-  configCrawleeLogger(cloudTrace);
-
-  log.info("/scrapeDetails", req.body);
-
   const body = <RequestBatch>req.body;
   const useCheerio = body.jobContext.scraperProductPage === "cheerio";
 
