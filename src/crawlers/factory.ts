@@ -349,8 +349,9 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          maxConcurrency: 1, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
-          proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE_CRAWLEE_IP_ROTATE,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -414,8 +415,8 @@ export const proxyConfiguration = {
 
   // Using Crawlee's default proxy rotator.
   // This mean that each request in a session will keep the same IP.
-  // We don't use it right now since Toan think it's easier to be noticed
-  // and blocked this way.
+  // Useful for Wayfair since they will block us if 1 browser session
+  // is used with multiple IPs.
   SE_CRAWLEE_IP_ROTATE: new ProxyConfiguration({
     proxyUrls: [
       "103.69.158.128",
@@ -469,6 +470,12 @@ export const proxyConfiguration = {
       "103.69.158.205",
       "103.69.158.207",
     ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
+  }),
+
+  TEST_IP: new ProxyConfiguration({
+    proxyUrls: ["103.69.158.132"].map(
+      (ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`
+    ),
   }),
 
   // Deprecated. We don't use shared datacenter proxies anymore.

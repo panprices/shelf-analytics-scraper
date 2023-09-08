@@ -196,7 +196,7 @@ export async function extractProductDetails(
       recentReviews,
     };
   } catch (e) {
-    log.info(`Reviews not found for product with url: ${page.url()}`);
+    // log.info(`Reviews not found for product with url: ${page.url()}`);
     reviewSummary = "unavailable";
   }
 

@@ -1028,6 +1028,8 @@ function handleCrawlDetailPageError(
       errorType: error.name,
       errorMessage: error.message,
     });
+
+    ctx.session?.retire();
     throw error;
   }
   if (error instanceof GotBlockedError) {
@@ -1037,6 +1039,8 @@ function handleCrawlDetailPageError(
       errorType: error.name,
       errorMessage: error.message,
     });
+
+    ctx.session?.retire();
     throw error;
   }
 

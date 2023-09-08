@@ -14,14 +14,14 @@ export class PageNotFoundError extends NonRetryableError {
   }
 }
 
-export class CaptchaEncounteredError extends NonRetryableError {
+export class CaptchaEncounteredError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "CaptchaEncounteredError";
   }
 }
 
-export class GotBlockedError extends NonRetryableError {
+export class GotBlockedError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "GotBlockedError";

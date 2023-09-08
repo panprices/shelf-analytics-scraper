@@ -339,7 +339,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         recentReviews,
       };
     } catch (e) {
-      log.info(`Reviews not found for product with url: ${page.url()}`);
+      log.debug(`Reviews not found for product with url: ${page.url()}`);
       reviewSummary = "unavailable";
     }
 

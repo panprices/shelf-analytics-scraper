@@ -3,11 +3,13 @@ import {
   Availability,
   DetailedProductInfo,
   ProductReviews,
+  Specification,
 } from "../../types/offer";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
+  VariantCrawlingStrategy,
 } from "../abstract";
 import {
   convertCurrencySymbolToISO,
@@ -22,6 +24,8 @@ import {
 } from "../../types/errors";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
+  protected override variantCrawlingStrategy: VariantCrawlingStrategy =
+    "same_tab";
   /**
    * This retailer does not do category scraping
    */
@@ -34,7 +38,11 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     if (url.includes("https://www.wayfair.de/blocked.php")) {
       throw new GotBlockedError("Got blocked");
     }
-    if (url.includes("https://www.wayfair.de/v/captcha")) {
+    if (
+      url.includes("https://www.wayfair.de/v/captcha") ||
+      (await page.locator("iframe[title='reCAPTCHA']").count()) > 0
+    ) {
+      await page.waitForTimeout(50000);
       throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
@@ -73,7 +81,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     let originalPrice = undefined;
     const originalPriceText = await this.extractProperty(
       page,
-      "div[data-enzyme-id='PdpLayout-infoBlock'] .SFPrice s",
+      "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='PriceBlock'] s",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!originalPriceText) {
@@ -85,7 +93,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
 
     const onSaleText = await this.extractProperty(
       page,
-      "div[data-enzyme-id='PdpLayout-infoBlock'] .SFPrice span:first-child",
+      "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='PriceBlock'] span:first-child",
       (node) => node.last().textContent()
     );
     const isDiscounted =
@@ -121,10 +129,13 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
       })
       .then((url) => url.filter((url) => url !== null))) as string[];
 
-    const specifications = await this.extractSpecificationsFromTable(
-      page.locator("div.ProductOverviewItem  dl dt.kwjygg5_6101"),
-      page.locator("div.ProductOverviewItem  dl dd.kwjygg6_6101")
-    );
+    const specifications = [
+      ...(await this.extractVariantOptions(page)),
+      ...(await this.extractSpecificationsFromTable(
+        page.locator("div.ProductOverviewItem  dl dt.kwjygg5_6101"),
+        page.locator("div.ProductOverviewItem  dl dd.kwjygg6_6101")
+      )),
+    ];
 
     return {
       name,
@@ -181,12 +192,13 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
   }
 
   async extractPriceAndCurrency(page: Page): Promise<[number, string]> {
-    const priceAndCurrencyText = await this.extractProperty(
-      page,
-      "div[data-enzyme-id='PdpLayout-infoBlock'] .SFPrice span:first-child",
-      (node) => node.first().textContent(),
-      false
-    ).then((text) => text?.trim());
+    const priceAndCurrencyText = await page
+      .locator(
+        "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='PriceBlock'] span:first-child"
+      )
+      .first()
+      .textContent()
+      .then((text) => text?.trim());
     if (!priceAndCurrencyText) {
       throw new Error("Cannot extract price of product");
     }
@@ -196,6 +208,11 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
 
   /** Extract MPN from the a JS script tag */
   async extractMPN(page: Page): Promise<string | undefined> {
+    // UPDATE 2023-08-28: Temporarily return undefined since they changed the
+    // website.
+    // TODO: Update this to scrape MPN.
+    return undefined;
+
     let webpackData;
     try {
       webpackData = await this.extractWebpackEntryData(page);
@@ -253,6 +270,25 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     }
 
     return undefined;
+  }
+
+  async extractVariantOptions(page: Page): Promise<Specification[]> {
+    const options = await page
+      .locator(
+        "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='selected-option-name']"
+      )
+      .allTextContents()
+      .then((allTexts) => {
+        const options: Specification[] = allTexts.map((text) => {
+          return {
+            key: text.split(" ")[0],
+            value: text.split(" ")[1],
+          };
+        });
+        return options;
+      });
+
+    return options;
   }
 
   override async selectOptionForParamIndex(
