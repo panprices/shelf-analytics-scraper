@@ -1,4 +1,4 @@
-import { NonRetryableError } from "crawlee";
+import { NonRetryableError, RetryRequestError } from "crawlee";
 
 export class IllFormattedPageError extends NonRetryableError {
   constructor(message: string) {
@@ -14,7 +14,7 @@ export class PageNotFoundError extends NonRetryableError {
   }
 }
 
-export class CaptchaEncounteredError extends Error {
+export class CaptchaEncounteredError extends RetryRequestError {
   constructor(message: string) {
     super(message);
     this.name = "CaptchaEncounteredError";

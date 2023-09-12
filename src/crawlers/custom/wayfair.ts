@@ -196,7 +196,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
         "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='PriceBlock'] span:first-child"
       )
       .first()
-      .textContent()
+      .textContent({ timeout: 10000 })
       .then((text) => text?.trim());
     if (!priceAndCurrencyText) {
       throw new Error("Cannot extract price of product");

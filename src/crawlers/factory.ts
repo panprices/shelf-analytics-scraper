@@ -352,6 +352,7 @@ export class CrawlerFactory {
           maxConcurrency: 1, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
           proxyConfiguration: proxyConfiguration.SE_CRAWLEE_IP_ROTATE,
+          useSessionPool: true,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases

@@ -1030,7 +1030,7 @@ function handleCrawlDetailPageError(
     });
 
     ctx.session?.retire();
-    throw error;
+    return;
   }
   if (error instanceof GotBlockedError) {
     log.error(`Got blocked`, {
@@ -1040,7 +1040,6 @@ function handleCrawlDetailPageError(
       errorMessage: error.message,
     });
 
-    ctx.session?.retire();
     throw error;
   }
 
