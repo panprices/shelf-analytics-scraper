@@ -106,8 +106,20 @@ export class CrawlerFactory {
       ...overrides,
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),
-        async ({ page }) => {
-          page.setDefaultTimeout(20000);
+        async (ctx) => {
+          ctx.page.setDefaultTimeout(20000);
+          log.info("Proxy Info", { proxy: ctx.proxyInfo || null });
+        },
+      ],
+      postNavigationHooks: [
+        async (ctx) => {
+          log.info("Request finished", {
+            requestUrl: ctx.request.url,
+            url: ctx.page.url(),
+            responseStatusCode: ctx.response?.status() || null,
+            proxy: ctx.proxyInfo?.hostname || null,
+            sessionId: ctx.proxyInfo?.sessionId || null,
+          });
         },
       ],
     };
