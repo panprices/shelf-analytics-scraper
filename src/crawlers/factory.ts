@@ -19,6 +19,7 @@ import { TrademaxCrawlerDefinition } from "./custom/trademax";
 import {
   AbstractCheerioCrawlerDefinition,
   AbstractCrawlerDefinition,
+  CrawlerDefinition,
   CrawlerLaunchOptions,
 } from "./abstract";
 import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
@@ -84,7 +85,7 @@ export class CrawlerFactory {
       browserPoolOptions: {
         retireBrowserAfterPageCount: 20,
         preLaunchHooks: [
-          async (_) => {
+          async (_ctx) => {
             log.info("Launching new browser");
           },
         ],
@@ -106,7 +107,7 @@ export class CrawlerFactory {
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),
         async ({ page }) => {
-          page.setDefaultTimeout(30000);
+          page.setDefaultTimeout(20000);
         },
       ],
     };
@@ -144,7 +145,8 @@ export class CrawlerFactory {
       },
     ];
 
-    let definition, options;
+    let definition: AbstractCrawlerDefinition,
+      options: PlaywrightCrawlerOptions;
     switch (domain) {
       case "homeroom.se":
         definition = await HomeroomCrawlerDefinition.create(launchOptions);
@@ -351,8 +353,21 @@ export class CrawlerFactory {
           requestHandler: definition.router,
           maxConcurrency: 1, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
-          proxyConfiguration: proxyConfiguration.SE_CRAWLEE_IP_ROTATE,
+
+          // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool
           useSessionPool: true,
+          persistCookiesPerSession: true,
+          sessionPoolOptions: {
+            // Only need to rotate between 10 sessions. If one is blocked
+            // another will be created
+            maxPoolSize: 10,
+            sessionOptions: {
+              maxUsageCount: 10, // rotate IPs every 10 pages
+            },
+            persistStateKeyValueStoreId: "wayfair_session_pool",
+            // blockedStatusCodes: [], // only in dev mode - not blocking 429 so that we can see the captcha
+          },
+          proxyConfiguration: randomProxyConfiguration,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -472,11 +487,68 @@ export const proxyConfiguration = {
       "103.69.158.207",
     ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
   }),
+  DE_CRAWLEE_IP_ROTATE: new ProxyConfiguration({
+    proxyUrls: [
+      "185.228.18.101",
+      "185.228.18.103",
+      "185.228.18.114",
+      "185.228.18.116",
+      "185.228.18.118",
+      "185.228.18.131",
+      "185.228.18.133",
+      "185.228.18.135",
+      "185.228.18.146",
+      "185.228.18.148",
+      "185.228.18.150",
+      "185.228.18.163",
+      "185.228.18.165",
+      "185.228.18.167",
+      "185.228.18.178",
+      "185.228.18.18",
+      "185.228.18.180",
+      "185.228.18.182",
+      "185.228.18.195",
+      "185.228.18.197",
+      "185.228.18.199",
+      "185.228.18.20",
+      "185.228.18.210",
+      "185.228.18.212",
+      "185.228.18.214",
+      "185.228.18.22",
+      "185.228.18.227",
+      "185.228.18.229",
+      "185.228.18.231",
+      "185.228.18.24",
+      "185.228.18.242",
+      "185.228.18.244",
+      "185.228.18.246",
+      "185.228.18.248",
+      "185.228.18.3",
+      "185.228.18.35",
+      "185.228.18.37",
+      "185.228.18.39",
+      "185.228.18.5",
+      "185.228.18.50",
+      "185.228.18.52",
+      "185.228.18.54",
+      "185.228.18.67",
+      "185.228.18.69",
+      "185.228.18.7",
+      "185.228.18.71",
+      "185.228.18.82",
+      "185.228.18.84",
+      "185.228.18.86",
+      "185.228.18.99",
+    ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
+  }),
 
   TEST_IP: new ProxyConfiguration({
-    proxyUrls: ["103.69.158.132"].map(
-      (ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`
-    ),
+    proxyUrls: [
+      "185.228.18.3",
+      // "185.228.18.35",
+      // "185.228.18.37",
+      // "185.228.18.39",
+    ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
   }),
 
   // Deprecated. We don't use shared datacenter proxies anymore.
@@ -496,3 +568,79 @@ export const proxyConfiguration = {
   //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.nl-pr.oxylabs.io:44000"],
   // }),
 };
+
+// TODO Refactor this to make it more clean
+const proxyUrls = [
+  "185.228.18.101",
+  "185.228.18.103",
+  "185.228.18.114",
+  "185.228.18.116",
+  "185.228.18.118",
+  "185.228.18.131",
+  "185.228.18.133",
+  "185.228.18.135",
+  "185.228.18.146",
+  "185.228.18.148",
+  "185.228.18.150",
+  "185.228.18.163",
+  "185.228.18.165",
+  "185.228.18.167",
+  "185.228.18.178",
+  "185.228.18.18",
+  "185.228.18.180",
+  "185.228.18.182",
+  "185.228.18.195",
+  "185.228.18.197",
+  "185.228.18.199",
+  "185.228.18.20",
+  "185.228.18.210",
+  "185.228.18.212",
+  "185.228.18.214",
+  "185.228.18.22",
+  "185.228.18.227",
+  "185.228.18.229",
+  "185.228.18.231",
+  "185.228.18.24",
+  "185.228.18.242",
+  "185.228.18.244",
+  "185.228.18.246",
+  "185.228.18.248",
+  "185.228.18.3",
+  "185.228.18.35",
+  "185.228.18.37",
+  "185.228.18.39",
+  "185.228.18.5",
+  "185.228.18.50",
+  "185.228.18.52",
+  "185.228.18.54",
+  "185.228.18.67",
+  "185.228.18.69",
+  "185.228.18.7",
+  "185.228.18.71",
+  "185.228.18.82",
+  "185.228.18.84",
+  "185.228.18.86",
+  "185.228.18.99",
+].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`);
+
+const usedProxyUrls = new Map();
+const randomProxyConfiguration = new ProxyConfiguration({
+  // proxyUrls,
+  newUrlFunction: (sessionId) => {
+    // This is based on Crawlee implementation, but assign IPs randomly
+    // to sessions instead of the default of assigning sequencially
+    // (1st sessionID - 1st proxy, then 2nd session - 2nd IP, and so on.)
+    let customUrlToUse;
+    if (!sessionId) {
+      // Purely random
+      return proxyUrls[Math.floor(Math.random() * proxyUrls.length)];
+    }
+    if (usedProxyUrls.has(sessionId)) {
+      customUrlToUse = usedProxyUrls.get(sessionId);
+    } else {
+      customUrlToUse = proxyUrls[Math.floor(Math.random() * proxyUrls.length)];
+      usedProxyUrls.set(sessionId, customUrlToUse);
+    }
+    return customUrlToUse;
+  },
+});

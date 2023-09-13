@@ -42,6 +42,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
       url.includes("https://www.wayfair.de/v/captcha") ||
       (await page.locator("iframe[title='reCAPTCHA']").count()) > 0
     ) {
+      // await page.waitForTimeout(30000);
       throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {

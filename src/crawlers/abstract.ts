@@ -114,7 +114,6 @@ export abstract class AbstractCrawlerDefinition
 {
   protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
   protected readonly _detailsDataset: Dataset;
-  private readonly _listingDataset: Dataset;
 
   protected readonly listingUrlSelector?: string;
   protected readonly productCardSelector?: string;
@@ -132,21 +131,23 @@ export abstract class AbstractCrawlerDefinition
   private readonly productInfos: Map<string, ListingProductInfo>;
 
   protected constructor(options: CrawlerDefinitionOptions) {
-    this._router = createPlaywrightRouter();
     const crawlerDefinition = this;
-    this._router.addHandler("DETAIL", (_) =>
-      crawlerDefinition.crawlDetailPage(_)
+
+    this._router = createPlaywrightRouter();
+    this._router.addHandler("DETAIL", (_ctx) =>
+      crawlerDefinition.crawlDetailPage(_ctx)
     );
-    this._router.addHandler("LIST", (_) => crawlerDefinition.crawlListPage(_));
-    this._router.addHandler("SEARCH", (_) =>
-      crawlerDefinition.crawlSearchPage(_)
+    this._router.addHandler("LIST", (_ctx) =>
+      crawlerDefinition.crawlListPage(_ctx)
+    );
+    this._router.addHandler("SEARCH", (_ctx) =>
+      crawlerDefinition.crawlSearchPage(_ctx)
     );
     this._router.addHandler("INTERMEDIATE_CATEGORY", (_) =>
       crawlerDefinition.crawlIntermediateCategoryPage(_)
     );
 
     this._detailsDataset = options.detailsDataset;
-    this._listingDataset = options.listingDataset;
 
     this.listingUrlSelector = options.listingUrlSelector;
     this.productCardSelector = options.productCardSelector;
@@ -636,6 +637,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    log.debug("Proxy Info", { proxy: ctx.proxyInfo || null });
     await this.crawlDetailPageWithVariantsLogic(ctx);
   }
 
@@ -680,8 +682,9 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     variantGroupUrl: string,
     variant: number
   ): Promise<void> {
+    let productDetails = null;
     try {
-      const productDetails = await this.extractProductDetails(ctx.page);
+      productDetails = await this.extractProductDetails(ctx.page);
       const request = ctx.request;
 
       await this._detailsDataset.pushData(<DetailedProductInfo>{
@@ -694,6 +697,8 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       });
     } catch (e) {
       handleCrawlDetailPageError(e, ctx);
+    } finally {
+      logProductScrapingInfo(ctx, productDetails);
     }
   }
 
@@ -1045,4 +1050,22 @@ function handleCrawlDetailPageError(
 
   // Unknown error, throw it
   throw error;
+}
+
+/**
+ * Log a canonical line summarise the result of scraping a product page.
+ * See https://stripe.com/blog/canonical-log-lines for why it's good to have
+ *
+ * Note: might be better to bring this to the postNavigationHook of crawlee
+ */
+function logProductScrapingInfo(
+  ctx: PlaywrightCrawlingContext,
+  productDetails: DetailedProductInfo | null
+) {
+  log.info("Scrape product finished", {
+    requestUrl: ctx.request.url,
+    productUrl: productDetails?.url || null,
+    proxy: ctx.proxyInfo?.hostname || null,
+    sessionId: ctx.proxyInfo?.sessionId || null,
+  });
 }
