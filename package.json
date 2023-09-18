@@ -1,7 +1,6 @@
 {
   "name": "test-crawlee",
-  "version": "0.0.1",
-  "description": "This is an example of a Crawlee project.",
+  "version": "1.0.0",
   "type": "module",
   "dependencies": {
     "@crawlee/types": "^3.0.0",
@@ -13,7 +12,7 @@
     "@types/decompress": "^4.2.4",
     "adm-zip": "^0.5.10",
     "body-parser": "^1.20.0",
-    "crawlee": "^3.1.0",
+    "crawlee": "^3.1.1",
     "decompress": "^4.2.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.1",
@@ -22,8 +21,9 @@
     "moment": "^2.29.4",
     "node-fetch": "^3.2.10",
     "pino": "^8.4.2",
-    "playwright": "1.27.1",
+    "playwright": "1.36.2",
     "playwright-core": "*",
+    "puppeteer": "^19.11.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -51,7 +51,5 @@
     "docker": "npm run build && docker build -t test-crawlee . && docker run --rm -p 8080:8080 -e PORT=8080 test-crawlee",
     "script:create-scraper": "ts-node-esm script.ts",
     "script:check-proxy": "ts-node-esm --experimental-specifier-resolution=node -T scripts/check-proxy.ts"
-  },
-  "author": "It's not you it's me",
-  "license": "ISC"
+  }
 }
