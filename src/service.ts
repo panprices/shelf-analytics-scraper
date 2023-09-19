@@ -1,10 +1,16 @@
 import { CrawlerFactory } from "./crawlers/factory";
 import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
-import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
+import {
+  log,
+  PlaywrightCrawlerOptions,
+  PlaywrightCrawlingContext,
+  RequestOptions,
+} from "crawlee";
 import { extractDomainFromUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
 import { findCategoryTree } from "./category-tree-mapping";
+import { chromium } from "playwright-extra";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -331,7 +337,26 @@ export async function scrapeDetails(
             type: "scrapeDetails",
             useCustomQueue: false,
           },
-          overrides,
+          {
+            launchContext: {
+              launcher: chromium,
+              launchOptions: {
+                slowMo: 0,
+                args: [
+                  "--window-size=1400,900",
+                  "--remote-debugging-port=9222",
+                  "--remote-debugging-address=0.0.0.0", // You know what your doing?
+                  "--disable-gpu",
+                  "--disable-features=IsolateOrigins,site-per-process",
+                  "--blink-settings=imagesEnabled=true",
+                ],
+              },
+            },
+            browserPoolOptions: {
+              useFingerprints: false,
+            },
+            ...overrides,
+          },
           launchOptions
         );
     }

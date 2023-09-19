@@ -83,7 +83,7 @@ export class CrawlerFactory {
     const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
       browserPoolOptions: {
-        // retireBrowserAfterPageCount: 20,
+        retireBrowserAfterPageCount: 20,
         preLaunchHooks: [
           async (_ctx) => {
             log.info("Launching new browser");
@@ -118,7 +118,7 @@ export class CrawlerFactory {
             url: ctx.page.url(),
             responseStatusCode: ctx.response?.status() || null,
             proxy: ctx.proxyInfo?.hostname || null,
-            sessionId: ctx.session?.id || null,
+            sessionId: ctx.proxyInfo?.sessionId || null,
           });
         },
       ],
@@ -366,11 +366,6 @@ export class CrawlerFactory {
           maxConcurrency: 1, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
 
-          browserPoolOptions: {
-            ...defaultOptions.browserPoolOptions,
-            useFingerprints: false,
-          },
-
           // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool
           useSessionPool: true,
           persistCookiesPerSession: true,
@@ -379,12 +374,12 @@ export class CrawlerFactory {
             // another will be created
             maxPoolSize: 10,
             sessionOptions: {
-              maxUsageCount: 20, // rotate IPs every 20 pages
+              maxUsageCount: 10, // rotate IPs every 10 pages
             },
             persistStateKeyValueStoreId: "wayfair_session_pool",
-            // blockedStatusCodes: [], // only enable this in dev mode - not blocking 429 so that we can see the captcha
+            blockedStatusCodes: [], // only in dev mode - not blocking 429 so that we can see the captcha
           },
-          proxyConfiguration: randomProxyConfiguration,
+          // proxyConfiguration: randomProxyConfiguration,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -661,8 +656,3 @@ const randomProxyConfiguration = new ProxyConfiguration({
     return customUrlToUse;
   },
 });
-
-const webUnblockerProxyConfiguration = new ProxyConfiguration({
-  proxyUrls: ["http://platinum:Platinum@unblock.oxylabs.io:60000"],
-});
-webUnblockerProxyConfiguration.isManInTheMiddle = true;
