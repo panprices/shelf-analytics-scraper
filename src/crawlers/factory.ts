@@ -363,23 +363,17 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          maxConcurrency: 1, // can't scrape too quickly due to captcha
+          maxConcurrency: 5, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
 
           // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool
           useSessionPool: true,
           persistCookiesPerSession: true,
           sessionPoolOptions: {
-            // Only need to rotate between 10 sessions. If one is blocked
-            // another will be created
-            maxPoolSize: 10,
-            sessionOptions: {
-              maxUsageCount: 10, // rotate IPs every 10 pages
-            },
-            persistStateKeyValueStoreId: "wayfair_session_pool",
-            blockedStatusCodes: [], // only in dev mode - not blocking 429 so that we can see the captcha
+            maxPoolSize: 1,
+            blockedStatusCodes: [429],
           },
-          // proxyConfiguration: randomProxyConfiguration,
+          proxyConfiguration: roundRobinProxyConfiguration,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -656,3 +650,14 @@ const randomProxyConfiguration = new ProxyConfiguration({
     return customUrlToUse;
   },
 });
+
+let roundRobinProxyIndex = 0;
+const roundRobinProxyConfiguration = new ProxyConfiguration(
+    {
+      newUrlFunction: (session: string | number) => {
+        const nextProxyConfig = proxyUrls[roundRobinProxyIndex];
+        roundRobinProxyIndex = (roundRobinProxyIndex + 1) % proxyUrls.length;
+        return nextProxyConfig;
+      }
+    }
+)

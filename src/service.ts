@@ -340,6 +340,7 @@ export async function scrapeDetails(
               launcher: customLauncher,
               launchOptions: {
                 slowMo: 0,
+                devtools: true,
                 args: [
                   "--window-size=1920,1080",
                   "--remote-debugging-port=9222",
