@@ -1,11 +1,16 @@
-import {CrawlerFactory} from "./crawlers/factory";
-import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
-import {log, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, RequestOptions,} from "crawlee";
-import {extractDomainFromUrl} from "./utils";
-import {DetailedProductInfo, ListingProductInfo} from "./types/offer";
-import {CrawlerDefinition, CrawlerLaunchOptions} from "./crawlers/abstract";
-import {findCategoryTree} from "./category-tree-mapping";
-import {chromium} from "playwright-extra";
+import { CrawlerFactory } from "./crawlers/factory";
+import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
+import {
+  log,
+  PlaywrightCrawlerOptions,
+  PlaywrightCrawlingContext,
+  RequestOptions,
+} from "crawlee";
+import { extractDomainFromUrl } from "./utils";
+import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
+import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
+import { findCategoryTree } from "./category-tree-mapping";
+import { chromium } from "playwright-extra";
 import PanpricesChromiumExtra from "./custom_crawlee/custom-launcher";
 
 export async function exploreCategory(

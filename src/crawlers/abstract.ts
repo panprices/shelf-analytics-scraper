@@ -24,6 +24,7 @@ import {
   IllFormattedPageError,
   PageNotFoundError,
 } from "../types/errors";
+import { getFirestore } from "firebase-admin/firestore";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -169,7 +170,6 @@ export abstract class AbstractCrawlerDefinition
     try {
       const productDetails = await this.extractProductDetails(ctx.page);
       const request = ctx.request;
-
       await this._detailsDataset.pushData(<DetailedProductInfo>{
         ...request.userData,
         ...productDetails,
@@ -1037,6 +1037,29 @@ function handleCrawlDetailPageError(
     });
 
     ctx.session?.retire();
+    const firestoreDB = getFirestore();
+    const proxyUrl = ctx.proxyInfo?.url;
+
+    // Proxy URL is has the following format: `http://panprices:BB4NC4WQmx@${ip}:60000`
+    if (proxyUrl) {
+      const proxyIp = proxyUrl.split("@")[1].split(":")[0];
+      firestoreDB
+        .collection("proxy_status")
+        .where("ip", "==", proxyIp)
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            firestoreDB
+              .collection("proxy_status")
+              .doc(doc.id)
+              .update({
+                last_blocked_at: new Date(),
+              })
+              .then(() => log.warning(`IP ${proxyIp} blocked`));
+          });
+        });
+    }
+
     return;
   }
   if (error instanceof GotBlockedError) {

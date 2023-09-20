@@ -45,6 +45,9 @@ import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
 import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
+import { getFirestore } from "firebase-admin/firestore";
+import { firestore } from "firebase-admin";
+import Firestore = firestore.Firestore;
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -156,6 +159,7 @@ export class CrawlerFactory {
         );
       },
     ];
+    const firestoreDB = getFirestore();
 
     let definition: AbstractCrawlerDefinition,
       options: PlaywrightCrawlerOptions;
@@ -371,9 +375,9 @@ export class CrawlerFactory {
           persistCookiesPerSession: true,
           sessionPoolOptions: {
             maxPoolSize: 1,
-            blockedStatusCodes: [429],
+            blockedStatusCodes: [],
           },
-          proxyConfiguration: roundRobinProxyConfiguration,
+          proxyConfiguration: firestoreStatusProxyConfiguration(firestoreDB),
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -652,12 +656,41 @@ const randomProxyConfiguration = new ProxyConfiguration({
 });
 
 let roundRobinProxyIndex = 0;
-const roundRobinProxyConfiguration = new ProxyConfiguration(
-    {
-      newUrlFunction: (session: string | number) => {
-        const nextProxyConfig = proxyUrls[roundRobinProxyIndex];
-        roundRobinProxyIndex = (roundRobinProxyIndex + 1) % proxyUrls.length;
-        return nextProxyConfig;
+const roundRobinProxyConfiguration = new ProxyConfiguration({
+  newUrlFunction: () => {
+    const nextProxyConfig = proxyUrls[roundRobinProxyIndex];
+    roundRobinProxyIndex = (roundRobinProxyIndex + 1) % proxyUrls.length;
+    return nextProxyConfig;
+  },
+});
+
+const firestoreStatusProxyConfiguration = (firestoreDB: Firestore) => {
+  return new ProxyConfiguration({
+    newUrlFunction: async () => {
+      const nextAvailableProxy = await firestoreDB
+        .collection("proxy_status")
+        .orderBy("last_burned", "asc")
+        // Check if IP has not been burned in the past 30 minutes
+        .where("last_burned", "<", new Date(Date.now() - 30 * 60 * 1000))
+        .orderBy("last_used", "asc")
+        .limit(1)
+        .get();
+
+      if (nextAvailableProxy.empty) {
+        // TODO: this should delay the execution of all tasks.
+        throw Error("No proxy available");
       }
-    }
-)
+      const availableIp = nextAvailableProxy.docs[0].get("ip");
+
+      // Update last_used
+      firestoreDB
+        .collection("proxy_status")
+        .doc(nextAvailableProxy.docs[0].id)
+        .update({
+          last_used: new Date(),
+        })
+        .then(() => log.debug(`Status updated for ${availableIp}`));
+      return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
+    },
+  });
+};

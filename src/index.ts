@@ -18,10 +18,15 @@ import {
 import { extractDomainFromUrl, loggingMiddleware } from "./utils";
 import { CHROMIUM_USER_DATA_DIR, CRAWLEE_STORAGE_DIR } from "./constants";
 import fastFolderSize from "fast-folder-size";
+import { initializeApp, applicationDefault } from "firebase-admin/app";
 
 dotenv.config();
 
 const app = express();
+
+initializeApp({
+  credential: applicationDefault(),
+});
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(loggingMiddleware);
 

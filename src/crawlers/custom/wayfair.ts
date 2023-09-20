@@ -11,12 +11,8 @@ import {
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
 } from "../abstract";
-import {
-  convertCurrencySymbolToISO,
-  extractDomainFromUrl,
-  extractNumberFromText,
-} from "../../utils";
-import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
+import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   CaptchaEncounteredError,
   GotBlockedError,
