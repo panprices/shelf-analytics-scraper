@@ -95,12 +95,13 @@ export function prepareForBigQuery(items: any[]): Dictionary<any>[] {
       }
 
       if (Array.isArray(i[key])) {
+        // @ts-ignore
         transformed[convertToSnakeCase(key)] = Array.from(i[key]).map(
           reduceToSimpleTypes
         );
         continue;
       }
-
+      // @ts-ignore
       transformed[convertToSnakeCase(key)] = reduceToSimpleTypes(i[key]);
     }
 

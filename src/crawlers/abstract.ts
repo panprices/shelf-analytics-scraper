@@ -935,6 +935,8 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     } while (
       !newState ||
       // expect changes in all keys
+
+      // @ts-ignore
       Object.keys(newState).some((key) => newState[key] === currentState[key])
     );
 

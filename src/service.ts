@@ -1,16 +1,12 @@
-import { CrawlerFactory } from "./crawlers/factory";
-import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
-import {
-  log,
-  PlaywrightCrawlerOptions,
-  PlaywrightCrawlingContext,
-  RequestOptions,
-} from "crawlee";
-import { extractDomainFromUrl } from "./utils";
-import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
-import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
-import { findCategoryTree } from "./category-tree-mapping";
-import { chromium } from "playwright-extra";
+import {CrawlerFactory} from "./crawlers/factory";
+import {CustomRequestQueue} from "./custom_crawlee/custom_request_queue";
+import {log, PlaywrightCrawlerOptions, PlaywrightCrawlingContext, RequestOptions,} from "crawlee";
+import {extractDomainFromUrl} from "./utils";
+import {DetailedProductInfo, ListingProductInfo} from "./types/offer";
+import {CrawlerDefinition, CrawlerLaunchOptions} from "./crawlers/abstract";
+import {findCategoryTree} from "./category-tree-mapping";
+import {chromium} from "playwright-extra";
+import PanpricesChromiumExtra from "./custom_crawlee/custom-launcher";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -330,6 +326,8 @@ export async function scrapeDetails(
         useCustomQueue: false,
       });
     } else {
+      const customLauncher = new PanpricesChromiumExtra(chromium);
+
       [crawler, crawlerDefinition] =
         await CrawlerFactory.buildPlaywrightCrawler(
           {
@@ -339,11 +337,11 @@ export async function scrapeDetails(
           },
           {
             launchContext: {
-              launcher: chromium,
+              launcher: customLauncher,
               launchOptions: {
                 slowMo: 0,
                 args: [
-                  "--window-size=1400,900",
+                  "--window-size=1920,1080",
                   "--remote-debugging-port=9222",
                   "--remote-debugging-address=0.0.0.0", // You know what your doing?
                   "--disable-gpu",
