@@ -144,9 +144,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // await debugCategoryExploration(
 //   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
 // );{
-await debugScrapeDetails(
-  "https://www.nordiskarum.se/trondheim-x-josefin-lustig-ullmatta-400x400cm-beige/white-51074-320.html"
-);
+// await debugScrapeDetails(
+//   "https://www.nordiskarum.se/trondheim-x-josefin-lustig-ullmatta-400x400cm-beige/white-51074-320.html"
+// );
 // await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
 
 // await debugScrapeDetails(

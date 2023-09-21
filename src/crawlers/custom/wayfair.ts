@@ -1,22 +1,21 @@
 import { Page } from "playwright";
-import {
-  Availability,
-  DetailedProductInfo,
-  ProductReviews,
-  Specification,
-} from "../../types/offer";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { getFirestore } from "firebase-admin/lib/firestore";
+import { URLSearchParams } from "url";
+
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
 } from "../abstract";
+import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
 import {
-  convertCurrencySymbolToISO,
-  extractDomainFromUrl,
-  extractNumberFromText,
-} from "../../utils";
-import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
+  Availability,
+  DetailedProductInfo,
+  ProductReviews,
+  Specification,
+} from "../../types/offer";
 import {
   CaptchaEncounteredError,
   GotBlockedError,
@@ -33,16 +32,23 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     return Promise.resolve(undefined);
   }
 
-  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    const page = ctx.page;
     const url = page.url();
     if (url.includes("https://www.wayfair.de/blocked.php")) {
       throw new GotBlockedError("Got blocked");
     }
+
+    const responseStatus = ctx.response?.status();
     if (
       url.includes("https://www.wayfair.de/v/captcha") ||
-      (await page.locator("iframe[title='reCAPTCHA']").count()) > 0
+      (await page.locator("iframe[title='reCAPTCHA']").count()) > 0 ||
+      (await page.locator("div[class='px-captcha-error-container']").count()) >
+        0 ||
+      responseStatus == 429
     ) {
-      // await page.waitForTimeout(30000);
       throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
@@ -53,7 +59,10 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     }
 
     await this.handleCookieConsent(page);
+    return super.crawlDetailPage(ctx);
+  }
 
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const name = await this.extractProperty(
       page,
       "div[data-enzyme-id='PdpLayout-infoBlock'] header h1",
@@ -367,6 +376,48 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
       },
       "new_tabs"
     );
+  }
+
+  override handleCrawlDetailPageError(
+    error: any,
+    ctx: PlaywrightCrawlingContext
+  ) {
+    // For now Captcha logic is wayfair specific
+    if (error instanceof CaptchaEncounteredError) {
+      log.error(`Captcha encountered`, {
+        url: ctx.page.url(),
+        requestUrl: ctx.request.url,
+        errorType: error.name,
+        errorMessage: error.message,
+      });
+
+      ctx.session?.retire();
+      const firestoreDB = getFirestore();
+      const proxyUrl = ctx.proxyInfo?.url;
+
+      // Proxy URL is has the following format: `http://panprices:BB4NC4WQmx@${ip}:60000`
+      if (proxyUrl) {
+        const proxyIp = proxyUrl.split("@")[1].split(":")[0];
+        firestoreDB
+          .collection("proxy_status")
+          .where("ip", "==", proxyIp)
+          .get()
+          .then((snapshot) => {
+            snapshot.forEach((doc) => {
+              firestoreDB
+                .collection("proxy_status")
+                .doc(doc.id)
+                .update({
+                  last_burned: new Date(),
+                })
+                .then(() => log.warning(`IP ${proxyIp} blocked`));
+            });
+          });
+      }
+
+      return;
+    }
+    super.handleCrawlDetailPageError(error, ctx);
   }
 }
 /** "1.519,99 €" -> [1519.99, "EUR"] */

@@ -7,7 +7,7 @@ import {
   RequestOptions,
   RequestQueue,
   RequestQueueOperationOptions,
-  RequestQueueOptions,
+  RequestQueueOptions, Source,
   StorageManager,
   StorageManagerOptions,
 } from "crawlee";
@@ -16,6 +16,21 @@ import { BatchAddRequestsResult } from "@crawlee/types";
 
 export interface CustomQueueSettings {
   captureLabels: string[];
+}
+
+
+/**
+ * Copied from crawlee source because they were not exporting this inteface in version 3.5.4, but some methods we are
+ * overriding have this as their return type
+ */
+interface RequestQueueOperationInfo extends QueueOperationInfo {
+    /** Indicates if request was already present in the queue. */
+    wasAlreadyPresent: boolean;
+    /** Indicates if request was already marked as handled. */
+    wasAlreadyHandled: boolean;
+    /** The ID of the added request */
+    requestId: string;
+    uniqueKey: string;
 }
 
 /**
@@ -50,9 +65,9 @@ export class CustomRequestQueue extends RequestQueue {
   }
 
   override async addRequest(
-    requestLike: Request | RequestOptions,
+    requestLike: Source,
     options?: RequestQueueOperationOptions
-  ): Promise<QueueOperationInfo> {
+  ): Promise<RequestQueueOperationInfo> {
     const alreadyKnownRequest = await this.checkRequestIsKnownInAnyQueue(
       <string>requestLike.uniqueKey
     );
@@ -86,7 +101,7 @@ export class CustomRequestQueue extends RequestQueue {
   }
 
   override async addRequests(
-    requestsLike: (Request | RequestOptions)[],
+    requestsLike: Source[],
     options: RequestQueueOperationOptions = {}
   ): Promise<BatchAddRequestsResult> {
     const delegatedRequests = []; // those that should be in the inWaitQueue

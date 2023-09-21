@@ -19,7 +19,6 @@ import {
 import { extractDomainFromUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
 import {
-  CaptchaEncounteredError,
   GotBlockedError,
   IllFormattedPageError,
   PageNotFoundError,
@@ -169,7 +168,6 @@ export abstract class AbstractCrawlerDefinition
     try {
       const productDetails = await this.extractProductDetails(ctx.page);
       const request = ctx.request;
-
       await this._detailsDataset.pushData(<DetailedProductInfo>{
         ...request.userData,
         ...productDetails,
@@ -177,7 +175,7 @@ export abstract class AbstractCrawlerDefinition
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });
     } catch (e) {
-      handleCrawlDetailPageError(e, ctx);
+      this.handleCrawlDetailPageError(e, ctx);
     }
   }
 
@@ -618,6 +616,35 @@ export abstract class AbstractCrawlerDefinition
 
     return [detailsDataset, listingDataset];
   }
+  handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext): void {
+    // Known errors: just log and continue
+    if (
+      error instanceof IllFormattedPageError ||
+      error instanceof PageNotFoundError
+    ) {
+      log.info(`Known error encountered`, {
+        url: ctx.page.url(),
+        requestUrl: ctx.request.url,
+        errorType: error.name,
+        errorMessage: error.message,
+      });
+      return;
+    }
+
+    if (error instanceof GotBlockedError) {
+      log.error(`Got blocked`, {
+        url: ctx.page.url(),
+        requestUrl: ctx.request.url,
+        errorType: error.name,
+        errorMessage: error.message,
+      });
+
+      throw error;
+    }
+
+    // Unknown error, throw it
+    throw error;
+  }
 }
 
 export type VariantCrawlingStrategy = "new_tabs" | "same_tab";
@@ -696,7 +723,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
         variant: variant,
       });
     } catch (e) {
-      handleCrawlDetailPageError(e, ctx);
+      this.handleCrawlDetailPageError(e, ctx);
     } finally {
       logProductScrapingInfo(ctx, productDetails);
     }
@@ -935,6 +962,8 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     } while (
       !newState ||
       // expect changes in all keys
+
+      // @ts-ignore
       Object.keys(newState).some((key) => newState[key] === currentState[key])
     );
 
@@ -1005,51 +1034,6 @@ export abstract class AbstractCheerioCrawlerDefinition
   get router(): RouterHandler<CheerioCrawlingContext> {
     return this._router;
   }
-}
-
-function handleCrawlDetailPageError(
-  error: any,
-  ctx: PlaywrightCrawlingContext
-): void {
-  // Known errors: just log and continue
-  if (
-    error instanceof IllFormattedPageError ||
-    error instanceof PageNotFoundError
-  ) {
-    log.info(`Known error encountered`, {
-      url: ctx.page.url(),
-      requestUrl: ctx.request.url,
-      errorType: error.name,
-      errorMessage: error.message,
-    });
-    return;
-  }
-
-  // Known but severe errors: log AND throw it
-  if (error instanceof CaptchaEncounteredError) {
-    log.error(`Captcha encountered`, {
-      url: ctx.page.url(),
-      requestUrl: ctx.request.url,
-      errorType: error.name,
-      errorMessage: error.message,
-    });
-
-    ctx.session?.retire();
-    return;
-  }
-  if (error instanceof GotBlockedError) {
-    log.error(`Got blocked`, {
-      url: ctx.page.url(),
-      requestUrl: ctx.request.url,
-      errorType: error.name,
-      errorMessage: error.message,
-    });
-
-    throw error;
-  }
-
-  // Unknown error, throw it
-  throw error;
 }
 
 /**

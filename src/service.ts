@@ -331,7 +331,9 @@ export async function scrapeDetails(
             type: "scrapeDetails",
             useCustomQueue: false,
           },
-          overrides,
+          {
+            ...overrides,
+          },
           launchOptions
         );
     }

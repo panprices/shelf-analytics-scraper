@@ -1,29 +1,31 @@
 {
   "name": "test-crawlee",
-  "version": "0.0.1",
-  "description": "This is an example of a Crawlee project.",
+  "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@crawlee/types": "^3.0.0",
+    "@crawlee/types": "^3.5.4",
     "@google-cloud/bigquery": "^6.0.2",
-    "@google-cloud/pubsub": "^3.1.0",
+    "@google-cloud/pubsub": "^4.0.6",
     "@google-cloud/storage": "^6.8.0",
     "@google-cloud/tasks": "^3.0.0",
+    "@google-cloud/firestore": "^6.7.0",
     "@types/adm-zip": "^0.5.0",
     "@types/decompress": "^4.2.4",
     "adm-zip": "^0.5.10",
     "body-parser": "^1.20.0",
-    "crawlee": "^3.1.0",
+    "crawlee": "^3.5.4",
     "decompress": "^4.2.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.1",
     "fast-folder-size": "^1.7.1",
+    "firebase-admin": "^11.10.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "node-fetch": "^3.2.10",
     "pino": "^8.4.2",
-    "playwright": "1.27.1",
-    "playwright-core": "*",
+    "playwright": "^1.38.0",
+    "playwright-core": "^1.38.0",
+    "playwright-extra": "^4.3.6",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -39,7 +41,7 @@
     "prettier": "2.7.1",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.8.0",
-    "typescript": "^4.7.4"
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "dev": "npm run start:dev",
@@ -51,7 +53,5 @@
     "docker": "npm run build && docker build -t test-crawlee . && docker run --rm -p 8080:8080 -e PORT=8080 test-crawlee",
     "script:create-scraper": "ts-node-esm script.ts",
     "script:check-proxy": "ts-node-esm --experimental-specifier-resolution=node -T scripts/check-proxy.ts"
-  },
-  "author": "It's not you it's me",
-  "license": "ISC"
+  }
 }

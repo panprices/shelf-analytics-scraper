@@ -45,6 +45,11 @@ import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
 import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
+import { getFirestore } from "firebase-admin/firestore";
+import { firestore } from "firebase-admin";
+import Firestore = firestore.Firestore;
+import PanpricesChromiumExtra from "../custom_crawlee/custom-launcher";
+import { chromium } from "playwright-extra";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -83,7 +88,7 @@ export class CrawlerFactory {
     const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
       browserPoolOptions: {
-        // retireBrowserAfterPageCount: 20,
+        retireBrowserAfterPageCount: 20,
         preLaunchHooks: [
           async (_ctx) => {
             log.info("Launching new browser");
@@ -118,7 +123,7 @@ export class CrawlerFactory {
             url: ctx.page.url(),
             responseStatusCode: ctx.response?.status() || null,
             proxy: ctx.proxyInfo?.hostname || null,
-            sessionId: ctx.session?.id || null,
+            sessionId: ctx.proxyInfo?.sessionId || null,
           });
         },
       ],
@@ -156,6 +161,7 @@ export class CrawlerFactory {
         );
       },
     ];
+    const firestoreDB = getFirestore();
 
     let definition: AbstractCrawlerDefinition,
       options: PlaywrightCrawlerOptions;
@@ -360,31 +366,48 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "wayfair.de":
         definition = await WayfairCrawlerDefinition.create(launchOptions);
+        const customLauncher = new PanpricesChromiumExtra(chromium);
         options = {
           ...defaultOptions,
+          launchContext: {
+            launcher: customLauncher,
+            launchOptions: {
+              slowMo: 0,
+              // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
+              devtools: true,
+              // Source for this args:
+              // https://stackoverflow.com/questions/51731848/how-to-avoid-being-detected-as-bot-on-puppeteer-and-phantomjs
+              args: [
+                "--window-size=1920,1080",
+                "--remote-debugging-port=9222",
+                "--remote-debugging-address=0.0.0.0",
+                "--disable-gpu",
+                "--disable-features=IsolateOrigins,site-per-process",
+                "--blink-settings=imagesEnabled=true",
+              ],
+            },
+            ...defaultOptions.launchContext,
+          },
+          browserPoolOptions: {
+            ...defaultOptions.browserPoolOptions,
+            // Don't try to fool Wayfair because they send back a script to check that we didn't send
+            // a gibberish fingerprint
+            useFingerprints: false,
+            // keep browsers open for as long as possible. Prevents unnecessary IP changes
+            retireBrowserAfterPageCount: undefined,
+          },
           requestHandler: definition.router,
           maxConcurrency: 1, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
-
-          browserPoolOptions: {
-            ...defaultOptions.browserPoolOptions,
-            useFingerprints: false,
-          },
 
           // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool
           useSessionPool: true,
           persistCookiesPerSession: true,
           sessionPoolOptions: {
-            // Only need to rotate between 10 sessions. If one is blocked
-            // another will be created
-            maxPoolSize: 10,
-            sessionOptions: {
-              maxUsageCount: 20, // rotate IPs every 20 pages
-            },
-            persistStateKeyValueStoreId: "wayfair_session_pool",
-            // blockedStatusCodes: [], // only enable this in dev mode - not blocking 429 so that we can see the captcha
+            maxPoolSize: 1,
+            blockedStatusCodes: [],
           },
-          proxyConfiguration: randomProxyConfiguration,
+          proxyConfiguration: firestoreStatusProxyConfiguration(firestoreDB),
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -662,7 +685,42 @@ const randomProxyConfiguration = new ProxyConfiguration({
   },
 });
 
-const webUnblockerProxyConfiguration = new ProxyConfiguration({
-  proxyUrls: ["http://platinum:Platinum@unblock.oxylabs.io:60000"],
+let roundRobinProxyIndex = 0;
+const roundRobinProxyConfiguration = new ProxyConfiguration({
+  newUrlFunction: () => {
+    const nextProxyConfig = proxyUrls[roundRobinProxyIndex];
+    roundRobinProxyIndex = (roundRobinProxyIndex + 1) % proxyUrls.length;
+    return nextProxyConfig;
+  },
 });
-webUnblockerProxyConfiguration.isManInTheMiddle = true;
+
+const firestoreStatusProxyConfiguration = (firestoreDB: Firestore) => {
+  return new ProxyConfiguration({
+    newUrlFunction: async () => {
+      const nextAvailableProxy = await firestoreDB
+        .collection("proxy_status")
+        .orderBy("last_burned", "asc")
+        // Check if IP has not been burned in the past 30 minutes
+        .where("last_burned", "<", new Date(Date.now() - 30 * 60 * 1000))
+        .orderBy("last_used", "asc")
+        .limit(1)
+        .get();
+
+      if (nextAvailableProxy.empty) {
+        // TODO: this should delay the execution of all tasks.
+        throw Error("No proxy available");
+      }
+      const availableIp = nextAvailableProxy.docs[0].get("ip");
+
+      // Update last_used
+      firestoreDB
+        .collection("proxy_status")
+        .doc(nextAvailableProxy.docs[0].id)
+        .update({
+          last_used: new Date(),
+        })
+        .then(() => log.debug(`Status updated for ${availableIp}`));
+      return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
+    },
+  });
+};

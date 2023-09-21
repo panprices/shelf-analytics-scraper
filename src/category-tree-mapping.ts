@@ -7,6 +7,7 @@ import { Category } from "./types/offer";
 
 export function findCategoryTree(categoryUrl: string): Category[] {
   categoryUrl = categoryUrl.split("?")[0];
+  // @ts-ignore
   const categoryTree = categoryTreeMapping[categoryUrl];
   if (!categoryTree) {
     log.error(`Cannot find categoryTree for category '${categoryUrl}'`);
