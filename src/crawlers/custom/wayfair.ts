@@ -18,7 +18,6 @@ import {
   GotBlockedError,
   PageNotFoundError,
 } from "../../types/errors";
-import { SpeechClient } from "@google-cloud/speech";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override variantCrawlingStrategy: VariantCrawlingStrategy =
