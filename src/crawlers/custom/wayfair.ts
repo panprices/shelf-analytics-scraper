@@ -1,6 +1,6 @@
 import { Page } from "playwright";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
-import { getFirestore } from "firebase-admin/lib/firestore";
+import { getFirestore } from "firebase-admin/firestore";
 import { URLSearchParams } from "url";
 
 import {
