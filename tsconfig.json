@@ -10,9 +10,7 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "noImplicitAny": true,
+    "noImplicitAny": true
   },
-  "include": [
-    "./src/**/*.ts",
-  ]
+  "include": ["./src/**/*.ts"]
 }
