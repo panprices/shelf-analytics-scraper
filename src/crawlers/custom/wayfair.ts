@@ -1,10 +1,8 @@
 import { Page } from "playwright";
-import {
-  Availability,
-  DetailedProductInfo,
-  ProductReviews,
-  Specification,
-} from "../../types/offer";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { getFirestore } from "firebase-admin/lib/firestore";
+import { URLSearchParams } from "url";
+
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
@@ -12,20 +10,17 @@ import {
   VariantCrawlingStrategy,
 } from "../abstract";
 import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
-import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import {
+  Availability,
+  DetailedProductInfo,
+  ProductReviews,
+  Specification,
+} from "../../types/offer";
 import {
   CaptchaEncounteredError,
   GotBlockedError,
   PageNotFoundError,
 } from "../../types/errors";
-import { getFirestore } from "firebase-admin/lib/firestore";
-import { url } from "inspector";
-import { name } from "moment";
-import {
-  extractPriceAndCurrencyFromText,
-  WayfairCrawlerDefinition,
-} from "../../../dist/crawlers/custom/wayfair";
-import { URLSearchParams } from "url";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override variantCrawlingStrategy: VariantCrawlingStrategy =
