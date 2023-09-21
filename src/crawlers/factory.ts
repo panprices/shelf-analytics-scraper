@@ -366,8 +366,26 @@ export class CrawlerFactory {
         definition = await WayfairCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
+          launchContext: {
+            launchOptions: {
+              slowMo: 0,
+              devtools: true,
+              args: [
+                "--window-size=1920,1080",
+                "--remote-debugging-port=9222",
+                "--remote-debugging-address=0.0.0.0", // You know what your doing?
+                "--disable-gpu",
+                "--disable-features=IsolateOrigins,site-per-process",
+                "--blink-settings=imagesEnabled=true",
+              ],
+            },
+            ...defaultOptions.launchContext,
+          },
+          browserPoolOptions: {
+            useFingerprints: false,
+          },
           requestHandler: definition.router,
-          maxConcurrency: 5, // can't scrape too quickly due to captcha
+          maxConcurrency: 1, // can't scrape too quickly due to captcha
           headless: false, // wayfair will throw captcha if headless
 
           // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool

@@ -341,25 +341,10 @@ export async function scrapeDetails(
             useCustomQueue: false,
           },
           {
+            ...overrides,
             launchContext: {
               launcher: customLauncher,
-              launchOptions: {
-                slowMo: 0,
-                devtools: true,
-                args: [
-                  "--window-size=1920,1080",
-                  "--remote-debugging-port=9222",
-                  "--remote-debugging-address=0.0.0.0", // You know what your doing?
-                  "--disable-gpu",
-                  "--disable-features=IsolateOrigins,site-per-process",
-                  "--blink-settings=imagesEnabled=true",
-                ],
-              },
             },
-            browserPoolOptions: {
-              useFingerprints: false,
-            },
-            ...overrides,
           },
           launchOptions
         );

@@ -30,101 +30,24 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     return Promise.resolve(undefined);
   }
 
-  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    const page = ctx.page;
     const url = page.url();
     if (url.includes("https://www.wayfair.de/blocked.php")) {
       throw new GotBlockedError("Got blocked");
     }
+
+    const responseStatus = ctx.response?.status();
     if (
       url.includes("https://www.wayfair.de/v/captcha") ||
-      (await page.locator("iframe[title='reCAPTCHA']").count()) > 0
+      (await page.locator("iframe[title='reCAPTCHA']").count()) > 0 ||
+      (await page.locator("div[class='px-captcha-error-container']").count()) >
+        0 ||
+      responseStatus == 429
     ) {
-      const captchaFrameLocator = page
-        .frameLocator("//iframe[@title='reCAPTCHA']")
-        .first();
-
-      const checkboxLocator = captchaFrameLocator.locator(
-        ".recaptcha-checkbox-unchecked"
-      );
-
-      await checkboxLocator.click();
-      await page.waitForTimeout(1000);
-
-      const captchaSolverFrameLocator = page.frameLocator(
-        "//iframe[@title = 'recaptcha challenge expires in two minutes']"
-      );
-      const switchToAudioButtonLocator =
-        captchaSolverFrameLocator.locator(".rc-button-audio");
-      if (!(await switchToAudioButtonLocator.isVisible())) {
-        throw new CaptchaEncounteredError("Audio option not available");
-      }
-
-      await switchToAudioButtonLocator.click();
-      const playButtonLocator = captchaSolverFrameLocator.locator(
-        "//button[text() = 'PLAY']"
-      );
-
-      const audioFile = new Promise<Buffer>((resolve) => {
-        console.log("Waiting for audio file");
-        page.on("response", async (response) => {
-          if (
-            "content-type" in response.headers() &&
-            response.headers()["content-type"].includes("audio")
-          ) {
-            console.log("Got audio response");
-            const audioFile = await response.body();
-            resolve(audioFile);
-          }
-        });
-      });
-      await playButtonLocator.click();
-
-      const audioFileBuffer = await audioFile;
-
-      await page.waitForTimeout(1000);
-      const speechClient = new SpeechClient();
-      const speechConfig = {
-        languageCode: "en-US",
-      };
-
-      const request = {
-        audio: {
-          content: audioFileBuffer,
-        },
-        config: speechConfig,
-      };
-
-      const [speechResponse] = await speechClient.recognize(request);
-      if (
-        !speechResponse ||
-        !speechResponse.results ||
-        speechResponse.results?.length === 0 ||
-        !speechResponse.results[0]?.alternatives ||
-        speechResponse.results[0]?.alternatives?.length === 0 ||
-        !speechResponse.results[0]?.alternatives[0]?.transcript
-      ) {
-        throw new CaptchaEncounteredError("Could not solve captcha");
-      }
-
-      const captchaText = speechResponse.results
-        .map((result) =>
-          result.alternatives && result.alternatives[0]
-            ? result.alternatives[0].transcript
-            : ""
-        )
-        .join(" ");
-
-      const inputFieldLocator =
-        captchaSolverFrameLocator.locator("#audio-response");
-      await inputFieldLocator.click();
-
-      await page.keyboard.type(captchaText, { delay: 100 });
-
-      await captchaSolverFrameLocator
-        .locator("#recaptcha-verify-button")
-        .click();
-
-      await page.waitForTimeout(1000);
+      throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
       throw new PageNotFoundError("Redirected to homepage");
@@ -134,7 +57,10 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     }
 
     await this.handleCookieConsent(page);
+    return super.crawlDetailPage(ctx);
+  }
 
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const name = await this.extractProperty(
       page,
       "div[data-enzyme-id='PdpLayout-infoBlock'] header h1",

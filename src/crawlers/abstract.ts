@@ -1053,7 +1053,7 @@ function handleCrawlDetailPageError(
               .collection("proxy_status")
               .doc(doc.id)
               .update({
-                last_blocked_at: new Date(),
+                last_burned: new Date(),
               })
               .then(() => log.warning(`IP ${proxyIp} blocked`));
           });
