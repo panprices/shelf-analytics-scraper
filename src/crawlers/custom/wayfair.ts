@@ -329,10 +329,10 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
   }
 
   override async hasSelectedOptionForParamIndex(
-    _: PlaywrightCrawlingContext<Dictionary<any>>,
-    __: number
+    _ctx: PlaywrightCrawlingContext<Dictionary<any>>,
+    __paramIndex: number
   ): Promise<boolean> {
-    return false;
+    return true;
   }
 
   override async getOptionsCountForParamIndex(
