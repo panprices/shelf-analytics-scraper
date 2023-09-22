@@ -32,15 +32,14 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     return Promise.resolve(undefined);
   }
 
-  override async crawlDetailPage(
-    ctx: PlaywrightCrawlingContext
-  ): Promise<void> {
-    const page = ctx.page;
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    // @ts-ignore
+    const ctx: PlaywrightCrawlingContext = page.context();
     const url = page.url();
+
     if (url.includes("https://www.wayfair.de/blocked.php")) {
       throw new GotBlockedError("Got blocked");
     }
-
     const responseStatus = ctx.response?.status();
     if (
       url.includes("https://www.wayfair.de/v/captcha") ||
@@ -58,11 +57,6 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
       throw new PageNotFoundError("Redirected to another page");
     }
 
-    await this.handleCookieConsent(page);
-    return super.crawlDetailPage(ctx);
-  }
-
-  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const name = await this.extractProperty(
       page,
       "div[data-enzyme-id='PdpLayout-infoBlock'] header h1",
@@ -415,7 +409,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
           });
       }
 
-      return;
+      throw error;
     }
     super.handleCrawlDetailPageError(error, ctx);
   }

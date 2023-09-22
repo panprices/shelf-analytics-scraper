@@ -165,8 +165,9 @@ export abstract class AbstractCrawlerDefinition
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     log.info(`Looking at product with url ${ctx.page.url()}`);
+    let productDetails = null;
     try {
-      const productDetails = await this.extractProductDetails(ctx.page);
+      productDetails = await this.extractProductDetails(ctx.page);
       const request = ctx.request;
       await this._detailsDataset.pushData(<DetailedProductInfo>{
         ...request.userData,
@@ -176,6 +177,8 @@ export abstract class AbstractCrawlerDefinition
       });
     } catch (e) {
       this.handleCrawlDetailPageError(e, ctx);
+    } finally {
+      logProductScrapingInfo(ctx, productDetails);
     }
   }
 
@@ -628,7 +631,7 @@ export abstract class AbstractCrawlerDefinition
         errorType: error.name,
         errorMessage: error.message,
       });
-      return;
+      throw error;
     }
 
     if (error instanceof GotBlockedError) {
@@ -664,7 +667,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    log.debug("Proxy Info", { proxy: ctx.proxyInfo || null });
+    await this.handleCookieConsent(ctx.page);
     await this.crawlDetailPageWithVariantsLogic(ctx);
   }
 
@@ -1050,6 +1053,6 @@ function logProductScrapingInfo(
     requestUrl: ctx.request.url,
     productUrl: productDetails?.url || null,
     proxy: ctx.proxyInfo?.hostname || null,
-    sessionId: ctx.proxyInfo?.sessionId || null,
+    sessionId: ctx.session?.id || null,
   });
 }

@@ -2,6 +2,7 @@ import {
   CheerioCrawler,
   CheerioCrawlerOptions,
   log,
+  NonRetryableError,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
   PlaywrightCrawlingContext,
@@ -113,7 +114,6 @@ export class CrawlerFactory {
         ...(overrides?.preNavigationHooks ?? []),
         async (ctx) => {
           ctx.page.setDefaultTimeout(20000);
-          log.info("Proxy Info", { proxy: ctx.proxyInfo || null });
         },
       ],
       postNavigationHooks: [
@@ -121,9 +121,9 @@ export class CrawlerFactory {
           log.info("Request finished", {
             requestUrl: ctx.request.url,
             url: ctx.page.url(),
-            responseStatusCode: ctx.response?.status() || null,
+            statusCode: ctx.response?.status() || null,
             proxy: ctx.proxyInfo?.hostname || null,
-            sessionId: ctx.proxyInfo?.sessionId || null,
+            sessionId: ctx.session?.id || null,
           });
         },
       ],
@@ -372,7 +372,6 @@ export class CrawlerFactory {
           launchContext: {
             launcher: customLauncher,
             launchOptions: {
-              slowMo: 0,
               // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
               devtools: true,
               // Source for this args:
@@ -405,7 +404,7 @@ export class CrawlerFactory {
           persistCookiesPerSession: true,
           sessionPoolOptions: {
             maxPoolSize: 1,
-            blockedStatusCodes: [],
+            blockedStatusCodes: [], // we handle the 429 error ourselves
           },
           proxyConfiguration: firestoreStatusProxyConfiguration(firestoreDB),
         };
