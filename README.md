@@ -46,3 +46,9 @@ To update the pod configuration run the following command:
 ```commandline
 kubectl apply -f test-crawlee-4x.yaml
 ```
+
+## Trigger image update (when the pod config stays the same but we update the image)
+
+```commandline
+kubectl rollout restart deployment/test-crawlee-4x
+```
