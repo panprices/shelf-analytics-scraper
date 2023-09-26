@@ -48,6 +48,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
         0 ||
       responseStatus == 429
     ) {
+      await page.waitForTimeout(30000);
       throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {

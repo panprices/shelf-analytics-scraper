@@ -1,6 +1,8 @@
 import {
   CheerioCrawler,
   CheerioCrawlerOptions,
+  Configuration,
+  Cookie,
   log,
   NonRetryableError,
   PlaywrightCrawler,
@@ -46,11 +48,14 @@ import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
 import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
-import { getFirestore } from "firebase-admin/firestore";
-import { firestore } from "firebase-admin";
-import Firestore = firestore.Firestore;
+import { getFirestore, Firestore } from "firebase-admin/firestore";
 import PanpricesChromiumExtra from "../custom_crawlee/custom-launcher";
 import { chromium } from "playwright-extra";
+import {
+  CaptchaEncounteredError,
+  IllFormattedPageError,
+  PageNotFoundError,
+} from "../types/errors";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -124,10 +129,17 @@ export class CrawlerFactory {
             statusCode: ctx.response?.status() || null,
             proxy: ctx.proxyInfo?.hostname || null,
             sessionId: ctx.session?.id || null,
+            requestHeaders: ctx.request.headers,
+            responseHeaders: await ctx.response?.allHeaders(),
+            cookies: await ctx.page.context().cookies(ctx.page.url()),
           });
         },
       ],
     };
+
+    const defaultGCPConfig = new Configuration({
+      persistStorage: false,
+    });
 
     const blockImagesAndScriptsHooks: PlaywrightHook[] = [
       async ({ page }) => {
@@ -366,34 +378,33 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "wayfair.de":
         definition = await WayfairCrawlerDefinition.create(launchOptions);
-        const customLauncher = new PanpricesChromiumExtra(chromium);
+        // const customLauncher = new PanpricesChromiumExtra(chromium);
+        const proxyManager = new ProxyManager();
         options = {
           ...defaultOptions,
-          launchContext: {
-            launcher: customLauncher,
-            launchOptions: {
-              // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
-              devtools: true,
-              // Source for this args:
-              // https://stackoverflow.com/questions/51731848/how-to-avoid-being-detected-as-bot-on-puppeteer-and-phantomjs
-              args: [
-                "--window-size=1920,1080",
-                "--remote-debugging-port=9222",
-                "--remote-debugging-address=0.0.0.0",
-                "--disable-gpu",
-                "--disable-features=IsolateOrigins,site-per-process",
-                "--blink-settings=imagesEnabled=true",
-              ],
-            },
-            ...defaultOptions.launchContext,
-          },
+          // launchContext: {
+          //   launcher: customLauncher,
+          //   launchOptions: {
+          //     // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
+          //     devtools: true,
+          //     // Source for this args:
+          //     // https://stackoverflow.com/questions/51731848/how-to-avoid-being-detected-as-bot-on-puppeteer-and-phantomjs
+          //     args: [
+          //       "--window-size=1920,1080",
+          //       "--remote-debugging-port=9222",
+          //       "--remote-debugging-address=0.0.0.0",
+          //       "--disable-gpu",
+          //       "--disable-features=IsolateOrigins,site-per-process",
+          //       "--blink-settings=imagesEnabled=true",
+          //     ],
+          //   },
+          //   ...defaultOptions.launchContext,
+          // },
           browserPoolOptions: {
             ...defaultOptions.browserPoolOptions,
             // Don't try to fool Wayfair because they send back a script to check that we didn't send
             // a gibberish fingerprint
             useFingerprints: false,
-            // keep browsers open for as long as possible. Prevents unnecessary IP changes
-            retireBrowserAfterPageCount: undefined,
           },
           requestHandler: definition.router,
           maxConcurrency: 1, // can't scrape too quickly due to captcha
@@ -404,9 +415,60 @@ export class CrawlerFactory {
           persistCookiesPerSession: true,
           sessionPoolOptions: {
             maxPoolSize: 1,
+            sessionOptions: {
+              maxUsageCount: 3,
+            },
             blockedStatusCodes: [], // we handle the 429 error ourselves
           },
-          proxyConfiguration: firestoreStatusProxyConfiguration(firestoreDB),
+
+          preNavigationHooks: [
+            ...(defaultOptions.preNavigationHooks ?? []),
+            async (ctx) => {
+              if (!proxyManager.currentIp) {
+                throw new Error(
+                  "Cannot extract current IP to sync to Firebase"
+                );
+              }
+              const cookies = await proxyManager.getCookies(
+                proxyManager.currentIp,
+                domain
+              );
+              ctx.page.context().addCookies(cookies);
+            },
+          ],
+
+          postNavigationHooks: [
+            ...(defaultOptions.postNavigationHooks ?? []),
+            async (ctx) => {
+              if (!proxyManager.currentIp) {
+                throw new Error(
+                  "Cannot extract current IP to sync to Firebase"
+                );
+              }
+              const cookies = await ctx.page.context().cookies(ctx.page.url());
+              if (ctx.response?.status() === 200 && cookies) {
+                proxyManager.storeCookieToFirebaseIfNeeded(
+                  cookies,
+                  proxyManager.currentIp,
+                  domain
+                );
+              }
+            },
+          ],
+          failedRequestHandler: (ctx, error) => {
+            if (error instanceof CaptchaEncounteredError) {
+              if (!proxyManager.currentIp) {
+                throw new Error("Cannot extract current IP");
+              }
+              proxyManager.removeCookies(proxyManager.currentIp, domain);
+            }
+          },
+          proxyConfiguration: new ProxyConfiguration({
+            newUrlFunction: async (_sessionId) =>
+              await proxyManager.nextAvailableIp(),
+          }),
+          // proxyConfiguration: firestoreStatusProxyConfiguration(firestoreDB),
+          // proxyConfiguration: proxyConfiguration.TEST_IP,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
@@ -583,9 +645,9 @@ export const proxyConfiguration = {
 
   TEST_IP: new ProxyConfiguration({
     proxyUrls: [
-      "185.228.18.3",
+      // "185.228.18.69",
       // "185.228.18.35",
-      // "185.228.18.37",
+      "185.228.18.37",
       // "185.228.18.39",
     ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
   }),
@@ -723,3 +785,103 @@ const firestoreStatusProxyConfiguration = (firestoreDB: Firestore) => {
     },
   });
 };
+
+class ProxyManager {
+  currentIp?: string;
+  // currentCookies: Cookie[] = [];
+  cookieIsSynced: boolean = false;
+  firestoreDB: Firestore;
+
+  constructor() {
+    this.firestoreDB = getFirestore();
+  }
+
+  async nextAvailableIp() {
+    const firestoreDB = getFirestore();
+    const nextAvailableProxy = await firestoreDB
+      .collection("proxy_status")
+      .orderBy("last_burned", "asc")
+      // Check if IP has not been burned in the past 30 minutes
+      // .where("last_burned", "<", new Date(Date.now() - 30 * 60 * 1000))
+      .orderBy("last_used", "asc")
+      .limit(1)
+      .get();
+
+    if (nextAvailableProxy.empty) {
+      // TODO: this should delay the execution of all tasks.
+      throw Error("No proxy available");
+    }
+    const availableIp = nextAvailableProxy.docs[0].get("ip");
+
+    // Update last_used
+    await firestoreDB
+      .collection("proxy_status")
+      .doc(nextAvailableProxy.docs[0].id)
+      .update({
+        last_used: new Date(),
+      })
+      .then(() => log.debug(`Status updated for ${availableIp}`));
+
+    this.currentIp = availableIp;
+    this.cookieIsSynced = false;
+
+    // We do this since we need to know the cookies BEFORE getting the IP
+    // through ProxyConfiguration
+    log.info("Got a new IP", { ip: availableIp });
+    return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
+  }
+
+  async getCookies(ip: string, domain: string): Promise<Cookie[]> {
+    const firestoreDB = getFirestore();
+    const doc = await firestoreDB.collection("proxy_status").doc(ip).get();
+
+    const cookieCache = doc.data();
+    const cookies = cookieCache?.cookies ? cookieCache.cookies[domain] : null;
+    if (cookies) {
+      log.info("Found cached cookies", {
+        nrCookiesCached: JSON.parse(cookies).length,
+      });
+      return JSON.parse(cookies);
+    }
+
+    return [];
+  }
+
+  storeCookieToFirebaseIfNeeded(cookies: Cookie[], ip: string, domain: string) {
+    if (this.cookieIsSynced) {
+      return;
+    }
+
+    const firestoreDB = getFirestore();
+    firestoreDB
+      .collection("proxy_status")
+      .doc(ip)
+      .update({
+        cookies: {
+          [domain]: JSON.stringify(cookies),
+        },
+      })
+      .then(() =>
+        log.info(`Updated cookies on Firestore`, {
+          nrCookies: cookies.length,
+          ip: ip,
+        })
+      );
+
+    this.cookieIsSynced = true;
+  }
+
+  removeCookies(ip: string, domain: string) {
+    this.firestoreDB
+      .collection("proxy_status")
+      .doc(ip)
+      .update({
+        cookies: {
+          [domain]: "[]",
+        },
+      })
+      .then(() => log.info(`Cookies removed on Firestore`, { ip: ip }));
+
+    this.cookieIsSynced = true;
+  }
+}

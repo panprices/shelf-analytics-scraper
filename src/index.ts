@@ -100,7 +100,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   // Logging some details to help with debugging issues on production:
   try {
-    log.debug(JSON.stringify(products, null, 2));
+    // log.debug(JSON.stringify(products, null, 2));
 
     const retailerDomains = new Set(
       body.productDetails.map((p) => extractDomainFromUrl(p.url))
