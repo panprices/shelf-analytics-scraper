@@ -129,9 +129,10 @@ export class CrawlerFactory {
             statusCode: ctx.response?.status() || null,
             proxy: ctx.proxyInfo?.hostname || null,
             sessionId: ctx.session?.id || null,
-            requestHeaders: ctx.request.headers,
-            responseHeaders: await ctx.response?.allHeaders(),
-            cookies: await ctx.page.context().cookies(ctx.page.url()),
+            // requestHeaders: ctx.request.headers,
+            // responseHeaders: await ctx.response?.allHeaders(),
+            nrCookies: (await ctx.page.context().cookies(ctx.page.url()))
+              .length,
           });
         },
       ],
@@ -425,9 +426,10 @@ export class CrawlerFactory {
             ...(defaultOptions.preNavigationHooks ?? []),
             async (ctx) => {
               if (!proxyManager.currentIp) {
-                throw new Error(
-                  "Cannot extract current IP to sync to Firebase"
-                );
+                // Should not throw error here, else it will break browser
+                // which shut down the whole request batch.
+                log.error("Cannot extract current IP to sync to Firebase");
+                return;
               }
               const cookies = await proxyManager.getCookies(
                 proxyManager.currentIp,
@@ -441,9 +443,8 @@ export class CrawlerFactory {
             ...(defaultOptions.postNavigationHooks ?? []),
             async (ctx) => {
               if (!proxyManager.currentIp) {
-                throw new Error(
-                  "Cannot extract current IP to sync to Firebase"
-                );
+                log.error("Cannot extract current IP to sync to Firebase");
+                return;
               }
               const cookies = await ctx.page.context().cookies(ctx.page.url());
               if (ctx.response?.status() === 200 && cookies) {
@@ -458,7 +459,8 @@ export class CrawlerFactory {
           failedRequestHandler: (_ctx, error) => {
             if (error instanceof CaptchaEncounteredError) {
               if (!proxyManager.currentIp) {
-                throw new Error("Cannot extract current IP");
+                log.error("Cannot extract current IP to sync to Firebase");
+                return;
               }
               proxyManager.removeCookies(proxyManager.currentIp, domain);
             }
