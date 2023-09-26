@@ -455,7 +455,7 @@ export class CrawlerFactory {
               }
             },
           ],
-          failedRequestHandler: (ctx, error) => {
+          failedRequestHandler: (_ctx, error) => {
             if (error instanceof CaptchaEncounteredError) {
               if (!proxyManager.currentIp) {
                 throw new Error("Cannot extract current IP");
