@@ -633,7 +633,6 @@ export abstract class AbstractCrawlerDefinition
       });
       throw error;
     }
-
     if (error instanceof GotBlockedError) {
       log.error(`Got blocked`, {
         url: ctx.page.url(),
@@ -641,10 +640,8 @@ export abstract class AbstractCrawlerDefinition
         errorType: error.name,
         errorMessage: error.message,
       });
-
       throw error;
     }
-
     // Unknown error, throw it
     throw error;
   }

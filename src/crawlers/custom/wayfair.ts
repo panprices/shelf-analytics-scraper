@@ -48,6 +48,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
         0 ||
       responseStatus == 429
     ) {
+      await page.waitForTimeout(30_000);
       throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
@@ -200,7 +201,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
         "div[data-enzyme-id='PdpLayout-infoBlock'] div[data-enzyme-id='PriceBlock'] span:first-child"
       )
       .first()
-      .textContent({ timeout: 10000 })
+      .textContent({ timeout: 20000 })
       .then((text) => text?.trim());
     if (!priceAndCurrencyText) {
       throw new Error("Cannot extract price of product");

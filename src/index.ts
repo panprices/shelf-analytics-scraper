@@ -56,7 +56,6 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
     );
   }
 
-  track_and_log_number_of_requests_handled();
   res.status(200).send({
     nrProductsFound: detailedPages.length,
   });
@@ -80,8 +79,6 @@ app.post("/search", async (req: Request, res: Response) => {
     await sendRequestBatch(products, req.body.jobContext);
   }
 
-  track_and_log_number_of_requests_handled();
-
   res.status(200).send({
     nrProductsFound: products.length,
   });
@@ -100,7 +97,7 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
 
   // Logging some details to help with debugging issues on production:
   try {
-    log.debug(JSON.stringify(products, null, 2));
+    // log.debug(JSON.stringify(products, null, 2));
 
     const retailerDomains = new Set(
       body.productDetails.map((p) => extractDomainFromUrl(p.url))
@@ -147,9 +144,9 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     await publishMatchingProducts(matchingProducts, body.jobContext);
   }
 
-  track_and_log_number_of_requests_handled();
   res.status(200).send({
     nrProductsFound: products.length,
+    productUrls: products.map((p) => p.url),
   });
 });
 
@@ -157,42 +154,3 @@ const port = parseInt(<string>process.env.PORT) || 8080;
 app.listen(port, () => {
   console.log(`helloworld: listening on port ${port}`);
 });
-
-// ---
-// Utils
-// ---
-
-/**
- * Keep track and log how many requests a cloud run instance handles before shuting down.
- * Delete this after 2023-03-01 unless there are reasons to keep it.
- */
-let nr_requests_handled = 0;
-function track_and_log_number_of_requests_handled() {
-  try {
-    nr_requests_handled += 1;
-
-    // Only log every 5th requests to not affect performance
-    // and to not spam the logs
-    if (nr_requests_handled % 5 !== 0) {
-      return;
-    }
-
-    log.info(`Number of request this docker instance handled`, {
-      nr_requests_handled,
-    });
-    fastFolderSize(CHROMIUM_USER_DATA_DIR, (err, bytes) => {
-      if (err) {
-        log.error(err.message);
-      }
-      log.info("Cache folder size", { nr_MB: bytes! / 1024 ** 2 });
-    });
-    fastFolderSize(CRAWLEE_STORAGE_DIR, (err, bytes) => {
-      if (err) {
-        log.error(err.message);
-      }
-      log.info("Crawlee storage folder size", { nr_MB: bytes! / 1024 ** 2 });
-    });
-  } catch {
-    /* do nothing */
-  }
-}

@@ -1,6 +1,8 @@
 import {
   CheerioCrawler,
   CheerioCrawlerOptions,
+  Configuration,
+  Cookie,
   log,
   NonRetryableError,
   PlaywrightCrawler,
@@ -10,6 +12,9 @@ import {
   PlaywrightHook,
   ProxyConfiguration,
   RequestQueue,
+  KeyValueStore,
+  SessionPool,
+  Session,
 } from "crawlee";
 import {
   CustomQueueSettings,
@@ -26,6 +31,22 @@ import {
 import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
 import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 import { v4 as uuidv4 } from "uuid";
+import { Route } from "playwright-core";
+import { Furniture1CrawlerDefinition } from "./custom/furniture1";
+import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
+import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
+import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
+import { AmazonCrawlerDefinition } from "./custom/amazon";
+import { WayfairCrawlerDefinition } from "./custom/wayfair";
+import { getFirestore, Firestore } from "firebase-admin/firestore";
+import PanpricesChromiumExtra from "../custom_crawlee/custom-launcher";
+import { chromium } from "playwright-extra";
+
+import {
+  CaptchaEncounteredError,
+  IllFormattedPageError,
+  PageNotFoundError,
+} from "../types/errors";
 import { KrautaCrawlerDefinition } from "./custom/krauta";
 import { BygghemmaCrawlerDefinition } from "./custom/bygghemma";
 import { ChilliCrawlerDefinition } from "./custom/chilli";
@@ -34,23 +55,15 @@ import { UnolivingCrawlerDefinition } from "./custom/unoliving";
 import { Ebuy24CrawlerDefinition } from "./custom/ebuy24";
 import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox";
 import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
-import { CHROMIUM_USER_DATA_DIR } from "../constants";
 import { extractDomainFromUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
-import { Route } from "playwright-core";
-import { Furniture1CrawlerDefinition } from "./custom/furniture1";
-import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
-import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
-import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
-import { AmazonCrawlerDefinition } from "./custom/amazon";
-import { WayfairCrawlerDefinition } from "./custom/wayfair";
-import { getFirestore } from "firebase-admin/firestore";
-import { firestore } from "firebase-admin";
-import Firestore = firestore.Firestore;
-import PanpricesChromiumExtra from "../custom_crawlee/custom-launcher";
-import { chromium } from "playwright-extra";
+import {
+  addCachedCookiesToBrowserContext,
+  syncBrowserCookiesToFirestore,
+  newAvailableIp,
+} from "./proxy-rotator";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -107,17 +120,15 @@ export class CrawlerFactory {
       maxRequestRetries: 2,
       navigationTimeoutSecs: 150,
       launchContext: {
-        userDataDir: CHROMIUM_USER_DATA_DIR,
+        // DO NOT use this - it causes issue when closing 1 browser and open a 2nd one.
+        // userDataDir: CHROMIUM_USER_DATA_DIR,
       },
       ...overrides,
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),
         async (ctx) => {
           ctx.page.setDefaultTimeout(20000);
-        },
-      ],
-      postNavigationHooks: [
-        async (ctx) => {
+
           log.info("Request finished", {
             requestUrl: ctx.request.url,
             url: ctx.page.url(),
@@ -127,7 +138,24 @@ export class CrawlerFactory {
           });
         },
       ],
+      postNavigationHooks: [
+        async (ctx) => {
+          log.info("Request finished", {
+            requestUrl: ctx.request.url,
+            url: ctx.page.url(),
+            statusCode: ctx.response?.status() || null,
+            proxyIp: ctx.proxyInfo?.hostname || null,
+            sessionId: ctx.session?.id || null,
+            nrCookies: (await ctx.page.context().cookies(ctx.page.url()))
+              .length,
+          });
+        },
+      ],
     };
+
+    const defaultGCPConfig = new Configuration({
+      persistStorage: false,
+    });
 
     const blockImagesAndScriptsHooks: PlaywrightHook[] = [
       async ({ page }) => {
@@ -161,7 +189,7 @@ export class CrawlerFactory {
         );
       },
     ];
-    const firestoreDB = getFirestore();
+    const firestore = getFirestore();
 
     let definition: AbstractCrawlerDefinition,
       options: PlaywrightCrawlerOptions;
@@ -367,6 +395,7 @@ export class CrawlerFactory {
       case "wayfair.de":
         definition = await WayfairCrawlerDefinition.create(launchOptions);
         const customLauncher = new PanpricesChromiumExtra(chromium);
+        // const proxyManager = new ProxyRotator();
         options = {
           ...defaultOptions,
           launchContext: {
@@ -392,8 +421,6 @@ export class CrawlerFactory {
             // Don't try to fool Wayfair because they send back a script to check that we didn't send
             // a gibberish fingerprint
             useFingerprints: false,
-            // keep browsers open for as long as possible. Prevents unnecessary IP changes
-            retireBrowserAfterPageCount: undefined,
           },
           requestHandler: definition.router,
           maxConcurrency: 1, // can't scrape too quickly due to captcha
@@ -404,11 +431,42 @@ export class CrawlerFactory {
           persistCookiesPerSession: true,
           sessionPoolOptions: {
             maxPoolSize: 1,
+            sessionOptions: {
+              maxUsageCount: 10, // rotate IPs often to avoid getting blocked
+            },
             blockedStatusCodes: [], // we handle the 429 error ourselves
           },
-          proxyConfiguration: firestoreStatusProxyConfiguration(firestoreDB),
+
+          preNavigationHooks: [
+            async (ctx) =>
+              await addCachedCookiesToBrowserContext(firestore, ctx, domain),
+            ...(defaultOptions.preNavigationHooks ?? []),
+          ],
+
+          postNavigationHooks: [
+            async (ctx) =>
+              await syncBrowserCookiesToFirestore(firestore, ctx, domain),
+            ...(defaultOptions.postNavigationHooks ?? []),
+          ],
+
+          // failedRequestHandler: async (_ctx, error) => {
+          //   if (error instanceof CaptchaEncounteredError) {
+          //     if (!proxyManager.currentIp) {
+          //       log.error("Cannot extract current IP to sync to Firebase");
+          //       return;
+          //     }
+          //     await proxyManager.removeCookies(proxyManager.currentIp, domain);
+          //   }
+          // },
+          proxyConfiguration: new ProxyConfiguration({
+            newUrlFunction: async (_sessionId) => {
+              const availableIp = await newAvailableIp();
+              return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
+            },
+          }),
         };
-        return [new PlaywrightCrawler(options), definition];
+        const crawler = new PlaywrightCrawler(options);
+        return [crawler, definition];
       // Comment to help the script understand where to add new cases
     }
 
@@ -583,9 +641,9 @@ export const proxyConfiguration = {
 
   TEST_IP: new ProxyConfiguration({
     proxyUrls: [
-      "185.228.18.3",
+      // "185.228.18.69",
       // "185.228.18.35",
-      // "185.228.18.37",
+      "185.228.18.37",
       // "185.228.18.39",
     ].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`),
   }),
@@ -714,7 +772,7 @@ const firestoreStatusProxyConfiguration = (firestoreDB: Firestore) => {
       // Update last_used
       firestoreDB
         .collection("proxy_status")
-        .doc(nextAvailableProxy.docs[0].id)
+        .doc(availableIp)
         .update({
           last_used: new Date(),
         })
