@@ -396,16 +396,7 @@ export class CrawlerFactory {
               ...(defaultOptions.launchContext?.launchOptions ?? []),
               // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
               devtools: true,
-              // Source for this args:
-              // https://stackoverflow.com/questions/51731848/how-to-avoid-being-detected-as-bot-on-puppeteer-and-phantomjs
-              args: [
-                "--window-size=1920,1080",
-                "--remote-debugging-port=9222",
-                "--remote-debugging-address=0.0.0.0",
-                "--disable-gpu",
-                "--disable-features=IsolateOrigins,site-per-process",
-                "--blink-settings=imagesEnabled=true",
-              ],
+              args: ["--window-size=1920,1080"],
             },
           },
           browserPoolOptions: {
