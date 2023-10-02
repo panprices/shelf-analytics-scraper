@@ -39,8 +39,6 @@ import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
-import PanpricesChromiumExtra from "../custom_crawlee/custom-launcher";
-import { chromium } from "playwright-extra";
 
 import {
   CaptchaEncounteredError,
@@ -119,10 +117,6 @@ export class CrawlerFactory {
       maxConcurrency: 4,
       maxRequestRetries: 2,
       navigationTimeoutSecs: 150,
-      launchContext: {
-        // DO NOT use this - it causes issue when closing 1 browser and open a 2nd one.
-        // userDataDir: CHROMIUM_USER_DATA_DIR,
-      },
       ...overrides,
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),
@@ -394,13 +388,12 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "wayfair.de":
         definition = await WayfairCrawlerDefinition.create(launchOptions);
-        const customLauncher = new PanpricesChromiumExtra(chromium);
-        // const proxyManager = new ProxyRotator();
         options = {
           ...defaultOptions,
           launchContext: {
-            launcher: customLauncher,
+            ...defaultOptions.launchContext,
             launchOptions: {
+              ...(defaultOptions.launchContext?.launchOptions ?? []),
               // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
               devtools: true,
               // Source for this args:
@@ -414,7 +407,6 @@ export class CrawlerFactory {
                 "--blink-settings=imagesEnabled=true",
               ],
             },
-            ...defaultOptions.launchContext,
           },
           browserPoolOptions: {
             ...defaultOptions.browserPoolOptions,
