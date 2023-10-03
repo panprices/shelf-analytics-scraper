@@ -48,28 +48,30 @@ export async function syncBrowserCookiesToFirestore(
     await syncCookieToFirestore(firestore, cookies, currentIp, retailerDomain);
   }
 }
-
-export async function newAvailableIp() {
-  const NR_IPS = 10;
-  const firestore = getFirestore();
-  const nextAvailableProxy = await firestore
+/**
+ * Retrieve a new (not-blocked) IP from Firestore.
+ *
+ * It return a random IP from top 10 least recently-used ip to avoid 2 scrapers
+ * accidentally retrieve the same ip at the same time.
+ */
+export async function newAvailableIp(firestore: Firestore) {
+  const notBurnedIps = await firestore
     .collection("proxy_status")
-    .orderBy("last_burned", "asc")
-    // Check if IP has not been burned in the past 30 minutes
     .where("last_burned", "<", new Date(Date.now() - 30 * 60 * 1000))
-    .orderBy("last_used", "asc")
-    .limit(NR_IPS - 2)
     .get();
 
-  if (nextAvailableProxy.empty) {
+  if (notBurnedIps.empty) {
     // Potential improvement: delay the execution of all tasks. Should be long
     // enough that the proxies are unblocked.
     throw Error("No proxy available");
   }
-  const ip =
-    nextAvailableProxy.docs[
-      Math.floor(Math.random() * nextAvailableProxy.docs.length)
-    ].get("ip");
+
+  // Get a random from top 10 least recently used ip.
+  // Randomise to avoid 2 scrapers accidentally retrieve ip at the same time.
+  const candidateIps = notBurnedIps.docs
+    .sort((doc1, doc2) => doc1.get("last_used") - doc2.get("last_used"))
+    .slice(0, 10);
+  const ip = candidateIps[Math.floor(Math.random() * candidateIps.length)].id;
 
   // Update last_used
   await firestore.collection("proxy_status").doc(ip).update({

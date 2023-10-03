@@ -443,7 +443,7 @@ export class CrawlerFactory {
           // },
           proxyConfiguration: new ProxyConfiguration({
             newUrlFunction: async (_sessionId) => {
-              const availableIp = await newAvailableIp();
+              const availableIp = await newAvailableIp(firestore);
               return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
             },
           }),
