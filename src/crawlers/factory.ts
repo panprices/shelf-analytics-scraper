@@ -123,11 +123,13 @@ export class CrawlerFactory {
         async (ctx) => {
           ctx.page.setDefaultTimeout(20000);
 
+          const proxy = `${ctx.proxyInfo?.hostname}:${ctx.proxyInfo?.port}`;
           log.info("Request finished", {
             requestUrl: ctx.request.url,
             url: ctx.page.url(),
             statusCode: ctx.response?.status() || null,
-            proxy: ctx.proxyInfo?.hostname || null,
+            proxy: proxy || null,
+            proxyUrl: ctx.proxyInfo?.url || null,
             sessionId: ctx.session?.id || null,
           });
         },
