@@ -122,23 +122,18 @@ export class CrawlerFactory {
         ...(overrides?.preNavigationHooks ?? []),
         async (ctx) => {
           ctx.page.setDefaultTimeout(20000);
-
-          log.info("Request finished", {
-            requestUrl: ctx.request.url,
-            url: ctx.page.url(),
-            statusCode: ctx.response?.status() || null,
-            proxy: ctx.proxyInfo?.hostname || null,
-            sessionId: ctx.session?.id || null,
-          });
         },
       ],
       postNavigationHooks: [
         async (ctx) => {
+          const proxy = ctx.proxyInfo
+            ? `${ctx.proxyInfo.hostname}:${ctx.proxyInfo.port}`
+            : null;
           log.info("Request finished", {
             requestUrl: ctx.request.url,
             url: ctx.page.url(),
             statusCode: ctx.response?.status() || null,
-            proxyIp: ctx.proxyInfo?.hostname || null,
+            proxy: proxy,
             sessionId: ctx.session?.id || null,
             nrCookies: (await ctx.page.context().cookies(ctx.page.url()))
               .length,
@@ -146,10 +141,6 @@ export class CrawlerFactory {
         },
       ],
     };
-
-    const defaultGCPConfig = new Configuration({
-      persistStorage: false,
-    });
 
     const blockImagesAndScriptsHooks: PlaywrightHook[] = [
       async ({ page }) => {
@@ -647,120 +638,4 @@ export const proxyConfiguration = {
   // SHARED_DATACENTER_NL: new ProxyConfiguration({
   //   proxyUrls: ["http://sdcpanprices:BB4NC4WQmx@dc.nl-pr.oxylabs.io:44000"],
   // }),
-};
-
-// TODO Refactor this to make it more clean
-const proxyUrls = [
-  "185.228.18.101",
-  "185.228.18.103",
-  "185.228.18.114",
-  "185.228.18.116",
-  "185.228.18.118",
-  "185.228.18.131",
-  "185.228.18.133",
-  "185.228.18.135",
-  "185.228.18.146",
-  "185.228.18.148",
-  "185.228.18.150",
-  "185.228.18.163",
-  "185.228.18.165",
-  "185.228.18.167",
-  "185.228.18.178",
-  "185.228.18.18",
-  "185.228.18.180",
-  "185.228.18.182",
-  "185.228.18.195",
-  "185.228.18.197",
-  "185.228.18.199",
-  "185.228.18.20",
-  "185.228.18.210",
-  "185.228.18.212",
-  "185.228.18.214",
-  "185.228.18.22",
-  "185.228.18.227",
-  "185.228.18.229",
-  "185.228.18.231",
-  "185.228.18.24",
-  "185.228.18.242",
-  "185.228.18.244",
-  "185.228.18.246",
-  "185.228.18.248",
-  "185.228.18.3",
-  "185.228.18.35",
-  "185.228.18.37",
-  "185.228.18.39",
-  "185.228.18.5",
-  "185.228.18.50",
-  "185.228.18.52",
-  "185.228.18.54",
-  "185.228.18.67",
-  "185.228.18.69",
-  "185.228.18.7",
-  "185.228.18.71",
-  "185.228.18.82",
-  "185.228.18.84",
-  "185.228.18.86",
-  "185.228.18.99",
-].map((ip) => `http://panprices:BB4NC4WQmx@${ip}:60000`);
-
-const usedProxyUrls = new Map();
-const randomProxyConfiguration = new ProxyConfiguration({
-  // proxyUrls,
-  newUrlFunction: (sessionId) => {
-    // This is based on Crawlee implementation, but assign IPs randomly
-    // to sessions instead of the default of assigning sequencially
-    // (1st sessionID - 1st proxy, then 2nd session - 2nd IP, and so on.)
-    let customUrlToUse;
-    if (!sessionId) {
-      // Purely random
-      return proxyUrls[Math.floor(Math.random() * proxyUrls.length)];
-    }
-    if (usedProxyUrls.has(sessionId)) {
-      customUrlToUse = usedProxyUrls.get(sessionId);
-    } else {
-      customUrlToUse = proxyUrls[Math.floor(Math.random() * proxyUrls.length)];
-      usedProxyUrls.set(sessionId, customUrlToUse);
-    }
-    return customUrlToUse;
-  },
-});
-
-let roundRobinProxyIndex = 0;
-const roundRobinProxyConfiguration = new ProxyConfiguration({
-  newUrlFunction: () => {
-    const nextProxyConfig = proxyUrls[roundRobinProxyIndex];
-    roundRobinProxyIndex = (roundRobinProxyIndex + 1) % proxyUrls.length;
-    return nextProxyConfig;
-  },
-});
-
-const firestoreStatusProxyConfiguration = (firestoreDB: Firestore) => {
-  return new ProxyConfiguration({
-    newUrlFunction: async () => {
-      const nextAvailableProxy = await firestoreDB
-        .collection("proxy_status")
-        .orderBy("last_burned", "asc")
-        // Check if IP has not been burned in the past 30 minutes
-        .where("last_burned", "<", new Date(Date.now() - 30 * 60 * 1000))
-        .orderBy("last_used", "asc")
-        .limit(1)
-        .get();
-
-      if (nextAvailableProxy.empty) {
-        // TODO: this should delay the execution of all tasks.
-        throw Error("No proxy available");
-      }
-      const availableIp = nextAvailableProxy.docs[0].get("ip");
-
-      // Update last_used
-      firestoreDB
-        .collection("proxy_status")
-        .doc(availableIp)
-        .update({
-          last_used: new Date(),
-        })
-        .then(() => log.debug(`Status updated for ${availableIp}`));
-      return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
-    },
-  });
 };

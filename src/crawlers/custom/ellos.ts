@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
@@ -15,6 +15,7 @@ import {
   SchemaOrg,
 } from "../../types/offer";
 import { extractNumberFromText, extractDomainFromUrl } from "../../utils";
+import { extractImagesFromDetailedPage } from "./base-homeroom";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   // protected override categoryPageSize: number = 56;
@@ -276,7 +277,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       reviews = "unavailable";
     }
 
-    const imageUrls = schemaOrg.image;
+    const imageUrls = await extractImagesFromDetailedPage(page);
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("ul.navigation-breadcrumb-items li a[href]"),
@@ -287,7 +288,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     // This is due to choosing variants from the dropdown doesn't change the url,
     // so we have to change it manually.
     // https://www.ellos.se/venture-home/abc/1651926-01
-    // -> https://www.ellos.se/venture-home/abc/{sku-of-this-variant}
+    // -> https://www.ellos.se/venture-home/abc/1651926-01-13
     const urlParts = page.url().split("/");
     urlParts.pop();
     const variantUrl = urlParts.join("/") + "/" + sku;
