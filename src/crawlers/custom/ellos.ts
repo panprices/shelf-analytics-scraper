@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,

@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
@@ -15,8 +15,7 @@ import {
   ProductReviews,
   SchemaOrg,
 } from "../../types/offer";
-import { extractDomainFromUrl, extractNumberFromText } from "../../utils";
-import { url } from "inspector";
+import { extractNumberFromText } from "../../utils";
 import { extractImagesFromDetailedPage } from "./base-homeroom";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
