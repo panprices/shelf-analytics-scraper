@@ -148,7 +148,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const schemaOrgString = <string>(
       await page
         .locator(
-          "//script[@type='application/ld+json' and contains(text(), 'schema.org')]"
+          "//script[@type='application/ld+json' " +
+            "and contains(text(), 'schema.org') " +
+            "and contains(text(), 'Product')]"
         )
         .textContent()
     );

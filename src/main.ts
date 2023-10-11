@@ -1,15 +1,18 @@
-import { log, LoggerJson } from "crawlee";
+import { log } from "crawlee";
 import fs, { writeFileSync } from "fs";
 import {
   exploreCategory,
-  exploreCategoriesNoCapture,
-  extractLeafCategories,
-  scrapeDetails,
   exploreCategoryEndToEnd,
   exploreCategoryEndToEndCheerio,
+  extractLeafCategories,
+  scrapeDetails,
 } from "./service";
-import { persistProductsToDatabase, sendRequestBatch } from "./publishing";
 import { join } from "path";
+import { initializeApp, applicationDefault } from "firebase-admin/app";
+
+initializeApp({
+  credential: applicationDefault(),
+});
 
 async function debugScrapeDetails(targetUrl: string) {
   const dummyRequest = {
@@ -162,9 +165,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 
-// await debugScrapeDetails(
-//   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
-// );
+await debugScrapeDetails(
+  "https://www.homeroom.se/exotan/fatolj-st-peter/1744256-01"
+);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
