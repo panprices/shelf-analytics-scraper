@@ -132,7 +132,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       page
     );
     const availability = await this.extractAvailability(page);
-    if (availability !== Availability.OutOfStock && (!price || price === 0)) {
+    if (availability !== Availability.OutOfStock && !price) {
       log.error("Cannot extract price and currency from product page", {
         url: page.url(),
       });
@@ -167,7 +167,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       price,
       currency,
       isDiscounted: false,
-      originalPrice: 0,
+      originalPrice: undefined,
 
       gtin: undefined,
       sku: asin,
@@ -240,7 +240,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractPriceAndCurrencyFromProductPage(
     page: Page
-  ): Promise<[number, string]> {
+  ): Promise<[number | undefined, string]> {
     let priceText;
     let currency;
 
@@ -308,7 +308,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     // No price and currency data found. Potentially out of stock.
-    return [0, "EUR"];
+    return [undefined, "EUR"];
   }
 
   async extractSpecifications(page: Page): Promise<Specification[]> {
