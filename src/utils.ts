@@ -48,12 +48,12 @@ export const loggingMiddleware = (
       };
   }
 
+  localContext.run(contextStore, () => next());
+
   // Log request data for easier debug on GCP
   log.info(req.path, {
     payload: req.body,
   });
-
-  localContext.run(contextStore, () => next());
 };
 
 export class CrawleeLoggerForGCP extends LoggerJson {

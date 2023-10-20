@@ -166,7 +166,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.homeroom.se/exotan/fatolj-st-peter/1744256-01"
+  "https://www.nordiskarum.se/bubbles-matbord-mocca-faner-19996-423.html"
 );
 
 // await debugScrapeDetailsRecordHARForTests(
