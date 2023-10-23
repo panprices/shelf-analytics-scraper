@@ -106,15 +106,17 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    // Their website is very slow at loading the images
+    page.setDefaultTimeout(60000);
+
     // Wait for images
-    try {
-      await page
-        .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
-        .first()
-        .waitFor({ state: "attached", timeout: 30000 });
-    } catch (e) {
-      log.warning("Cannot find product images", { url: page.url() });
-    }
+    await page
+      .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
+      .first()
+      .waitFor({ state: "attached", timeout: 60000 })
+      .catch(() => {
+        log.warning("Cannot find product images", { url: page.url() });
+      });
 
     const productName = await this.extractProperty(
       page,
