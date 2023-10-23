@@ -231,6 +231,7 @@ export class CrawlerFactory {
           ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
+          requestHandlerTimeoutSecs: 300, // allow longer loading timeout for slow website
         };
         return [new PlaywrightCrawler(options), definition];
       case "k-rauta.se":
