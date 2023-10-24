@@ -166,7 +166,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 
 await debugScrapeDetails(
-  "https://www.nordiskarum.se/bubbles-matbord-mocca-faner-19996-423.html"
+  "https://www.nordiskarum.se/aspen-ovalt-matbord---svart-/-mocca-faner-15106-588.html"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

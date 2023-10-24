@@ -1,24 +1,13 @@
 import { Locator, Page } from "playwright";
-import {
-  browserCrawlerEnqueueLinks,
-  Dataset,
-  log,
-  PlaywrightCrawlingContext,
-} from "crawlee";
-import { v4 as uuidv4 } from "uuid";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
-  OfferMetadata,
-  ProductReviews,
-  SchemaOrg,
   Specification,
 } from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
 
 export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   protected override categoryPageSize: number = 12;
@@ -107,13 +96,13 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     // Their website is very slow at loading the images
-    page.setDefaultTimeout(60000);
+    page.setDefaultTimeout(90000);
 
     // Wait for images
     await page
       .locator(".m-product-gallery ul.glide__slides img:not(.noscript)")
       .first()
-      .waitFor({ state: "attached", timeout: 60000 })
+      .waitFor({ state: "attached" })
       .catch(() => {
         log.warning("Cannot find product images", { url: page.url() });
       });
@@ -134,7 +123,10 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const price = await this.extractPriceFromProductDetailsPage(page);
     const originalPrice = await this.extractOriginalPriceFromProductDetailsPage(
       page
-    );
+    ).catch(() => {
+      log.warning("Cannot extract original price", { url: page.url() });
+      return undefined;
+    });
     const isDiscounted = !!originalPrice;
 
     const images = await this.extractProductImagesFromProductDetailsPage(page);
@@ -268,13 +260,21 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     const imageCount = await imageLocator.count();
     const images = [];
     for (let i = 0; i < imageCount; ++i) {
-      const imgUrl = await imageLocator.nth(i).getAttribute("src");
+      // Try to get the image but catch the exception in case it happens
+      const imgUrl = await imageLocator
+        .nth(i)
+        .getAttribute("src")
+        .catch(() => {
+          log.warning("Cannot extract image url", { url: page.url() });
+          return null;
+        });
       if (imgUrl) {
         images.push(imgUrl);
       }
     }
-    const imagesDeduplicated = [...new Set(images)];
-    return imagesDeduplicated;
+
+    // Deduplicate images
+    return [...new Set(images)];
   }
 
   async extractCategoryTreeOfCategorypage(page: Page): Promise<Category[]> {
