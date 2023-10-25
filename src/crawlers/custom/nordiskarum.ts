@@ -13,6 +13,9 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
   protected override categoryPageSize: number = 12;
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    // Their website is very slow at loading the images
+    ctx.page.setDefaultTimeout(90000);
+
     // Crawl list page in parallel since each page takes too long to load:
     const categoryUrl = ctx.page.url();
     if (!categoryUrl.includes("?page=")) {

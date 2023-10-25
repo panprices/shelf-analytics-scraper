@@ -156,18 +156,17 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
 // );
 
-// Ellos Home
-// await debugCategoryExploration(
-//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-// );
+await debugCategoryExploration(
+  "https://www.nordiskarum.se/utemobler/hammockar-bankar-tradgardssoffor/sittbankar-ute.html"
+);
 
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
-
-await debugScrapeDetails(
-  "https://www.nordiskarum.se/aspen-ovalt-matbord---svart-/-mocca-faner-15106-588.html"
-);
+//
+// await debugScrapeDetails(
+//   "https://www.nordiskarum.se/aspen-ovalt-matbord---svart-/-mocca-faner-15106-588.html"
+// );
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
