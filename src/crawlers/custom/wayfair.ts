@@ -357,10 +357,12 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<WayfairCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new WayfairCrawlerDefinition(
       {

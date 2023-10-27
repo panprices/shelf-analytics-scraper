@@ -87,6 +87,7 @@ export interface CrawlerLaunchOptions {
    * Option to ignore enquing variants of a product
    */
   ignoreVariants?: boolean;
+  uniqueCrawlerKey: string;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -607,14 +608,16 @@ export abstract class AbstractCrawlerDefinition
     return this._detailsDataset;
   }
 
-  static async openDatasets(): Promise<[Dataset, Dataset]> {
+  static async openDatasets(
+    uniqueCrawlerKey?: string
+  ): Promise<[Dataset, Dataset]> {
     // Open a new dataset with unique name (using uuidv4) so that
     // each scraper instance has its own queue.
     const detailsDataset = await Dataset.open(
-      "__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4()
+      "__CRALWEE_PANPRICES_detailsDataset_" + (uniqueCrawlerKey ?? uuidv4())
     );
     const listingDataset = await Dataset.open(
-      "__CRAWLEE_TEMPORARY_listingDataset_" + uuidv4()
+      "__CRALWEE_PANPRICES_listingDataset_" + (uniqueCrawlerKey ?? uuidv4())
     );
 
     return [detailsDataset, listingDataset];

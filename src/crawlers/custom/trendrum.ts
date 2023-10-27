@@ -8,7 +8,7 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition } from "../abstract";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
   Category,
   DetailedProductInfo,
@@ -328,9 +328,13 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
-  static async create(): Promise<TrendrumCrawlerDefinition> {
+  static async create(
+    launchOptions: CrawlerLaunchOptions
+  ): Promise<TrendrumCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new TrendrumCrawlerDefinition({
       detailsDataset,

@@ -16,12 +16,17 @@ import {
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
 } from "../abstract";
 import { PageNotFoundError } from "../../types/errors";
 
-export async function createCrawlerDefinitionOption(): Promise<CrawlerDefinitionOptions> {
+export async function createCrawlerDefinitionOption(
+  launchOptions?: CrawlerLaunchOptions
+): Promise<CrawlerDefinitionOptions> {
   const [detailsDataset, listingDataset] =
-    await AbstractCrawlerDefinition.openDatasets();
+    await AbstractCrawlerDefinition.openDatasets(
+      launchOptions?.uniqueCrawlerKey
+    );
 
   return {
     detailsDataset,

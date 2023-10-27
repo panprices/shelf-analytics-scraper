@@ -409,10 +409,12 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<HomeroomCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new HomeroomCrawlerDefinition({
       detailsDataset,

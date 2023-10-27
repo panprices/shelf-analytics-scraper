@@ -347,10 +347,12 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<NordiskaGallerietCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new NordiskaGallerietCrawlerDefinition({
       detailsDataset,

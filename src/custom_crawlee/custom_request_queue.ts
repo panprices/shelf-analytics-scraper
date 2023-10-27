@@ -7,7 +7,8 @@ import {
   RequestOptions,
   RequestQueue,
   RequestQueueOperationOptions,
-  RequestQueueOptions, Source,
+  RequestQueueOptions,
+  Source,
   StorageManager,
   StorageManagerOptions,
 } from "crawlee";
@@ -18,19 +19,18 @@ export interface CustomQueueSettings {
   captureLabels: string[];
 }
 
-
 /**
  * Copied from crawlee source because they were not exporting this inteface in version 3.5.4, but some methods we are
  * overriding have this as their return type
  */
 interface RequestQueueOperationInfo extends QueueOperationInfo {
-    /** Indicates if request was already present in the queue. */
-    wasAlreadyPresent: boolean;
-    /** Indicates if request was already marked as handled. */
-    wasAlreadyHandled: boolean;
-    /** The ID of the added request */
-    requestId: string;
-    uniqueKey: string;
+  /** Indicates if request was already present in the queue. */
+  wasAlreadyPresent: boolean;
+  /** Indicates if request was already marked as handled. */
+  wasAlreadyHandled: boolean;
+  /** The ID of the added request */
+  requestId: string;
+  uniqueKey: string;
 }
 
 /**
@@ -48,13 +48,15 @@ export class CustomRequestQueue extends RequestQueue {
   syncedQueue: RequestQueue;
 
   private readonly captureLabels: string[];
+  private readonly uniqueKey;
 
   constructor(
     options: RequestQueueOptions,
     inWaitQueue: RequestQueue,
     syncedQueue: RequestQueue,
     config?: Configuration,
-    customSettings?: CustomQueueSettings
+    customSettings?: CustomQueueSettings,
+    uniqueKey?: string
   ) {
     super(options, config);
 
@@ -62,6 +64,7 @@ export class CustomRequestQueue extends RequestQueue {
     this.syncedQueue = syncedQueue;
 
     this.captureLabels = customSettings ? customSettings.captureLabels : [];
+    this.uniqueKey = uniqueKey ?? uuidv4();
   }
 
   override async addRequest(
@@ -162,23 +165,20 @@ export class CustomRequestQueue extends RequestQueue {
   static override async open(
     queueIdOrName?: string | null,
     options: StorageManagerOptions = {},
-    customSettings?: CustomQueueSettings
+    customSettings?: CustomQueueSettings,
+    uniqueKey?: string
   ): Promise<RequestQueue> {
     await purgeDefaultStorages();
     const manager = StorageManager.getManager(RequestQueue, options.config);
 
     const wrappedQueue: RequestQueue = await manager.openStorage(queueIdOrName);
 
-    /**
-     * The prefix `__CRAWLEE_TEMPORARY_` tells crawlee that we want these datasets to be purged (deleted) at the
-     * beginning of every run.
-     */
     const inWaitQueue = await RequestQueue.open(
-      "__CRAWLEE_TEMPORARY_inWaitQueue_" + uuidv4(),
+      "__CRALWEE_PANPRICES_inWaitQueue_" + uniqueKey,
       options
     );
     const syncedQueue = await RequestQueue.open(
-      "__CRAWLEE_TEMPORARY_syncedQueue_" + uuidv4(),
+      "__CRALWEE_PANPRICES_syncedQueue_" + uniqueKey,
       options
     );
 
@@ -191,7 +191,8 @@ export class CustomRequestQueue extends RequestQueue {
       inWaitQueue,
       syncedQueue,
       undefined,
-      customSettings
+      customSettings,
+      uniqueKey
     );
   }
 }

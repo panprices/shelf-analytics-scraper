@@ -406,10 +406,12 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<EllosCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new EllosCrawlerDefinition({
       detailsDataset,

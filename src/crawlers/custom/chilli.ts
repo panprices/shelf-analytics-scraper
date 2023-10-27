@@ -194,10 +194,12 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<ChilliCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new ChilliCrawlerDefinition({
       detailsDataset,

@@ -400,10 +400,12 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<VentureDesignCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
     return new VentureDesignCrawlerDefinition({
       detailsDataset,
       listingDataset,

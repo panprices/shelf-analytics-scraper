@@ -269,9 +269,9 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<FurnitureboxCrawlerDefinition> {
-    const options = await createCrawlerDefinitionOption();
+    const options = await createCrawlerDefinitionOption(launchOptions);
     // Next page buttons are dynamically rendered, so we need to scroll slower
     options.dynamicProductCardLoading = true;
 

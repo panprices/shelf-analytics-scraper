@@ -233,10 +233,12 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<Furniture1CrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new Furniture1CrawlerDefinition({
       detailsDataset,
