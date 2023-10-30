@@ -353,10 +353,12 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<BygghemmaCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new BygghemmaCrawlerDefinition(
       {

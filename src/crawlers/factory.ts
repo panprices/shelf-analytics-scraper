@@ -1,10 +1,7 @@
 import {
   CheerioCrawler,
   CheerioCrawlerOptions,
-  Configuration,
-  Cookie,
   log,
-  NonRetryableError,
   PlaywrightCrawler,
   PlaywrightCrawlerOptions,
   PlaywrightCrawlingContext,
@@ -12,9 +9,6 @@ import {
   PlaywrightHook,
   ProxyConfiguration,
   RequestQueue,
-  KeyValueStore,
-  SessionPool,
-  Session,
 } from "crawlee";
 import {
   CustomQueueSettings,
@@ -25,12 +19,10 @@ import { TrademaxCrawlerDefinition } from "./custom/trademax";
 import {
   AbstractCheerioCrawlerDefinition,
   AbstractCrawlerDefinition,
-  CrawlerDefinition,
   CrawlerLaunchOptions,
 } from "./abstract";
 import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
 import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
-import { v4 as uuidv4 } from "uuid";
 import { Route } from "playwright-core";
 import { Furniture1CrawlerDefinition } from "./custom/furniture1";
 import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
@@ -38,13 +30,7 @@ import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
 import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
-import { getFirestore, Firestore } from "firebase-admin/firestore";
-
-import {
-  CaptchaEncounteredError,
-  IllFormattedPageError,
-  PageNotFoundError,
-} from "../types/errors";
+import { getFirestore } from "firebase-admin/firestore";
 import { KrautaCrawlerDefinition } from "./custom/krauta";
 import { BygghemmaCrawlerDefinition } from "./custom/bygghemma";
 import { ChilliCrawlerDefinition } from "./custom/chilli";
@@ -59,8 +45,8 @@ import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import {
   addCachedCookiesToBrowserContext,
-  syncBrowserCookiesToFirestore,
   newAvailableIp,
+  syncBrowserCookiesToFirestore,
 } from "./proxy-rotator";
 
 export interface CrawlerFactoryArgs {
@@ -80,8 +66,8 @@ export interface CrawlerFactoryArgs {
 export class CrawlerFactory {
   static async buildPlaywrightCrawler(
     args: CrawlerFactoryArgs,
-    overrides?: PlaywrightCrawlerOptions,
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions,
+    overrides?: PlaywrightCrawlerOptions
   ): Promise<[PlaywrightCrawler, AbstractCrawlerDefinition]> {
     if (args.useCustomQueue === undefined) {
       // use custom queue by default
@@ -89,13 +75,16 @@ export class CrawlerFactory {
     }
 
     const domain = args.domain;
+    const uniqueCrawlerKey = launchOptions.uniqueCrawlerKey;
     const requestQueue = args.useCustomQueue
       ? await CustomRequestQueue.open(
-          "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4(),
+          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
           {},
           args.customQueueSettings
         )
-      : await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4());
+      : await RequestQueue.open(
+          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
+        );
 
     const defaultOptions: PlaywrightCrawlerOptions = {
       requestQueue,
@@ -326,7 +315,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "trendrum.se":
-        definition = await TrendrumCrawlerDefinition.create();
+        definition = await TrendrumCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -450,7 +439,8 @@ export class CrawlerFactory {
   }
 
   static async buildCheerioCrawler(
-    args: CrawlerFactoryArgs
+    args: CrawlerFactoryArgs,
+    launchOptions: CrawlerLaunchOptions
   ): Promise<[CheerioCrawler, AbstractCheerioCrawlerDefinition]> {
     if (args.useCustomQueue === undefined) {
       // use custom queue by default
@@ -458,13 +448,16 @@ export class CrawlerFactory {
     }
 
     const url = args.domain;
+    const uniqueCrawlerKey = launchOptions.uniqueCrawlerKey;
     const requestQueue = args.useCustomQueue
       ? await CustomRequestQueue.open(
-          "__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4(),
+          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
           {},
           args.customQueueSettings
         )
-      : await RequestQueue.open("__CRAWLEE_TEMPORARY_rootQueue_" + uuidv4());
+      : await RequestQueue.open(
+          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
+        );
 
     const defaultOptions: CheerioCrawlerOptions = {
       requestQueue,
@@ -477,7 +470,9 @@ export class CrawlerFactory {
       case "chilli.se":
       case "trademax.se":
       case "furniturebox.se":
-        const definition = await ChilliCheerioCrawlerDefinition.create();
+        const definition = await ChilliCheerioCrawlerDefinition.create(
+          uniqueCrawlerKey
+        );
         const options: CheerioCrawlerOptions = {
           ...defaultOptions,
           requestHandler: definition.router,

@@ -214,10 +214,12 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<GardenStoreCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new GardenStoreCrawlerDefinition({
       detailsDataset,

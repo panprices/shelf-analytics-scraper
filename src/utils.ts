@@ -3,6 +3,9 @@ import { Request, Response, NextFunction } from "express";
 import { AsyncLocalStorage } from "async_hooks";
 import { v4 as uuidv4 } from "uuid";
 import { LocalContextStore } from "./types/utils";
+import { readdir } from "fs/promises";
+import { MemoryStorage } from "@crawlee/memory-storage";
+import fs from "fs";
 
 export const localContext = new AsyncLocalStorage<LocalContextStore>();
 
@@ -125,4 +128,47 @@ export function convertCurrencySymbolToISO(symbol: string): string {
   if (!code) throw Error(`Unknown currency symbol: ${symbol}`);
 
   return code;
+}
+
+async function renameFoldersForDeletion(
+  rootDir: string,
+  uniqueCrawlerKey: string
+) {
+  // Key-value stores
+  const folders = await readdir(rootDir).catch(() => []);
+
+  for (const existingFolder of folders) {
+    if (
+      existingFolder.startsWith("__CRAWLEE_PANPRICES") &&
+      existingFolder.endsWith(uniqueCrawlerKey)
+    ) {
+      // rename the folder to force deleting when on the next run
+      fs.renameSync(
+        rootDir + "/" + existingFolder,
+        rootDir + "/" + existingFolder.replace("PANPRICES", "TEMPORARY")
+      );
+    }
+  }
+}
+
+/**
+ * Changes the name of the folders from __CRAWLEE_PANPRICES_* to __CRAWLEE_TEMPORARY_* so they will be deleted on the
+ * next run of a crawler on the same instance / pod
+ * @param uniqueCrawlerKey
+ */
+export async function clearStorage(uniqueCrawlerKey: string) {
+  const storageClient = new MemoryStorage();
+
+  await renameFoldersForDeletion(
+    storageClient.keyValueStoresDirectory,
+    uniqueCrawlerKey
+  );
+  await renameFoldersForDeletion(
+    storageClient.datasetsDirectory,
+    uniqueCrawlerKey
+  );
+  await renameFoldersForDeletion(
+    storageClient.requestQueuesDirectory,
+    uniqueCrawlerKey
+  );
 }

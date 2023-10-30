@@ -1,10 +1,11 @@
 import { CrawlerFactory } from "./crawlers/factory";
 import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
-import { extractDomainFromUrl } from "./utils";
+import { clearStorage, extractDomainFromUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
 import { findCategoryTree } from "./category-tree-mapping";
+import { v4 as uuidv4 } from "uuid";
 
 export async function exploreCategory(
   targetUrl: string,
@@ -12,6 +13,7 @@ export async function exploreCategory(
   overrides?: PlaywrightCrawlerOptions
 ): Promise<RequestOptions[]> {
   const domain = extractDomainFromUrl(targetUrl);
+  const uniqueCrawlerKey = uuidv4();
 
   const [crawler, crawlerDefinition] =
     await CrawlerFactory.buildPlaywrightCrawler(
@@ -19,6 +21,9 @@ export async function exploreCategory(
         domain,
         type: "categoryExploration",
         customQueueSettings: { captureLabels: ["DETAIL"] },
+      },
+      {
+        uniqueCrawlerKey,
       },
       {
         ...overrides,
@@ -65,7 +70,9 @@ export async function exploreCategory(
     await inWaitQueue.markRequestHandled(request);
   }
 
-  return requestOptions;
+  const result = requestOptions;
+  await clearStorage(uniqueCrawlerKey);
+  return result;
 }
 
 function postProcessListingProduct(
@@ -98,7 +105,7 @@ export async function exploreCategoriesNoCapture(
   if (targetUrls.length === 0) {
     return [];
   }
-
+  const uniqueCrawlerKey = uuidv4();
   const domain = extractDomainFromUrl(targetUrls[0]);
 
   const [crawler, crawlerDefinition] =
@@ -109,6 +116,9 @@ export async function exploreCategoriesNoCapture(
         customQueueSettings: {
           captureLabels: [],
         },
+      },
+      {
+        uniqueCrawlerKey,
       },
       {
         ...overrides,
@@ -125,7 +135,9 @@ export async function exploreCategoriesNoCapture(
     })
   );
 
-  return await extractProductDetails(crawlerDefinition);
+  const result = await extractProductDetails(crawlerDefinition);
+  await clearStorage(uniqueCrawlerKey);
+  return result;
 }
 
 export async function exploreCategoryEndToEnd(
@@ -205,6 +217,7 @@ export async function searchForProducts(
   retailerDomain: string,
   overrides?: PlaywrightCrawlerOptions
 ): Promise<RequestOptions[]> {
+  const uniqueCrawlerKey = uuidv4();
   const [crawler, crawlerDefinition] =
     await CrawlerFactory.buildPlaywrightCrawler(
       {
@@ -213,6 +226,9 @@ export async function searchForProducts(
         // Do not continue to explore the product page.
         // Capture those pages and publish them to the scheduler later.
         customQueueSettings: { captureLabels: ["DETAIL"] },
+      },
+      {
+        uniqueCrawlerKey,
       },
       overrides
     );
@@ -247,12 +263,15 @@ export async function searchForProducts(
     await inWaitQueue.markRequestHandled(request);
   }
 
-  return requestOptions;
+  const result = requestOptions;
+  await clearStorage(uniqueCrawlerKey);
+  return result;
 }
 
 export async function extractLeafCategories(
   targetUrls: string[]
 ): Promise<string[]> {
+  const uniqueCrawlerKey = uuidv4();
   if (targetUrls.length === 0) {
     return [];
   }
@@ -266,6 +285,9 @@ export async function extractLeafCategories(
       customQueueSettings: {
         captureLabels: ["LIST"],
       },
+    },
+    {
+      uniqueCrawlerKey,
     },
     {
       headless: true,
@@ -293,7 +315,9 @@ export async function extractLeafCategories(
   }
 
   log.info("Categories found", { nrCategoryUrls: categoryUrls.length });
-  return categoryUrls;
+  const result = categoryUrls;
+  await clearStorage(uniqueCrawlerKey);
+  return result;
 }
 
 export async function scrapeDetails(
@@ -305,6 +329,7 @@ export async function scrapeDetails(
   if (detailedPages.length === 0) {
     return [];
   }
+  const uniqueCrawlerKey = uuidv4();
 
   const allProducts = [];
 
@@ -318,11 +343,16 @@ export async function scrapeDetails(
     );
     let crawler, crawlerDefinition;
     if (useCheerio) {
-      [crawler, crawlerDefinition] = await CrawlerFactory.buildCheerioCrawler({
-        domain,
-        type: "scrapeDetails",
-        useCustomQueue: false,
-      });
+      [crawler, crawlerDefinition] = await CrawlerFactory.buildCheerioCrawler(
+        {
+          domain,
+          type: "scrapeDetails",
+          useCustomQueue: false,
+        },
+        {
+          uniqueCrawlerKey,
+        }
+      );
     } else {
       [crawler, crawlerDefinition] =
         await CrawlerFactory.buildPlaywrightCrawler(
@@ -332,9 +362,12 @@ export async function scrapeDetails(
             useCustomQueue: false,
           },
           {
-            ...overrides,
+            ...(launchOptions ?? {}),
+            uniqueCrawlerKey: uuidv4(),
           },
-          launchOptions
+          {
+            ...overrides,
+          }
         );
     }
     await crawler.run(pagesToScrape);
@@ -343,7 +376,9 @@ export async function scrapeDetails(
     allProducts.push(...products);
   }
 
-  return allProducts;
+  const result = allProducts;
+  await clearStorage(uniqueCrawlerKey);
+  return result;
 }
 
 async function extractProductDetails(

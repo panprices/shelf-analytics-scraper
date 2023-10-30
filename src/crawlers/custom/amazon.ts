@@ -469,10 +469,12 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   static async create(
-    launchOptions?: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions
   ): Promise<AmazonCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new AmazonCrawlerDefinition({
       detailsDataset,

@@ -34,6 +34,7 @@ async function debugScrapeDetails(targetUrl: string) {
     false,
     {
       ignoreVariants: false,
+      uniqueCrawlerKey: "job_test_1",
     }
   );
 

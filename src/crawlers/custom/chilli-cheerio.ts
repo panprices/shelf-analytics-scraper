@@ -72,9 +72,11 @@ export class ChilliCheerioCrawlerDefinition extends AbstractCheerioCrawlerDefini
     return productDetails;
   }
 
-  static async create(): Promise<ChilliCheerioCrawlerDefinition> {
+  static async create(
+    uniqueCrawlerKey: string
+  ): Promise<ChilliCheerioCrawlerDefinition> {
     const detailsDataset = await Dataset.open(
-      "__CRAWLEE_TEMPORARY_detailsDataset_" + uuidv4()
+      "__CRALWEE_PANPRICES_detailsDataset_" + uniqueCrawlerKey
     );
 
     return new ChilliCheerioCrawlerDefinition({
