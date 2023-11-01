@@ -351,6 +351,7 @@ export class CrawlerFactory {
       case "nordiskagalleriet.se":
       case "nordiskagalleriet.fi":
       case "nordiskagalleriet.no":
+      case "nordiskagalleriet.dk":
         definition = await NordiskaGallerietCrawlerDefinition.create(
           launchOptions
         );

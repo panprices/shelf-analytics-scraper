@@ -153,13 +153,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 // await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
 
-// await debugScrapeDetails(
-//   "https://www.bygghemma.se/tradgard-och-utemiljo/utemobler-och-tradgardsmobler/solstol-och-solmobler/dackstol/solstol-venture-design-kiara/p-1110925"
-// );
-
-await debugCategoryExploration(
-  "https://www.nordiskarum.se/utemobler/hammockar-bankar-tradgardssoffor/sittbankar-ute.html"
+await debugScrapeDetails(
+  "https://www.nordiskagalleriet.dk/gubi/pedrera-coffee-table-black"
 );
+
+// await debugCategoryExploration(
+//   "https://www.nordiskarum.se/utemobler/hammockar-bankar-tradgardssoffor/sittbankar-ute.html"
+// );
 
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
