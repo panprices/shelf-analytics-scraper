@@ -16,6 +16,18 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     return Promise.resolve(undefined);
   }
 
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    // The group URL is also the first variant so we scrape it
+    await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
+
+    const hasVariants = (await this.getOptionsCountForParamIndex(ctx, 0)) > 0;
+    if (hasVariants) {
+      await super.crawlDetailPage(ctx);
+    }
+  }
+
   override async selectOptionForParamIndex(
     ctx: PlaywrightCrawlingContext<Dictionary>,
     paramIndex: number,
@@ -30,7 +42,6 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       state: "visible",
       timeout: 15000,
     });
-
     await ctx.page
       .locator("ul.product-variants li:not(.active)")
       .nth(optionIndex)
