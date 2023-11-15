@@ -21,8 +21,11 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     paramIndex: number,
     optionIndex: number
   ): Promise<void> {
-    await ctx.page.locator("div.product-variant-selection a").click();
-    // await ctx.page.locator("ul.product-variants li:not(.active)").click();
+    await ctx.page
+      .locator("div.product-variant-selection a")
+      .nth(paramIndex)
+      .click();
+
     await ctx.page
       .locator("ul.product-variants li:not(.active)")
       .nth(optionIndex)
@@ -30,7 +33,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
   }
   override async hasSelectedOptionForParamIndex(
     _: PlaywrightCrawlingContext<Dictionary>,
-    paramIndex: number
+    _paramIndex: number
   ): Promise<boolean> {
     // There is always a selected option on connox.dk
     return true;
@@ -47,7 +50,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
   }
   override async checkInvalidVariant(
     _: PlaywrightCrawlingContext<Dictionary>,
-    currentOption: number[]
+    _currentOption: number[]
   ): Promise<boolean> {
     // Cannot select invalid variants on connox.dk
     return false;
