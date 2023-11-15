@@ -26,6 +26,11 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       .nth(paramIndex)
       .click();
 
+    await ctx.page.waitForSelector("ul.product-variants li:not(.active)", {
+      state: "visible",
+      timeout: 15000,
+    });
+
     await ctx.page
       .locator("ul.product-variants li:not(.active)")
       .nth(optionIndex)
