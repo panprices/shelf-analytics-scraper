@@ -20,6 +20,7 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
+import { PageNotFoundError } from "../../types/errors";
 
 export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
@@ -64,6 +65,10 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    if (page.url().includes("?redirect=301")) {
+      throw new PageNotFoundError("Page not found");
+    }
+
     const productNameSelector = "h1.pdp-buySection-title";
     await page.waitForSelector(productNameSelector);
 
