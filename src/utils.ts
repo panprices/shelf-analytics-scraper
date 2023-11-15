@@ -137,11 +137,23 @@ async function renameFoldersForDeletion(
   // Key-value stores
   const folders = await readdir(rootDir).catch(() => []);
 
+  log.debug("Renaming folders for deletion", {
+    rootDir,
+    nrFolders: folders.length,
+    uniqueCrawlerKey,
+  });
+
   for (const existingFolder of folders) {
+    log.debug(existingFolder);
     if (
       existingFolder.startsWith("__CRAWLEE_PANPRICES") &&
       existingFolder.endsWith(uniqueCrawlerKey)
     ) {
+      log.debug("Renaming", {
+        from: rootDir + "/" + existingFolder,
+        to: rootDir + "/" + existingFolder.replace("PANPRICES", "TEMPORARY"),
+      });
+      log.debug(rootDir + "/" + existingFolder);
       // rename the folder to force deleting when on the next run
       fs.renameSync(
         rootDir + "/" + existingFolder,

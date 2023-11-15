@@ -10,6 +10,7 @@ import {
   ProxyConfiguration,
   RequestQueue,
 } from "crawlee";
+import { v4 as uuidv4 } from "uuid";
 import {
   CustomQueueSettings,
   CustomRequestQueue,
@@ -43,6 +44,7 @@ import { extractDomainFromUrl } from "../utils";
 import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
+import { ConnoxCrawlerDefinition } from "./custom/connox";
 import {
   addCachedCookiesToBrowserContext,
   newAvailableIp,
@@ -78,12 +80,12 @@ export class CrawlerFactory {
     const uniqueCrawlerKey = launchOptions.uniqueCrawlerKey;
     const requestQueue = args.useCustomQueue
       ? await CustomRequestQueue.open(
-          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
+          "__CRAWLEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
           {},
           args.customQueueSettings
         )
       : await RequestQueue.open(
-          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
+          "__CRAWLEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
         );
 
     const defaultOptions: PlaywrightCrawlerOptions = {
@@ -395,6 +397,7 @@ export class CrawlerFactory {
           useSessionPool: true,
           persistCookiesPerSession: true,
           sessionPoolOptions: {
+            persistStateKeyValueStoreId: "KEY_VALUE_" + uuidv4(),
             maxPoolSize: 1,
             sessionOptions: {
               maxUsageCount: 10, // rotate IPs often to avoid getting blocked
@@ -432,6 +435,13 @@ export class CrawlerFactory {
         };
         const crawler = new PlaywrightCrawler(options);
         return [crawler, definition];
+      case "connox.dk":
+        definition = await ConnoxCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
     }
 
@@ -452,12 +462,12 @@ export class CrawlerFactory {
     const uniqueCrawlerKey = launchOptions.uniqueCrawlerKey;
     const requestQueue = args.useCustomQueue
       ? await CustomRequestQueue.open(
-          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
+          "__CRAWLEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
           {},
           args.customQueueSettings
         )
       : await RequestQueue.open(
-          "__CRALWEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
+          "__CRAWLEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
         );
 
     const defaultOptions: CheerioCrawlerOptions = {

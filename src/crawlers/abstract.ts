@@ -614,10 +614,10 @@ export abstract class AbstractCrawlerDefinition
     // Open a new dataset with unique name (using uuidv4) so that
     // each scraper instance has its own queue.
     const detailsDataset = await Dataset.open(
-      "__CRALWEE_PANPRICES_detailsDataset_" + (uniqueCrawlerKey ?? uuidv4())
+      "__CRAWLEE_PANPRICES_detailsDataset_" + (uniqueCrawlerKey ?? uuidv4())
     );
     const listingDataset = await Dataset.open(
-      "__CRALWEE_PANPRICES_listingDataset_" + (uniqueCrawlerKey ?? uuidv4())
+      "__CRAWLEE_PANPRICES_listingDataset_" + (uniqueCrawlerKey ?? uuidv4())
     );
 
     return [detailsDataset, listingDataset];

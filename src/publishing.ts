@@ -170,7 +170,7 @@ export async function updateProductsPopularity(
   }
 }
 
-export async function publishMatchingProducts(
+export async function publishProductsToUpdate(
   products: DetailedProductInfo[],
   jobContext: JobContext
 ) {
@@ -182,7 +182,7 @@ export async function publishMatchingProducts(
   }
   const topic = process.env.SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC;
 
-  log.info(`Publishing matching products to be updated.`, {
+  log.info(`Publishing products to be updated.`, {
     nrProducts: products.length,
   });
 

@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
 import { exploreCategory, scrapeDetails, searchForProducts } from "./service";
-import { log } from "crawlee";
+import { log, purgeDefaultStorages } from "crawlee";
 import {
   ListingProductInfo,
   RequestBatch,
@@ -11,7 +11,7 @@ import {
 } from "./types/offer";
 import {
   persistProductsToDatabase,
-  publishMatchingProducts,
+  publishProductsToUpdate,
   updateProductsPopularity,
   sendRequestBatch,
 } from "./publishing";
@@ -139,9 +139,10 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     });
   }
 
+  // Filter for matching products and publish them to be updated immediately:
   const matchingProducts = products.filter((p) => p.matchingType === "match");
   if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {
-    await publishMatchingProducts(matchingProducts, body.jobContext);
+    await publishProductsToUpdate(matchingProducts, body.jobContext);
   }
 
   res.status(200).send({
