@@ -87,40 +87,40 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     const brand = await this.extractProperty(
       page,
       "div.product-details a.product-manufacturer-link",
-      (node) => node.getAttribute("tittle")
+      (node) => node.getAttribute("title")
     ).then((text) => text?.trim());
 
-    const accorditionItemLocators = page.locator(
-      "section#product-properties div.accordition__item"
+    const accordionItemLocators = page.locator(
+      "section#product-properties div.accordion__item"
     );
-    const accorditionItemCount = await accorditionItemLocators.count();
+    const accordionItemCount = await accordionItemLocators.count();
 
     let description;
     let specifications: Specification[] = [];
-    for (let i = 0; i < accorditionItemCount; i++) {
-      const headline = await accorditionItemLocators
+    for (let i = 0; i < accordionItemCount; i++) {
+      const headline = await accordionItemLocators
         .nth(i)
         .locator(".accordion__item__headline")
         .textContent()
         .then((text) => text?.trim());
-      const accorditionContentLocator = accorditionItemLocators
+      const accordionContentLocator = accordionItemLocators
         .nth(i)
         .locator(".accordion__item__content");
       switch (headline) {
         case "Beskrivelse":
-          description = await accorditionContentLocator
+          description = await accordionContentLocator
             .textContent()
             .then((text) => text?.trim());
           break;
         case "Egenskaber":
           specifications = await this.extractSpecificationsFromTable(
-            accorditionContentLocator.locator("table tr td:first-child"),
-            accorditionContentLocator.locator("table tr td:last-child")
+            accordionContentLocator.locator("table tr td:first-child"),
+            accordionContentLocator.locator("table tr td:last-child")
           );
           break;
         default:
-          log.debug("Unknown accordition headline", {
-            accorditionHeadline: headline,
+          log.debug("Unknown accordion headline", {
+            accordionHeadline: headline,
           });
       }
     }
