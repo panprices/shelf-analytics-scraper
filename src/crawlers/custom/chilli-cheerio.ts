@@ -76,7 +76,7 @@ export class ChilliCheerioCrawlerDefinition extends AbstractCheerioCrawlerDefini
     uniqueCrawlerKey: string
   ): Promise<ChilliCheerioCrawlerDefinition> {
     const detailsDataset = await Dataset.open(
-      "__CRALWEE_PANPRICES_detailsDataset_" + uniqueCrawlerKey
+      "__CRAWLEE_PANPRICES_detailsDataset_" + uniqueCrawlerKey
     );
 
     return new ChilliCheerioCrawlerDefinition({

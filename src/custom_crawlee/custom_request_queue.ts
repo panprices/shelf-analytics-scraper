@@ -174,11 +174,11 @@ export class CustomRequestQueue extends RequestQueue {
     const wrappedQueue: RequestQueue = await manager.openStorage(queueIdOrName);
 
     const inWaitQueue = await RequestQueue.open(
-      "__CRALWEE_PANPRICES_inWaitQueue_" + uniqueKey,
+      "__CRAWLEE_PANPRICES_inWaitQueue_" + uniqueKey,
       options
     );
     const syncedQueue = await RequestQueue.open(
-      "__CRALWEE_PANPRICES_syncedQueue_" + uniqueKey,
+      "__CRAWLEE_PANPRICES_syncedQueue_" + uniqueKey,
       options
     );
 

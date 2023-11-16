@@ -22,6 +22,12 @@ import {
   AbstractCrawlerDefinition,
   CrawlerLaunchOptions,
 } from "./abstract";
+import {
+  addCachedCookiesToBrowserContext,
+  newAvailableIp,
+  syncBrowserCookiesToFirestore,
+} from "./proxy-rotator";
+
 import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
 import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 import { Route } from "playwright-core";
@@ -45,11 +51,8 @@ import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import { ConnoxCrawlerDefinition } from "./custom/connox";
-import {
-  addCachedCookiesToBrowserContext,
-  newAvailableIp,
-  syncBrowserCookiesToFirestore,
-} from "./proxy-rotator";
+import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving";
+// for the script that adds a new scraper to work properly, the last import has to be a one-liner
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -82,7 +85,8 @@ export class CrawlerFactory {
       ? await CustomRequestQueue.open(
           "__CRAWLEE_PANPRICES_rootQueue_" + uniqueCrawlerKey,
           {},
-          args.customQueueSettings
+          args.customQueueSettings,
+          uniqueCrawlerKey
         )
       : await RequestQueue.open(
           "__CRAWLEE_PANPRICES_rootQueue_" + uniqueCrawlerKey
@@ -437,6 +441,13 @@ export class CrawlerFactory {
         return [crawler, definition];
       case "connox.dk":
         definition = await ConnoxCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "nordlyliving.dk":
+        definition = await NordlyLivingCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

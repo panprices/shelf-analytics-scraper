@@ -1,22 +1,11 @@
 import { Locator, Page } from "playwright";
-import {
-  browserCrawlerEnqueueLinks,
-  Dataset,
-  Dictionary,
-  log,
-  PlaywrightCrawlingContext,
-} from "crawlee";
-import { v4 as uuidv4 } from "uuid";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
-  Category,
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
-  OfferMetadata,
   ProductReviews,
-  SchemaOrg,
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";

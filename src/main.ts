@@ -151,11 +151,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // await debugScrapeDetails(
 //   "https://www.nordiskarum.se/trondheim-x-josefin-lustig-ullmatta-400x400cm-beige/white-51074-320.html"
 // );
-// await debugCategoryExploration("https://www.homeroom.se/mobler/matgrupper");
+// await debugCategoryExploration(
+//   "https://nordlyliving.dk/collections/dekoration"
+// );
 
-await debugScrapeDetails(
-  "https://www.nordiskagalleriet.dk/gubi/pedrera-coffee-table-black"
-);
+await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
+
+// await debugScrapeDetails("https://nordlyliving.dk/collections/dekoration");
 
 // await debugCategoryExploration(
 //   "https://www.nordiskarum.se/utemobler/hammockar-bankar-tradgardssoffor/sittbankar-ute.html"

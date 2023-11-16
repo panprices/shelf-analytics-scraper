@@ -1,6 +1,6 @@
 /**
  * Example usage:
- * npm run create-retailer amazon.de Amazon
+ * npm run script:create-scraper nordlyliving.dk NordlyLiving
  */
 
 import * as fs from "fs";

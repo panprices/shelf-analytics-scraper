@@ -49,7 +49,9 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
     launchOptions?: CrawlerLaunchOptions
   ): Promise<__RETAILER_NAME__CrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets();
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
 
     return new __RETAILER_NAME__CrawlerDefinition({
       detailsDataset,

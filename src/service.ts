@@ -270,7 +270,7 @@ export async function searchForProducts(
 
 export async function extractLeafCategories(
   targetUrls: string[]
-): Promise<string[]> {
+): Promise<RequestOptions[]> {
   const uniqueCrawlerKey = uuidv4();
   if (targetUrls.length === 0) {
     return [];
@@ -311,7 +311,10 @@ export async function extractLeafCategories(
       break;
     }
 
-    categoryUrls.push(nextRequest.url);
+    categoryUrls.push({
+      url: nextRequest.url,
+      userData: nextRequest.userData,
+    });
   }
 
   log.info("Categories found", { nrCategoryUrls: categoryUrls.length });
