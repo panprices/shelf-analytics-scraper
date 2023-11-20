@@ -179,7 +179,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
       mainProductLocator,
       "div.product__description",
       (n) => n.textContent().then((t) => t?.replace("Vis mindre", "").trim()),
-      false
+      true
     );
     const priceElement = mainProductLocator.locator(
       "//div[contains(@id, 'price-template') and not(contains(@style,'display:none'))]"
