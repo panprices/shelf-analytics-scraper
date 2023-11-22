@@ -229,7 +229,9 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     let currency: string | null | undefined;
     let originalPrice: string | null | undefined = undefined;
 
-    const currencyExtractor = (t: string | null | undefined) =>
+    const extractPrice = (t: string | null | undefined) =>
+      t?.replace(/[^0-9,\\. ]/g, "");
+    const extractCurrency = (t: string | null | undefined) =>
       t
         ?.replace(/[^A-Z€£]/g, "")
         .replace("€", "EUR")
@@ -239,20 +241,18 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       price = await this.extractProperty(
         page,
         "form span#price span.js-price-sale",
-        (node) => node.getAttribute("data-localized-price")
+        (node) => node.textContent().then(extractPrice)
       );
-
-      // The price from which we remove commas, dots, spaces and numbers
       currency = await this.extractProperty(
         page,
         "form span#price span.js-price-sale",
-        (node) => node.textContent().then(currencyExtractor)
+        (node) => node.textContent().then(extractCurrency)
       );
 
       originalPrice = await this.extractProperty(
         page,
         "form span#price span.js-price-original",
-        (node) => node.getAttribute("data-localized-original-price")
+        (node) => node.textContent().then(extractPrice)
       );
     } else {
       const priceCurrencyString = await this.extractProperty(
@@ -261,7 +261,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
         (node) => node.textContent()
       );
 
-      price = priceCurrencyString?.replace(/[^0-9,\\. ]/g, "");
+      price = extractPrice(priceCurrencyString);
 
       // Handle custom number formatting depending on locale
       if (page.url().includes("/en-no/")) {
@@ -269,7 +269,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       } else if (page.url().includes("/en-gb/")) {
         price = price?.replace(",", "");
       }
-      currency = currencyExtractor(priceCurrencyString);
+      currency = extractCurrency(priceCurrencyString);
     }
 
     if (!price) throw new Error("Cannot find price of product");
