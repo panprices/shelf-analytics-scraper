@@ -180,6 +180,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
 
       categoryUrl: categoryTree[categoryTree.length - 1].url,
       categoryTree,
+      popularityCategory: categoryTree,
 
       metadata: {},
 

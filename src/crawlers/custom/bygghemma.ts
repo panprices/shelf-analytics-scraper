@@ -219,11 +219,26 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
 
     const productName = productNamePart1 + " " + productNamePart2;
 
-    const description = await this.extractProperty(
-      page,
-      "div._VQkc div.SonMi div.SonMi",
-      (node) => node.first().textContent()
-    ).then((text) => text?.trim());
+    let description = undefined;
+    const descriptionAndSpecDivLocators = await page.locator(
+      "div.X9bND div._VQkc"
+    );
+    const descriptionAndSpecDivCount =
+      await descriptionAndSpecDivLocators.count();
+    for (let i = 0; i < descriptionAndSpecDivCount; i++) {
+      const div = descriptionAndSpecDivLocators.nth(i);
+      const heading = await div
+        .locator("h3")
+        .textContent()
+        .then((text) => text?.trim());
+      if (heading === "Beskrivning") {
+        description = await div
+          .locator("> div:nth-child(2)")
+          .textContent()
+          .then((text) => text?.trim());
+      }
+    }
+
     const priceString = await this.extractProperty(
       page,
       "div.gZqc6 div:first-child",
