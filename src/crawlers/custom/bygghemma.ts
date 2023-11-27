@@ -234,7 +234,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       if (heading === "Beskrivning") {
         description = await div
           .locator("> div:nth-child(2)")
-          .textContent()
+          .innerText()
           .then((text) => text?.trim());
       }
     }
