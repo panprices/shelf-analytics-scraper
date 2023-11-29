@@ -187,7 +187,13 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
     const sku = await this.extractProperty(
       mainProductLocator,
       "div.product__sku",
-      (n) => n.textContent().then((t) => t?.split(":")[1].trim()),
+      (n) =>
+        n.textContent().then((text) => {
+          if (text && text.includes(":")) {
+            return text?.split(":")[1].trim();
+          }
+          return undefined;
+        }),
       true
     );
 
