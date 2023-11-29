@@ -169,6 +169,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     const descriptionExpanderExists = (await descriptionExpander.count()) === 1;
     if (descriptionExpanderExists) {
+      await this.handleCookieConsent(page);
       await descriptionExpander.click();
     }
 
@@ -279,6 +280,11 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
       listingUrlSelector: "div.page-next a",
       detailsUrlSelector: "h3.card__heading a",
+      // This is not actually the selector to accept the cookie consent prompt,
+      // but the close button to NOT set your location to Sweden.
+      // Need to click it to not get price in SEK and also to interact with the page.
+      cookieConsentSelector:
+        "div.recommendation-modal__container button.recommendation-modal__close-button",
       dynamicProductCardLoading: false,
     });
   }
