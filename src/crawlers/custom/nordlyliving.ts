@@ -159,7 +159,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const brand = await this.extractProperty(
       mainProductLocator,
-      "//p[contains(@class, 'product__text')]/a[@title]",
+      "//p[contains(@class, 'product__text') and contains(@class, 'caption-with-letter-spacing')]/a[@title]",
       (n) => n.textContent(),
       true
     );
