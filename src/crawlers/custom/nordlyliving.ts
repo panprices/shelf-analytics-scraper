@@ -111,19 +111,16 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<ListingProductInfo> {
     const name = await this.extractProperty(
       productCard,
-      "h3.card__heading.h5 a",
-      (node) => node.textContent(),
+      "h3.card__heading a",
+      (node) => node.last().textContent(),
       false
     );
     if (!name) throw Error("Product name not found");
 
     const url = await this.extractProperty(
       productCard,
-      "h3.card__heading.h5 a",
-      (node) =>
-        node
-          .getAttribute("href")
-          .then((href) => `https://nordlyliving.dk${href}`),
+      "h3.card__heading a",
+      (node) => node.last().getAttribute("href"),
       false
     );
     if (!url) throw Error("Product url not found");
@@ -281,7 +278,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
       productCardSelector: "li.product",
 
       listingUrlSelector: "div.page-next a",
-      detailsUrlSelector: "h3.card__heading.h5 a",
+      detailsUrlSelector: "h3.card__heading a",
       dynamicProductCardLoading: false,
     });
   }
