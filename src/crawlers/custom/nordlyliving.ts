@@ -1,11 +1,16 @@
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
+import {
+  DetailedProductInfo,
+  ListingProductInfo,
+  Specification,
+} from "../../types/offer";
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { PlaywrightCrawlingContext } from "crawlee";
+import { PlaywrightCrawlingContext, log } from "crawlee";
+import { forEach } from "lodash";
 
 export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
   private readonly _priceExtractor;
@@ -172,13 +177,42 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
       await this.handleCookieConsent(page);
       await descriptionExpander.click();
     }
-
     const description = await this.extractProperty(
       mainProductLocator,
       "div.product__description",
       (n) => n.textContent().then((t) => t?.replace("Vis mindre", "").trim()),
       true
     );
+
+    const accordionItemLocators = mainProductLocator.locator(
+      "div.product__accordion"
+    );
+    for (const expander of await accordionItemLocators.all()) {
+      await this.handleCookieConsent(page);
+      await expander.click();
+    }
+    const accordionItemCount = await accordionItemLocators.count();
+    let specifications: Specification[] = [];
+    for (let i = 0; i < accordionItemCount; i++) {
+      const title = await accordionItemLocators
+        .nth(i)
+        .locator(".accordion__title")
+        .textContent()
+        .then((text) => text?.trim());
+      if (title === "Mål") {
+        const specValues = await accordionItemLocators
+          .nth(i)
+          .locator(".accordion__content > p")
+          .allInnerTexts();
+        specifications = specValues
+          .map((val) => val.trim())
+          .filter((val) => val !== "")
+          .map((val, i) => {
+            return { key: `Specification ${i + 1}`, value: val };
+          });
+      }
+    }
+
     const priceElement = mainProductLocator.locator(
       "//div[contains(@id, 'price-template') and not(contains(@style,'display:none'))]"
     );
@@ -264,7 +298,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
       images: images, // if not applicable return an empty array
       reviews: "unavailable",
-      specifications: [], // if not applicable return an empty array
+      specifications: specifications,
 
       //categoryTree is only optional if we already scraped it in the category page.
     };
