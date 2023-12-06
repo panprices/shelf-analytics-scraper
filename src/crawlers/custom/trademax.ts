@@ -220,7 +220,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       const specificationsExpander = page.locator(
         "//div[contains(@class, 'accordion--title') and .//span/text() = 'Specifikationer']"
       );
-      await specificationsExpander.click({ timeout: 5000 });
+      await specificationsExpander.click({ timeout: 10000 });
       await page.waitForSelector(
         "//div[contains(@class, 'articleNumber')]/span"
       );
@@ -255,7 +255,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       const descriptionExpander = page.locator(
         "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
       );
-      await descriptionExpander.click({ timeout: 5000 });
+      await descriptionExpander.click({ timeout: 10000 });
 
       description = <string>(
         await this.extractProperty(
@@ -293,7 +293,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         .locator(
           "//div[contains(@class, 'accordion--title') and .//span/text() = 'Recensioner']"
         )
-        .click({ timeout: 5000 });
+        .click({ timeout: 10000 });
 
       await page.locator("#ReviewsDropDownSorting").click();
       await page.locator(".ReviewSortingDropDown").waitFor();
