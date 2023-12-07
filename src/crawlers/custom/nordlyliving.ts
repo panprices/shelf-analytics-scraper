@@ -208,7 +208,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
           .map((val) => val.trim())
           .filter((val) => val !== "")
           .map((val, i) => {
-            return { key: `Specification ${i + 1}`, value: val };
+            return { key: "", value: val };
           });
       }
     }
