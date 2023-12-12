@@ -11,6 +11,7 @@ import {
   ListingProductInfo,
   OfferMetadata,
   ProductReviews,
+  Specification,
 } from "../../types/offer";
 import { extractDomainFromUrl } from "../../utils";
 import { v4 as uuidv4 } from "uuid";
@@ -46,20 +47,20 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
 
     // Enqueue the main variant group where you have a.href:
     await ctx.enqueueLinks({
-      selector: "a[data-cy='product_variant_link']",
+      selector: "main div.ht.z.o a",
       label: "DETAIL",
       userData: ctx.request.userData,
     });
 
     // Enqueue variants from schema.org:
-    const schemaOrgVariantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
-    if (schemaOrgVariantUrls) {
-      await ctx.enqueueLinks({
-        urls: schemaOrgVariantUrls,
-        label: "DETAIL",
-        userData: ctx.request.userData,
-      });
-    }
+    // const schemaOrgVariantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
+    // if (schemaOrgVariantUrls) {
+    //   await ctx.enqueueLinks({
+    //     urls: schemaOrgVariantUrls,
+    //     label: "DETAIL",
+    //     userData: ctx.request.userData,
+    //   });
+    // }
 
     // Check for secondary variant group where you don't have a.href.
     // Try to click buttons and enqueue new links:
@@ -101,13 +102,13 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     let description;
     try {
       const descriptionExpander = page.locator(
-        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
+        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Produktinformation']"
       );
       await descriptionExpander.click({ timeout: 5000 });
       description = await this.extractProperty(
         descriptionExpander,
-        "..//div[contains(@class, 'accordion--content')]",
-        (node) => node.textContent()
+        "/div",
+        (node) => node.innerText()
       ).then((text) => text?.trim());
     } catch (e) {
       log.info(`Description not found for product with url: ${page.url()}`);
@@ -115,39 +116,25 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     let articleNumber = undefined,
-      specifications = [];
+      specifications: Specification[] = [];
     try {
       const specificationsExpander = page.locator(
-        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Specifikationer']"
+        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Specifikationer']"
       );
       await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//div[contains(@class, 'articleNumber')]/span"
+        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Specifikationer']//div//span[contains(@class, 'ku')]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//div[contains(@class, 'articleNumber')]/span",
+        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Specifikationer']//div//span[contains(@class, 'ku')]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
-      const specificationRowLocator = specificationsExpander.locator("..//tr");
-      const specificationsCount = await specificationRowLocator.count();
-      for (let i = 0; i < specificationsCount; i++) {
-        const specLocator = specificationRowLocator.nth(i);
-        const specKey = await specLocator
-          .locator("xpath=.//td[1]")
-          .textContent()
-          .then((text) => text?.trim());
-        const specValue = await specLocator
-          .locator("xpath=.//td[2]")
-          .textContent()
-          .then((text) => text?.trim());
-        if (specKey && specValue) {
-          specifications.push({
-            key: specKey,
-            value: specValue,
-          });
-        }
-      }
+
+      specifications = await this.extractSpecificationsFromTable(
+        specificationsExpander.locator("//tr/td[1]"),
+        specificationsExpander.locator("//tr/td[2]")
+      );
     } catch (e) {
       log.info(`Specification not found for product with url: ${page.url()}`);
     }

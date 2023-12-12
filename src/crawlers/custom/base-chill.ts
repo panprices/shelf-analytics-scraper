@@ -19,6 +19,7 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import { PageNotFoundError } from "../../types/errors";
+import { extractNumberFromText } from "../../utils";
 
 export async function createCrawlerDefinitionOption(
   launchOptions?: CrawlerLaunchOptions
@@ -84,7 +85,7 @@ export async function extractProductDetails(
   }
 
   try {
-    await page.waitForSelector("h1[data-cy='product_title']", {
+    await page.waitForSelector("main div.n9 h1", {
       timeout: 15000,
     });
   } catch (error) {
@@ -94,6 +95,66 @@ export async function extractProductDetails(
     throw error;
   }
   await crawlerDefinition.handleCookieConsent(page);
+
+  const productName = await page.locator("main div.n9 h1").textContent();
+  if (!productName) {
+    throw new Error("Cannot extract productName");
+  }
+
+  const brand = await crawlerDefinition.extractProperty(
+    page,
+    "main div.n9 > div > a.cv",
+    (node) => node.textContent()
+  );
+
+  const priceText = await page
+    .locator("main div.n9 div.d4 span.al")
+    .textContent();
+  if (!priceText) throw new Error("Cannot extract priceText");
+  const price = parseInt(priceText.replace("SEK", "").replace(/\s/g, ""));
+
+  const originalPriceString = await crawlerDefinition.extractProperty(
+    page,
+    "main div.n9 div.d4 span.bf",
+    (node) => node.textContent()
+  );
+
+  const addToCartLocator = page.locator("main div.n9 div.n4 button");
+  const availability =
+    (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
+
+  const isDiscounted = originalPriceString !== undefined;
+  const originalPrice = originalPriceString
+    ? parseInt(originalPriceString.replace("SEK", "").replace(/\s/g, ""))
+    : undefined;
+
+  const images = await extractImagesFromProductPage(page);
+  const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
+  const categoryTree = await crawlerDefinition.extractCategoryTree(
+    breadcrumbLocator,
+    1
+  );
+
+  let reviewSummary: ProductReviews | undefined;
+
+  const averageReviewString = await crawlerDefinition.extractProperty(
+    page,
+    "div#ratings-section h3 div.am",
+    (node) => node.textContent()
+  );
+  const reviewCountString = await crawlerDefinition.extractProperty(
+    page,
+    "div#ratings-section h3 div.kt",
+    (node) => node.textContent()
+  );
+
+  if (averageReviewString && reviewCountString) {
+    reviewSummary = {
+      reviewCount: extractNumberFromText(reviewCountString),
+      averageReview: parseFloat(averageReviewString),
+      recentReviews: [],
+    };
+  }
 
   const metadata: OfferMetadata = {};
   const schemaOrgString = <string>(
@@ -107,118 +168,11 @@ export async function extractProductDetails(
 
   const mpn = metadata.schemaOrg?.mpn;
 
-  const productName = await page
-    .locator("h1[data-cy='product_title']")
-    .textContent();
-  const price_text = await page
-    .locator("div#productInfoPrice div[data-cy='current-price']")
-    .textContent();
-  const price = Number(price_text?.replace(" ", ""));
-
-  const images = await extractImagesFromProductPage(page);
-  const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
-  const categoryTree = await crawlerDefinition.extractCategoryTree(
-    breadcrumbLocator,
-    1
-  );
-
-  const brand = await crawlerDefinition.extractProperty(
-    page,
-    "//span[contains(strong/text(), ('Varumärke'))]/span/a",
-    (node) => node.textContent()
-  );
-  const originalPriceString = await crawlerDefinition.extractProperty(
-    page,
-    "xpath=(//div[contains(@class, 'productInfoContent--buySectionBlock')]//div[@data-cy = 'original-price'])[1]",
-    (node) => node.textContent()
-  );
-
-  let reviewSummary: ProductReviews | "unavailable";
-  try {
-    const averageReviewString = await crawlerDefinition.extractProperty(
-      page,
-      "//div[contains(@class, 'accordionRatingContainer')]/span[1]",
-      (node) => node.textContent()
-    );
-    const averageReview = Number(averageReviewString);
-
-    const reviewCountString = <string>(
-      await crawlerDefinition.extractProperty(
-        page,
-        "//div[contains(@class, 'accordionRatingContainer')]/span[2]",
-        (node) => node.textContent()
-      )
-    );
-    const reviewCount = Number(
-      reviewCountString.substring(1, reviewCountString.length - 1)
-    );
-
-    await page
-      .locator(
-        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Recensioner']"
-      )
-      .click({ timeout: 5000 });
-
-    await page.locator("#ReviewsDropDownSorting").click();
-    await page.locator(".ReviewSortingDropDown").waitFor();
-
-    await page.locator("#mostRecentReviewSorting").click();
-    await page
-      .locator(
-        "//div[@id = 'ReviewsDropDownSorting']/span[text() = 'Senast inkommet']"
-      )
-      .waitFor();
-    // wait to load the new reviews
-    await new Promise((f) => setTimeout(f, 500));
-
-    const reviewsSelector = page.locator(
-      "//div[contains(@class, 'reviewsList')]/div"
-    );
-    const expandedReviewsCount = await reviewsSelector.count();
-
-    const recentReviews: IndividualReview[] = [];
-    for (let i = 0; i < expandedReviewsCount; i++) {
-      const currentReviewElement = reviewsSelector.nth(i);
-      const fullStarsSelector = currentReviewElement.locator("div.qUxh1");
-
-      const score = await fullStarsSelector.count();
-      const content = <string>(
-        await crawlerDefinition.extractProperty(
-          currentReviewElement,
-          "xpath=./div[2]/p",
-          (node) => node.textContent()
-        )
-      );
-      recentReviews.push({
-        score,
-        content,
-      });
-    }
-
-    reviewSummary = {
-      averageReview,
-      reviewCount,
-      recentReviews,
-    };
-  } catch (e) {
-    // log.info(`Reviews not found for product with url: ${page.url()}`);
-    reviewSummary = "unavailable";
-  }
-
-  const addToCartLocator = page.locator("#A2C_ACTION");
-  const availability =
-    (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
-
-  const isDiscounted = originalPriceString !== undefined;
-  const originalPrice = originalPriceString
-    ? Number(originalPriceString.replace("SEK", "").replace(/\s/g, ""))
-    : undefined;
-
   // NOTE: The commented out fields are different for each website, so they are not extracted here.
   // Implement them in the specific Chilli/Furniturebox/Trademax crawler.
   const intermediateResult = {
     brand,
-    name: <string>productName,
+    name: productName,
     // description,
     url: page.url(),
     price,
@@ -244,24 +198,22 @@ export async function extractProductDetails(
 export async function extractImagesFromProductPage(
   page: Page
 ): Promise<string[]> {
-  const imagesPreviewLocator = await page.locator(
-    "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]//img"
-  );
+  const imageThumbnailLocator = await page.locator("main div.fs div.a06 img");
 
   try {
-    await imagesPreviewLocator.waitFor({ timeout: 10000 });
+    await imageThumbnailLocator.waitFor({ timeout: 10000 });
   } catch (e) {
     // Probably no images thumbnails -> do nothing and just scrape the main image
   }
 
-  const imagesCount = await imagesPreviewLocator.count();
+  const imagesCount = await imageThumbnailLocator.count();
   for (let i = 0; i < imagesCount; i++) {
-    const currentImagePreview = imagesPreviewLocator.nth(i);
-    await currentImagePreview.click();
+    const currentThumbnail = imageThumbnailLocator.nth(i);
+    await currentThumbnail.click();
     await page.waitForTimeout(50);
   }
   const images = await page
-    .locator("div#productInfoImage div.slick-slide div.z3Vk_ img")
+    .locator("main div.fs div.d2 img")
     .evaluateAll((list: HTMLElement[]) =>
       list.map((element) => <string>element.getAttribute("src"))
     );
