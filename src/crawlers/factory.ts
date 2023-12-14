@@ -52,6 +52,7 @@ import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import { ConnoxCrawlerDefinition } from "./custom/connox";
 import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving";
+import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
 
 export interface CrawlerFactoryArgs {
@@ -282,7 +283,7 @@ export class CrawlerFactory {
           ...defaultOptions,
           maxConcurrency: 5,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -294,7 +295,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -306,7 +307,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          // proxyConfiguration: proxyConfiguration.SE,
+          proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
@@ -448,6 +449,13 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "nordlyliving.dk":
         definition = await NordlyLivingCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "jardindeco.com":
+        definition = await JardindecoCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

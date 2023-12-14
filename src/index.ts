@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
 import { exploreCategory, scrapeDetails, searchForProducts } from "./service";
-import { log, purgeDefaultStorages } from "crawlee";
+import { log } from "crawlee";
 import {
   ListingProductInfo,
   RequestBatch,
@@ -16,7 +16,6 @@ import {
   sendRequestBatch,
 } from "./publishing";
 import { extractDomainFromUrl, loggingMiddleware } from "./utils";
-import { CHROMIUM_USER_DATA_DIR, CRAWLEE_STORAGE_DIR } from "./constants";
 import fastFolderSize from "fast-folder-size";
 import { initializeApp, applicationDefault } from "firebase-admin/app";
 
