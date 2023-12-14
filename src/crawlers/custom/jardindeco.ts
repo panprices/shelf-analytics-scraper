@@ -56,7 +56,7 @@ export class JardindecoCrawlerDefinition extends AbstractCrawlerDefinition {
     );
 
     const tags = await page
-      .locator("div.product_info div.tags_wrapper")
+      .locator("div.product_info div.tags_wrapper > div")
       .allInnerTexts()
       .then((allTexts) => allTexts.map((text) => text.trim()));
 
