@@ -5,7 +5,7 @@ import {
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { PlaywrightCrawlingContext } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
 export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   /**
@@ -22,7 +22,12 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
       const modalOverlayCloseButton = modalOverlay.locator(
         "//button[span/i[contains(text(), clear)]]"
       );
-      await modalOverlayCloseButton.click();
+      try {
+        await modalOverlayCloseButton.click({ timeout: 1000 });
+      } catch (error) {
+        // do nothing
+        log.warning("The modal overlay could not be closed (or disappeared)");
+      }
     }
 
     const countryPopup = page.locator(
@@ -149,7 +154,7 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
 
       availability: "in_stock",
 
-      images: images, // if not applicable return an empty array
+      images: [...new Set(images)], // deduplicate images by url
       reviews: "unavailable",
       specifications: [], // if not applicable return an empty array
     };

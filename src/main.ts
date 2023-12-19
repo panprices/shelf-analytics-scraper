@@ -158,7 +158,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
 
 await debugScrapeDetails(
-  "https://www.louispoulsen.com/da-dk/catalog/privat/pendler-loftlamper/ph-artichoke"
+  "https://www.louispoulsen.com/da-dk/catalog/privat/udendoerslamper/toldbod-220-wall"
 );
 
 // await debugCategoryExploration(
