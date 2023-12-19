@@ -43,6 +43,28 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
     return super.handleCookieConsent(page);
   }
 
+  override async exploreVariantsSpace(
+    ctx: PlaywrightCrawlingContext,
+    parameterIndex: number,
+    currentOption: number[],
+    variantGroupUrl: string,
+    exploredVariants: number = 0,
+    pageState?: any,
+    limit?: number
+  ): Promise<[any, number]> {
+    // Increased timeout for page variant exploration
+    ctx.page.setDefaultTimeout(90000);
+    return super.exploreVariantsSpace(
+      ctx,
+      parameterIndex,
+      currentOption,
+      variantGroupUrl,
+      exploredVariants,
+      pageState,
+      limit
+    );
+  }
+
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     await page.waitForLoadState("networkidle");
 
