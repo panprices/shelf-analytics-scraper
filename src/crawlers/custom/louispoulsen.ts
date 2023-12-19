@@ -25,6 +25,21 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
       await modalOverlayCloseButton.click();
     }
 
+    const countryPopup = page.locator(
+      "#Form--14f6e1579-93c1-4d4e-ad96-00b6e5f745e7"
+    );
+    const countryPopupExists = (await countryPopup.count()) > 0;
+    if (countryPopupExists) {
+      await countryPopup.evaluate((el) => {
+        const document = el.parentElement?.parentElement;
+        const parent = el.parentElement;
+        if (!document || !parent) {
+          return;
+        }
+        document?.removeChild(parent);
+      });
+    }
+
     return super.handleCookieConsent(page);
   }
 
@@ -69,7 +84,7 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
 
     // Grab "inspirational" images
     const moreImagesButton = page.locator(
-      "//a[contains(text(), 'Show more images')]"
+      "//a[contains(text(), 'Vis flere billeder')]"
     );
     const moreImagesButtonExists = (await moreImagesButton.count()) > 0;
     if (moreImagesButtonExists) {
@@ -234,7 +249,7 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
     await option.click();
 
     const confirmationButton = page.locator(
-      "//button[span[contains(text(), 'close')]]"
+      "//button[span[contains(text(), 'Vælg')]]"
     );
     await confirmationButton.click();
 
