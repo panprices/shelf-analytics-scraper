@@ -155,9 +155,11 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://nordlyliving.dk/collections/dekoration"
 // );
 
-await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
+// await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
 
-// await debugScrapeDetails("https://nordlyliving.dk/collections/dekoration");
+await debugScrapeDetails(
+  "https://www.louispoulsen.com/en/catalog/private/wall/aj-wall"
+);
 
 // await debugCategoryExploration(
 //   "https://www.nordiskarum.se/utemobler/hammockar-bankar-tradgardssoffor/sittbankar-ute.html"

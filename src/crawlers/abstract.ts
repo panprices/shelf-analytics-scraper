@@ -844,6 +844,12 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
 
         const url = await this.getCurrentVariantUrl(ctx.page);
         if (this.variantCrawlingStrategy === "new_tabs") {
+          log.debug(
+            `Exploring variants space, current option: \
+            currentOption, ${currentOption}, \
+            parameterIndex: ${parameterIndex}, \
+            url: ${url}`
+          );
           await ctx.enqueueLinks({
             urls: [url],
             userData: {
