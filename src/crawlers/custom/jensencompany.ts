@@ -24,6 +24,11 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator("div.breadcrumbs ul li a"),
+      1,
+      productCard.page().locator("div.breadcrumbs ul li > strong")
+    );
     return {
       name: productName,
       url,
