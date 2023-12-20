@@ -1,0 +1,203 @@
+import { Locator, Page } from "playwright";
+import {
+  DetailedProductInfo,
+  ListingProductInfo,
+  OfferMetadata,
+} from "../../types/offer";
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+
+export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
+  /**
+   * This retailer does not use category scraping, it gets the URLs from sitemap
+   */
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo> {
+    const productName = await this.extractProperty(productCard, "h3", (node) =>
+      node.textContent()
+    ).then((text) => text?.trim());
+    if (!productName) throw new Error("Cannot find productName of productCard");
+
+    const url = await this.extractProperty(productCard, "a", (node) =>
+      node.getAttribute("href")
+    );
+    if (!url) throw new Error("Cannot find url of productCard");
+
+    return {
+      name: productName,
+      url,
+      categoryUrl,
+      popularityCategory: categoryTree ? categoryTree : undefined,
+    };
+  }
+
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const productName = await this.extractProperty(
+      page,
+      "div.product-info-main h1.page-title",
+      (node) => node.textContent(),
+      false
+    ).then((text) => text?.trim());
+    if (!productName) {
+      throw new Error("Cannot extract productName");
+    }
+
+    const brand = await this.extractProperty(
+      page,
+      "div.product-brand",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+
+    const sku = await this.extractProperty(
+      page,
+      "div.attribute.sku div.value",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    const gtin = sku;
+
+    const descriptionAndSpecsText = await this.extractProperty(
+      page,
+      "div.description",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+
+    let description = descriptionAndSpecsText?.includes("Specifikationer:")
+      ? descriptionAndSpecsText?.split("Specifikationer:")[0]
+      : descriptionAndSpecsText;
+
+    const priceText = await this.extractProperty(
+      page,
+      "div.product-info-main span[data-price-type='finalPrice']",
+      (node) => node.textContent(),
+      false
+    ).then((text) => text?.trim());
+    if (!priceText) {
+      throw new Error("Cannot extract price");
+    }
+    const price = extractPriceFromPriceText(priceText);
+    const currency = "DKK";
+
+    const originalPriceText = await this.extractProperty(
+      page,
+      "div.product-info-main span[data-price-type='oldPrice']",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    const originalPrice = originalPriceText
+      ? extractPriceFromPriceText(originalPriceText)
+      : undefined;
+    const isDiscounted = originalPrice ? true : false;
+
+    const categoryTree = await this.extractCategoryTree(
+      page.locator("div.breadcrumbs ul li a"),
+      1
+    );
+
+    const metadata: OfferMetadata = {};
+    const schemaOrgString = await page
+      .locator(
+        "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
+      )
+      .textContent();
+    if (!schemaOrgString) {
+      throw new Error("Cannot extract schema.org data");
+    }
+    const schemaOrg = JSON.parse(schemaOrgString);
+    metadata.schemaOrg = schemaOrg;
+
+    const availability = schemaOrgString.includes("InStock")
+      ? "in_stock"
+      : "out_of_stock";
+
+    const imageLocator = page.locator("div.fotorama__stage__frame img");
+    const imageCount = await imageLocator.count();
+    let images = [];
+    for (let i = 0; i < imageCount; ++i) {
+      const imageUrl = await imageLocator.nth(i).getAttribute("src");
+      if (imageUrl) {
+        images.push(imageUrl);
+      }
+    }
+
+    const specifications = await this.extractSpecificationsFromTable(
+      page.locator("div.tab_collection_area div.tbl_caracs_tr div:first-child"),
+      page.locator("div.tab_collection_area div.tbl_caracs_tr div:last-child")
+    );
+
+    let reviews = undefined;
+    // const reviewCountText = await page
+    //   .locator("div.rating_wrapper .prodratinginfos")
+    //   .textContent();
+    // const reviewStarsCount = await page
+    //   .locator("div.rating_wrapper span.star.on")
+    //   .count();
+    // const reviewHalfStarsCount = await page
+    //   .locator("div.rating_wrapper span.star:not(.on)")
+    //   .count();
+
+    // if (reviewCountText && reviewStarsCount) {
+    //   reviews = {
+    //     reviewCount: extractNumberFromText(reviewCountText),
+    //     averageReview: reviewStarsCount + reviewHalfStarsCount / 2,
+    //     recentReviews: [],
+    //   };
+    // }
+
+    return {
+      name: productName,
+      url: page.url(),
+
+      brand,
+      description,
+      price,
+      currency,
+      originalPrice,
+      isDiscounted,
+
+      gtin,
+      sku,
+
+      // categoryUrl: categoryTree[0].url,
+      categoryTree,
+
+      metadata,
+
+      availability,
+
+      images, // if not applicable return an empty array
+      reviews,
+      specifications, // if not applicable return an empty array
+
+      // variantGroupUrl: "",
+      // variant: 0, // 0, 1, 2, 3, ...
+    };
+  }
+
+  static async create(
+    launchOptions?: CrawlerLaunchOptions
+  ): Promise<JensenCompanyCrawlerDefinition> {
+    const [detailsDataset, listingDataset] =
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
+
+    return new JensenCompanyCrawlerDefinition({
+      detailsDataset,
+      listingDataset,
+      productCardSelector: "div#layer-product-list li.product-item",
+      detailsUrlSelector:
+        "div#layer-product-list li.product-item .product-item-name a",
+      listingUrlSelector: "ul.pages-items a.next",
+      cookieConsentSelector: "div.coi-button-group button.coi-banner__accept",
+      dynamicProductCardLoading: false,
+      launchOptions,
+    });
+  }
+}
+
+/** 4.525,00 kr. -> 4525 */
+function extractPriceFromPriceText(priceText: string): number {
+  return parseFloat(
+    priceText.replaceAll(".", "").replaceAll(",", ".").trim().split(/\s/g)[0]
+  );
+}

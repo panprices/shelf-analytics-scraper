@@ -55,6 +55,7 @@ import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving";
 import { LouisPoulsenCrawlerDefinition } from "./custom/louispoulsen";
 import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
+import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -457,6 +458,13 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "jardindeco.com":
         definition = await JardindecoCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "jensen-company.dk":
+        definition = await JensenCompanyCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
