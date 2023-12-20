@@ -84,8 +84,8 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       "form span#price span.price-localized",
       (node) => node.getAttribute("data-sku")
     );
-    log.info(`Current variant url: ${url}?sku=${sku}`);
-    return `${url}?sku=${sku}`;
+    log.info(`Current variant url: ${url.split("?")[0]}?sku=${sku}`);
+    return `${url.split("?")[0]}?sku=${sku}`;
   }
 
   async selectOptionForParamIndex(
@@ -320,7 +320,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
     return {
       name: name,
-      url: hasVariants ? `${page.url()}?sku=${sku}` : page.url(),
+      url: hasVariants ? `${page.url().split("?")[0]}?sku=${sku}` : page.url(),
 
       brand: brand,
       description: description,
