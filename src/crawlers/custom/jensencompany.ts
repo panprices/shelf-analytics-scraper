@@ -14,13 +14,17 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const productName = await this.extractProperty(productCard, "h3", (node) =>
-      node.textContent()
+    const productName = await this.extractProperty(
+      productCard,
+      ".product-item-name",
+      (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!productName) throw new Error("Cannot find productName of productCard");
 
-    const url = await this.extractProperty(productCard, "a", (node) =>
-      node.getAttribute("href")
+    const url = await this.extractProperty(
+      productCard,
+      ".product-item-name a",
+      (node) => node.getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
