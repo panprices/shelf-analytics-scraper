@@ -1,5 +1,9 @@
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, Specification } from "../../types/offer";
+import {
+  DetailedProductInfo,
+  ListingProductInfo,
+  Specification,
+} from "../../types/offer";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
@@ -12,8 +16,34 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
   /**
    * This retailer does not use category scraping, it gets the URLs from sitemap
    */
-  extractCardProductInfo(): Promise<undefined> {
-    return Promise.resolve(undefined);
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo> {
+    const name = await this.extractProperty(
+      productCard,
+      ".item-card__title",
+      (node) => node.innerText()
+    );
+    if (!name) throw new Error("Cannot find name of product");
+
+    const url = await productCard.getAttribute("href");
+    if (!url) throw new Error("Cannot find url of product");
+
+    const categoryTree = await this.extractCategoryTree(
+      productCard.page().locator("section.breadcrumb ul#breadcrumb li a"),
+      1
+    );
+
+    // We skip the price even if we could fetch it from here, we are interested in the popularity index
+
+    return {
+      name: name,
+      url: url,
+      categoryUrl: categoryUrl,
+      categoryTree: categoryTree,
+      popularityCategory: categoryTree,
+    };
   }
 
   override async crawlDetailPage(
@@ -230,7 +260,11 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     return new ConnoxCrawlerDefinition({
       detailsDataset,
       listingDataset,
+      productCardSelector: "div.product-list a.item-card",
+      detailsUrlSelector: "div.product-list a.item-card",
+      // listingUrlSelector: "",
       cookieConsentSelector: "a#savecookiesettings-acceptall",
+      dynamicProductCardLoading: false,
       launchOptions,
     });
   }
