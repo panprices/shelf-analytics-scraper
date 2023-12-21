@@ -208,6 +208,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       brand: brand,
       categoryUrl: categoryUrl,
       categoryTree: categoryTree,
+      popularityCategory: categoryTree,
     };
   }
 
