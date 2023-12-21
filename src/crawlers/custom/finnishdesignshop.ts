@@ -1,5 +1,5 @@
-import { Page } from "playwright";
-import { DetailedProductInfo } from "../../types/offer";
+import { Locator, Page } from "playwright";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
@@ -173,11 +173,42 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     return availableOptionsCount === 0;
   }
 
-  /**
-   * This retailer does not use category scraping, it gets the URLs from sitemap
-   */
-  extractCardProductInfo(): Promise<undefined> {
-    return Promise.resolve(undefined);
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo> {
+    const name = await this.extractProperty(
+      productCard,
+      ".product-list__manufacturer",
+      (node) => node.innerText()
+    );
+    if (!name) throw new Error("Cannot find name of product");
+
+    const url = await this.extractProperty(productCard, "xpath=/a[1]", (node) =>
+      node.getAttribute("href")
+    );
+    if (!url) throw new Error("Cannot find url of product");
+
+    const categoryTree = await this.extractCategoryTree(
+      productCard.locator("breadcrumb-plain li"),
+      2
+    );
+
+    const brand = await this.extractProperty(
+      productCard,
+      ".product-list__manufacturer",
+      (node) => node.innerText()
+    );
+
+    // We skip the price even if we could fetch it from here, we are interested in the popularity index
+
+    return {
+      name: name,
+      url: url,
+      brand: brand,
+      categoryUrl: categoryUrl,
+      categoryTree: categoryTree,
+    };
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -363,6 +394,9 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       detailsDataset,
       listingDataset,
       launchOptions,
+      productCardSelector: ".product-list__item",
+      listingUrlSelector: "//ul[contains(@class, 'pagination')]/li/a",
+      detailsUrlSelector: ".product-list__thumbnail",
     });
   }
 }

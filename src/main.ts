@@ -157,13 +157,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 
 // await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
 
-await debugScrapeDetails(
-  "https://www.louispoulsen.com/da-dk/catalog/privat/udendoerslamper/toldbod-220-wall"
-);
-
-// await debugCategoryExploration(
-//   "https://www.nordiskarum.se/utemobler/hammockar-bankar-tradgardssoffor/sittbankar-ute.html"
+// await debugScrapeDetails(
+//   "https://www.louispoulsen.com/da-dk/catalog/privat/pendler-loftlamper"
 // );
+
+await debugCategoryExploration(
+  "https://www.finnishdesignshop.com/en-dk/lighting/ceiling-lamps"
+);
 
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
