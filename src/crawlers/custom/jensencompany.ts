@@ -128,11 +128,7 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
         images.push(imageUrl);
       }
     }
-
-    // const specifications = await this.extractSpecificationsFromTable(
-    //   page.locator("div.tab_collection_area div.tbl_caracs_tr div:first-child"),
-    //   page.locator("div.tab_collection_area div.tbl_caracs_tr div:last-child")
-    // );
+    images = [...new Set(images)];
 
     let specifications: Specification[] = [];
     const specificationText = descriptionAndSpecsText?.includes(
