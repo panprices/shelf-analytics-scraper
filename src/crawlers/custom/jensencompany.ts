@@ -3,6 +3,7 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
   OfferMetadata,
+  Specification,
 } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 
@@ -68,7 +69,7 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
     const descriptionAndSpecsText = await this.extractProperty(
       page,
       "div.description",
-      (node) => node.textContent()
+      (node) => node.innerText()
     ).then((text) => text?.trim());
 
     let description = descriptionAndSpecsText?.includes("Specifikationer:")
@@ -128,10 +129,29 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
       }
     }
 
-    const specifications = await this.extractSpecificationsFromTable(
-      page.locator("div.tab_collection_area div.tbl_caracs_tr div:first-child"),
-      page.locator("div.tab_collection_area div.tbl_caracs_tr div:last-child")
-    );
+    // const specifications = await this.extractSpecificationsFromTable(
+    //   page.locator("div.tab_collection_area div.tbl_caracs_tr div:first-child"),
+    //   page.locator("div.tab_collection_area div.tbl_caracs_tr div:last-child")
+    // );
+
+    let specifications: Specification[] = [];
+    const specificationText = descriptionAndSpecsText?.includes(
+      "Specifikationer:"
+    )
+      ? descriptionAndSpecsText?.split("Specifikationer:")[1]
+      : null;
+
+    if (specificationText) {
+      const specRows = specificationText.trim().split("\n");
+      specifications = specRows
+        .filter((row) => row.includes(":"))
+        .map((row) => {
+          return {
+            key: row.split(":")[0].trim(),
+            value: row.split(":")[1].trim(),
+          };
+        });
+    }
 
     let reviews = undefined;
     // const reviewCountText = await page
