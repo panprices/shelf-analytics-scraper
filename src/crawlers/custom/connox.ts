@@ -17,7 +17,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
    * This retailer does not use category scraping, it gets the URLs from sitemap
    */
   async extractCardProductInfo(
-    categoryUrl: string,
+    _categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
     const name = await this.extractProperty(
@@ -40,7 +40,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     return {
       name: name,
       url: url,
-      categoryUrl: categoryUrl,
+      categoryUrl: categoryTree[0].url,
       categoryTree: categoryTree,
       popularityCategory: categoryTree,
     };
