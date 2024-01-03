@@ -30,10 +30,13 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     const url = await productCard.getAttribute("href");
     if (!url) throw new Error("Cannot find url of product");
 
-    const categoryTree = await this.extractCategoryTree(
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
       productCard.page().locator("section.breadcrumb ul#breadcrumb li a"),
-      1
+      1,
+      productCard.page().locator("section.mb-0 h1").first()
     );
+
+    console.log(categoryTree);
 
     // We skip the price even if we could fetch it from here, we are interested in the popularity index
 
