@@ -33,7 +33,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
       productCard.page().locator("section.breadcrumb ul#breadcrumb li a"),
       1,
-      productCard.page().locator("section.mb-0 h1").first()
+      productCard.page().locator("div.w > section > div h1").first()
     );
 
     console.log(categoryTree);
