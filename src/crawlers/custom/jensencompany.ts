@@ -119,11 +119,19 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
       ? "in_stock"
       : "out_of_stock";
 
-    const imageLocator = page.locator("div.fotorama__stage__frame img");
-    const imageCount = await imageLocator.count();
     let images = [];
-    for (let i = 0; i < imageCount; ++i) {
-      const imageUrl = await imageLocator.nth(i).getAttribute("src");
+    const mainImageLocator = page.locator(
+      "div.fotorama__stage__frame.fotorama__active img"
+    );
+    const thumbnailLocator = page.locator(".fotorama__thumb");
+    const thumbnailCount = await thumbnailLocator.count();
+    for (let i = 0; i < thumbnailCount; i++) {
+      const currentImagePreview = thumbnailLocator.nth(i);
+      await this.handleCookieConsent(page);
+      await currentImagePreview.click({ force: true });
+      await page.waitForTimeout(2000);
+
+      const imageUrl = await mainImageLocator.nth(1).getAttribute("src");
       if (imageUrl) {
         images.push(imageUrl);
       }
