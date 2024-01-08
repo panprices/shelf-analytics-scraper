@@ -69,9 +69,12 @@ async function debugCategoryExplorationEndToEnd(targetUrls: string[]) {
 }
 
 async function debugLeafCategoryExtraction(targetUrls: string[]) {
+  const startTime = Date.now();
   const categoryUrls = await extractLeafCategories(targetUrls);
 
   console.log(JSON.stringify(categoryUrls));
+  const endTime = Date.now();
+  console.log(`Time taken: ${endTime - startTime} ms`);
 }
 
 async function debugScrapeDetailsRecordHARForTests(targetUrl: string) {
@@ -168,6 +171,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 await debugLeafCategoryExtraction([
   "https://www.venturedesign.se/innemobler",
   "https://www.venturedesign.se/utemobler",
+  "https://www.venturedesign.se/nyheter",
 ]);
 
 // await debugCategoryExplorationRecordHARForTests(

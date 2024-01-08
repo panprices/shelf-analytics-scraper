@@ -9,21 +9,21 @@ import {
 } from "./service";
 import { log } from "crawlee";
 import {
-  LeafCategoryExtractionRequest,
   ListingProductInfo,
   RequestBatch,
   RequestCategoryExploration,
   RequestSearch,
+  ScraperSchedule,
 } from "./types/offer";
 import {
   persistProductsToDatabase,
   publishProductsToUpdate,
-  updateProductsPopularity,
   sendRequestBatch,
+  triggerJobWithNewCategories,
+  updateProductsPopularity,
 } from "./publishing";
 import { extractDomainFromUrl, loggingMiddleware } from "./utils";
-import fastFolderSize from "fast-folder-size";
-import { initializeApp, applicationDefault } from "firebase-admin/app";
+import { applicationDefault, initializeApp } from "firebase-admin/app";
 
 dotenv.config();
 
@@ -156,16 +156,35 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   });
 });
 
-app.post("/extractLeafCategories", async (req: Request, res: Response) => {
-  const body = <LeafCategoryExtractionRequest>req.body;
-  const intermediateCategories = body.intermediate_categories;
+app.post(
+  "/startJobWithIntermediateCategories",
+  async (req: Request, res: Response) => {
+    const body = <ScraperSchedule>req.body;
+    const intermediateCategories = body.intermediate_categories;
+    if (!intermediateCategories) {
+      log.warning(
+        "Called intermediate categories crawler without intermediate categories"
+      );
+      res.status(200).send("No intermediate categories");
+      return;
+    }
 
-  const leafCategoryUrls = await extractLeafCategories(intermediateCategories);
-  res.status(200).send({
-    nrCategoriesFound: leafCategoryUrls.length,
-    categoryUrls: leafCategoryUrls.map((c) => c.url),
-  });
-});
+    const existingCategoryUrls = body.category_urls ?? [];
+    const leafCategoryObjects = await extractLeafCategories(
+      intermediateCategories
+    );
+    const leafCategoryUrls = leafCategoryObjects.map((c) => c.url);
+    const newCategoryUrls = leafCategoryUrls.filter(
+      (c) => !existingCategoryUrls.includes(c)
+    );
+
+    await triggerJobWithNewCategories(body, newCategoryUrls);
+
+    res.status(200).send({
+      nrNewCategories: newCategoryUrls.length,
+    });
+  }
+);
 
 // Start the server
 

@@ -115,5 +115,16 @@ export interface RequestSearch extends RequestOptions {
 
 export interface LeafCategoryExtractionRequest {
   intermediate_categories: string[];
+  known_category_urls: string[];
   jobContext: JobContext;
+}
+
+/**
+ * This is the structure of a schedule as one can see in Firestore.
+ *
+ * Here we only mention some of the fields explicitly.
+ */
+export interface ScraperSchedule {
+  category_urls?: string[];
+  intermediate_categories?: string[];
 }

@@ -6,6 +6,7 @@ import {
   JobContext,
   ListingProductInfo,
   RequestBatch,
+  ScraperSchedule,
 } from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
 
@@ -42,6 +43,31 @@ export async function sendRequestBatch(
   );
 
   await Promise.all(requestPromises);
+}
+
+export async function triggerJobWithNewCategories(
+  schedule: ScraperSchedule,
+  newCategoryUrls: string[]
+) {
+  const pubSubClient = new PubSub();
+
+  // We don't need to pass the topic as env variable. There is only one topic for all the jobs that start.
+  // The schedule itself contains a field that will decide wether this will be a production or sandbox job
+  const topic = "trigger_shelf_analytics_schedule_job";
+  try {
+    const messageId = await pubSubClient.topic(topic).publishMessage({
+      json: {
+        ...schedule,
+        intermediate_categories: undefined,
+        category_urls: [
+          ...new Set([...(schedule.category_urls ?? []), ...newCategoryUrls]),
+        ],
+      },
+    });
+    log.info(`Message ${messageId} published.`);
+  } catch (error) {
+    log.error(`Received error while publishing to PubSub`, { error });
+  }
 }
 
 export async function persistProductsToDatabase(
