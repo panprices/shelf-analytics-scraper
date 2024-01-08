@@ -316,7 +316,7 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
   async enqueueSubCategoryLinks(ctx: PlaywrightCrawlingContext) {
     const rootUrl = new URL(ctx.page.url()).origin;
     const subCategoriesIdentifier =
-      "//div[contains(@class, 'subcategories')]/a";
+      "//div[contains(@class, 'subcategories')]//a";
 
     await ctx.page
       .locator(subCategoriesIdentifier)

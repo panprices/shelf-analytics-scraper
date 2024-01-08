@@ -112,3 +112,8 @@ export interface RequestSearch extends RequestOptions {
 
   jobContext: JobContext;
 }
+
+export interface LeafCategoryExtractionRequest {
+  intermediate_categories: string[];
+  jobContext: JobContext;
+}

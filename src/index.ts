@@ -1,9 +1,15 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
-import { exploreCategory, scrapeDetails, searchForProducts } from "./service";
+import {
+  exploreCategory,
+  extractLeafCategories,
+  scrapeDetails,
+  searchForProducts,
+} from "./service";
 import { log } from "crawlee";
 import {
+  LeafCategoryExtractionRequest,
   ListingProductInfo,
   RequestBatch,
   RequestCategoryExploration,
@@ -149,6 +155,19 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     productUrls: products.map((p) => p.url),
   });
 });
+
+app.post("/extractLeafCategories", async (req: Request, res: Response) => {
+  const body = <LeafCategoryExtractionRequest>req.body;
+  const intermediateCategories = body.intermediate_categories;
+
+  const leafCategoryUrls = await extractLeafCategories(intermediateCategories);
+  res.status(200).send({
+    nrCategoriesFound: leafCategoryUrls.length,
+    categoryUrls: leafCategoryUrls.map((c) => c.url),
+  });
+});
+
+// Start the server
 
 const port = parseInt(<string>process.env.PORT) || 8080;
 app.listen(port, () => {

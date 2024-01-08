@@ -161,9 +161,14 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.louispoulsen.com/da-dk/catalog/privat/pendler-loftlamper"
 // );
 
-await debugCategoryExploration(
-  "https://www.finnishdesignshop.com/en-dk/lighting/ceiling-lamps"
-);
+// await debugCategoryExploration(
+//   "https://www.finnishdesignshop.com/en-dk/lighting/ceiling-lamps"
+// );
+
+await debugLeafCategoryExtraction([
+  "https://www.venturedesign.se/innemobler",
+  "https://www.venturedesign.se/utemobler",
+]);
 
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
