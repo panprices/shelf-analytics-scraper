@@ -161,26 +161,26 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
 
 // await debugScrapeDetails(
-//   "https://www.louispoulsen.com/da-dk/catalog/privat/pendler-loftlamper"
+//   "https://www.baldai1.lt/valgomojo-komplektai/valgomojo-komplektas-ja3381-lt.html"
 // );
 
 // await debugCategoryExploration(
 //   "https://www.finnishdesignshop.com/en-dk/lighting/ceiling-lamps"
 // );
 
-await debugLeafCategoryExtraction([
-  "https://www.venturedesign.se/innemobler",
-  "https://www.venturedesign.se/utemobler",
-  "https://www.venturedesign.se/nyheter",
-]);
+// await debugLeafCategoryExtraction([
+//   "https://www.venturedesign.se/innemobler",
+//   "https://www.venturedesign.se/utemobler",
+//   "https://www.venturedesign.se/nyheter",
+// ]);
 
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 //
-// await debugScrapeDetails(
-//   "https://www.nordiskarum.se/aspen-ovalt-matbord---svart-/-mocca-faner-15106-588.html"
-// );
+await debugScrapeDetails(
+  "https://www.homeroom.se/venture-home/ullmatta-betina/1675060-02-697"
+);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"

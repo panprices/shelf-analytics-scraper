@@ -20,6 +20,7 @@ import { extractImagesFromDetailedPage } from "./base-homeroom";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 58;
+  private cookiesHandled: boolean = false;
 
   public constructor(options: CrawlerDefinitionOptions) {
     super(options, "same_tab");
@@ -99,6 +100,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   ): Promise<DetailedProductInfo> {
     const productNameSelector = "h1.product-title";
     await page.waitForSelector(productNameSelector);
+    if (!this.cookiesHandled) {
+      // If we did not see cookies yet give it one more second to avoid being blocked by the overlay later
+      await page.waitForTimeout(1000);
+    }
     await this.handleCookieConsent(page);
 
     const productName = await this.extractProperty(
@@ -253,6 +258,31 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     urlParts.pop();
     const variantUrl = urlParts.join("/") + "/" + sku;
     log.info("Variant url: " + variantUrl);
+
+    const sizeButton = page.locator("button.variant-midnight.cta");
+    const sizeSelectorExists = (await sizeButton.count()) > 0;
+    if (sizeSelectorExists) {
+      const contentsLocator = sizeButton.locator(".contents");
+      const sizeText = await contentsLocator.innerText();
+      if (sizeText !== "Storlek") {
+        specArray.push({
+          key: "Storlek",
+          value: sizeText,
+        });
+      }
+    }
+
+    const colorHeader = page.locator("h5.selected-color");
+    const colorExists = (await colorHeader.count()) > 0;
+    if (colorExists) {
+      const colorText = await colorHeader
+        .innerText()
+        .then((t) => t.split(":")[1].trim());
+      specArray.push({
+        key: "Färg",
+        value: colorText,
+      });
+    }
 
     return {
       name: productName,
@@ -425,6 +455,12 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       dynamicProductCardLoading: true,
       launchOptions,
     });
+  }
+
+  override async handleCookieConsent(page: Page): Promise<void> {
+    const result = super.handleCookieConsent(page);
+    this.cookiesHandled = true;
+    return result;
   }
 
   // DEPRECATED: override scrollToBottom to handle infinite scroll.
