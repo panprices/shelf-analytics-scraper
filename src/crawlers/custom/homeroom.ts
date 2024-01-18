@@ -259,7 +259,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const variantUrl = urlParts.join("/") + "/" + sku;
     log.info("Variant url: " + variantUrl);
 
-    const sizeButton = page.locator("button.variant-midnight.cta");
+    const sizeButton = page.locator(
+      ".product-info button.variant-midnight.cta"
+    );
     const sizeSelectorExists = (await sizeButton.count()) > 0;
     if (sizeSelectorExists) {
       const contentsLocator = sizeButton.locator(".contents");
