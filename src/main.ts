@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.homeroom.se/venture-home/matta-william/1740882-02"
+  "https://www.baldai1.lt/lauko-baldai/stalo-ir-kedziu-komplektai/stalo-ir-kedziu-komplektas-ja2974.html"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

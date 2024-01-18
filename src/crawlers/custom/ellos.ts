@@ -88,6 +88,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       retailerDomain: extractDomainFromUrl(ctx.page.url()),
       ...request.userData,
       ...productDetails,
+      redirectedFrom: request.url === ctx.page.url() ? undefined : request.url,
       variantGroupUrl: variantGroupUrl,
       variant: variant,
     });

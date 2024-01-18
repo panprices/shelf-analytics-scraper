@@ -127,6 +127,8 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       await this._detailsDataset.pushData(<DetailedProductInfo>{
         ...request.userData,
         ...productDetails,
+        redirectedFrom:
+          request.url === ctx.page.url() ? undefined : request.url,
         fetchedAt: new Date().toISOString(),
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });

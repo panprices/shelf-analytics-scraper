@@ -83,6 +83,7 @@ export interface DetailedProductInfo extends BaseProductInfo {
   matchingType?: string; // {match, unknown}
   variantGroupUrl?: string;
   variant?: number; // 0, 1, 2, 3, ...
+  redirectedFrom?: string;
 }
 
 export interface JobContext {

@@ -173,6 +173,8 @@ export abstract class AbstractCrawlerDefinition
       await this._detailsDataset.pushData(<DetailedProductInfo>{
         ...request.userData,
         ...productDetails,
+        redirectedFrom:
+          request.url === ctx.page.url() ? undefined : request.url,
         fetchedAt: new Date().toISOString(),
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
       });
@@ -720,6 +722,8 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       await this._detailsDataset.pushData(<DetailedProductInfo>{
         ...request.userData,
         ...productDetails,
+        redirectedFrom:
+          request.url === ctx.page.url() ? undefined : request.url,
         fetchedAt: new Date().toISOString(),
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
         variantGroupUrl: variantGroupUrl,
@@ -1023,6 +1027,8 @@ export abstract class AbstractCheerioCrawlerDefinition
     await this._detailsDataset.pushData(<DetailedProductInfo>{
       fetchedAt: new Date().toISOString(),
       retailerDomain: extractDomainFromUrl(ctx.request.url),
+      redirectedFrom:
+        request.url === ctx.response.url ? undefined : request.url,
       ...request.userData,
       ...productDetails,
     });
