@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.homeroom.se/venture-home/ullmatta-betina/1675060-02-697"
+  "https://www.homeroom.se/venture-home/matta-william/1740882-02"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

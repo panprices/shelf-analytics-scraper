@@ -191,6 +191,7 @@ export class CrawlerFactory {
             ...defaultOptions,
             maxConcurrency: 2, // homeroom/ellos is laggy when opening many pages at once
             requestHandler: definition.router,
+            requestHandlerTimeoutSecs: 600, // exploring the variant space takes a long time
           };
         }
         return [new PlaywrightCrawler(options), definition];
