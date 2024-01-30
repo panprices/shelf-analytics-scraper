@@ -175,6 +175,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
     const descriptionExpanderExists = (await descriptionExpander.count()) === 1;
     if (descriptionExpanderExists) {
       await this.handleCookieConsent(page);
+      await this.closeShopifyChangeCountryModal(page);
       await descriptionExpander.click();
     }
     const description = await this.extractProperty(
@@ -189,6 +190,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     for (const expander of await accordionItemLocators.all()) {
       await this.handleCookieConsent(page);
+      await this.closeShopifyChangeCountryModal(page);
       await expander.click();
     }
     const accordionItemCount = await accordionItemLocators.count();
@@ -304,6 +306,18 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
     };
   }
 
+  async closeShopifyChangeCountryModal(page: Page) {
+    const button = page
+      .locator(
+        "div.recommendation-modal__container button.recommendation-modal__close-button"
+      )
+      .first();
+    const buttonVisible = await button.isVisible();
+    if (buttonVisible) {
+      await button.click();
+    }
+  }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<NordlyLivingCrawlerDefinition> {
@@ -324,7 +338,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
       // but the close button to NOT set your location to Sweden.
       // Need to click it to not get price in SEK and also to interact with the page.
       cookieConsentSelector:
-        "div.recommendation-modal__container button.recommendation-modal__close-button",
+        "button#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowallSelection",
       dynamicProductCardLoading: false,
     });
   }

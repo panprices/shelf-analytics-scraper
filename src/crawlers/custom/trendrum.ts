@@ -39,10 +39,16 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = await this.extractCategoryTree(
+      productCard.page().locator("div#navBreadCrumb a"),
+      1
+    );
+
     return {
       name: productName,
       url,
       categoryUrl,
+      popularityCategory: categoryTree,
     };
   }
 
