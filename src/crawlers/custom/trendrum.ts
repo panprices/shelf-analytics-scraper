@@ -55,6 +55,8 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    console.log("Has variant:" + (await this.hasVariant(ctx.page)));
+
     if (await this.hasVariant(ctx.page)) {
       await this.crawlVariantPage(ctx);
     } else {
@@ -66,13 +68,18 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     // If there is a normal price, it means that the product has no variants.
     // Otherwise it has variants.
     try {
-      await page
-        .locator("div.productPrices span.currentprice")
-        .waitFor({ timeout: 5000 });
-      return false;
+      const prices = await page
+        .locator(".ProductVariantPrice")
+        .allTextContents();
+
+      if (prices.length > 1) {
+        return true;
+      }
     } catch (e) {
-      return true;
+      return false;
     }
+
+    return false;
   }
 
   async crawlVariantPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -172,42 +179,51 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().textContent()
     ).then((text) => text?.trim());
 
+    const sku = await this.extractProperty(page, "div.itemmodel span", (node) =>
+      node.first().textContent()
+    ).then((text) => text?.trim());
+
+    let brand = undefined;
+    let gtin = undefined;
+    let mpn = undefined;
+    let availability = "out_of_stock";
+    let reviews = undefined;
     const schemaOrgString = await this.extractProperty(
       page,
       "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]",
       (node) => node.textContent()
     );
-    if (!schemaOrgString) {
-      throw new Error("Cannot extract schema.org data");
+
+    let schemaOrg = undefined;
+    if (schemaOrgString) {
+      schemaOrg = JSON.parse(schemaOrgString);
+      brand = schemaOrg?.brand?.name;
+      gtin = schemaOrg?.gtin;
+
+      mpn = schemaOrg?.mpn;
+      // Sometimes the mpn has a prefix Mxxx-, such as M131-GR456
+      // when the product mpn is GR456. Thus we remove that redundant part:
+      if (mpn && mpn.match(/^M[\d]+-/)) {
+        mpn = mpn.replace(/^M[\d]+-/, "");
+      }
+
+      try {
+        availability = schemaOrg.offers[0].availability.includes("InStock")
+          ? "in_stock"
+          : "out_of_stock";
+      } catch (error) {
+        availability = "out_of_stock";
+      }
+
+      reviews =
+        "aggregateRating" in schemaOrg
+          ? {
+              averageReview: schemaOrg.aggregateRating.ratingValue,
+              reviewCount: schemaOrg.aggregateRating.reviewCount,
+              recentReviews: [],
+            }
+          : undefined;
     }
-    const schemaOrg = JSON.parse(schemaOrgString);
-
-    const brand = schemaOrg?.brand?.name;
-    const gtin = schemaOrg?.gtin;
-    const sku = schemaOrg?.sku;
-
-    let mpn: string = schemaOrg?.mpn;
-    if (mpn && mpn.match(/^M[\d]+-/)) {
-      mpn = mpn.replace(/^M[\d]+-/, "");
-    }
-
-    let availability;
-    try {
-      availability = schemaOrg.offers[0].availability.includes("InStock")
-        ? "in_stock"
-        : "out_of_stock";
-    } catch (error) {
-      throw new Error("Cannot extract availability of product");
-    }
-
-    const reviews: ProductReviews | "unavailable" =
-      "aggregateRating" in schemaOrg
-        ? {
-            averageReview: schemaOrg.aggregateRating.ratingValue,
-            reviewCount: schemaOrg.aggregateRating.reviewCount,
-            recentReviews: [],
-          }
-        : "unavailable";
 
     const categoryTree = await this.extractCategoryTree(
       page.locator("div#navBreadCrumb a"),
@@ -236,7 +252,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
 
     let imageUrls = await this.extractImagesFromProductPage(page);
     if (imageUrls.length === 0) {
-      imageUrls = schemaOrg.image;
+      imageUrls = schemaOrg?.image;
     }
 
     const productInfo = {
@@ -258,8 +274,10 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       reviews,
       specifications,
       categoryTree,
-      metadata: { schemaOrg },
+      metadata: {},
     };
+
+    console.log(productInfo);
 
     return productInfo;
   }
@@ -286,15 +304,16 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
   override async extractProductDetails(
     page: Page
   ): Promise<DetailedProductInfo> {
+    let price = undefined;
     const priceText = await this.extractProperty(
       page,
       "div.productPrices span.currentprice",
       (node) => node.textContent()
     );
-    if (!priceText) {
-      throw new Error("Cannot extract price");
+    if (priceText) {
+      price = extractNumberFromText(priceText);
     }
-    const price = extractNumberFromText(priceText);
+    // If no priceText => product is discontinued without a price
 
     const productInfo = {
       ...(await this.extractBaseProductDetails(page)),
