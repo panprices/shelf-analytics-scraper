@@ -126,12 +126,12 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       name,
       price: prices[i],
       sku: skus[i],
-      url: `${baseProductDetails.url}#${skus[i]}`,
+      url: createVariantProductUrl(baseProductDetails.url, skus[i]),
       specifications: baseProductDetails.specifications.concat(
         variantSpecifications[i]
       ),
       variant: i,
-      variantGroupUrl: baseProductDetails.url,
+      variantGroupUrl: extractBaseProductUrl(baseProductDetails.url),
     }));
 
     const request = ctx.request;
@@ -371,4 +371,17 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       dynamicProductCardLoading: false,
     });
   }
+}
+
+function extractBaseProductUrl(url: string) {
+  return url.split("#")[0];
+}
+
+/**
+ * Create a distinct product url for each variant.
+ * This lets us store them as individual products in our database.
+ */
+function createVariantProductUrl(productUrl: string, sku: string) {
+  const baseProductUrl = extractBaseProductUrl(productUrl);
+  return `${baseProductUrl}#${sku}`;
 }
