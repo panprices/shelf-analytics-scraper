@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
 import {
   exploreCategory,
+  exploreHomepage,
   extractLeafCategories,
   scrapeDetails,
   searchForProducts,
@@ -186,6 +187,15 @@ app.post(
     });
   }
 );
+
+app.post("/exploreHomepage", async (req: Request, res: Response) => {
+  const body = req.body;
+  const result = await exploreHomepage(body.url);
+
+  console.log(result);
+
+  res.status(200).send(result);
+});
 
 // Start the server
 

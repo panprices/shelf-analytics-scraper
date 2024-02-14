@@ -146,6 +146,9 @@ export abstract class AbstractCrawlerDefinition
     this._router.addHandler("INTERMEDIATE_CATEGORY", (_) =>
       crawlerDefinition.crawlIntermediateCategoryPage(_)
     );
+    this._router.addHandler("HOMEPAGE", (_ctx) =>
+      crawlerDefinition.exploreHomepage(_ctx)
+    );
 
     this._detailsDataset = options.detailsDataset;
 
@@ -598,6 +601,34 @@ export abstract class AbstractCrawlerDefinition
   /** Override this if we need to normalize the product URL */
   normalizeProductUrl(url: string): string {
     return url;
+  }
+
+  async exploreHomepage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    await this.scrollToBottom(ctx);
+
+    const page = ctx.page;
+    // Get all <a> elements that are not descendants of <footer> or <nav>
+    const urlLocators = await page
+      .locator("//a[not(ancestor::footer) and not(ancestor::nav)]")
+      .all();
+    const hrefs = await Promise.all(
+      urlLocators.map((a) => a.getAttribute("href"))
+    );
+    // Filter out any null values and link to the same page:
+    let urls: string[] = hrefs
+      .filter((href): href is string => href !== null)
+      .filter((href) => !href.startsWith("#"));
+    const removeConsecutiveDuplicates = (list: string[]): string[] => {
+      return list.filter(
+        (item, index) => index === 0 || item !== list[index - 1]
+      );
+    };
+    urls = removeConsecutiveDuplicates(urls);
+    const urlsWithType = await classifyUrls(urls);
+
+    console.dir(urlsWithType, { maxArrayLength: null });
+
+    return;
   }
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
@@ -1061,4 +1092,16 @@ function logProductScrapingInfo(
     proxy: ctx.proxyInfo?.hostname || null,
     sessionId: ctx.session?.id || null,
   });
+}
+
+interface UrlWithType {
+  url: string;
+  type: string | null;
+  brand: string | null;
+}
+
+async function classifyUrls(urls: string[]): Promise<UrlWithType[]> {
+  const response = await fetch("https://api.ipify.org?format=json");
+
+  return response.json();
 }
