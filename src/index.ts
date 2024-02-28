@@ -144,10 +144,11 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
     });
   }
 
-  // Filter for matching products and publish them to be updated immediately:
-  const matchingProducts = products.filter((p) => p.matchingType === "match");
-  if (matchingProducts.length > 0 && !body.jobContext.skipPublishing) {
-    await publishProductsToUpdate(matchingProducts, body.jobContext);
+  // Filter for products that we already have and publish them to be updated
+  // immediately:
+  const existingProducts = products.filter((p) => p.matchingType !== "new");
+  if (existingProducts.length > 0 && !body.jobContext.skipPublishing) {
+    await publishProductsToUpdate(existingProducts, body.jobContext);
   }
 
   res.status(200).send({

@@ -122,6 +122,11 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       "div.product-details a.product-manufacturer-link",
       (node) => node.getAttribute("title")
     ).then((text) => text?.trim());
+    const brandUrl = await this.extractProperty(
+      page,
+      "div.product-details a.product-manufacturer-link",
+      (node) => node.getAttribute("href")
+    );
 
     const accordionItemLocators = page.locator(
       "section#product-properties div.accordion__item"
@@ -201,6 +206,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       url: page.url(),
 
       brand,
+      brandUrl,
       description,
       price,
       currency: "DKK",

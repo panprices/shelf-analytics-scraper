@@ -150,6 +150,11 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       "//h2[contains(@class, 'long-description-title')]/a[2]",
       (node) => node.textContent()
     ))!.trim();
+    const brandUrl = (await this.extractProperty(
+      page,
+      "//h2[contains(@class, 'long-description-title')]/a[2]",
+      (node) => node.getAttribute("href")
+    ))!.trim();
     const schemaOrgString = <string>(
       await page
         .locator(
@@ -298,6 +303,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       metadata,
       specifications: specArray,
       brand,
+      brandUrl,
       isDiscounted,
       url: variantUrl,
       reviews,

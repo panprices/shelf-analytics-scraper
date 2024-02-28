@@ -45,6 +45,7 @@ export interface BaseProductInfo {
   url: string;
 
   brand?: string;
+  brandUrl?: string;
   description?: string;
   price?: number;
   currency?: string;

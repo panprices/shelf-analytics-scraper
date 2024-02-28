@@ -284,6 +284,12 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     const brand = specifications.find(
       (spec) => spec.key === "Varumärke"
     )?.value;
+    const brandUrl = await this.extractProperty(
+      page,
+      "div.SonMi a.kkIWz",
+      (node) => node.getAttribute("href")
+    );
+
     const gtin = specifications.find((spec) => spec.key === "EAN-nr")?.value;
     const articleNumber = specifications.find(
       (spec) => spec.key === "Art.Nr."
@@ -313,6 +319,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     return {
       url: page.url(),
       brand,
+      brandUrl,
       name: productName,
       images,
       description,

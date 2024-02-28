@@ -425,6 +425,10 @@ function postProcessProductDetails(
       });
 
     // Convert dynamic category url to absolute url:
+    if (p.brandUrl?.startsWith("/")) {
+      p.brandUrl = new URL(p.brandUrl, p.url).href;
+    }
+
     if (p.categoryUrl?.startsWith("/")) {
       p.categoryUrl = new URL(p.categoryUrl, p.url).href;
     }
