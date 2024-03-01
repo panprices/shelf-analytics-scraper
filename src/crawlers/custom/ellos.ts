@@ -36,6 +36,13 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    await this.crawlDetailPageMindingCookies(ctx, 3);
+  }
+
+  async crawlDetailPageMindingCookies(
+    ctx: PlaywrightCrawlingContext,
+    retryCount: number
+  ): Promise<void> {
     // const nrDropdownVariants = await this.getOptionsForParamIndex(ctx, 0);
     // const hasVariants = nrDropdownVariants > 0;
 
@@ -48,28 +55,41 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     //   await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
     // }
 
-    await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
+    try {
+      await this.crawlSingleDetailPage(ctx, ctx.page.url(), 0);
 
-    const nrDropdownVariants = await this.getOptionsCountForParamIndex(ctx, 0);
-    const hasVariants = nrDropdownVariants > 0;
+      const nrDropdownVariants = await this.getOptionsCountForParamIndex(
+        ctx,
+        0
+      );
+      const hasVariants = nrDropdownVariants > 0;
 
-    if (hasVariants) {
-      for (let i = 0; i < nrDropdownVariants; i++) {
-        await this.selectOptionForParamIndex(ctx, 0, i);
+      if (hasVariants) {
+        for (let i = 0; i < nrDropdownVariants; i++) {
+          await this.selectOptionForParamIndex(ctx, 0, i);
 
-        // Start counting variants from 1 and not 0 so that we scrape the 1st variant
-        // twice. The 1st time the url will be the productGroup url for HACKY solution,
-        // and the 2nd time with proper url.
-        await this.crawlSingleDetailPage(ctx, ctx.page.url(), i + 1);
+          // Start counting variants from 1 and not 0 so that we scrape the 1st variant
+          // twice. The 1st time the url will be the productGroup url for HACKY solution,
+          // and the 2nd time with proper url.
+          await this.crawlSingleDetailPage(ctx, ctx.page.url(), i + 1);
+        }
       }
-    }
 
-    // Enqueue the variant groups where you have a.href:
-    await ctx.enqueueLinks({
-      selector: "div.product-info ul.color-picker-list a",
-      label: "DETAIL",
-      userData: ctx.request.userData,
-    });
+      // Enqueue the variant groups where you have a.href:
+      await ctx.enqueueLinks({
+        selector: "div.product-info ul.color-picker-list a",
+        label: "DETAIL",
+        userData: ctx.request.userData,
+      });
+    } catch (error) {
+      console.log("Caught error, handling cookies");
+      await this.handleCookieConsent(ctx.page);
+      if (retryCount === 0) {
+        throw error;
+      }
+
+      await this.crawlDetailPageMindingCookies(ctx, retryCount - 1);
+    }
   }
 
   // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma/Ellos solution
@@ -340,7 +360,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     // }
 
     const dropDownButtonLocator = ctx.page
-      .locator("button.cta-outline-variant-1-l")
+      .locator("button.cta.type-outline.size-l")
       .nth(paramIndex);
     await dropDownButtonLocator.click();
     await ctx.page.waitForSelector("table.picker-sizes tbody tr");
@@ -361,7 +381,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     paramIndex: number
   ): Promise<number> {
     const dropDownButtonLocator = ctx.page
-      .locator("button.cta-outline-variant-1-l")
+      .locator("button.cta.type-outline.size-l")
       .nth(paramIndex);
     const hasDropDrownVariants = (await dropDownButtonLocator.count()) > 0;
     if (hasDropDrownVariants) {

@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.homeroom.se/rowico-home/ullmatta-auckland/1669021-02"
+  "https://www.ellos.se/venture-home/poster-siluette/1703349-01"
 );
 
 // await debugScrapeDetailsRecordHARForTests(
