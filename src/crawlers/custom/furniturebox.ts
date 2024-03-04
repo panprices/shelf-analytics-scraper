@@ -125,7 +125,6 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
         (node) => node.innerText()
       ).then((text) => text?.trim());
     } catch (e) {
-      log.error("Error", { e });
       log.info(`Description not found for product with url: ${page.url()}`);
       description = undefined;
     }
