@@ -1,6 +1,11 @@
 import { CrawlerFactory } from "./crawlers/factory";
 import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
-import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
+import {
+  Dictionary,
+  log,
+  PlaywrightCrawlerOptions,
+  RequestOptions,
+} from "crawlee";
 import { clearStorage, extractDomainFromUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
@@ -484,4 +489,35 @@ function postProcessProductDetails(
 
 function isValidGTIN(gtin: string) {
   return gtin.length >= 8 && gtin.length <= 14 && /^\d+$/.test(gtin);
+}
+
+export async function exploreHomepage(
+  url: string,
+  overrides?: PlaywrightCrawlerOptions
+): Promise<void> {
+  const uniqueCrawlerKey = uuidv4();
+  const [crawler, _crawlerDefinition] =
+    await CrawlerFactory.buildPlaywrightCrawler(
+      {
+        domain: extractDomainFromUrl(url),
+        type: "homepageExploration",
+        // Do not continue to explore the product page.
+        // Capture those pages and publish them to the scheduler later.
+        useCustomQueue: false,
+        customQueueSettings: { captureLabels: ["DETAIL"] },
+      },
+      {
+        uniqueCrawlerKey,
+      },
+      {
+        ...overrides,
+      }
+    );
+
+  await crawler.run([
+    {
+      url: url,
+      label: "HOMEPAGE",
+    },
+  ]);
 }

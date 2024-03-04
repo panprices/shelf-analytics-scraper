@@ -6,6 +6,7 @@ import {
   Dataset,
   log,
   PlaywrightCrawlingContext,
+  playwrightUtils,
   Router,
   RouterHandler,
 } from "crawlee";
@@ -145,6 +146,9 @@ export abstract class AbstractCrawlerDefinition
     );
     this._router.addHandler("INTERMEDIATE_CATEGORY", (_) =>
       crawlerDefinition.crawlIntermediateCategoryPage(_)
+    );
+    this._router.addHandler("HOMEPAGE", (_ctx) =>
+      crawlerDefinition.exploreHomepage(_ctx)
     );
 
     this._detailsDataset = options.detailsDataset;
@@ -598,6 +602,39 @@ export abstract class AbstractCrawlerDefinition
   /** Override this if we need to normalize the product URL */
   normalizeProductUrl(url: string): string {
     return url;
+  }
+
+  async exploreHomepage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    await playwrightUtils.infiniteScroll(ctx.page, { scrollDownAndUp: true });
+
+    const page = ctx.page;
+    // Get all <a> elements that are not descendants of <footer> or <nav>
+    const aTagLocators = await page
+      .locator("//a[not(ancestor::footer) and not(ancestor::nav)]")
+      .all();
+
+    const hrefs = await Promise.all(
+      aTagLocators.map((a) => a.getAttribute("href", { timeout: 1000 }))
+    );
+    // Filter out any null values and link to the same page:
+    let urls: string[] = hrefs
+      .filter((href): href is string => href !== null)
+      .filter((href) => !href.startsWith("#"));
+    const removeConsecutiveDuplicates = (list: string[]): string[] => {
+      return list.filter(
+        (item, index) => index === 0 || item !== list[index - 1]
+      );
+    };
+    urls = removeConsecutiveDuplicates(urls);
+    // Normalise the url
+    urls = urls.map((url) => new URL(url, ctx.page.url()).href);
+
+    log.info("Found urls on homepage", { nr_urls: urls.length, urls: urls });
+    const matchingUrls = await publishHomepageUrls(urls);
+    log.info("Found matching urls", {
+      nr_urls: matchingUrls.length,
+      urls: matchingUrls,
+    });
   }
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
@@ -1061,4 +1098,32 @@ function logProductScrapingInfo(
     proxy: ctx.proxyInfo?.hostname || null,
     sessionId: ctx.session?.id || null,
   });
+}
+
+/** Publish urls found on homepage to persist in our database.
+ * Return a list of matching urls (mostly for debugging purpose).
+ */
+async function publishHomepageUrls(urls: string[]): Promise<string[]> {
+  // return urls.map((url) => {
+  //   return {
+  //     url: url,
+  //     type: "unknown",
+  //     brand: "unknown",
+  //   };
+  // });
+  const response = await fetch(
+    "https://europe-west1-panprices.cloudfunctions.net/shelf_analytics_classify_url",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        urls: urls,
+      }),
+    }
+  );
+  const responsebody = await response.json();
+
+  return responsebody.matching_urls;
 }

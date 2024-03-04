@@ -59,7 +59,11 @@ import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
 
 export interface CrawlerFactoryArgs {
   domain: string;
-  type: "scrapeDetails" | "categoryExploration" | "search";
+  type:
+    | "scrapeDetails"
+    | "categoryExploration"
+    | "search"
+    | "homepageExploration";
   useCustomQueue?: boolean;
   customQueueSettings?: CustomQueueSettings;
 }
