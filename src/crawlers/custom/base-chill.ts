@@ -20,6 +20,7 @@ import {
 } from "../abstract";
 import { PageNotFoundError } from "../../types/errors";
 import { extractNumberFromText } from "../../utils";
+import { includes } from "lodash";
 
 export async function createCrawlerDefinitionOption(
   launchOptions?: CrawlerLaunchOptions
@@ -85,7 +86,7 @@ export async function extractProductDetails(
   }
 
   try {
-    await page.waitForSelector("main div.n9 h1", {
+    await page.waitForSelector("main div.d.a3 h1", {
       timeout: 15000,
     });
   } catch (error) {
@@ -96,40 +97,57 @@ export async function extractProductDetails(
   }
   await crawlerDefinition.handleCookieConsent(page);
 
-  const productName = await page.locator("main div.n9 h1").textContent();
+  const productName = await page.locator("main div.d.a3 h1").textContent();
   if (!productName) {
     throw new Error("Cannot extract productName");
   }
 
-  const brand = await crawlerDefinition.extractProperty(
-    page,
-    "main div.n9 > div > a.cv",
-    (node) => node.textContent()
-  );
+  let brand = undefined;
+  const overviewData = await page
+    .locator(
+      "//main//div[contains(@class, 'ac') and .//span/text()='Översikt']//ul/li"
+    )
+    .allTextContents();
+  for (const text of overviewData) {
+    if (text.includes("Varumärke:")) {
+      brand = text.replace("Varumärke:", "").trim();
+    }
+  }
+  let brandUrl = await crawlerDefinition
+    .extractProperty(page, "main div.d.a3 a.cw", (a) =>
+      a.first().getAttribute("href")
+    )
+    // // Double check since the css selector isn't really unique
+    .then((url) =>
+      url?.includes("varumarken") ||
+      url?.includes("varumärken") ||
+      url?.includes("varum%C3%A4rken")
+        ? url
+        : undefined
+    );
 
-  const priceText = await page
-    .locator("main div.n9 div.d4 span.al")
-    .textContent();
+  const priceText = await page.locator("main div.d.a3 span.dq").textContent();
   if (!priceText) throw new Error("Cannot extract priceText");
-  const price = parseInt(priceText.replace("SEK", "").replace(/\s/g, ""));
+  const price = parseInt(priceText.replace("kr", "").replace(/\s/g, ""));
 
   const originalPriceString = await crawlerDefinition.extractProperty(
     page,
-    "main div.n9 div.d4 span.bf",
+    "main div.d.a3 span.an",
     (node) => node.textContent()
   );
-
-  const addToCartLocator = page.locator("main div.n9 div.n4 button");
-  const availability =
-    (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
-
   const isDiscounted = originalPriceString !== undefined;
   const originalPrice = originalPriceString
     ? parseInt(originalPriceString.replace("SEK", "").replace(/\s/g, ""))
     : undefined;
 
+  const addToCartLocator = page.locator(
+    "button[data-test-id='add-to-cart-button']"
+  );
+  const availability =
+    (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
+
   const images = await extractImagesFromProductPage(page);
-  const breadcrumbLocator = page.locator("//div[@id = 'breadcrumbs']//a");
+  const breadcrumbLocator = page.locator("main nav span a");
   const categoryTree = await crawlerDefinition.extractCategoryTree(
     breadcrumbLocator,
     1
@@ -137,14 +155,14 @@ export async function extractProductDetails(
 
   let reviewSummary: ProductReviews | undefined;
 
-  const averageReviewString = await crawlerDefinition.extractProperty(
-    page,
-    "div#ratings-section h3 div.am",
-    (node) => node.textContent()
-  );
   const reviewCountString = await crawlerDefinition.extractProperty(
     page,
-    "div#ratings-section h3 div.kt",
+    "div#ratings-section h3 div.lg",
+    (node) => node.textContent()
+  );
+  const averageReviewString = await crawlerDefinition.extractProperty(
+    page,
+    "div#ratings-section h3 div.lc",
     (node) => node.textContent()
   );
 
@@ -171,8 +189,9 @@ export async function extractProductDetails(
   // NOTE: The commented out fields are different for each website, so they are not extracted here.
   // Implement them in the specific Chilli/Furniturebox/Trademax crawler.
   const intermediateResult = {
-    brand,
     name: productName,
+    brand,
+    brandUrl,
     // description,
     url: page.url(),
     price,
@@ -198,7 +217,7 @@ export async function extractProductDetails(
 export async function extractImagesFromProductPage(
   page: Page
 ): Promise<string[]> {
-  const imageThumbnailLocator = await page.locator("main div.fs div.a06 img");
+  const imageThumbnailLocator = await page.locator("main div.fo div.a0g img");
 
   try {
     await imageThumbnailLocator.waitFor({ timeout: 10000 });
@@ -213,7 +232,7 @@ export async function extractImagesFromProductPage(
     await page.waitForTimeout(50);
   }
   const images = await page
-    .locator("main div.fs div.d2 img")
+    .locator("main div.fo div.d4 img")
     .evaluateAll((list: HTMLElement[]) =>
       list.map((element) => <string>element.getAttribute("src"))
     );

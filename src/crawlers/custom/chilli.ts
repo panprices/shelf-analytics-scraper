@@ -102,15 +102,16 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
     let description;
     try {
       const descriptionExpander = page.locator(
-        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Produktinformation']"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']"
       );
       await descriptionExpander.click({ timeout: 5000 });
       description = await this.extractProperty(
-        descriptionExpander,
-        "/div",
+        page,
+        "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']/div",
         (node) => node.innerText()
       ).then((text) => text?.trim());
     } catch (e) {
+      log.error("Error", { e });
       log.info(`Description not found for product with url: ${page.url()}`);
       description = undefined;
     }
@@ -119,15 +120,15 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       specifications: Specification[] = [];
     try {
       const specificationsExpander = page.locator(
-        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Specifikationer']"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']"
       );
       await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Specifikationer']//div//span[contains(@class, 'ku')]"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'le')]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//main//div[contains(@class, 'kq')]//div[contains(@class, 'a8') and .//span/text()='Specifikationer']//div//span[contains(@class, 'ku')]",
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'le')]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
 
