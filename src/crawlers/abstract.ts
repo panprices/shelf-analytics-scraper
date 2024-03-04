@@ -17,7 +17,7 @@ import {
   ListingProductInfo,
   Specification,
 } from "../types/offer";
-import { extractDomainFromUrl } from "../utils";
+import { extractDomainFromUrl, normaliseUrl } from "../utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   GotBlockedError,
@@ -627,7 +627,7 @@ export abstract class AbstractCrawlerDefinition
     };
     urls = removeConsecutiveDuplicates(urls);
     // Normalise the url
-    urls = urls.map((url) => new URL(url, ctx.page.url()).href);
+    urls = urls.map((url) => normaliseUrl(url, ctx.page.url()));
 
     log.info("Found urls on homepage", { nr_urls: urls.length, urls: urls });
     const matchingUrls = await publishHomepageUrls(urls);
@@ -1104,13 +1104,6 @@ function logProductScrapingInfo(
  * Return a list of matching urls (mostly for debugging purpose).
  */
 async function publishHomepageUrls(urls: string[]): Promise<string[]> {
-  // return urls.map((url) => {
-  //   return {
-  //     url: url,
-  //     type: "unknown",
-  //     brand: "unknown",
-  //   };
-  // });
   const response = await fetch(
     "https://europe-west1-panprices.cloudfunctions.net/shelf_analytics_classify_url",
     {

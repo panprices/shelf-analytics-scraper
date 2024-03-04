@@ -130,6 +130,13 @@ export function convertCurrencySymbolToISO(symbol: string): string {
   return code;
 }
 
+/** Normalise an url.
+ * Especially useful when we need to use the url as an unique identifier.
+ */
+export function normaliseUrl(url: string, baseWebsiteUrl: string): string {
+  return new URL(url, baseWebsiteUrl).href;
+}
+
 async function renameFoldersForDeletion(
   rootDir: string,
   uniqueCrawlerKey: string

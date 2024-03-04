@@ -6,7 +6,7 @@ import {
   PlaywrightCrawlerOptions,
   RequestOptions,
 } from "crawlee";
-import { clearStorage, extractDomainFromUrl } from "./utils";
+import { clearStorage, extractDomainFromUrl, normaliseUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
 import { findCategoryTree } from "./category-tree-mapping";
@@ -86,12 +86,12 @@ function postProcessListingProduct(
 ): void {
   // Convert dynamic category url to absolute url:
   if (p.categoryUrl?.startsWith("/")) {
-    p.categoryUrl = new URL(p.categoryUrl, p.url).href;
+    p.categoryUrl = normaliseUrl(p.categoryUrl, p.url);
   }
   for (let i = 0; i < (p.popularityCategory?.length ?? 0); i++) {
     const category = p.popularityCategory?.[i];
     if (category?.url.startsWith("/")) {
-      category.url = new URL(category.url, p.url).href;
+      category.url = normaliseUrl(category.url, p.url);
     }
   }
 
@@ -501,8 +501,6 @@ export async function exploreHomepage(
       {
         domain: extractDomainFromUrl(url),
         type: "homepageExploration",
-        // Do not continue to explore the product page.
-        // Capture those pages and publish them to the scheduler later.
         useCustomQueue: false,
         customQueueSettings: { captureLabels: ["DETAIL"] },
       },
