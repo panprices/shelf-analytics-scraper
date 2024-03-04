@@ -493,11 +493,10 @@ function isValidGTIN(gtin: string) {
 
 export async function exploreHomepage(
   url: string,
-  overrides?: PlaywrightCrawlerOptions,
-  _launchOptions?: CrawlerLaunchOptions
-): Promise<Dictionary[]> {
+  overrides?: PlaywrightCrawlerOptions
+): Promise<void> {
   const uniqueCrawlerKey = uuidv4();
-  const [crawler, crawlerDefinition] =
+  const [crawler, _crawlerDefinition] =
     await CrawlerFactory.buildPlaywrightCrawler(
       {
         domain: extractDomainFromUrl(url),
@@ -510,7 +509,9 @@ export async function exploreHomepage(
       {
         uniqueCrawlerKey,
       },
-      overrides
+      {
+        ...overrides,
+      }
     );
 
   await crawler.run([
@@ -519,10 +520,4 @@ export async function exploreHomepage(
       label: "HOMEPAGE",
     },
   ]);
-
-  const linksWithType = (await crawlerDefinition.detailsDataset.getData())
-    .items;
-
-  log.debug("Urls classified", { linksWithType });
-  return linksWithType;
 }

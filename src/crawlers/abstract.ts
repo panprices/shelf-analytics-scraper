@@ -6,6 +6,7 @@ import {
   Dataset,
   log,
   PlaywrightCrawlingContext,
+  playwrightUtils,
   Router,
   RouterHandler,
 } from "crawlee";
@@ -604,15 +605,16 @@ export abstract class AbstractCrawlerDefinition
   }
 
   async exploreHomepage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    await this.scrollToBottom(ctx);
+    await playwrightUtils.infiniteScroll(ctx.page, { scrollDownAndUp: true });
 
     const page = ctx.page;
     // Get all <a> elements that are not descendants of <footer> or <nav>
-    const urlLocators = await page
+    const aTagLocators = await page
       .locator("//a[not(ancestor::footer) and not(ancestor::nav)]")
       .all();
+
     const hrefs = await Promise.all(
-      urlLocators.map((a) => a.getAttribute("href"))
+      aTagLocators.map((a) => a.getAttribute("href", { timeout: 1000 }))
     );
     // Filter out any null values and link to the same page:
     let urls: string[] = hrefs
@@ -624,11 +626,15 @@ export abstract class AbstractCrawlerDefinition
       );
     };
     urls = removeConsecutiveDuplicates(urls);
-    const urlsWithType = await classifyUrls(urls);
+    // Normalise the url
+    urls = urls.map((url) => new URL(url, ctx.page.url()).href);
 
-    console.dir(urlsWithType, { maxArrayLength: null });
-
-    return;
+    log.info("Found urls on homepage", { nr_urls: urls.length, urls: urls });
+    const matchingUrls = await publishHomepageUrls(urls);
+    log.info("Found matching urls", {
+      nr_urls: matchingUrls.length,
+      urls: matchingUrls,
+    });
   }
 
   get router(): RouterHandler<PlaywrightCrawlingContext> {
@@ -1094,14 +1100,30 @@ function logProductScrapingInfo(
   });
 }
 
-interface UrlWithType {
-  url: string;
-  type: string | null;
-  brand: string | null;
-}
+/** Publish urls found on homepage to persist in our database.
+ * Return a list of matching urls (mostly for debugging purpose).
+ */
+async function publishHomepageUrls(urls: string[]): Promise<string[]> {
+  // return urls.map((url) => {
+  //   return {
+  //     url: url,
+  //     type: "unknown",
+  //     brand: "unknown",
+  //   };
+  // });
+  const response = await fetch(
+    "https://europe-west1-panprices.cloudfunctions.net/shelf_analytics_classify_url",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        urls: urls,
+      }),
+    }
+  );
+  const responsebody = await response.json();
 
-async function classifyUrls(urls: string[]): Promise<UrlWithType[]> {
-  const response = await fetch("https://api.ipify.org?format=json");
-
-  return response.json();
+  return responsebody.matching_urls;
 }

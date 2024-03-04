@@ -190,11 +190,9 @@ app.post(
 
 app.post("/exploreHomepage", async (req: Request, res: Response) => {
   const body = req.body;
-  const result = await exploreHomepage(body.url);
+  await exploreHomepage(body.url, body.overrides);
 
-  console.log(result);
-
-  res.status(200).send(result);
+  res.status(200).send("OK");
 });
 
 // Start the server
