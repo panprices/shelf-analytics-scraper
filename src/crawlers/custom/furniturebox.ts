@@ -113,66 +113,52 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const productInfo = await baseExtractProductDetails(this, page);
 
-    const productName = await this.extractProperty(
-      page,
-      "h1[data-cy='product_title'] span",
-      (node) =>
-        node.allTextContents().then((textContents) => textContents.join(" "))
-    ).then((text) => text?.trim());
-    if (!productName) {
-      throw new Error("Cannot extract productName");
+    let description;
+    try {
+      const descriptionExpander = page.locator(
+        "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']"
+      );
+      await descriptionExpander.click({ timeout: 5000 });
+      description = await this.extractProperty(
+        page,
+        "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']/div",
+        (node) => node.innerText()
+      ).then((text) => text?.trim());
+    } catch (e) {
+      log.error("Error", { e });
+      log.info(`Description not found for product with url: ${page.url()}`);
+      description = undefined;
     }
 
-    const description = await this.extractProperty(
-      page,
-      "div#ProductHighlightsDescription",
-      (node) => node.innerText()
-    ).then((text) => text?.trim());
-
-    let articleNumber = undefined;
-    let specifications = [];
+    let articleNumber = undefined,
+      specifications: Specification[] = [];
     try {
-      const specificationsExpander = page.locator("button#Overiew_SpecsClick");
+      const specificationsExpander = page.locator(
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']"
+      );
       await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//div[contains(@class, 'articleNumber')]/span"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'lh')]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//div[contains(@class, 'articleNumber')]/span",
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'lh')]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
 
-      const specificationRowLocator = page.locator("div.g1SBP tr");
-      const specificationsCount = await specificationRowLocator.count();
-      for (let i = 0; i < specificationsCount; i++) {
-        const specLocator = specificationRowLocator.nth(i);
-        const specKey = await specLocator
-          .locator("xpath=.//td[1]")
-          .textContent()
-          .then((text) => text?.trim());
-        const specValue = await specLocator
-          .locator("xpath=.//td[2]//span")
-          .allTextContents()
-          .then((textContents) => textContents.join(" ").trim());
-
-        if (specKey && specValue) {
-          specifications.push({
-            key: specKey,
-            value: specValue,
-          });
-        }
-      }
+      specifications = await this.extractSpecificationsFromTable(
+        specificationsExpander.locator("//tr/td[1]"),
+        specificationsExpander.locator("//tr/td[2]")
+      );
     } catch (e) {
       log.info(`Specification not found for product with url: ${page.url()}`);
     }
 
     return {
       ...productInfo,
-      name: productName,
       description,
-      specifications,
       sku: articleNumber,
+      specifications,
     };
   }
 
