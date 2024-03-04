@@ -146,7 +146,6 @@ export async function extractProductDetails(
   const availability =
     (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
-  const images = await extractImagesFromProductPage(page);
   const breadcrumbLocator = page.locator("main nav span a");
   const categoryTree = await crawlerDefinition.extractCategoryTree(
     breadcrumbLocator,
@@ -204,7 +203,7 @@ export async function extractProductDetails(
     mpn,
 
     availability,
-    images,
+    // images,
     reviews: reviewSummary,
     // specifications,
     categoryTree,
@@ -212,32 +211,6 @@ export async function extractProductDetails(
   };
 
   return intermediateResult;
-}
-
-export async function extractImagesFromProductPage(
-  page: Page
-): Promise<string[]> {
-  const imageThumbnailLocator = await page.locator("main div.fo div.a0g img");
-
-  try {
-    await imageThumbnailLocator.waitFor({ timeout: 10000 });
-  } catch (e) {
-    // Probably no images thumbnails -> do nothing and just scrape the main image
-  }
-
-  const imagesCount = await imageThumbnailLocator.count();
-  for (let i = 0; i < imagesCount; i++) {
-    const currentThumbnail = imageThumbnailLocator.nth(i);
-    await currentThumbnail.click();
-    await page.waitForTimeout(50);
-  }
-  const images = await page
-    .locator("main div.fo div.d4 img")
-    .evaluateAll((list: HTMLElement[]) =>
-      list.map((element) => <string>element.getAttribute("src"))
-    );
-
-  return images;
 }
 
 export function isProductPage(url: string): boolean {

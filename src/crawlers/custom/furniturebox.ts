@@ -153,10 +153,13 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       log.info(`Specification not found for product with url: ${page.url()}`);
     }
 
+    const images = await extractImagesFromProductPage(page);
+
     return {
       ...productInfo,
       description,
       sku: articleNumber,
+      images,
       specifications,
     };
   }
@@ -278,4 +281,28 @@ async function isTopLevelCategoryPage(page: Page) {
   }
 
   return true;
+}
+
+async function extractImagesFromProductPage(page: Page): Promise<string[]> {
+  const imageThumbnailLocator = page.locator("main div.fo div.a0g img");
+
+  try {
+    await imageThumbnailLocator.waitFor({ timeout: 10000 });
+  } catch (e) {
+    // Probably no images thumbnails -> do nothing and just scrape the main image
+  }
+
+  const imagesCount = await imageThumbnailLocator.count();
+  for (let i = 0; i < imagesCount; i++) {
+    const currentThumbnail = imageThumbnailLocator.nth(i);
+    await currentThumbnail.click();
+    await page.waitForTimeout(50);
+  }
+  const images = await page
+    .locator("main div.fo div.d4 img")
+    .evaluateAll((list: HTMLElement[]) =>
+      list.map((element) => <string>element.getAttribute("src"))
+    );
+
+  return images;
 }
