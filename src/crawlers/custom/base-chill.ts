@@ -20,7 +20,6 @@ import {
 } from "../abstract";
 import { PageNotFoundError } from "../../types/errors";
 import { extractNumberFromText } from "../../utils";
-import { includes } from "lodash";
 
 export async function createCrawlerDefinitionOption(
   launchOptions?: CrawlerLaunchOptions
@@ -33,9 +32,9 @@ export async function createCrawlerDefinitionOption(
   return {
     detailsDataset,
     listingDataset,
-    listingUrlSelector: "//div[@data-cy = 'pagination_controls']/a",
-    detailsUrlSelector: "//a[contains(@class, 'ProductCard_card__global')]",
-    productCardSelector: "//a[contains(@class, 'ProductCard_card__global')]",
+    listingUrlSelector: "div.d9 a",
+    detailsUrlSelector: "li a[role='article']",
+    productCardSelector: "li a[role='article']",
     cookieConsentSelector: "#onetrust-accept-btn-handler",
     dynamicProductCardLoading: false,
   };
@@ -48,25 +47,20 @@ export async function extractCardProductInfo(
 ): Promise<ListingProductInfo> {
   const productName = await crawlerDefinition.extractProperty(
     productCard,
-    "..//h3[contains(@class, 'ProductCardTitle__global')]",
+    "h2",
     (node) => node.textContent(),
     false
   );
   if (!productName) throw new Error("Cannot find productName of productCard");
 
-  const url = await crawlerDefinition.extractProperty(
-    productCard,
-    "..//a[1]",
-    (node) => node.getAttribute("href"),
-    false
-  );
+  const url = await productCard.getAttribute("href");
   if (!url) throw new Error("Cannot find url of productCard");
 
   const categoryTree =
     await crawlerDefinition.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator("div#breadcrumbs a"),
+      productCard.page().locator("main nav span a"),
       1,
-      productCard.page().locator("div#breadcrumbs > div > span")
+      productCard.page().locator("main nav span > span")
     );
 
   return {

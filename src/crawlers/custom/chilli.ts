@@ -186,20 +186,11 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   static async create(
     launchOptions: CrawlerLaunchOptions
   ): Promise<ChilliCrawlerDefinition> {
-    const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets(
-        launchOptions?.uniqueCrawlerKey
-      );
+    const options = await createCrawlerDefinitionOption(launchOptions);
+    // Next page buttons are dynamically rendered, so we need to scroll slower
+    options.dynamicProductCardLoading = true;
 
-    return new ChilliCrawlerDefinition({
-      detailsDataset,
-      listingDataset,
-      listingUrlSelector: "//div[@data-cy = 'pagination_controls']/a",
-      detailsUrlSelector: "//a[contains(@class, 'ProductCard_card__global')]",
-      productCardSelector: "//a[contains(@class, 'ProductCard_card__global')]",
-      cookieConsentSelector: "#onetrust-accept-btn-handler",
-      launchOptions,
-    });
+    return new ChilliCrawlerDefinition({ ...options, launchOptions });
   }
 }
 
