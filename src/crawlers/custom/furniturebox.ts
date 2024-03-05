@@ -41,27 +41,41 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       return;
     }
 
-    // Enqueue the variant groups where you have a.href:
+    // Enqueue the urls from the colour selector:
     await ctx.enqueueLinks({
-      selector: "div#possibleVariants a",
-      label: "DETAIL",
-      userData: ctx.request.userData,
-    });
-    await ctx.enqueueLinks({
-      selector: "div#variantPropertySelectors a",
+      selector: "main div.d.a3 div.o a",
       label: "DETAIL",
       userData: ctx.request.userData,
     });
 
-    // Enqueue variants from schema.org:
-    const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
-    if (variantUrls) {
-      await ctx.enqueueLinks({
-        urls: variantUrls,
-        label: "DETAIL",
-        userData: ctx.request.userData,
-      });
+    // Enqueue the urls from the size selector:
+    const chooseSizeButtonSelector = ctx.page.locator(
+      "main div.d.a3 div[aria-haspopup='listbox'] span > a"
+    );
+    if ((await chooseSizeButtonSelector.count()) > 0) {
+      chooseSizeButtonSelector.click();
+      await ctx.page
+        .locator("main div.d.a3 ul[role='listbox'] li a")
+        .first()
+        .waitFor();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
+    await ctx.enqueueLinks({
+      selector: "main div.d.a3 ul[role='listbox'] li a",
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
+
+    // DEPRECATED: Doesn't work on Furniturebox anymore
+    // Enqueue variants from schema.org:
+    // const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
+    // if (variantUrls) {
+    //   await ctx.enqueueLinks({
+    //     urls: variantUrls,
+    //     label: "DETAIL",
+    //     userData: ctx.request.userData,
+    //   });
+    // }
 
     // DEPRECATED: Check for secondary variant group where you don't have a.href.
     // This was implemented before we use getVariantUrlsFromSchemaOrg.
@@ -296,7 +310,7 @@ async function extractImagesFromProductPage(page: Page): Promise<string[]> {
   for (let i = 0; i < imagesCount; i++) {
     const currentThumbnail = imageThumbnailLocator.nth(i);
     await currentThumbnail.click();
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(200);
   }
   const images = await page
     .locator("main div.fo div.d4 img")

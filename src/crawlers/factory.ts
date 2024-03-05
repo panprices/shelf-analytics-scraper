@@ -288,8 +288,10 @@ export class CrawlerFactory {
         definition = await TrademaxCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
-          maxConcurrency: 5,
           requestHandler: definition.router,
+          // avoid scraping too fast on products with many variants
+          maxConcurrency: 1,
+          maxRequestsPerMinute: 10,
           proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
@@ -302,6 +304,9 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          // avoid scraping too fast on products with many variants
+          maxConcurrency: 1,
+          maxRequestsPerMinute: 10,
           proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
@@ -314,6 +319,9 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          // avoid scraping too fast on products with many variants
+          maxConcurrency: 1,
+          maxRequestsPerMinute: 10,
           proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),

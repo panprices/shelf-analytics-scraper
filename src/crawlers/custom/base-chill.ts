@@ -217,7 +217,7 @@ export function isProductPage(url: string): boolean {
 
 export async function getVariantUrlsFromSchemaOrg(
   page: Page
-): Promise<string[]> {
+): Promise<string[] | undefined> {
   const schemaOrgString = await page
     .locator(
       "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
@@ -228,7 +228,7 @@ export async function getVariantUrlsFromSchemaOrg(
   }
   const schemaOrg = JSON.parse(schemaOrgString);
 
-  const offerUrls = schemaOrg.offers.map((offer: any) => offer.url);
+  const offerUrls = schemaOrg.offers?.map((offer: any) => offer.url);
 
   return offerUrls;
 }

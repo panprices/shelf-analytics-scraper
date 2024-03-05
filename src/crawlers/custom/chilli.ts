@@ -45,13 +45,32 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       return;
     }
 
-    // Enqueue the main variant group where you have a.href:
+    // Enqueue the urls from the colour selector:
     await ctx.enqueueLinks({
-      selector: "main div.ht.z.o a",
+      selector: "main div.d.a3 div.o a",
       label: "DETAIL",
       userData: ctx.request.userData,
     });
 
+    // Enqueue the urls from the size selector:
+    const chooseSizeButtonSelector = ctx.page.locator(
+      "main div.d.a3 div[aria-haspopup='listbox'] span > a"
+    );
+    if ((await chooseSizeButtonSelector.count()) > 0) {
+      chooseSizeButtonSelector.click();
+      await ctx.page
+        .locator("main div.d.a3 ul[role='listbox'] li a")
+        .first()
+        .waitFor();
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+    await ctx.enqueueLinks({
+      selector: "main div.d.a3 ul[role='listbox'] li a",
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
+
+    // DEPRECATED: Doesn't work on Chilli anymore
     // Enqueue variants from schema.org:
     // const schemaOrgVariantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
     // if (schemaOrgVariantUrls) {
@@ -68,7 +87,6 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       "div[data-cy='product_variant_link']"
     );
     const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
-    console.log("Variant counts: " + secondaryVariantButtonsCount);
 
     // Always have one button grayed out which is the current selected variant,
     // so we only try to enqueue more if there are at least 1 more.
@@ -207,7 +225,7 @@ async function extractImagesFromProductPage(page: Page): Promise<string[]> {
   for (let i = 0; i < imagesCount; i++) {
     const currentThumbnail = imageThumbnailLocator.nth(i);
     await currentThumbnail.click();
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(200);
   }
   const images = await page
     .locator("main div.fq div.d4 img")
