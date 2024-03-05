@@ -1101,6 +1101,9 @@ function logProductScrapingInfo(
   });
 }
 
+export interface MatchingHomepageUrlResponse {
+  matching_urls: string[];
+}
 /** Publish urls found on homepage to persist in our database.
  * Return a list of matching urls (mostly for debugging purpose).
  */
@@ -1117,7 +1120,7 @@ async function publishHomepageUrls(urls: string[]): Promise<string[]> {
       }),
     }
   );
-  const responsebody = await response.json();
+  const responsebody = (await response.json()) as MatchingHomepageUrlResponse;
 
   return responsebody.matching_urls;
 }
