@@ -234,21 +234,20 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       page,
       '//*[@itemprop="name"]',
       (node) => node.textContent()
-    );
-
+    ).then((text) => text?.trim());
     if (!name) throw new Error("Cannot find name of product");
 
     const brand = await this.extractProperty(
       page,
       '(//div[contains(@class, "product-info-col")]//h2)[1]/a',
       (node) => node.textContent()
-    );
+    ).then((text) => text?.trim());
 
     const description = await this.extractProperty(
       page,
       '//div[contains(@class, "product-description") and not(contains(@class, "hidden"))]',
-      (node) => node.textContent()
-    );
+      (node) => node.first().textContent()
+    ).then((text) => text?.trim());
 
     const isDiscountedStr = await this.extractProperty(
       page,
@@ -326,22 +325,9 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       }
     }
 
-    const specsPropertiesLocator = page.locator(
-      '//dl[contains(@class, "product-features-list")]//dt'
-    );
-    const specsValuesLocator = page.locator(
-      '//dl[contains(@class, "product-features-list")]//dd'
-    );
-    const specsCount = await specsPropertiesLocator.count();
-    // Zip the properties and values together
-    const specsArray = await Promise.all(
-      Array.from(Array(specsCount).keys()).map(async (i) => {
-        const property = (await specsPropertiesLocator
-          .nth(i)
-          .textContent()) as string;
-        const value = (await specsValuesLocator.nth(i).textContent()) as string;
-        return { key: property, value: value };
-      })
+    const specsArray = await this.extractSpecificationsFromTable(
+      page.locator('//dl[contains(@class, "product-features-list")]//dt'),
+      page.locator('//dl[contains(@class, "product-features-list")]//dd')
     );
 
     const images = await page
