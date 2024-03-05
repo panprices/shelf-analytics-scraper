@@ -11,6 +11,7 @@ import {
   RouterHandler,
 } from "crawlee";
 import { Locator, Page } from "playwright";
+import fetch from "node-fetch";
 import {
   Category,
   DetailedProductInfo,
