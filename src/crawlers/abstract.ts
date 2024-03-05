@@ -483,11 +483,11 @@ export abstract class AbstractCrawlerDefinition
     specValueLocator: Locator
   ): Promise<Specification[]> {
     const specKeys = await specKeyLocator
-      .allTextContents()
+      .allInnerTexts()
       .then((texts) => texts.map((text) => text.trim()));
 
     const specValues = await specValueLocator
-      .allTextContents()
+      .allInnerTexts()
       .then((texts) => texts.map((text) => text.trim()));
 
     if (specKeys.length !== specValues.length) {
