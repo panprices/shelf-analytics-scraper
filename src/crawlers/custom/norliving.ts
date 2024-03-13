@@ -1,5 +1,5 @@
-import { Page } from "playwright";
-import { DetailedProductInfo } from "../../types/offer";
+import { Locator, Page } from "playwright";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import { extractNumberFromText } from "../../utils";
 import { log } from "crawlee";
@@ -12,7 +12,7 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
-  ): Promise<undefined> {
+  ): Promise<ListingProductInfo> {
     const name = await this.extractProperty(
       productCard,
       "div.product-card__info a",
@@ -27,16 +27,10 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
-    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator("div.breadcrumbs ul li a"),
-      1,
-      productCard.page().locator("div.breadcrumbs ul li > strong")
-    );
     return {
       name,
       url,
       categoryUrl,
-      popularityCategory: categoryTree ? categoryTree : undefined,
     };
   }
 
