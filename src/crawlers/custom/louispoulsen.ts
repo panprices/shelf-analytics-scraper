@@ -155,7 +155,7 @@ export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWith
       availability: "in_stock",
 
       images: [...new Set(images)], // deduplicate images by url
-      reviews: "unavailable",
+      reviews: undefined,
       specifications: [], // if not applicable return an empty array
     };
   }
