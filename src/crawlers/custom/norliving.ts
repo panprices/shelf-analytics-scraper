@@ -9,8 +9,35 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
   // variants are listed separately on category pages and on sitemap.
 
   // Only needed for category exploration
-  async extractCardProductInfo(): Promise<undefined> {
-    return undefined;
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<undefined> {
+    const name = await this.extractProperty(
+      productCard,
+      "div.product-card__info a",
+      (node) => node.textContent()
+    ).then((text) => text?.trim());
+    if (!name) throw new Error("Cannot find productName of productCard");
+
+    const url = await this.extractProperty(
+      productCard,
+      "div.product-card__info a",
+      (node) => node.getAttribute("href")
+    );
+    if (!url) throw new Error("Cannot find url of productCard");
+
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator("div.breadcrumbs ul li a"),
+      1,
+      productCard.page().locator("div.breadcrumbs ul li > strong")
+    );
+    return {
+      name,
+      url,
+      categoryUrl,
+      popularityCategory: categoryTree ? categoryTree : undefined,
+    };
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -130,10 +157,11 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
       listingDataset,
 
       // Only needed for category exploration
-      // listingUrlSelector: ,
-      // detailsUrlSelector: ,
-      // productCardSelector: ,
-      // cookieConsentSelector: ,
+      productCardSelector: "div.collection product-card",
+      detailsUrlSelector:
+        "div.collection product-card div.product-card__info  a",
+      listingUrlSelector: undefined, // infinite scroll, no next button
+      cookieConsentSelector: undefined,
       dynamicProductCardLoading: false,
       launchOptions,
     });
