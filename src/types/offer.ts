@@ -49,8 +49,8 @@ export interface BaseProductInfo {
   description?: string;
   price?: number;
   currency?: string;
-  originalPrice?: number;
   isDiscounted?: boolean;
+  originalPrice?: number;
 
   gtin?: string;
   sku?: string;
@@ -76,12 +76,12 @@ export interface DetailedProductInfo extends BaseProductInfo {
   availability: string;
 
   images: string[]; // if not applicable return an empty array
-  reviews?: ProductReviews | "unavailable";
   specifications: Specification[]; // if not applicable return an empty array
+  reviews?: ProductReviews;
 
   // categoryTree: Category[]; is only optional if we already scraped it in the category page.
 
-  matchingType?: string; // {match, unknown}
+  matchingType?: string; // {match, new}
   variantGroupUrl?: string;
   variant?: number; // 0, 1, 2, 3, ...
 }
