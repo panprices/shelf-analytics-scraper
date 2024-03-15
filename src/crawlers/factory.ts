@@ -51,13 +51,12 @@ import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
 import { EllosCrawlerDefinition } from "./custom/ellos";
 import { TrendrumCrawlerDefinition } from "./custom/trendrum";
 import { ConnoxCrawlerDefinition } from "./custom/connox";
+import { NorlivingCrawlerDefinition } from "./custom/norliving";
 import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving";
 import { LouisPoulsenCrawlerDefinition } from "./custom/louispoulsen";
 import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
-import { NorlivingCrawlerDefinition } from "./custom/norliving";
-import { NorlivingCrawlerDefinition } from "./custom/norliving";
 
 export interface CrawlerFactoryArgs {
   domain: string;
