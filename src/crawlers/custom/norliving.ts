@@ -57,9 +57,18 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
       "div.product price-list compare-at-price",
       (e) => e.innerText()
     );
-    const originalPrice = originalPriceText
-      ? extractNumberFromText(originalPriceText?.replaceAll(".", ""))
-      : undefined;
+
+    let originalPrice;
+    try {
+      if (originalPriceText) {
+        originalPrice = extractNumberFromText(
+          originalPriceText?.replaceAll(".", "")
+        );
+      }
+    } catch {
+      originalPrice = undefined;
+    }
+
     const isDiscounted = originalPrice !== undefined;
 
     const images = await this.extractImagesFromProductPage(page);
