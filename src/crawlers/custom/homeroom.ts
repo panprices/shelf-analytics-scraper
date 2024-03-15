@@ -192,7 +192,7 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const reviewsSectionAvailable = await page
       .locator("//div[@class = 'reviews-container']")
       .isVisible();
-    let reviews: ProductReviews | "unavailable";
+    let reviews: ProductReviews | undefined;
 
     try {
       if (reviewsSectionAvailable) {
@@ -248,10 +248,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
           recentReviews,
         };
       } else {
-        reviews = "unavailable";
+        reviews = undefined;
       }
     } catch {
-      reviews = "unavailable";
+      reviews = undefined;
     }
 
     // Change the url here for variants.

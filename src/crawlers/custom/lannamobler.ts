@@ -174,7 +174,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       retailerDomain: extractDomainFromUrl(page.url()),
 
       images: images, // if not applicable return an empty array
-      reviews: "unavailable",
+      reviews: undefined,
       specifications: specifications,
 
       // It has variants, but each variant define its own URL and should appear independently in the sitemap

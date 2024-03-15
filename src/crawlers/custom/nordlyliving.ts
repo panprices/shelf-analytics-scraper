@@ -299,7 +299,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
       availability: availability ?? "out_of_stock", // assume we don't have it,
 
       images: images, // if not applicable return an empty array
-      reviews: "unavailable",
+      reviews: undefined,
       specifications: specifications,
 
       //categoryTree is only optional if we already scraped it in the category page.

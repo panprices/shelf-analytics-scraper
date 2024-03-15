@@ -100,7 +100,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     const imageUrls = await extractImagesFromProductDetailsPage(page);
-    const reviews: "unavailable" | ProductReviews = "unavailable";
+    const reviews: undefined | ProductReviews = undefined;
 
     const specifications: Specification[] = [];
     const candidateSpecBlocks = await page.locator(

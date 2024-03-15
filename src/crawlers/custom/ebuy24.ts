@@ -171,7 +171,7 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
       return text.trim().split("-").slice(1).join("-");
     });
 
-    const reviews = "unavailable";
+    const reviews = undefined;
 
     const availabilityHref = await this.extractProperty(
       page,

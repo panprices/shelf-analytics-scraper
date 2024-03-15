@@ -226,7 +226,7 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       availability: "in_stock",
 
       images, // if not applicable return an empty array
-      reviews: "unavailable",
+      reviews: undefined,
       specifications, // if not applicable return an empty array
 
       // variantGroupUrl: "",

@@ -266,10 +266,10 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       );
     } catch (e) {
       log.info(`Description not found for product with url: ${page.url()}`);
-      description = "unavailable";
+      description = undefined;
     }
 
-    let reviewSummary: ProductReviews | "unavailable";
+    let reviewSummary: ProductReviews | undefined;
     try {
       const averageReviewString = await this.extractProperty(
         page,
@@ -340,7 +340,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       };
     } catch (e) {
       log.debug(`Reviews not found for product with url: ${page.url()}`);
-      reviewSummary = "unavailable";
+      reviewSummary = undefined;
     }
 
     const addToCartLocator = page.locator("#A2C_ACTION");

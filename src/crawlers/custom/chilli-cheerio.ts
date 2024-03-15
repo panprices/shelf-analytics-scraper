@@ -63,7 +63,7 @@ export class ChilliCheerioCrawlerDefinition extends AbstractCheerioCrawlerDefini
       currency: "SEK",
       isDiscounted: false,
       availability: "in_stock",
-      reviews: "unavailable",
+      reviews: undefined,
       specifications: [],
 
       metadata,

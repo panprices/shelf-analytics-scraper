@@ -137,7 +137,7 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
       throw new Error("Cannot extract availability of product");
     }
 
-    const reviews: "unavailable" | ProductReviews = "unavailable";
+    const reviews: undefined | ProductReviews = undefined;
 
     const specContents = await page
       .locator("ul.features-list li")

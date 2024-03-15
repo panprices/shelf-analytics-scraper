@@ -182,14 +182,14 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
     return [];
   }
 
-  async extractReviews(page: Page): Promise<ProductReviews | "unavailable"> {
+  async extractReviews(page: Page): Promise<ProductReviews | undefined> {
     const averageReviewString = await this.extractProperty(
       page,
       "div.reviews-section .tf-rating",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!averageReviewString) {
-      return "unavailable";
+      return undefined;
     }
 
     const reviewCountString = await this.extractProperty(
@@ -198,7 +198,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!reviewCountString) {
-      return "unavailable";
+      return undefined;
     }
 
     const averageReview = parseFloat(averageReviewString);

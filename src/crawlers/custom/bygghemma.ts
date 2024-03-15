@@ -314,7 +314,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       throw new Error("Cannot extract availability of product");
     }
 
-    const reviews = "unavailable";
+    const reviews = undefined;
 
     return {
       url: page.url(),

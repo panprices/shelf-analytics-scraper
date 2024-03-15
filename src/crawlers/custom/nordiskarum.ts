@@ -200,7 +200,7 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
       mpn: sku,
 
       availability,
-      reviews: "unavailable",
+      reviews: undefined,
       specifications,
 
       metadata: {},

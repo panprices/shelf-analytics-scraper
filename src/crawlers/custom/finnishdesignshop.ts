@@ -364,7 +364,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       retailerDomain: extractDomainFromUrl(page.url()),
 
       images: images.filter((i) => i !== undefined).map((i) => i as string), // if not applicable return an empty array
-      reviews: "unavailable",
+      reviews: undefined,
       specifications: specsArray, // if not applicable return an empty array
     };
   }

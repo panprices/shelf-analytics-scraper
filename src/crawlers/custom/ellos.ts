@@ -282,7 +282,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       throw new Error("Cannot extract availability of product");
     }
 
-    let reviews: ProductReviews | "unavailable";
+    let reviews: ProductReviews | undefined;
     if (
       schemaOrg.aggregateRating &&
       schemaOrg.aggregateRating.ratingValue &&
@@ -294,7 +294,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
         recentReviews: [],
       };
     } else {
-      reviews = "unavailable";
+      reviews = undefined;
     }
 
     const imageUrls = await extractImagesFromDetailedPage(page);

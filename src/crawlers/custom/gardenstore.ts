@@ -140,7 +140,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.textContent()
     );
 
-    let reviews: ProductReviews | "unavailable";
+    let reviews: ProductReviews | undefined;
     if (reviewScoreText && reviewCountText) {
       reviews = {
         reviewCount: extractNumberFromText(reviewCountText),
@@ -148,7 +148,7 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
         recentReviews: [],
       };
     } else {
-      reviews = "unavailable";
+      reviews = undefined;
     }
 
     const specKeys = await page
