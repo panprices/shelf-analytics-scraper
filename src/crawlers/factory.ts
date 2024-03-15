@@ -56,6 +56,8 @@ import { LouisPoulsenCrawlerDefinition } from "./custom/louispoulsen";
 import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
+import { NorlivingCrawlerDefinition } from "./custom/norliving";
+import { NorlivingCrawlerDefinition } from "./custom/norliving";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -489,6 +491,13 @@ export class CrawlerFactory {
           ...defaultOptions,
           requestHandler: definition.router,
           requestHandlerTimeoutSecs: 600, // exploring the variant space takes a long time
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "norliving.dk":
+        definition = await NorlivingCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases

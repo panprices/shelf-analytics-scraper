@@ -1,47 +1,87 @@
 import { Page } from "playwright";
-import { DetailedProductInfo } from "../../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 
 export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinition {
-  /**
-   * This retailer does not use category scraping, it gets the URLs from sitemap
-   */
-  extractCardProductInfo(): Promise<undefined> {
-    return Promise.resolve(undefined);
+  
+  // Only needed for category exploration. Return <undefined> otherwise.
+  async extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo> {
+    const name = await this.extractProperty(productCard, "", (node) =>
+      node.textContent()
+    ).then((text) => text?.trim());
+    if (!name) throw new Error("Cannot find productName of productCard");
+
+    const url = await this.extractProperty(productCard, "", (node) =>
+      node.getAttribute("href")
+    );
+    if (!url) throw new Error("Cannot find url of productCard");
+
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator(""),
+      0,
+      productCard.page().locator("")
+    );
+    return {
+      name,
+      url,
+      categoryUrl,
+      popularityCategory: categoryTree ? categoryTree : undefined,
+    };
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    // return a Dummy `DetailedProductInfo` object
+    const name = await this.extractProperty(
+      page,
+      "",
+      (element) => element.innerText()
+    ).then(text => text?.trim());
+
+    const schemaOrgString = await this.extractProperty(
+      page,
+      "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]",
+      (node) => node.textContent()
+    );
+    let schemaOrg = undefined;
+    let gtin;
+    if (schemaOrgString) {
+      try {
+        schemaOrg = JSON.parse(schemaOrgString);
+        gtin = schemaOrg.gtin;
+      } catch (error) {
+        log.warning("Error extracting data from schema.org", { error });
+      }
+    }
+    
     return {
-      name: "",
+      name,
       url: page.url(),
 
-      brand: "",
-      description: "",
-      price: 0,
-      currency: "SEK",
-      isDiscounted: false,
-      originalPrice: 0,
+      brand,
+      brandUrl,
+      description,
+      price,
+      currency,
+      isDiscounted,
+      originalPrice,
+      availability,
 
-      gtin: "",
-      sku: "",
-      mpn: "",
+      gtin,
+      sku,
+      mpn,
 
-      categoryUrl: "",
-      categoryTree: [],
+      images, // if not applicable return an empty array
+      specifications, // if not applicable return an empty array
+      reviews,
 
-      metadata: {},
+      // categoryTree, // is only optional if we already scraped it in the category page.
 
-      availability: "in_stock",
-
-      images: [], // if not applicable return an empty array
-      reviews: "unavailable",
-      specifications: [], // if not applicable return an empty array
-
-      //categoryTree is only optional if we already scraped it in the category page.
-
-      variantGroupUrl: "",
+      variantGroupUrl,
       variant: 0, // 0, 1, 2, 3, ...
+
+      metadata: { schemaOrg },
     };
   }
 
@@ -56,6 +96,13 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
     return new __RETAILER_NAME__CrawlerDefinition({
       detailsDataset,
       listingDataset,
+
+      // Only needed for category exploration
+      listingUrlSelector: ,
+      detailsUrlSelector: ,
+      productCardSelector: ,
+      cookieConsentSelector: ,
+      dynamicProductCardLoading: false,
       launchOptions,
     });
   }
