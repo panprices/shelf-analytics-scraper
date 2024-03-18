@@ -2,43 +2,58 @@ import { Locator, Page } from "playwright";
 import { log } from "crawlee";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import { extractPriceAndCurrencyFromText } from "./wayfair";
 
-export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinition {
+export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
   
   // Only needed for category exploration. Return <undefined> otherwise.
   async extractCardProductInfo(
-    categoryUrl: string,
-    productCard: Locator
-  ): Promise<ListingProductInfo> {
-    const name = await this.extractProperty(productCard, "", (node) =>
-      node.textContent()
-    ).then((text) => text?.trim());
-    if (!name) throw new Error("Cannot find productName of productCard");
-
-    const url = await this.extractProperty(productCard, "", (node) =>
-      node.getAttribute("href")
-    );
-    if (!url) throw new Error("Cannot find url of productCard");
-
-    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator(""),
-      0,
-      productCard.page().locator("")
-    );
-    return {
-      name,
-      url,
-      categoryUrl,
-      popularityCategory: categoryTree ? categoryTree : undefined,
-    };
+    _categoryUrl: string,
+    _productCard: Locator
+  ): Promise<undefined> {
+    return undefined;
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const name = await this.extractProperty(
       page,
-      "",
+      "div.product hm-product-name h1",
       (element) => element.innerText()
     ).then(text => text?.trim());
+    if (!name) {
+      throw new Error("Cannot extract productName");
+    }
+
+
+    const brand = await this.extractProperty(
+      page,
+      "div.product hm-product-name a",
+      (node) => node.innerText()
+    ).then(text => text?.trim());
+    const brandUrl = await this.extractProperty(
+      page,
+      "div.product hm-product-name a",
+      (node) => node.getAttribute("href")
+    );
+    const description = await this.extractProperty(
+      page,
+      "div.product div#section-descriptionAccordion p",
+      (node) => node.innerText()
+    ).then(text => text?.trim());
+    
+    const priceText = await this.extractProperty(
+      page,
+      "div.product #product-price",
+      node => node.innerText()
+    ).then(text => text?.trim());
+    if (!priceText) {
+      throw new Error("Cannot extract price");
+    }
+
+    const [price, currency] = extractPriceAndCurrencyFromText(priceText);
+
+
+    
 
     const schemaOrgString = await this.extractProperty(
       page,
@@ -88,13 +103,13 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
 
   static async create(
     launchOptions?: CrawlerLaunchOptions
-  ): Promise<__RETAILER_NAME__CrawlerDefinition> {
+  ): Promise<HMCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets(
         launchOptions?.uniqueCrawlerKey
       );
 
-    return new __RETAILER_NAME__CrawlerDefinition({
+    return new HMCrawlerDefinition({
       detailsDataset,
       listingDataset,
 
