@@ -501,9 +501,7 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "hm.com":
-        definition = await HMCrawlerDefinition.create(
-          launchOptions
-        );
+        definition = await HMCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
