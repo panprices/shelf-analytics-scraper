@@ -9,7 +9,11 @@ import {
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
 } from "../abstract";
-import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
+import {
+  convertCurrencySymbolToISO,
+  extractNumberFromText,
+  extractPriceAndCurrencyFromText,
+} from "../../utils";
 import {
   Availability,
   DetailedProductInfo,
@@ -416,19 +420,4 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
     }
     super.handleCrawlDetailPageError(error, ctx);
   }
-}
-/** "1.519,99 €" -> [1519.99, "EUR"] */
-export function extractPriceAndCurrencyFromText(
-  text: string
-): [number, string] {
-  text = text
-    .trim()
-    .replaceAll(".", "")
-    .replaceAll(",", ".")
-    .replaceAll("\u00A0", " "); // replace non-breaking space with normal space
-  const price = parseFloat(text.split(" ")[0]);
-  const currencySymbol = text.trim().split(" ")[1];
-  const currency = convertCurrencySymbolToISO(currencySymbol);
-
-  return [price, currency];
 }

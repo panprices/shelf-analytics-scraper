@@ -1,4 +1,5 @@
-import { Page } from "playwright";
+import { Locator, Page } from "playwright";
+import { log } from "crawlee";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 

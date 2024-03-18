@@ -94,7 +94,9 @@ export class CrawleeLoggerForGCP extends LoggerJson {
  */
 export function extractDomainFromUrl(url: string): string {
   const parsedUrl = new URL(url);
-  const domain = parsedUrl.hostname.replace(/^www\./, "");
+  const domain = parsedUrl.hostname
+    .replace(/^www\./, "")
+    .replace(/^www2\./, "");
   return domain;
 }
 
@@ -113,6 +115,24 @@ export function extractNumberFromText(text: string): number {
 
   const num = parseInt(matches[0]);
   return num;
+}
+
+/** A generic price and currency extractor (that usually works)
+ * "1.519,99 €" -> [1519.99, "EUR"]
+ * */
+export function extractPriceAndCurrencyFromText(
+  text: string
+): [number, string] {
+  text = text
+    .trim()
+    .replaceAll(".", "")
+    .replaceAll(",", ".")
+    .replaceAll("\u00A0", " "); // replace non-breaking space with normal space
+  const price = parseFloat(text.split(" ")[0]);
+  const currencySymbol = text.trim().split(" ")[1];
+  const currency = convertCurrencySymbolToISO(currencySymbol);
+
+  return [price, currency];
 }
 
 /**
