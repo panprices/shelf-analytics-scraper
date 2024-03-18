@@ -25,6 +25,7 @@ import {
   IllFormattedPageError,
   PageNotFoundError,
 } from "../types/errors";
+import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper_utils";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -77,6 +78,8 @@ export interface CrawlerDefinitionOptions {
    * If that's the case, we need to fetch the elements after every scroll
    */
   dynamicProductCardLoading?: boolean;
+
+  scrollToBottomStrategy?: ScrollToBottomStrategy;
 
   /**
    * Options to control the crawler behavior
@@ -311,38 +314,25 @@ export abstract class AbstractCrawlerDefinition
    * @param ctx
    */
   async scrollToBottom(ctx: PlaywrightCrawlingContext) {
-    const page = ctx.page;
-
-    const startY = await page.evaluate(async () => {
-      return window.scrollY + window.innerHeight;
-    });
-
-    const scrollHeight = await page.evaluate(() => document.body.scrollHeight);
-
-    for (
-      let currentScrollY = startY;
-      currentScrollY < scrollHeight;
-      currentScrollY += 500
-    ) {
-      if (this.crawlerOptions.dynamicProductCardLoading) {
-        await this.registerProductCards(ctx);
-      }
-      await page.evaluate(
-        (scrollPosition: number) => window.scrollTo(0, scrollPosition),
-        currentScrollY
+    if (this.crawlerOptions.scrollToBottomStrategy) {
+      await this.crawlerOptions.scrollToBottomStrategy(
+        ctx,
+        async (ctx) => {
+          await this.registerProductCards(ctx);
+        },
+        this.crawlerOptions.dynamicProductCardLoading
       );
-      await new Promise((f) => setTimeout(f, 200));
-      // await ctx.page.waitForLoadState("networkidle");
+    } else {
+      // Default to version 1 for backward compatability.
+      // New scrapers should use the newest versions.
+      await scrollToBottomV1(
+        ctx,
+        async (ctx) => {
+          await this.registerProductCards(ctx);
+        },
+        this.crawlerOptions.dynamicProductCardLoading
+      );
     }
-
-    // Scroll slightly up. This is needed to avoid the view staying at the bottom after new elements are loaded
-    // for infinite scroll pages
-    await page.evaluate(() =>
-      window.scrollTo(
-        0,
-        document.body.scrollHeight - (window.innerHeight + 100)
-      )
-    );
   }
 
   async registerProductCards(ctx: PlaywrightCrawlingContext) {
@@ -483,11 +473,11 @@ export abstract class AbstractCrawlerDefinition
     specValueLocator: Locator
   ): Promise<Specification[]> {
     const specKeys = await specKeyLocator
-      .allInnerTexts()
+      .allTextContents()
       .then((texts) => texts.map((text) => text.trim()));
 
     const specValues = await specValueLocator
-      .allInnerTexts()
+      .allTextContents()
       .then((texts) => texts.map((text) => text.trim()));
 
     if (specKeys.length !== specValues.length) {
