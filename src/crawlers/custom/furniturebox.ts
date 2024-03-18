@@ -140,6 +140,7 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       ).then((text) => text?.trim());
     } catch (e) {
       log.info(`Description not found for product with url: ${page.url()}`);
+      log.debug(`Error`, { e });
       description = undefined;
     }
 
@@ -151,11 +152,11 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       );
       await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'lh')]"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[2]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'lh')]",
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[2]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
 
@@ -165,6 +166,7 @@ export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
       );
     } catch (e) {
       log.info(`Specification not found for product with url: ${page.url()}`);
+      log.debug(`Scrape specification error`, { e });
     }
 
     const images = await extractImagesFromProductPage(page);
@@ -298,7 +300,7 @@ async function isTopLevelCategoryPage(page: Page) {
 }
 
 async function extractImagesFromProductPage(page: Page): Promise<string[]> {
-  const imageThumbnailLocator = page.locator("main div.fo div.a0g img");
+  const imageThumbnailLocator = page.locator("main div.fo div.a0g div.cr img");
 
   try {
     await imageThumbnailLocator.waitFor({ timeout: 10000 });
