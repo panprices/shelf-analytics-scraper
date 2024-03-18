@@ -2,7 +2,7 @@ import { Locator, Page } from "playwright";
 import { log } from "crawlee";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractPriceAndCurrencyFromText } from "../../utils";
+import { convertCurrencySymbolToISO } from "../../utils";
 
 export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
   // Only needed for category exploration. Return <undefined> otherwise.
@@ -71,14 +71,35 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
       page.locator("div.product div#section-descriptionAccordion dl dt"),
       page.locator("div.product div#section-descriptionAccordion dl dd")
     );
-    const materialSpecifications = await this.extractSpecificationsFromTable(
-      page.locator(
-        "div.product div#section-materialsAndSuppliersAccordion ul li h4"
-      ),
-      page.locator(
-        "div.product div#section-materialsAndSuppliersAccordion ul li p"
-      )
+
+    // Sometimes there are no key, only values:
+    const materialSpecifications = [];
+    const materialSpecLocator = page.locator(
+      "div.product div#section-materialsAndSuppliersAccordion ul li"
     );
+    for (const materialSpecRowLocator of await materialSpecLocator.all()) {
+      const key = (
+        await this.extractProperty(materialSpecRowLocator, "h4", (h4) =>
+          h4.textContent()
+        )
+      )?.trim();
+
+      const value = (
+        await materialSpecRowLocator.locator("p").innerText()
+      ).trim();
+      materialSpecifications.push({
+        key: key || "",
+        value: value,
+      });
+    }
+    // const materialSpecifications = await this.extractSpecificationsFromTable(
+    //   page.locator(
+    //     "div.product div#section-materialsAndSuppliersAccordion ul li h4"
+    //   ),
+    //   page.locator(
+    //     "div.product div#section-materialsAndSuppliersAccordion ul li p"
+    //   )
+    // );
     const specifications = descriptionSpecifications
       .concat(materialSpecifications)
       .map((spec) => {
@@ -184,4 +205,18 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
 /** "https://www2.hm.com/de_de/productpage.1219517001.html" => "1219517001" */
 function extractSKUFromProductUrl(url: string): string | undefined {
   return url.match(/productpage\.(\d+)/)?.[1];
+}
+
+/** "1 519,99 €" -> [1519.99, "EUR"]*/
+function extractPriceAndCurrencyFromText(text: string): [number, string] {
+  text = text
+    .trim()
+    .replaceAll(".", "")
+    .replaceAll(",", ".")
+    .replaceAll("\u00A0", ""); // remove the non-breaking space with normal space;
+  const price = parseFloat(text.split(" ")[0]);
+  const currencySymbol = text.trim().split(" ")[1];
+  const currency = convertCurrencySymbolToISO(currencySymbol);
+
+  return [price, currency];
 }
