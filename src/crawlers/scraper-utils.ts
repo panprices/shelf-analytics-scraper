@@ -4,10 +4,6 @@ import {
   playwrightUtils,
 } from "crawlee";
 
-/**
- * Using crawlee's new utils function instead of our custon one.
- */
-
 export interface ScrollToBottomStrategy {
   (
     ctx: PlaywrightCrawlingContext,
@@ -51,6 +47,13 @@ export const scrollToBottomV1: ScrollToBottomStrategy = async function (
   );
 };
 
+/**
+ * Using crawlee's new utils function to automatically handle infinite scroll.
+ *
+ * IMPORTANT: Make sure to not set `registerAfterEachScroll = true` when not
+ * needed. It doesn't work well when we have 1000+ products on the page and the
+ * callback takes too long.
+ */
 export const scrollToBottomV2: ScrollToBottomStrategy = async function (
   ctx: PlaywrightCrawlingContext,
   registerProductCards: (ctx: PlaywrightCrawlingContext) => Promise<void>,
@@ -58,14 +61,19 @@ export const scrollToBottomV2: ScrollToBottomStrategy = async function (
 ) {
   const scrollOptions: InfiniteScrollOptions = {
     scrollDownAndUp: true,
-  };
+    stopScrollCallback: async () => {
+      // Scroll up a bit more to make sure we get all the products.
+      // Some pages have really long footer.
+      await ctx.page.mouse.wheel(0, -2000);
+      await ctx.page.waitForTimeout(500);
 
-  if (registerAfterEachScroll) {
-    scrollOptions.stopScrollCallback = async () => {
-      await registerProductCards(ctx);
+      if (registerAfterEachScroll) {
+        await registerProductCards(ctx);
+      }
+
       return false;
-    };
-  }
+    },
+  };
 
   await playwrightUtils.infiniteScroll(ctx.page, scrollOptions);
   await registerProductCards(ctx);

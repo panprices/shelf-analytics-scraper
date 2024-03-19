@@ -25,7 +25,7 @@ import {
   IllFormattedPageError,
   PageNotFoundError,
 } from "../types/errors";
-import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper_utils";
+import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -308,10 +308,11 @@ export abstract class AbstractCrawlerDefinition
   }
 
   /**
-   * Performs one sweep through the page towards the bottom.
+   * Performs one sweep through the page towards the bottom and
+   * registerProductCards.
    *
-   * This method should be overrided for infinite scroll sources such as homeroom
-   * @param ctx
+   * Define custom scroll strategy such as infiniteScroll with
+   * crawlerOptions.scrollToBottomStrategy
    */
   async scrollToBottom(ctx: PlaywrightCrawlingContext) {
     if (this.crawlerOptions.scrollToBottomStrategy) {
@@ -324,7 +325,8 @@ export abstract class AbstractCrawlerDefinition
       );
     } else {
       // Default to version 1 for backward compatability.
-      // New scrapers should use the newest versions.
+      // New scrapers should use the newest versions which also handle infinite
+      // scroll.
       await scrollToBottomV1(
         ctx,
         async (ctx) => {

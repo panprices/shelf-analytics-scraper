@@ -3,7 +3,7 @@ import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import { extractNumberFromText } from "../../utils";
 import { log } from "crawlee";
-import { scrollToBottomV2 } from "../scraper_utils";
+import { scrollToBottomV2 } from "../scraper-utils";
 
 export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
   // NOTE: We don't need to do variant scraping for this because individual
@@ -166,7 +166,7 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
         "div.collection product-card div.product-card__info  a",
       listingUrlSelector: undefined, // infinite scroll, no next button
       cookieConsentSelector: undefined,
-      dynamicProductCardLoading: true,
+      dynamicProductCardLoading: false,
       scrollToBottomStrategy: scrollToBottomV2,
       launchOptions,
     });
