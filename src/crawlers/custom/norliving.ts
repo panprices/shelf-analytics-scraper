@@ -100,8 +100,11 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
       (spec) => spec.key.toLocaleLowerCase() === "sku"
     )?.value;
     // We can extract Venture Design MPN by removing the first two characters
-    // "VD" from the sku.
-    const mpn = sku?.startsWith("VD") ? sku.substring(2) : undefined;
+    // "VD" from the sku. E.g. VD115009-092 => 115009-092
+    let mpn = sku?.startsWith("VD") ? sku.substring(2) : undefined;
+    // Sometimes they add weird post-fix as well, so we should remove that.
+    // E.g. VD51074-320-340x240-cm. => 51074-320
+    mpn = mpn?.split("-").slice(0, 2).join("-");
 
     return {
       name,
