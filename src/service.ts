@@ -396,95 +396,104 @@ async function extractProductDetails(
     (i) => <DetailedProductInfo>i
   );
 
-  // HACKY SOLUTION for Bygghemma/Ellos products with multiple variants:
-  products.forEach((p) => {
-    if (
-      p.retailerDomain?.includes("bygghemma") &&
-      p.variant === 0 &&
-      p.variantGroupUrl
-    ) {
-      p.url = p.variantGroupUrl;
+  // Post-process products. Remove products with errors from the result, only
+  // return the good ones.
+  const processedProducts = [];
+  const errors = [];
+  for (const p of products) {
+    try {
+      postProcessProductDetail(p, crawlerDefinition);
+      processedProducts.push(p);
+    } catch (e) {
+      errors.push({
+        product: p,
+        error: e,
+      });
     }
-  });
-
-  try {
-    postProcessProductDetails(products, crawlerDefinition);
-  } catch (e) {
-    log.error("Error when post processing product details", { error: e });
   }
-  return products;
+
+  if (errors.length > 0) {
+    errors.forEach((e) => {
+      log.exception(
+        e.error as Error,
+        "Error when post processing product details",
+        {
+          url: e.product.url,
+          product: e.product,
+        }
+      );
+    });
+  }
+
+  return processedProducts;
 }
 
-function postProcessProductDetails(
-  products: DetailedProductInfo[],
+function postProcessProductDetail(
+  p: DetailedProductInfo,
   crawlerDefinition: CrawlerDefinition<any>
-) {
-  products.forEach((p) => {
-    p.images = p.images
-      .filter((imgUrl) => !!imgUrl)
-      .map((imgUrl) => {
-        if (imgUrl.startsWith("/")) {
-          return new URL(imgUrl, p.url).href;
-        }
-        return imgUrl;
-      });
+): void {
+  p.images = p.images
+    .filter((imgUrl) => !!imgUrl)
+    .map((imgUrl) => {
+      if (imgUrl.startsWith("/")) {
+        return new URL(imgUrl, p.url).href;
+      }
+      return imgUrl;
+    });
 
-    // Convert dynamic category url to absolute url:
-    if (p.brandUrl?.startsWith("/")) {
-      p.brandUrl = new URL(p.brandUrl, p.url).href;
-    }
+  // Convert dynamic category url to absolute url:
+  if (p.brandUrl?.startsWith("/")) {
+    p.brandUrl = new URL(p.brandUrl, p.url).href;
+  }
 
-    if (p.categoryUrl?.startsWith("/")) {
-      p.categoryUrl = new URL(p.categoryUrl, p.url).href;
+  if (p.categoryUrl?.startsWith("/")) {
+    p.categoryUrl = new URL(p.categoryUrl, p.url).href;
+  }
+  for (let i = 0; i < (p.categoryTree?.length ?? 0); i++) {
+    const category = p.categoryTree?.[i];
+    if (category?.url.startsWith("/")) {
+      category.url = new URL(category.url, p.url).href;
     }
-    for (let i = 0; i < (p.categoryTree?.length ?? 0); i++) {
-      const category = p.categoryTree?.[i];
-      if (category?.url.startsWith("/")) {
-        category.url = new URL(category.url, p.url).href;
+  }
+
+  if (p.gtin) {
+    if (!isValidGTIN(p.gtin)) {
+      log.warning(`GTIN is not valid`, { gtin: p.gtin });
+      p.gtin = undefined;
+    } else {
+      p.gtin = p.gtin?.padStart(14, "0");
+    }
+  }
+
+  if (p.currency) {
+    p.currency = p.currency.toUpperCase();
+    if (p.currency.length !== 3 && p.currency !== "UNKNOWN") {
+      throw new Error(`Unknown currency '${p.currency}'`);
+    }
+  }
+  switch (p.currency) {
+    // SEK, USD, EUR
+    default: {
+      if (p.price) {
+        p.price = Math.floor(p.price * 100);
+      }
+      if (p.originalPrice) {
+        p.originalPrice = Math.floor(p.originalPrice * 100);
       }
     }
+  }
 
-    if (p.gtin) {
-      if (!isValidGTIN(p.gtin)) {
-        log.warning(`GTIN is not valid`, { gtin: p.gtin });
-        p.gtin = undefined;
-      } else {
-        p.gtin = p.gtin?.padStart(14, "0");
-      }
+  if (!p.categoryTree) {
+    // Try to get it from categoryTreeMapping instead. Namely for the retailer Berno Mobler.
+    if (!p.categoryUrl) {
+      throw new Error("Cannot find neither categoryTree nor categoryUrl");
     }
+    p.categoryTree = findCategoryTree(p.categoryUrl);
+  }
 
-    if (p.currency) {
-      p.currency = p.currency.toUpperCase();
-      if (p.currency.length !== 3 && p.currency !== "UNKNOWN") {
-        throw new Error(`Unknown currency '${p.currency}'`);
-      }
-    }
-    switch (p.currency) {
-      // SEK, USD, EUR
-      default: {
-        if (p.price) {
-          p.price = Math.floor(p.price * 100);
-        }
-        if (p.originalPrice) {
-          p.originalPrice = Math.floor(p.originalPrice * 100);
-        }
-      }
-    }
-
-    if (!p.categoryTree) {
-      // Try to get it from categoryTreeMapping instead. Namely for the retailer Berno Mobler.
-      if (!p.categoryUrl) {
-        throw new Error("Cannot find neither categoryTree nor categoryUrl");
-      }
-      p.categoryTree = findCategoryTree(p.categoryUrl);
-    }
-
-    if (crawlerDefinition.normalizeProductUrl) {
-      p.url = crawlerDefinition.normalizeProductUrl(p.url);
-    }
-  });
-
-  return products;
+  if (crawlerDefinition.normalizeProductUrl) {
+    p.url = crawlerDefinition.normalizeProductUrl(p.url);
+  }
 }
 
 function isValidGTIN(gtin: string) {
