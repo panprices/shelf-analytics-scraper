@@ -110,6 +110,8 @@ export interface CheerioCrawlerDefinitionOptions {
 export interface CrawlerDefinition<Context extends CrawlingContext> {
   crawlDetailPage(ctx: Context): Promise<void>;
   normalizeProductUrl(url: string): string;
+  /** Post-process product details in place. Custom for each retailer. */
+  postProcessProductDetails?(product: DetailedProductInfo): void;
   get detailsDataset(): Dataset;
   get router(): Router<Context>;
 }

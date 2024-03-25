@@ -173,7 +173,15 @@ export default {
   // testRunner: "jest-circus/runner",
 
   // A map from regular expressions to paths to transformers
-  // transform: undefined,
+
+  // !! This is here becaues of some issues betwwen Jest and node-fetch:
+  // https://github.com/node-fetch/node-fetch/discussions/1503
+  // Remove this after we upgrade nodejs and don't need to use node-fetch anymore.
+  transform: {
+    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(js)$": "babel-jest",
+  },
+  transformIgnorePatterns: [],
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [

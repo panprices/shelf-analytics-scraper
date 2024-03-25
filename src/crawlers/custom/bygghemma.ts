@@ -355,6 +355,10 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     return [...new Set(images)]; // deduplicate
   }
 
+  postProcessProductDetails(p: DetailedProductInfo): void {
+    p.variantGroupUrl = createVariantGroupUrl(p.url);
+  }
+
   static async create(
     launchOptions: CrawlerLaunchOptions
   ): Promise<BygghemmaCrawlerDefinition> {
@@ -409,4 +413,23 @@ const parsePrice = (priceString: string): number => {
     .replace("kr", "")
     .replace(" ", "");
   return parseInt(cleaned);
+};
+
+export const createVariantGroupUrl = (url: string): string => {
+  // On Bygghemma, sometime a product url on a category page is:
+  // https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-dipp-o115-cm-med-4-berit-stolar/p-1470135
+  // but it gets redirected to a variant page:
+  // https://www.bygghemma.se/inredning-och-belysning/mobler/bord/matgrupp/matgrupp-venture-home-dipp-o115-cm-med-4-berit-stolar/p-1470135-1468458
+  // This makes us miss products when doing category indexing since we cannot recognise the original url.
+  //
+  // Thus we did a custom modification here, where any products with two
+  // dashes: p-{productId}-{variantId} will auto assigned to variant group
+  // p-{productId}.
+
+  const found = url.match(/p-\d+-\d+/);
+  if (found) {
+    return url.replace(/-\d+$/, "").replace(/-\d+\/$/, "");
+  }
+
+  return url;
 };

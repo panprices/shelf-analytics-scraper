@@ -494,6 +494,9 @@ function postProcessProductDetail(
   if (crawlerDefinition.normalizeProductUrl) {
     p.url = crawlerDefinition.normalizeProductUrl(p.url);
   }
+  if (crawlerDefinition.postProcessProductDetails) {
+    crawlerDefinition.postProcessProductDetails(p);
+  }
 }
 
 function isValidGTIN(gtin: string) {
