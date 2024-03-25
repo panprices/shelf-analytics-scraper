@@ -160,14 +160,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const productName = await this.extractProperty(
-      productCard,
-      "p.tBjFV",
-      (node) => node.textContent()
-    ).then((text) => text?.trim());
-    if (!productName)
-      throw new Error("Cannot find 'productName' of productCard");
-
     const url = await this.extractProperty(
       productCard,
       "div.FSL6m > a",
@@ -175,23 +167,12 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     );
     if (!url) throw new Error("Cannot find 'url' of productCard");
 
-    const previewImageUrl = await this.extractProperty(
-      productCard,
-      ".FSL6m > a > div > img",
-      (node) => node.getAttribute("src")
-    );
-    const previewImageUrlCleaned =
-      previewImageUrl !== undefined
-        ? cleanImageUrl(previewImageUrl)
-        : undefined;
     const categoryTree = await this.extractCategoryTree(
       productCard.page().locator("a.PMDfl"),
       0
     );
     return {
-      name: productName,
       url,
-      previewImageUrl: previewImageUrlCleaned,
       categoryUrl,
       popularityCategory: categoryTree,
     };

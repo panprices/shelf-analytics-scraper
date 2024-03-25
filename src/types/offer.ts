@@ -41,8 +41,8 @@ export enum Availability {
 }
 
 export interface BaseProductInfo {
-  name: string;
   url: string;
+  name?: string;
 
   brand?: string;
   brandUrl?: string;
