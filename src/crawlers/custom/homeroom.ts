@@ -343,18 +343,10 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const name = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//span[contains(@class, 'name')]",
-        (node) => node.textContent()
-      )
+    const url = await this.extractProperty(productCard, "a", (node) =>
+      node.first().getAttribute("href")
     );
-    const url = <string>(
-      await this.extractProperty(productCard, "xpath=./a[1]", (node) =>
-        node.getAttribute("href")
-      )
-    );
+    if (!url) throw new Error("Cannot find url of productCard");
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
       productCard.page().locator("ul.breadcrumbs > li > a"),
@@ -363,7 +355,6 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     );
 
     const currentProductInfo: ListingProductInfo = {
-      name,
       url,
       categoryUrl,
       popularityCategory: categoryTree,
@@ -457,8 +448,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     return new HomeroomCrawlerDefinition({
       detailsDataset,
       listingDataset,
-      detailsUrlSelector: "//article[contains(@class, 'product-card')]//a",
-      productCardSelector: "//article[contains(@class, 'product-card')]",
+      detailsUrlSelector: "article.product-card a",
+      productCardSelector: "article.product-card",
       cookieConsentSelector: "a.cta-ok",
       dynamicProductCardLoading: true,
       launchOptions,
