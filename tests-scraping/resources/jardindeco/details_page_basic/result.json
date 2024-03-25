@@ -1,0 +1,65 @@
+[
+  {
+    "retailerDomain": "jardindeco.com",
+    "url": "https://www.jardindeco.com/housse-de-coussin-avec-pompoms-millie-45x45-cm-F-637,64363",
+    "brand": "Venture Home",
+    "name": "Housse de coussin avec pompoms Millie (45x45 cm)",
+    "label": "DETAIL",
+    "images": [],
+    "description": "Housse de coussin avec pompoms Millie",
+    "price": 1890,
+    "isDiscounted": true,
+    "currency": "EUR",
+    "categoryTree": [
+      {
+        "name": "DÉCORATION INTÉRIEURE",
+        "url": "https://www.jardindeco.com/decoration-interieure-C1-191"
+      },
+      {
+        "name": "LINGE DE MAISON",
+        "url": "https://www.jardindeco.com/linge-de-maison-C2-915"
+      },
+      {
+        "name": "COUSSIN ET PLAID",
+        "url": "https://www.jardindeco.com/coussin-et-plaid-C3-637"
+      }
+    ],
+    "gtin": "07340206984555",
+    "sku": "64363",
+    "availability": "in_stock",
+    "specifications": [
+      {
+        "key": "Coloris",
+        "value": "Blanc"
+      },
+      {
+        "key": "Matériau principal",
+        "value": "Polyester"
+      },
+      {
+        "key": "Hauteur (en cm)",
+        "value": "45"
+      },
+      {
+        "key": "Longueur (en cm)",
+        "value": "45"
+      },
+      {
+        "key": "Profondeur (en cm)",
+        "value": "2"
+      },
+      {
+        "key": "Informations complémentaires",
+        "value": "Fermeture eclair discrete\nCoussin vendu separément"
+      },
+      {
+        "key": "Poids (grammes)",
+        "value": "320"
+      },
+      {
+        "key": "Durée (année)",
+        "value": "2"
+      }
+    ]
+  }
+]

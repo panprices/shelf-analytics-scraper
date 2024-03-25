@@ -1,0 +1,103 @@
+[
+  {
+    "retailerDomain": "jardindeco.com",
+    "url": "https://www.jardindeco.com/housse-de-coussin-avec-pompoms-millie-45x45-cm-F-637,64363",
+    "brand": "Venture Home",
+    "name": "Housse de coussin avec pompoms Millie (45x45 cm)",
+    "label": "DETAIL",
+    "images": [],
+    "description": "Housse de coussin avec pompoms Millie",
+    "price": 1890,
+    "isDiscounted": true,
+    "currency": "EUR",
+    "categoryTree": [
+      {
+        "name": "DÉCORATION INTÉRIEURE",
+        "url": "https://www.jardindeco.com/decoration-interieure-C1-191"
+      },
+      {
+        "name": "LINGE DE MAISON",
+        "url": "https://www.jardindeco.com/linge-de-maison-C2-915"
+      },
+      {
+        "name": "COUSSIN ET PLAID",
+        "url": "https://www.jardindeco.com/coussin-et-plaid-C3-637"
+      }
+    ],
+    "gtin": "07340206984555",
+    "sku": "64363",
+    "articleNumber": "9531-444",
+    "availability": "in_stock",
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Varumärke",
+        "value": "Venture Design"
+      },
+      {
+        "key": "Art.Nr.",
+        "value": "9531-444"
+      },
+      {
+        "key": "Montering",
+        "value": "Ja"
+      },
+      {
+        "key": "Färg",
+        "value": "Teak"
+      },
+      {
+        "key": "Material",
+        "value": "Teak"
+      },
+      {
+        "key": "Serie",
+        "value": "Kiara"
+      },
+      {
+        "key": "Typ",
+        "value": "Solstol"
+      },
+      {
+        "key": "Ställbar",
+        "value": "Nej"
+      },
+      {
+        "key": "Rygghöjd",
+        "value": "57 cm"
+      },
+      {
+        "key": "Djup",
+        "value": "1500 mm"
+      },
+      {
+        "key": "Hopfällbar",
+        "value": "Nej"
+      },
+      {
+        "key": "Höjd",
+        "value": "950 mm"
+      },
+      {
+        "key": "Sittdjup",
+        "value": "1250 mm"
+      },
+      {
+        "key": "Sitthöjd",
+        "value": "380 mm"
+      },
+      {
+        "key": "Sittbredd",
+        "value": "510 mm"
+      },
+      {
+        "key": "Bredd",
+        "value": "600 mm"
+      },
+      {
+        "key": "EAN-nr",
+        "value": "7350107081208"
+      }
+    ]
+  }
+]

@@ -1,0 +1,88 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.gardenstore.se",
+    "jobId": "job_test_1",
+    "url": "https://www.gardenstore.se/hangstol-venture-design-lexi-for-djur?channable=033265736b7500313031392d343038de",
+    "brand": "Venture Design",
+    "popularityIndex": 1,
+    "name": "Hängstol För Djur Venture Design Lexi",
+    "label": "DETAIL",
+    "description": "Lexi Hängstol från Venture Design\nHängstol för familjens mindre medlemmar! Låt barnen, hunden eller katten också få njuta av sommaren på allra bästa sätt. Hängstol Lexi är tillverkad i polyetser, konstrotting och aluminium.\nSpecifikationer:\n\nSÄTESHÖJD: 20 cm\nMAXBELASTNING: 50 kg\nSTOMME: Aluminium, Konstrotting, Polyester\nHJUL: Nej\nSTÄLLBAR: Nej\nDYNOR: ja",
+    "price": 131900,
+    "currency": "SEK",
+    "isDiscounted": true,
+    "originalPrice": 148900,
+    "gtin": "07350118411629",
+    "sku": "1019-408",
+    "articleNumber": "1019-408",
+    "availability": "in_stock",
+    "images": [
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-1.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-2.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-3.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-4.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-5.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-6.jpg",
+      "https://www.gardenstore.se/media/catalog/product/h/a/hangstol-venture-design-lexi-7.jpg"
+    ],
+    "reviews": "unavailable",
+    "specifications": [
+      {
+        "key": "Artikelnummer",
+        "value": "1019-408"
+      },
+      {
+        "key": "Vikt",
+        "value": "6.65 kg"
+      },
+      {
+        "key": "Varumärke",
+        "value": "Venture Design"
+      },
+      {
+        "key": "EAN",
+        "value": "7350118411629"
+      },
+      {
+        "key": "Höjd",
+        "value": "94 cm"
+      },
+      {
+        "key": "Bredd",
+        "value": "58 cm"
+      },
+      {
+        "key": "Materialinfo",
+        "value": "100% Polyester, PE Rattan"
+      },
+      {
+        "key": "Material",
+        "value": "Stål"
+      },
+      {
+        "key": "Färg",
+        "value": "Grå"
+      },
+      {
+        "key": "Typ av produkt",
+        "value": "Med Stativ"
+      }
+    ],
+    "categoryTree": [
+      {
+        "name": "Utemöbler & Trädgårdsmöbler",
+        "url": "https://www.gardenstore.se/utemobler"
+      },
+      {
+        "name": "Trädgårdsstolar",
+        "url": "https://www.gardenstore.se/utemobler/tradgardsstolar"
+      },
+      {
+        "name": "Hängstolar",
+        "url": "https://www.gardenstore.se/utemobler/tradgardsstolar/hangstolar"
+      }
+    ]
+  }
+]
