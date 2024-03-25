@@ -10,11 +10,6 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const name = await this.extractProperty(productCard, "", (node) =>
-      node.textContent()
-    ).then((text) => text?.trim());
-    if (!name) throw new Error("Cannot find productName of productCard");
-
     const url = await this.extractProperty(productCard, "", (node) =>
       node.getAttribute("href")
     );
@@ -26,7 +21,6 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
       productCard.page().locator("")
     );
     return {
-      name,
       url,
       categoryUrl,
       popularityCategory: categoryTree ? categoryTree : undefined,
