@@ -91,6 +91,9 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
         log.warning("Error extracting data from schema.org", { error });
       }
     }
+    if (brand) {
+      brand = cleanUpBrandName(brand);
+    }
 
     const specifications = await this.extractSpecificationsFromTable(
       page.locator("x-tabs table.specifications-table tr td:first-child"),
@@ -174,4 +177,19 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
       launchOptions,
     });
   }
+}
+
+/** "Eget lager - Venture design" => "Venture design" */
+export function cleanUpBrandName(brandName: string) {
+  // Match "EGET LAGER" ignoring case
+  let pattern: RegExp = /eget\s+lager/gi;
+
+  let newBrandName = brandName
+    .replaceAll(pattern, "")
+    .trim()
+    .replace(/^\-/, "")
+    .replace(/\-$/, "")
+    .trim();
+
+  return newBrandName;
 }
