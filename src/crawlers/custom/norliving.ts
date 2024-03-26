@@ -4,6 +4,7 @@ import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import { extractNumberFromText } from "../../utils";
 import { log } from "crawlee";
 import { scrollToBottomV2 } from "../scraper-utils";
+import { PageNotFoundError } from "../../types/errors";
 
 export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
   // NOTE: We don't need to do variant scraping for this because individual
@@ -36,6 +37,10 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    if ((await page.title()).trim().toLowerCase() === "404 ikke fundet") {
+      throw new PageNotFoundError("404 Not Found");
+    }
+
     const name = await this.extractProperty(
       page,
       "div.product h1.product-info__title",
