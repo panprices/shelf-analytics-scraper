@@ -609,7 +609,7 @@ export abstract class AbstractCrawlerDefinition
       .all();
 
     const hrefs = await Promise.all(
-      aTagLocators.map((a) => a.getAttribute("href", { timeout: 1000 }))
+      aTagLocators.map((a) => a.getAttribute("href", { timeout: 5000 }))
     );
     // Filter out any null values and link to the same page:
     let urls: string[] = hrefs
