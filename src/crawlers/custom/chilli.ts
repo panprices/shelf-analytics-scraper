@@ -141,11 +141,11 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       );
       await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'le')]"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//div//div//div//span[2]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[contains(@class, 'le')]",
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//div//div//div//span[2]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
 
@@ -213,7 +213,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
 }
 
 async function extractImagesFromProductPage(page: Page): Promise<string[]> {
-  const imageThumbnailLocator = page.locator("main div.fq div.a4r img");
+  const imageThumbnailLocator = page.locator("main div.a0j > div.z div.cr img");
 
   try {
     await imageThumbnailLocator.waitFor({ timeout: 10000 });
@@ -228,7 +228,7 @@ async function extractImagesFromProductPage(page: Page): Promise<string[]> {
     await page.waitForTimeout(200);
   }
   const images = await page
-    .locator("main div.fq div.d4 img")
+    .locator("main div.a0j > div.z div.ht img")
     .evaluateAll((list: HTMLElement[]) =>
       list.map((element) => <string>element.getAttribute("src"))
     );

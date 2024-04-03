@@ -91,7 +91,9 @@ export async function extractProductDetails(
   }
   await crawlerDefinition.handleCookieConsent(page);
 
-  const productName = await page.locator("main div.d.a3 h1").textContent();
+  const productName = (
+    await page.locator("main div.d.a3 h1").innerText()
+  ).replace("\n", " ");
   if (!productName) {
     throw new Error("Cannot extract productName");
   }
