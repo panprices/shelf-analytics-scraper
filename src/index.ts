@@ -50,6 +50,8 @@ app.post("/exploreCategory", async (req: Request, res: Response) => {
       retailer: extractDomainFromUrl(body.url),
       jobId: body.jobContext.jobId,
     });
+
+    log.debug(JSON.stringify(detailedPages[0], null, 2));
   } catch (error) {
     /* logging failed, do nothing */
   }

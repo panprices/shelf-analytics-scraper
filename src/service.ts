@@ -371,7 +371,7 @@ export async function scrapeDetails(
           },
           {
             ...(launchOptions ?? {}),
-            uniqueCrawlerKey: uuidv4(),
+            uniqueCrawlerKey,
           },
           {
             ...overrides,
