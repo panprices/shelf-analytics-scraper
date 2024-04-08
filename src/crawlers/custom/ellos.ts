@@ -193,10 +193,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     });
     if (!productName) throw new Error("Cannot find productName of productCard");
 
-    const url = await this.extractProperty(
-      productCard,
-      "xpath=./a[1]",
-      (node) => node.getAttribute("href")
+    const url = await this.extractProperty(productCard, "xpath=//a", (node) =>
+      node.getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
