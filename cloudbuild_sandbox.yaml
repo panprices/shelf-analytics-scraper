@@ -24,7 +24,7 @@ steps:
       - --concurrency=1 # should only run 1 scraper at a time
       - --timeout=3600s # max for Cloud Run. Note that the caller (Cloud Task or Pub/sub) have a lower limit
       - --set-env-vars=PANPRICES_ENVIRONMENT=sandbox
-      - --set-env-vars=SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC=trigger_shelf_analytics_persist_new_urls_sandbox
+      - --set-env-vars=SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC=trigger_shelf_analytics_persist_new_urls
       - --set-env-vars=SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC=trigger_shelf_analytics_update_products_sandbox
       - --set-env-vars=SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC=trigger_shelf_analytics_update_products_popularity_sandbox
       - --set-env-vars=CRAWLEE_AVAILABLE_MEMORY_RATIO=1
