@@ -405,7 +405,7 @@ async function extractProductDetails(
   const errors = [];
   for (const p of products) {
     try {
-      postProcessProductDetail(p, crawlerDefinition);
+      // postProcessProductDetail(p, crawlerDefinition);
       processedProducts.push(p);
     } catch (e) {
       errors.push({

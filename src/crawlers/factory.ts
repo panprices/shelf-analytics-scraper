@@ -635,7 +635,6 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      // Comment to help the script understand where to add new cases
     }
 
     log.warning(`Asked for unknown root url: ${domain}`);

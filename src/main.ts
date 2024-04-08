@@ -7,15 +7,15 @@ import {
   extractLeafCategories,
   scrapeDetails,
 } from "./service";
-import { join } from "path";
+import path, { join } from "path";
 import { initializeApp, applicationDefault } from "firebase-admin/app";
 
 initializeApp({
   credential: applicationDefault(),
 });
 
-async function debugScrapeDetails(targetUrl: string) {
-  const dummyRequest = {
+async function debugScrapeDetails(targetUrls: string[]) {
+  const dummyRequests = targetUrls.map((targetUrl) => ({
     url: targetUrl,
     userData: {
       jobId: "job_test_1",
@@ -25,11 +25,11 @@ async function debugScrapeDetails(targetUrl: string) {
       label: "DETAIL",
       matchingType: "match",
     },
-  };
+  }));
   const detailedItems = await scrapeDetails(
-    [dummyRequest],
+    dummyRequests,
     {
-      headless: false,
+      headless: true,
     },
     false,
     {
@@ -178,7 +178,25 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 //
-await debugScrapeDetails("https://www.amazon.de/-/en/dp/B0BKGJGFVN");
+// await debugScrapeDetails(
+//   "https://www.lampenwelt.de/p/louis-poulsen-panthella-320-tischleuchte-chrom-6090405.html?lw_om_view=recotop"
+// );
+
+function readUrlsFromFile(filePath: string) {
+  try {
+    const fileContent = fs.readFileSync(filePath, { encoding: "utf-8" });
+    return fileContent.split(/\r?\n/); // This regex handles both Linux (\n) and Windows (\r\n) line endings
+  } catch (error) {
+    console.error(`Error reading file from ${filePath}:`, error);
+    return [];
+  }
+}
+
+const urls = readUrlsFromFile("urls.txt")
+  .map((u) => (u.startsWith('"') ? u.substring(1, u.length - 1) : u))
+  .filter((u) => u.startsWith("http"));
+
+await debugScrapeDetails(urls);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"

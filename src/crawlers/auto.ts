@@ -1,0 +1,489 @@
+import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "./abstract";
+import { Locator, Page } from "playwright";
+import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
+import { log } from "crawlee";
+import jsonic from "jsonic";
+
+class AutoCrawler extends AbstractCrawlerDefinition {
+  extractCardProductInfo(
+    _: string,
+    __: Locator
+  ): Promise<ListingProductInfo | undefined> {
+    return Promise.resolve(undefined);
+  }
+
+  async fetchOpenGraphMetadata(page: Page): Promise<{
+    found: boolean;
+    price: number | null;
+    currency: string | null;
+    availability: string | null;
+    images: string[];
+  }> {
+    const priceCurrencyTagOptions = ["g:sale_price", "g:price"];
+    const priceTagOptions = [
+      "og:sale_price:amount",
+      "og:price:amount",
+      "product:sale_price:amount",
+      "product:price:amount",
+    ];
+    const currencyTagOptions = [
+      "og:sale_price:currency",
+      "og:price:currency",
+      "product:sale_price:currency",
+      "product:price:currency",
+    ];
+    const availabilityTagOptions = [
+      "g:availability",
+      "og:availability",
+      "product:availability",
+    ];
+    const imageTagOptions = [
+      "og:image",
+      "og:image:url",
+      "product:image",
+      "product:image:url",
+      "image_link",
+      "additional_image_link",
+    ];
+
+    let price: number | null = null;
+    let currency: string | null = null;
+    let availability: string | null = null;
+    let images: string[] = [];
+
+    // Fetch price and currency from combined tag options first
+    for (const tagOption of priceCurrencyTagOptions) {
+      const content = await page
+        .$eval(`meta[property='${tagOption}']`, (el) =>
+          el.getAttribute("content")
+        )
+        .catch(() => {});
+      if (content) {
+        const parts = content.split(" ");
+        price = parseFloat(parts[0]);
+        currency = parts[1];
+        break;
+      }
+    }
+
+    // If not found, try separate price and currency tags
+    if (!price) {
+      for (const tagOption of priceTagOptions) {
+        const content = await page
+          .$eval(
+            `meta[property='${tagOption}']`,
+            (el) => el.getAttribute("content"),
+            null
+          )
+          .catch(() => null);
+        if (content) {
+          price = parseFloat(content);
+          break;
+        }
+      }
+    }
+
+    if (!currency) {
+      for (const tagOption of currencyTagOptions) {
+        currency = await page
+          .$eval(
+            `meta[property='${tagOption}']`,
+            (el) => el.getAttribute("content"),
+            null
+          )
+          .catch(() => null);
+        if (currency) break;
+      }
+    }
+
+    // Fetch availability
+    for (const tagOption of availabilityTagOptions) {
+      availability = await page
+        .$eval(
+          `meta[property='${tagOption}']`,
+          (el) => el.getAttribute("content"),
+          null
+        )
+        .catch(() => null);
+      if (availability) break;
+    }
+
+    // Fetch images
+    for (const tagOption of imageTagOptions) {
+      const content = await page
+        .$eval(
+          `meta[property='${tagOption}']`,
+          (el) => el.getAttribute("content"),
+          null
+        )
+        .catch(() => null);
+      if (content) {
+        images.push(content);
+      }
+    }
+
+    return { found: price !== null, price, currency, availability, images };
+  }
+
+  async fetchJsonSchema(page: Page): Promise<{
+    found: boolean;
+    price: number | null;
+    currency: string | null;
+    availability: string | null;
+    images: string[];
+    metadata?: any;
+  }> {
+    let schemaOrgProducts: any[] = [];
+    const schemaOrgScripts = await page.$$eval(
+      "script[type='application/ld+json']",
+      (elements) => elements.map((el) => el.textContent || "")
+    );
+
+    schemaOrgScripts.forEach((scriptText) => {
+      try {
+        // Removing potential CDATA and comments within the script content
+        const cleanedScriptText = scriptText
+          .replace(/\/\*.*?\*\//gs, "")
+          .replace(/<!\[CDATA\[.*?\]\]>/gs, "");
+        let schema = null;
+        try {
+          schema = JSON.parse(cleanedScriptText.replace(/\n/gi, " "));
+        } catch (error) {
+          schema = jsonic(cleanedScriptText.replace(/\n/gi, " "));
+        }
+        if (!schema) return;
+
+        if (Array.isArray(schema)) {
+          schemaOrgProducts.push(
+            ...schema.filter((item) => item["@type"]?.endsWith("Product"))
+          );
+        } else if (schema["@type"]?.endsWith("Product")) {
+          schemaOrgProducts.push(schema);
+        } else if (
+          Object.keys(schema).filter((k) => k === "@graph").length > 0
+        ) {
+          schemaOrgProducts.push(
+            ...schema["@graph"].filter((item: any) =>
+              item["@type"]?.endsWith("Product")
+            )
+          );
+        }
+      } catch (error) {
+        log.warning(`JSON parsing error for script: ${error}`);
+      }
+    });
+
+    if (schemaOrgProducts.length === 0) {
+      return {
+        found: false,
+        price: null,
+        currency: null,
+        availability: null,
+        images: [],
+      };
+    }
+
+    const product = schemaOrgProducts[0];
+
+    try {
+      let offers = product.offers || product.Offers || {};
+      if (Array.isArray(offers)) {
+        log.info(
+          "Multiple offers found, assuming the first is the correct one."
+        );
+        offers = offers[0];
+      }
+
+      if (offers["@type"]?.endsWith("AggregateOffer")) {
+        log.info(
+          "AggregateOffer found, assuming the first individual offer is the correct one."
+        );
+        offers = offers.offers[0];
+      }
+
+      const price =
+        offers.priceSpecification?.price ||
+        offers.PriceSpecification?.Price ||
+        offers.price ||
+        offers.Price;
+      const currency =
+        offers.priceSpecification?.priceCurrency ||
+        offers.PriceSpecification?.PriceCurrency ||
+        offers.priceCurrency ||
+        offers.PriceCurrency;
+      const availability =
+        offers.availability?.split("/").pop() ||
+        offers.Availability?.split("/").pop();
+
+      const tentativeImages = product.image || product.Image || [];
+      const images = Array.isArray(tentativeImages)
+        ? tentativeImages
+        : [tentativeImages];
+
+      return {
+        found: true,
+        price: parseFloat(price),
+        currency,
+        availability,
+        images,
+        metadata: product,
+      };
+    } catch (error) {
+      log.error(`Error processing product offers: ${error}`);
+    }
+
+    return {
+      found: false,
+      price: null,
+      currency: null,
+      availability: null,
+      images: [],
+    };
+  }
+
+  async fetchSchemaAttributes(page: Page): Promise<{
+    found: boolean;
+    price: number | null;
+    currency: string | null;
+    availability: string | null;
+    images: string[];
+  }> {
+    let price: number | null = null;
+    let currency: string | null = null;
+    let availability: string | null = null;
+
+    // Attempt to fetch the price
+    const priceContent: string | null = await page
+      .$eval(
+        "[itemprop='price']",
+        (el: Element) => {
+          return el.getAttribute("content") || el.textContent || null;
+        },
+        null
+      )
+      .catch(() => null);
+
+    if (priceContent) {
+      let processedPrice = priceContent.trim();
+      if (processedPrice.includes(" ")) {
+        const priceParts = processedPrice.split(" ");
+        const priceExpression = /\d{1,3}([,.]\d{3,3})*([,.]\d+)?/;
+
+        // The price may be expressed as "€ 379,00" or "379,00 €"
+        if (priceExpression.test(priceParts[0])) {
+          processedPrice = priceParts[0];
+        } else if (priceExpression.test(priceParts[1])) {
+          processedPrice = priceParts[1];
+        }
+      }
+      if (processedPrice.includes(",")) {
+        // Handling European number format, e.g., 1.234,56
+        if (processedPrice.indexOf(",") === processedPrice.length - 3) {
+          processedPrice = processedPrice.replace(/\./g, "").replace(",", ".");
+        } else {
+          processedPrice = processedPrice.replace(",", ".");
+        }
+      }
+      price = parseFloat(processedPrice);
+    }
+
+    // Attempt to fetch the currency
+    currency = await page
+      .$eval(
+        "[itemprop='priceCurrency']",
+        (el: Element) => {
+          return el.getAttribute("content") || el.textContent || null;
+        },
+        null
+      )
+      .catch(() => null);
+
+    // Attempt to fetch the availability
+    const availabilityContent: string | null = await page
+      .$eval(
+        "[itemprop='availability']",
+        (el: Element) => {
+          return el.getAttribute("href") || null;
+        },
+        null
+      )
+      .catch(() => null);
+
+    if (availabilityContent) {
+      const parts = availabilityContent.split("/");
+      availability = parts[parts.length - 1];
+    }
+
+    const images = await page
+      .$$eval(
+        "[img[itemprop='image']]",
+        (elements: Element[]) => {
+          return elements
+            .map((el) => el.getAttribute("src") || null)
+            .filter((el) => el !== null);
+        },
+        null
+      )
+      .then((images) =>
+        images.filter((image) => image !== null).map((i) => i as string)
+      );
+
+    return { found: price !== null, price, currency, availability, images };
+  }
+
+  async fetchWooCommerceData(page: Page): Promise<{
+    found: boolean;
+    price: number | null;
+    currency: string | null;
+    availability: string | null;
+    images: string[];
+  }> {
+    const priceContent = await page
+      .$eval(".woocommerce-Price-amount", (el: Element) => {
+        return el.textContent || null;
+      })
+      .catch(() => null);
+    if (!priceContent) {
+      return {
+        found: false,
+        price: null,
+        currency: null,
+        availability: null,
+        images: [],
+      };
+    }
+
+    const availabilityInStock = await page
+      .$eval(".stock.in-stock", () => true)
+      .catch(() => false);
+
+    const images = await page
+      .$$eval(
+        ".woocommerce-product-gallery__wrapper img",
+        (elements: Element[]) => {
+          return elements.map((el) => el.getAttribute("src") || null);
+        }
+      )
+      .then((r) => r.filter((i) => i !== null).map((i) => i as string));
+
+    return {
+      found: true,
+      price: parseFloat(
+        priceContent.trim().split(" ")[0].trim().replace(",", ".")
+      ),
+      currency: null,
+      availability: availabilityInStock ? "inStock" : "outOfStock",
+      images,
+    };
+  }
+
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    let found = false,
+      price = null,
+      currency = null,
+      availability = null,
+      images = [];
+
+    try {
+      let metadata = undefined;
+      ({ found, price, currency, availability, images, metadata } =
+        await this.fetchJsonSchema(page));
+
+      if (found) {
+        return {
+          url: page.url(),
+          price: price ? price : undefined,
+          currency: currency ? currency : undefined,
+          availability: availability ? availability : undefined,
+          images,
+          metadata,
+          specifications: [],
+        };
+      }
+    } catch (error) {
+      log.info(`Problem extracting product details with schema json: ${error}`);
+    }
+
+    try {
+      ({ found, price, currency, availability, images } =
+        await this.fetchSchemaAttributes(page));
+
+      if (found) {
+        return {
+          url: page.url(),
+          price: price ? price : undefined,
+          currency: currency ? currency : undefined,
+          availability: availability ? availability : undefined,
+          images,
+          specifications: [],
+        };
+      }
+    } catch (error) {
+      log.info(
+        `Problem extracting product details with schema attributes: ${error}`
+      );
+    }
+
+    try {
+      ({ found, price, currency, availability, images } =
+        await this.fetchOpenGraphMetadata(page));
+
+      if (found) {
+        return {
+          url: page.url(),
+          price: price ? price : undefined,
+          currency: currency ? currency : undefined,
+          availability: availability ? availability : undefined,
+          images,
+          specifications: [],
+        };
+      }
+    } catch (error) {
+      log.info(`Problem extracting product details with open graph: ${error}`);
+    }
+
+    try {
+      ({ found, price, currency, availability, images } =
+        await this.fetchWooCommerceData(page));
+
+      if (found) {
+        return {
+          url: page.url(),
+          price: price ? price : undefined,
+          currency: currency ? currency : undefined,
+          availability: availability ? availability : undefined,
+          images,
+          specifications: [],
+        };
+      }
+    } catch (error) {
+      log.info(
+        `Problem extracting product details with WooCommerce data: ${error}`
+      );
+    }
+
+    return { url: page.url(), images: [], specifications: [] };
+  }
+
+  static async create(
+    launchOptions: CrawlerLaunchOptions
+  ): Promise<AutoCrawler> {
+    const [detailsDataset, listingDataset] =
+      await AbstractCrawlerDefinition.openDatasets(
+        launchOptions?.uniqueCrawlerKey
+      );
+
+    return new AutoCrawler({
+      detailsDataset,
+      listingDataset,
+      listingUrlSelector: "",
+      detailsUrlSelector: "",
+      productCardSelector: "",
+      cookieConsentSelector: "",
+      dynamicProductCardLoading: false,
+      launchOptions,
+    });
+  }
+}
+
+export { AutoCrawler };

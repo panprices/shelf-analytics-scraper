@@ -73,7 +73,7 @@ export interface ListingProductInfo extends BaseProductInfo {
 }
 
 export interface DetailedProductInfo extends BaseProductInfo {
-  availability: string;
+  availability?: string;
 
   images: string[]; // if not applicable return an empty array
   specifications: Specification[]; // if not applicable return an empty array
