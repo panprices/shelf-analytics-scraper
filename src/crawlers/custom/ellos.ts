@@ -193,10 +193,8 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     });
     if (!productName) throw new Error("Cannot find productName of productCard");
 
-    const url = await this.extractProperty(
-      productCard,
-      "xpath=//a[1]",
-      (node) => node.getAttribute("href")
+    const url = await this.extractProperty(productCard, "a", (node) =>
+      node.first().getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
@@ -437,7 +435,7 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       detailsDataset,
       listingDataset,
       detailsUrlSelector: "//article[contains(@class, 'product-card')]//a[1]",
-      productCardSelector: "//article[contains(@class, 'product-card')]",
+      productCardSelector: "article.product-card",
       cookieConsentSelector: "a.cta-ok",
       dynamicProductCardLoading: true,
       launchOptions,
