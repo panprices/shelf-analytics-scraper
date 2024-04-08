@@ -16,12 +16,12 @@ export async function sendRequestBatch(
 ) {
   const maxBatchSize = 1000;
   const pubSubClient = new PubSub();
-  if (!process.env.SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC) {
+  if (!process.env.SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC) {
     throw new Error(
-      "Cannot find env variable 'SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC'"
+      "Cannot find env variable 'SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC'"
     );
   }
-  const topic = process.env.SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC;
+  const topic = process.env.SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC;
 
   const requestPromises = _.chunk(detailedPages, maxBatchSize).map(
     async (pages) => {
