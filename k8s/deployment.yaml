@@ -24,8 +24,8 @@ spec:
               value: "true"
             - name: PANPRICES_ENVIRONMENT
               value: production
-            - name: SHELF_ANALYTICS_SCHEDULE_PRODUCT_SCRAPE_TOPIC
-              value: trigger_schedule_product_scrapes
+            - name: SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC
+              value: trigger_shelf_analytics_persist_new_urls
             - name: SHELF_ANALYTICS_UPDATE_PRODUCTS_TOPIC
               value: trigger_shelf_analytics_update_products
             - name: SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC
