@@ -51,11 +51,13 @@ export const loggingMiddleware = (
       };
   }
 
-  localContext.run(contextStore, () => next());
+  localContext.run(contextStore, () => {
+    // Log request data for easier debug on GCP
+    log.info(req.path, {
+      payload: req.body,
+    });
 
-  // Log request data for easier debug on GCP
-  log.info(req.path, {
-    payload: req.body,
+    next();
   });
 };
 
