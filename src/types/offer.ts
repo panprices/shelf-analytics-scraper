@@ -101,11 +101,13 @@ export interface RequestBatch {
   overrides?: PlaywrightCrawlerOptions;
 }
 
-export interface RequestCategoryExploration extends RequestOptions {
+export interface RequestCategoryExploration {
+  url: string;
   jobContext: JobContext;
+  overrides?: PlaywrightCrawlerOptions;
 }
 
-export interface RequestSearch extends RequestOptions {
+export interface RequestSearch {
   /** The query used to search, such as GTIN or SKU of a product. */
   query: string;
   /** E.g. amazon.de */

@@ -42,7 +42,11 @@ app.get("/", (_: any, res: Response) => {
 
 app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestCategoryExploration>req.body;
-  const detailedPages = await exploreCategory(body.url, body.jobContext.jobId);
+  const detailedPages = await exploreCategory(
+    body.url,
+    body.jobContext.jobId,
+    body.overrides
+  );
   try {
     log.info(`Category explored`, {
       categoryUrl: body.url,

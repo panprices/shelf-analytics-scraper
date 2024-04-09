@@ -16,6 +16,7 @@ import {
 } from "../../types/offer";
 import { extractNumberFromText, extractDomainFromUrl } from "../../utils";
 import { extractImagesFromDetailedPage } from "./base-homeroom";
+import { scrollToBottomV2 } from "../scraper-utils";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   // protected override categoryPageSize: number = 56;
@@ -123,9 +124,11 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
       await this.handleCookieConsent(page);
 
       try {
+        await loadMoreButton.scrollIntoViewIfNeeded();
+        // Ellos' special: need to scroll up more in order for more products
+        // to appear at the bottom to scrape.
+        await ctx.page.mouse.wheel(0, -1500);
         await loadMoreButton.click({ timeout: 15000 });
-        // wait for consistency
-        await new Promise((f) => setTimeout(f, 500));
       } catch (error) {
         // No more expand button to click => break
         break;
