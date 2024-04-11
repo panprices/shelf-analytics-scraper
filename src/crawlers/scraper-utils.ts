@@ -37,7 +37,7 @@ export const scrollToBottomV1: ScrollToBottomStrategy = async function (
       (scrollPosition: number) => window.scrollTo(0, scrollPosition),
       currentScrollY
     );
-    await new Promise((f) => setTimeout(f, 200));
+    await page.waitForTimeout(50);
   }
 
   // Scroll slightly up. This is needed to avoid the view staying at the bottom after new elements are loaded
