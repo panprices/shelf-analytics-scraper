@@ -4,7 +4,6 @@ import {
   createCheerioRouter,
   createPlaywrightRouter,
   Dataset,
-  KeyValueStore,
   log,
   PlaywrightCrawlingContext,
   playwrightUtils,
@@ -125,7 +124,6 @@ export abstract class AbstractCrawlerDefinition
 {
   protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
   protected readonly _detailsDataset: Dataset;
-  protected _screenshotsKeyValueStore?: KeyValueStore;
   protected readonly _cloudBlobStorage: BlobStorage;
 
   protected readonly listingUrlSelector?: string;
@@ -173,7 +171,6 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
-    this._screenshotsKeyValueStore = undefined;
 
     this._cloudBlobStorage = new GoogleCloudBlobStorage();
   }
