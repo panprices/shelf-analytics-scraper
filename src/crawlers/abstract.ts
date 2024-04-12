@@ -26,6 +26,9 @@ import {
   PageNotFoundError,
 } from "../types/errors";
 import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils";
+import * as crypto from "crypto";
+import { BlobStorage } from "../blob-storage/abstract";
+import { GoogleCloudBlobStorage } from "../blob-storage/google";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -121,6 +124,7 @@ export abstract class AbstractCrawlerDefinition
 {
   protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
   protected readonly _detailsDataset: Dataset;
+  protected readonly _cloudBlobStorage: BlobStorage;
 
   protected readonly listingUrlSelector?: string;
   protected readonly productCardSelector?: string;
@@ -167,6 +171,130 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
+
+    this._cloudBlobStorage = new GoogleCloudBlobStorage();
+  }
+
+  async __injectDateTime(page: Page): Promise<void> {
+    // Inject HTML for the time display
+    await page.evaluate(() => {
+      const timeDisplay = document.createElement("div");
+      timeDisplay.id = "current-time";
+      document.body.appendChild(timeDisplay);
+
+      // Set the time initially
+      timeDisplay.innerText = new Date().toLocaleString("sv-SE");
+    });
+
+    // Inject CSS to style the time display and position it
+    await page.evaluate(() => {
+      const style = document.createElement("style");
+      // z-index is the highest possible value to avoid being overlapped by cookie consents
+      style.textContent = `
+      #current-time {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background-color: black;
+        color: white;
+        padding: 5px;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        z-index: 2147483647;
+      }
+    `;
+      document.head.appendChild(style);
+    });
+  }
+
+  async __saveScreenshot(page: Page, url: string): Promise<void> {
+    await this.__injectDateTime(page);
+
+    /**
+     * Inspired by:
+     * https://github.com/microsoft/playwright/blob/b5e36583f67745fddf32145fa2355e5f122c2903/packages/playwright-core/src/server/screenshotter.ts#L182-L200
+     */
+    const fullPageSize = await page
+      .mainFrame()
+      .waitForFunction(() => {
+        if (!document.body || !document.documentElement) return null;
+        return {
+          width: Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth,
+            document.body.offsetWidth,
+            document.documentElement.offsetWidth,
+            document.body.clientWidth,
+            document.documentElement.clientWidth
+          ),
+          height: Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight,
+            document.body.clientHeight,
+            document.documentElement.clientHeight
+          ),
+        };
+      })
+      .then((h) => h.jsonValue());
+    const currentScrollY = await page.evaluate(() => window.scrollY);
+    const currentViewportSize = page.viewportSize();
+
+    /**
+     * We are doing this rather than using the function `saveSnapshot` from crawlee utils
+     * because at the time of this writing that function was affected by an annoying bug that
+     * was causing all images to be saved with a double extension ".jpg.jpeg"
+     *
+     * https://github.com/apify/crawlee/issues/1980
+     */
+    const screenshotBuffer = await page.screenshot({
+      clip: {
+        x: 0,
+        y: 0,
+        width: fullPageSize?.width ?? 0,
+        height: currentScrollY + (currentViewportSize?.height ?? 0),
+      },
+      fullPage: true,
+      quality: 40,
+      type: "jpeg",
+      scale: "css",
+    });
+    await this._cloudBlobStorage
+      .uploadFromBuffer(
+        screenshotBuffer,
+        `${crypto.createHash("md5").update(url).digest("hex")}.jpg`,
+        "image/jpeg"
+      )
+      .then(() => log.info(`Uploaded screenshot of page: ${url}`));
+  }
+
+  async _handleDetailPage(
+    ctx: PlaywrightCrawlingContext,
+    additionalFields: Partial<DetailedProductInfo> = {}
+  ) {
+    log.info(`Looking at product with url ${ctx.page.url()}`);
+    let productDetails = null;
+    try {
+      productDetails = await this.extractProductDetails(ctx.page);
+
+      const request = ctx.request;
+      await this._detailsDataset.pushData(<DetailedProductInfo>{
+        ...request.userData,
+        ...productDetails,
+        fetchedAt: new Date().toISOString(),
+        retailerDomain: extractDomainFromUrl(ctx.page.url()),
+        ...additionalFields,
+      });
+    } catch (e) {
+      this.handleCrawlDetailPageError(e, ctx);
+    } finally {
+      logProductScrapingInfo(ctx, productDetails);
+      await this.__saveScreenshot(
+        ctx.page,
+        productDetails ? productDetails.url : ctx.page.url()
+      );
+    }
   }
 
   /**
@@ -175,22 +303,7 @@ export abstract class AbstractCrawlerDefinition
    * This method also saves to a crawlee `Dataset`. In the future it has to save to an external storage like firestore
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    log.info(`Looking at product with url ${ctx.page.url()}`);
-    let productDetails = null;
-    try {
-      productDetails = await this.extractProductDetails(ctx.page);
-      const request = ctx.request;
-      await this._detailsDataset.pushData(<DetailedProductInfo>{
-        ...request.userData,
-        ...productDetails,
-        fetchedAt: new Date().toISOString(),
-        retailerDomain: extractDomainFromUrl(ctx.page.url()),
-      });
-    } catch (e) {
-      this.handleCrawlDetailPageError(e, ctx);
-    } finally {
-      logProductScrapingInfo(ctx, productDetails);
-    }
+    return await this._handleDetailPage(ctx);
   }
 
   /**
@@ -744,24 +857,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     variantGroupUrl: string,
     variant: number
   ): Promise<void> {
-    let productDetails = null;
-    try {
-      productDetails = await this.extractProductDetails(ctx.page);
-      const request = ctx.request;
-
-      await this._detailsDataset.pushData(<DetailedProductInfo>{
-        ...request.userData,
-        ...productDetails,
-        fetchedAt: new Date().toISOString(),
-        retailerDomain: extractDomainFromUrl(ctx.page.url()),
-        variantGroupUrl: variantGroupUrl,
-        variant: variant,
-      });
-    } catch (e) {
-      this.handleCrawlDetailPageError(e, ctx);
-    } finally {
-      logProductScrapingInfo(ctx, productDetails);
-    }
+    return await this._handleDetailPage(ctx, { variantGroupUrl, variant });
   }
 
   async crawlDetailPageNoVariantExploration(
