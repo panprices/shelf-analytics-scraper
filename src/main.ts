@@ -29,7 +29,7 @@ async function debugScrapeDetails(targetUrl: string) {
   const detailedItems = await scrapeDetails(
     [dummyRequest],
     {
-      headless: false,
+      headless: true,
     },
     false,
     {
@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.ellos.se/venture-home/poster-siluette/1703349-01"
+  "https://www.homeroom.se/venture-home/baddsoffa-vicky/1666914-03-0"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

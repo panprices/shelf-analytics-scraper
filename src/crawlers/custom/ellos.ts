@@ -93,27 +93,6 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     }
   }
 
-  // Copied from this.crawlSingleDetailPage() for quick HACKY Bygghemma/Ellos solution
-  // where you set the variant = 0, 1, 2, ..., and the variant 0 will have
-  // its url changed to the variantGroupUrl.
-  override async crawlSingleDetailPage(
-    ctx: PlaywrightCrawlingContext,
-    variantGroupUrl: string,
-    variant: number
-  ): Promise<void> {
-    const productDetails = await this.extractProductDetails(ctx.page);
-    const request = ctx.request;
-
-    await this._detailsDataset.pushData(<DetailedProductInfo>{
-      fetchedAt: new Date().toISOString(),
-      retailerDomain: extractDomainFromUrl(ctx.page.url()),
-      ...request.userData,
-      ...productDetails,
-      variantGroupUrl: variantGroupUrl,
-      variant: variant,
-    });
-  }
-
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
     const page = ctx.page;
     const loadMoreButton = page.locator("div.load-more-button");
