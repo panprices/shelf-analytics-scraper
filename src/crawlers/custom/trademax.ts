@@ -1,7 +1,9 @@
 import {
   AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
+  VariantCrawlingStrategy,
 } from "../abstract";
 import { Locator, Page, selectors } from "playwright";
 import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
@@ -12,16 +14,24 @@ import {
   ListingProductInfo,
   OfferMetadata,
   ProductReviews,
+  Specification,
 } from "../../types/offer";
 import { extractDomainFromUrl } from "../../utils";
-import { isProductPage, getVariantUrlsFromSchemaOrg } from "./base-chill";
+import {
+  isProductPage,
+  getVariantUrlsFromSchemaOrg,
+  extractCardProductInfo as baseExtractCardProductInfo,
+} from "./base-chill";
 import { PageNotFoundError } from "../../types/errors";
 
-export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
+export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 36;
 
-  constructor(options: CrawlerDefinitionOptions) {
-    super(options);
+  constructor(
+    options: CrawlerDefinitionOptions,
+    variantCrawlingStrategy: VariantCrawlingStrategy
+  ) {
+    super(options, variantCrawlingStrategy);
 
     this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", (_) =>
       this.crawlIntermediateLowerCategoryPage(_)
@@ -69,92 +79,11 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     }
   }
 
-  /**
-   * Need to override this so that since 1 product may have multiple colour variants
-   * => Multiple products from 1 original url, each has their own GTIN/SKU.
-   */
-  override async crawlDetailPage(
-    ctx: PlaywrightCrawlingContext
-  ): Promise<void> {
-    await super.crawlDetailPage(ctx);
-
-    if (this.launchOptions?.ignoreVariants) {
-      return;
-    }
-    if (!isProductPage(ctx.page.url())) {
-      return;
-    }
-
-    const variantUrls = await getVariantUrlsFromSchemaOrg(ctx.page);
-    if (variantUrls) {
-      await ctx.enqueueLinks({
-        urls: variantUrls,
-        label: "DETAIL",
-        userData: ctx.request.userData,
-      });
-    }
-
-    // Enqueue the main variant group where you have a.href:
-    await ctx.enqueueLinks({
-      selector: "div#possibleVariants a",
-      label: "DETAIL",
-      userData: ctx.request.userData,
-    });
-
-    // Check for secondary variant group where you don't have a.href.
-    // Try to click buttons and enqueue new links:
-    const secondaryVariantButtons = ctx.page.locator(
-      "div[data-cy='product_variant_link']"
-    );
-    const secondaryVariantButtonsCount = await secondaryVariantButtons.count();
-    console.log("Variant counts: " + secondaryVariantButtonsCount);
-    // Always have one button grayed out which is the current selected variant,
-    // so we only try to enqueue more if there are at least 1 more.
-    if (secondaryVariantButtonsCount >= 2) {
-      for (let i = 0; i < secondaryVariantButtonsCount; i++) {
-        await secondaryVariantButtons.nth(i).click();
-        await ctx.page.waitForTimeout(1500);
-
-        await ctx.enqueueLinks({
-          urls: [ctx.page.url()],
-          label: "DETAIL",
-          userData: ctx.request.userData,
-        });
-      }
-    }
-  }
-
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const name = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//h3[contains(@class, 'ProductCardTitle__global')]",
-        (node) => node.textContent()
-      )
-    );
-    const url = <string>(
-      await this.extractProperty(productCard, "..//a[1]", (node) =>
-        node.getAttribute("href")
-      )
-    );
-
-    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator("div#breadcrumbs a"),
-      1,
-      productCard.page().locator("div#breadcrumbs > div > span")
-    );
-
-    const result: ListingProductInfo = {
-      name,
-      url,
-      categoryUrl,
-      popularityCategory: categoryTree,
-    };
-
-    return result;
+    return baseExtractCardProductInfo(this, categoryUrl, productCard);
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -162,108 +91,94 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
       throw new PageNotFoundError("Page not found");
     }
 
-    await page.waitForSelector("h1[data-cy='product_title']");
+    await page.waitForSelector("main div.bw h1");
     await this.handleCookieConsent(page);
 
-    const metadata: OfferMetadata = {};
-    const schemaOrgString = <string>(
-      await page
-        .locator(
-          "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
-        )
-        .textContent()
-    );
-    metadata.schemaOrg = JSON.parse(schemaOrgString);
-
-    const mpn = metadata.schemaOrg?.mpn;
-
-    const product_name = await page
-      .locator("h1[data-cy='product_title']")
-      .textContent();
-    const price_text = await page
-      .locator("div#productInfoPrice div[data-cy='current-price']")
-      .textContent();
-    const price = Number(price_text?.replace(" ", ""));
-
-    const imagesPreviewLocator = await page.locator(
-      "//div[contains(@class, 'ProductInfoSliderNavigation__global')]//div[contains(@class, 'slick-track')]//div[contains(@class, 'slick-slide')]"
-    );
-    const imagesCount = await imagesPreviewLocator.count();
-    for (let i = 0; i < imagesCount; i++) {
-      const currentImagePreview = imagesPreviewLocator.nth(i);
-      await currentImagePreview.click();
-      await page.waitForTimeout(50);
+    const productName = await page
+      .locator("main div.bw h1")
+      .textContent()
+      .then((text) => text?.trim());
+    if (!productName) {
+      throw new Error("Cannot extract productName");
     }
-    const images = await page
-      .locator("div#productInfoImage figure img")
-      .evaluateAll((list: HTMLElement[]) =>
-        list.map((element) => <string>element.getAttribute("src"))
-      );
 
-    const breadcrumbLocator = page.locator("div#breadcrumbs a");
+    const priceText = await page
+      .locator("main div.bw.hh div.jb.jc")
+      .textContent()
+      .then((text) => text?.trim());
+    const price = priceText
+      ? parseInt(
+          priceText?.replace("SEK", "").replace(":-", "").replace(/\s/g, "")
+        )
+      : undefined;
+
+    const images = await this.extractImageFromProductPage(page);
+
+    const breadcrumbLocator = page.locator("main nav span a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
 
     const brand = await this.extractProperty(
       page,
-      "//span[contains(strong/text(), ('Varumärke'))]/span/a",
+      "main div.bw.hh > div > a",
       (node) => node.textContent()
+    ).then((text) => text?.trim());
+    const brandUrl = await this.extractProperty(
+      page,
+      "main div.bw.hh > div > a",
+      (node) => node.getAttribute("href")
     );
+
     const originalPriceString = await this.extractProperty(
       page,
       "xpath=(//div[contains(@class, 'productInfoContent--buySectionBlock')]//div[@data-cy = 'original-price'])[1]",
       (node) => node.textContent()
     );
+    const isDiscounted = originalPriceString !== undefined;
+    const originalPrice = originalPriceString
+      ? parseInt(
+          originalPriceString
+            .replace("SEK", "")
+            .replace(":-", "")
+            .replace(/\s/g, "")
+        )
+      : undefined;
 
     let articleNumber = undefined,
-      specArray = [];
+      specifications: Specification[] = [];
     try {
       const specificationsExpander = page.locator(
-        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Specifikationer']"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']"
       );
-      await specificationsExpander.click({ timeout: 10000 });
+      await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//div[contains(@class, 'articleNumber')]/span"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[2]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//div[contains(@class, 'articleNumber')]/span",
+        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[2]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
-      const specifications = specificationsExpander.locator("..//tr");
-      const specificationsCount = await specifications.count();
-      specArray = [];
-      for (let i = 0; i < specificationsCount; i++) {
-        const specLocator = specifications.nth(i);
-        const specKey = <string>(
-          await specLocator.locator("xpath=.//td[1]").textContent()
-        );
-        const specValue = <string>(
-          await specLocator.locator("xpath=.//td[2]").textContent()
-        );
 
-        specArray.push({
-          key: specKey,
-          value: specValue,
-        });
-      }
+      specifications = await this.extractSpecificationsFromTable(
+        specificationsExpander.locator("//tr/td[1]"),
+        specificationsExpander.locator("//tr/td[2]")
+      );
     } catch (e) {
       log.info(`Specification not found for product with url: ${page.url()}`);
+      log.debug(`Scrape specification error`, { e });
     }
 
     let description;
     try {
       const descriptionExpander = page.locator(
-        "//div[contains(@class, 'accordion--title') and .//span/text() = 'Produktinformation']"
+        "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']"
       );
-      await descriptionExpander.click({ timeout: 10000 });
-
-      description = <string>(
-        await this.extractProperty(
-          descriptionExpander,
-          "..//div[contains(@class, 'accordion--content')]",
-          (node) => node.textContent()
-        )
-      );
+      await descriptionExpander.click({ timeout: 5000 });
+      description = await this.extractProperty(
+        page,
+        "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']/div",
+        (node) => node.innerText()
+      ).then((text) => text?.trim());
     } catch (e) {
       log.info(`Description not found for product with url: ${page.url()}`);
       description = undefined;
@@ -347,33 +262,134 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     const availability =
       (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
-    const intermediateResult: DetailedProductInfo = {
-      name: <string>product_name,
-      price,
-      currency: "SEK",
-      images,
+    const metadata: OfferMetadata = {};
+    const schemaOrgString = <string>(
+      await page
+        .locator(
+          "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
+        )
+        .textContent()
+    );
+    metadata.schemaOrg = JSON.parse(schemaOrgString);
+
+    const mpn = metadata.schemaOrg?.mpn;
+
+    return {
+      name: productName,
+      brand,
+      brandUrl,
       description,
       url: page.url(),
-      isDiscounted: originalPriceString !== undefined,
-      brand,
-      categoryTree,
-      reviews: reviewSummary,
+      price,
+      currency: "SEK",
+      isDiscounted,
+      originalPrice,
 
+      gtin: undefined,
       sku: articleNumber,
       mpn,
 
-      specifications: specArray,
       availability,
+      images,
+      reviews: reviewSummary,
+      specifications,
+      categoryTree,
       metadata,
     };
+  }
 
-    if (originalPriceString) {
-      intermediateResult.originalPrice = Number(
-        originalPriceString.replace("SEK", "").replace(/\s/g, "")
-      );
+  override async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary>,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void> {
+    const paramsImageVariantGroupCount =
+      (await ctx.page.locator("main div.bw.hh a:has(img)").count()) > 0 ? 1 : 0;
+    const paramsSidebarVariantGroupCount =
+      (await ctx.page.locator("main div.bw.hh ul li button").count()) > 0
+        ? 1
+        : 0;
+
+    if (paramIndex < paramsImageVariantGroupCount) {
+      await ctx.page
+        .locator("main div.bw.hh a:has(img)")
+        .nth(optionIndex)
+        .click({ force: true });
+    } else if (
+      paramIndex <
+      paramsImageVariantGroupCount + paramsSidebarVariantGroupCount
+    ) {
+      await this.openVariantSidebar(ctx.page);
+      const button = await ctx.page
+        .locator("main div.bw.hh ul li button:has(div)")
+        .nth(optionIndex);
+      if (await button.isDisabled()) {
+        // the variant is already selected -> do nothing
+      } else {
+        await button.click();
+      }
+      await this.closeVariantSidebar(ctx.page);
     }
+  }
+  override async hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext<Dictionary>,
+    _paramIndex: number
+  ): Promise<boolean> {
+    // There is always a selected option on trademax.se
+    return true;
+  }
+  override async getOptionsCountForParamIndex(
+    ctx: PlaywrightCrawlingContext<Dictionary>,
+    paramIndex: number
+  ): Promise<number> {
+    // Trademax only have one "choose colour from list" selector and one
+    // "choose size from sidebar" selector
+    const paramsImageVariantGroupCount =
+      (await ctx.page.locator("main div.bw.hh a:has(img)").count()) > 0 ? 1 : 0;
+    const paramsSidebarVariantGroupCount =
+      (await ctx.page.locator("main div.bw.hh ul li button").count()) > 0
+        ? 1
+        : 0;
 
-    return intermediateResult;
+    if (paramIndex < paramsImageVariantGroupCount) {
+      return ctx.page.locator("main div.bw.hh a:has(img)").count();
+    } else if (
+      paramIndex <
+      paramsImageVariantGroupCount + paramsSidebarVariantGroupCount
+    ) {
+      await this.openVariantSidebar(ctx.page);
+      const optionsCount = ctx.page
+        .locator("main div.bw.hh ul li button:has(div)")
+        .count();
+      await this.closeVariantSidebar(ctx.page);
+
+      return optionsCount;
+    } else {
+      return 0;
+    }
+  }
+  override async checkInvalidVariant(
+    _: PlaywrightCrawlingContext<Dictionary>,
+    _currentOption: number[]
+  ): Promise<boolean> {
+    // Cannot select invalid variants on trademax
+    return false;
+  }
+
+  async openVariantSidebar(page: Page): Promise<void> {
+    await page.locator("main div.bw.hh ul li button").first().click();
+    // Wait for the sidebar to pop up:
+    await page
+      .locator("main div.bw.hh ul li button:has(div)")
+      .first()
+      .waitFor();
+    await page.waitForLoadState("networkidle");
+  }
+  async closeVariantSidebar(page: Page): Promise<void> {
+    await page
+      .locator("main div.bw.hh ul button[aria-label='Stäng']")
+      .first()
+      .click();
   }
 
   override async crawlIntermediateCategoryPage(
@@ -409,6 +425,30 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
     });
   }
 
+  async extractImageFromProductPage(page: Page): Promise<string[]> {
+    const imagesPreviewLocator = page.locator(
+      "main div.bw div.z.o  div[style] > div > img.cr"
+    );
+    const imagesCount = await imagesPreviewLocator.count();
+    for (let i = 0; i < imagesCount; i++) {
+      const currentImagePreview = imagesPreviewLocator.nth(i);
+      await currentImagePreview.click();
+      await page.waitForTimeout(50);
+    }
+
+    const imageUrls = [];
+    for (const img of await page
+      .locator("main div.bw div.z.o  div[style] > div > img[sizes]")
+      .all()) {
+      const url = await img.getAttribute("src");
+      if (url) {
+        imageUrls.push(url);
+      }
+    }
+
+    return imageUrls;
+  }
+
   static async create(
     launchOptions: CrawlerLaunchOptions
   ): Promise<TrademaxCrawlerDefinition> {
@@ -417,15 +457,18 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinition {
         launchOptions?.uniqueCrawlerKey
       );
 
-    return new TrademaxCrawlerDefinition({
-      detailsDataset,
-      listingDataset,
-      listingUrlSelector: "//div[@data-cy = 'pagination_controls']/a",
-      detailsUrlSelector: "//a[contains(@class, 'ProductCard_card__global')]",
-      productCardSelector: "//a[contains(@class, 'ProductCard_card__global')]",
-      cookieConsentSelector: "#onetrust-accept-btn-handler",
-      dynamicProductCardLoading: false,
-      launchOptions,
-    });
+    return new TrademaxCrawlerDefinition(
+      {
+        detailsDataset,
+        listingDataset,
+        listingUrlSelector: "div.d9 div.cz > div > a",
+        detailsUrlSelector: "li a[role='article']",
+        productCardSelector: "li a[role='article']",
+        cookieConsentSelector: "#onetrust-accept-btn-handler",
+        dynamicProductCardLoading: false,
+        launchOptions,
+      },
+      "same_tab"
+    );
   }
 }
