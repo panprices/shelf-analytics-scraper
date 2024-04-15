@@ -6,17 +6,11 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import {
-  Category,
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
-  OfferMetadata,
   ProductReviews,
-  SchemaOrg,
 } from "../../types/offer";
-import { extractNumberFromText, extractDomainFromUrl } from "../../utils";
 import { extractImagesFromDetailedPage } from "./base-homeroom";
-import { scrollToBottomV2 } from "../scraper-utils";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   // protected override categoryPageSize: number = 56;

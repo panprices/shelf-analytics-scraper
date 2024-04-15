@@ -123,7 +123,10 @@ export abstract class AbstractCrawlerDefinition
   implements CrawlerDefinition<PlaywrightCrawlingContext>
 {
   protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
-  protected readonly _detailsDataset: Dataset;
+
+  // Do not make this protected or public all pushes to the dataset should be done through
+  // the current class, to handle other actions such as logging and screenshots
+  private readonly _detailsDataset: Dataset;
   protected readonly _cloudBlobStorage: BlobStorage;
 
   protected readonly listingUrlSelector?: string;
@@ -269,7 +272,7 @@ export abstract class AbstractCrawlerDefinition
       .then(() => log.info(`Uploaded screenshot of page: ${url}`));
   }
 
-  async _handleDetailPage(
+  async handleDetailPage(
     ctx: PlaywrightCrawlingContext,
     additionalFields: Partial<DetailedProductInfo> = {}
   ) {
@@ -303,7 +306,7 @@ export abstract class AbstractCrawlerDefinition
    * This method also saves to a crawlee `Dataset`. In the future it has to save to an external storage like firestore
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    return await this._handleDetailPage(ctx);
+    return await this.handleDetailPage(ctx);
   }
 
   /**
@@ -857,7 +860,10 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     variantGroupUrl: string,
     variant: number
   ): Promise<void> {
-    return await this._handleDetailPage(ctx, { variantGroupUrl, variant });
+    return await this.handleDetailPage(ctx, {
+      variantGroupUrl,
+      variant,
+    });
   }
 
   async crawlDetailPageNoVariantExploration(
@@ -902,7 +908,10 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     }
   }
 
-  async getCurrentVariantUrl(page: Page): Promise<string> {
+  async getCurrentVariantUrl(
+    page: Page,
+    _currentOption?: number[]
+  ): Promise<string> {
     return Promise.resolve(page.url());
   }
 
@@ -970,7 +979,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       if (parameterIndex !== 0) {
         newPageState = await this.waitForChanges(ctx, pageState, 10000);
 
-        const url = await this.getCurrentVariantUrl(ctx.page);
+        const url = await this.getCurrentVariantUrl(ctx.page, currentOption);
         if (this.variantCrawlingStrategy === "new_tabs") {
           log.debug(
             `Exploring variants space, current option: \

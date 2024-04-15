@@ -1,28 +1,24 @@
-import { chromium, Locator, Page } from "playwright";
-import {
-  browserCrawlerEnqueueLinks,
-  Dataset,
-  Dictionary,
-  log,
-  PlaywrightCrawlingContext,
-} from "crawlee";
-import { v4 as uuidv4 } from "uuid";
+import { Locator, Page } from "playwright";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
-  Category,
+  AbstractCrawlerDefinition,
+  AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
+} from "../abstract";
+import {
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
-  OfferMetadata,
-  ProductReviews,
-  SchemaOrg,
   Specification,
 } from "../../types/offer";
-import { extractNumberFromText, extractDomainFromUrl } from "../../utils";
-import { count } from "console";
+import { extractNumberFromText } from "../../utils";
 
-export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
+export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
+  constructor(options: CrawlerDefinitionOptions) {
+    super(options, "same_tab");
+  }
+
   override async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
@@ -50,100 +46,6 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       categoryUrl,
       popularityCategory: categoryTree,
     };
-  }
-
-  override async crawlDetailPage(
-    ctx: PlaywrightCrawlingContext
-  ): Promise<void> {
-    console.log("Has variant:" + (await this.hasVariant(ctx.page)));
-
-    if (await this.hasVariant(ctx.page)) {
-      await this.crawlVariantPage(ctx);
-    } else {
-      await super.crawlDetailPage(ctx);
-    }
-  }
-
-  async hasVariant(page: Page): Promise<boolean> {
-    // If there is a normal price, it means that the product has no variants.
-    // Otherwise it has variants.
-    try {
-      const prices = await page
-        .locator(".ProductVariantPrice")
-        .allTextContents();
-
-      if (prices.length > 1) {
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-
-    return false;
-  }
-
-  async crawlVariantPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    const page = ctx.page;
-
-    const names = await page.locator(".ProductVariantName").allTextContents();
-    const nrProducts = names.length;
-    const prices = await page
-      .locator(".ProductVariantPrice")
-      .allTextContents()
-      .then((prices) => prices.map((price) => extractNumberFromText(price)));
-    const skus = await this.extractVariantSKUs(page);
-
-    const variantSpecifications: Specification[][] = Array.from(
-      { length: nrProducts },
-      () => [] as Specification[]
-    );
-
-    const specKeys = await page
-      .locator(".CompareBoxHolder table td.attribName")
-      .allTextContents()
-      .then((textContents) => textContents.slice(1).map((text) => text.trim()));
-    const specVals = await page
-      .locator(".CompareBoxHolder table td.attribValue")
-      .allTextContents()
-      .then((textContents) =>
-        textContents.slice(nrProducts).map((text) => text.trim())
-      );
-    if (specKeys.length * nrProducts !== specVals.length) {
-      throw new Error("Number of specification keys and vals mismatch");
-    }
-    for (let i = 0; i < specKeys.length; i++) {
-      for (let variantIndex = 0; variantIndex < nrProducts; variantIndex++) {
-        variantSpecifications[variantIndex].push({
-          key: specKeys[i],
-          value: specVals[i * nrProducts + variantIndex],
-        });
-      }
-    }
-
-    const baseProductDetails = await this.extractBaseProductDetails(page);
-    const products: DetailedProductInfo[] = names.map((name, i) => ({
-      ...baseProductDetails,
-      name,
-      price: prices[i],
-      sku: skus[i],
-      url: createVariantProductUrl(baseProductDetails.url, skus[i]),
-      specifications: baseProductDetails.specifications.concat(
-        variantSpecifications[i]
-      ),
-      variant: i,
-      variantGroupUrl: extractBaseProductUrl(baseProductDetails.url),
-    }));
-
-    const request = ctx.request;
-
-    for (const productDetails of products) {
-      await this._detailsDataset.pushData(<DetailedProductInfo>{
-        ...request.userData,
-        ...productDetails,
-        fetchedAt: new Date().toISOString(),
-        retailerDomain: extractDomainFromUrl(ctx.page.url()),
-      });
-    }
   }
 
   async extractVariantSKUs(page: Page): Promise<string[]> {
@@ -255,7 +157,7 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       imageUrls = schemaOrg?.image;
     }
 
-    const productInfo = {
+    return {
       brand,
       name: productName,
       description,
@@ -276,10 +178,6 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       categoryTree,
       metadata: {},
     };
-
-    console.log(productInfo);
-
-    return productInfo;
   }
 
   async extractImagesFromProductPage(page: Page): Promise<string[]> {
@@ -301,26 +199,87 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
     return [];
   }
 
+  private async extractAllVariants(page: Page): Promise<DetailedProductInfo[]> {
+    const names = await page.locator(".ProductVariantName").allTextContents();
+    const nrProducts = names.length;
+    const prices = await page
+      .locator(".ProductVariantPrice")
+      .allTextContents()
+      .then((prices) => prices.map((price) => extractNumberFromText(price)));
+    const skus = await this.extractVariantSKUs(page);
+
+    const variantSpecifications: Specification[][] = Array.from(
+      { length: nrProducts },
+      () => [] as Specification[]
+    );
+
+    const specKeys = await page
+      .locator(".CompareBoxHolder table td.attribName")
+      .allTextContents()
+      .then((textContents) => textContents.slice(1).map((text) => text.trim()));
+    const specVals = await page
+      .locator(".CompareBoxHolder table td.attribValue")
+      .allTextContents()
+      .then((textContents) =>
+        textContents.slice(nrProducts).map((text) => text.trim())
+      );
+    if (specKeys.length * nrProducts !== specVals.length) {
+      throw new Error("Number of specification keys and vals mismatch");
+    }
+    for (let i = 0; i < specKeys.length; i++) {
+      for (let variantIndex = 0; variantIndex < nrProducts; variantIndex++) {
+        variantSpecifications[variantIndex].push({
+          key: specKeys[i],
+          value: specVals[i * nrProducts + variantIndex],
+        });
+      }
+    }
+
+    const baseProductDetails = await this.extractBaseProductDetails(page);
+    return names.map((name, i) => ({
+      ...baseProductDetails,
+      name,
+      price: prices[i],
+      sku: skus[i],
+      url: page.url(),
+      specifications: baseProductDetails.specifications.concat(
+        variantSpecifications[i]
+      ),
+      variant: i,
+      variantGroupUrl: extractBaseProductUrl(baseProductDetails.url),
+    }));
+  }
+
   override async extractProductDetails(
     page: Page
   ): Promise<DetailedProductInfo> {
-    let price = undefined;
-    const priceText = await this.extractProperty(
-      page,
-      "div.productPrices span.currentprice",
-      (node) => node.textContent()
-    );
-    if (priceText) {
-      price = extractNumberFromText(priceText);
+    const separatedURL = page.url().split("#");
+    if (separatedURL.length === 1) {
+      const baseProductInfo = await this.extractBaseProductDetails(page);
+
+      let price = undefined;
+      const priceText = await this.extractProperty(
+        page,
+        "div.productPrices span.currentprice",
+        (node) => node.textContent()
+      );
+      if (priceText) {
+        price = extractNumberFromText(priceText);
+      }
+      // If no priceText => product is discontinued without a price
+
+      return {
+        ...baseProductInfo,
+        price,
+      };
     }
-    // If no priceText => product is discontinued without a price
 
-    const productInfo = {
-      ...(await this.extractBaseProductDetails(page)),
-      price,
-    };
-
-    return productInfo;
+    const variantSku = separatedURL[1];
+    const allVariantsData = await this.extractAllVariants(page);
+    return (
+      allVariantsData.find((variant) => variant.sku === variantSku) ??
+      allVariantsData[0]
+    );
   }
 
   override async crawlIntermediateCategoryPage(
@@ -371,17 +330,70 @@ export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinition {
       dynamicProductCardLoading: false,
     });
   }
+
+  checkInvalidVariant(
+    _: PlaywrightCrawlingContext,
+    __: number[]
+  ): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  async getOptionsCountForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    parameterIndex: number
+  ): Promise<number> {
+    // we have only one level of variants for Trendrum
+    if (parameterIndex !== 0) {
+      return 0;
+    }
+
+    const pricesForVariants = await ctx.page
+      .locator(".ProductVariantPrice")
+      .allTextContents();
+    return pricesForVariants.length;
+  }
+
+  hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext,
+    __: number
+  ): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+
+  async selectOptionForParamIndex(
+    ctx: PlaywrightCrawlingContext,
+    _: number,
+    optionIndex: number
+  ): Promise<void> {
+    const urlForOption = await this.getCurrentVariantUrl(ctx.page, [
+      optionIndex,
+    ]);
+    await ctx.page.goto(urlForOption, {
+      waitUntil: "domcontentloaded",
+    });
+    return Promise.resolve(undefined);
+  }
+
+  /**
+   * There is no selection made, so it makes no sense to wait for the state to change.
+   */
+  override async waitForChanges(): Promise<any> {
+    return Promise.resolve(0);
+  }
+
+  override async getCurrentVariantUrl(
+    page: Page,
+    currentOption?: number[]
+  ): Promise<string> {
+    if (!currentOption || currentOption.length === 0) {
+      return page.url();
+    }
+
+    const sku = (await this.extractVariantSKUs(page))[currentOption[0]];
+    return `${extractBaseProductUrl(page.url())}#${sku}`;
+  }
 }
 
 function extractBaseProductUrl(url: string) {
   return url.split("#")[0];
-}
-
-/**
- * Create a distinct product url for each variant.
- * This lets us store them as individual products in our database.
- */
-function createVariantProductUrl(productUrl: string, sku: string) {
-  const baseProductUrl = extractBaseProductUrl(productUrl);
-  return `${baseProductUrl}#${sku}`;
 }

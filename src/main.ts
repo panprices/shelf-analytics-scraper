@@ -29,7 +29,7 @@ async function debugScrapeDetails(targetUrl: string) {
   const detailedItems = await scrapeDetails(
     [dummyRequest],
     {
-      headless: true,
+      headless: false,
     },
     false,
     {
@@ -178,9 +178,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 //
-await debugScrapeDetails(
-  "https://www.homeroom.se/venture-home/baddsoffa-vicky/1666914-03-0"
-);
+await debugScrapeDetails("https://www.trendrum.se/madison-matta-rosa");
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
