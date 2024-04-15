@@ -1,7 +1,12 @@
+import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { exploreCategory, scrapeDetails } from "../src/service";
 import { ListingProductInfo } from "../src/types/offer";
 
 jest.setTimeout(300000);
+
+initializeApp({
+  credential: applicationDefault(),
+});
 
 function dummyRequest(targetUrl: string) {
   return {
@@ -9,7 +14,6 @@ function dummyRequest(targetUrl: string) {
     userData: {
       jobId: "job_test_1",
       url: targetUrl,
-      popularityIndex: 1,
       label: "DETAIL",
     },
   };
@@ -22,9 +26,9 @@ test("Category page", async () => {
     (res) => res.userData as ListingProductInfo
   );
 
-  expect(result).toHaveLength(90);
+  expect(result).toHaveLength(61);
   expect(result.map((p) => p.popularityCategory)).toEqual(
-    Array(90).fill([
+    Array(61).fill([
       {
         name: "Utemöbler",
         url: "https://www.trademax.se/utem%C3%B6bler",
@@ -60,7 +64,7 @@ test("1 variant groups - 3 variants", async () => {
 
   expect(result).toHaveLength(3);
   expect(result.map((p) => p.images.length)).toEqual([5, 5, 5]);
-  expect(result.map((p) => p.price)).toEqual([2349900, 2349900, 2349900]);
+  expect(result.map((p) => p.price)).toEqual([1699900, 1699900, 1699900]);
 });
 
 test("Variants in sidebar - 5 variants", async () => {
@@ -78,5 +82,5 @@ test("2 variant groups - 24 variants", async () => {
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
 
   expect(result).toHaveLength(24);
-  expect(result[0].images.length).toEqual(4);
+  expect(result[0].images.length).toEqual(10);
 });
