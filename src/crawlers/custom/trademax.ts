@@ -17,7 +17,11 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractDomainFromUrl } from "../../utils";
-import { isProductPage, getVariantUrlsFromSchemaOrg } from "./base-chill";
+import {
+  isProductPage,
+  getVariantUrlsFromSchemaOrg,
+  extractCardProductInfo as baseExtractCardProductInfo,
+} from "./base-chill";
 import { PageNotFoundError } from "../../types/errors";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
@@ -79,33 +83,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const name = <string>(
-      await this.extractProperty(
-        productCard,
-        "..//h3[contains(@class, 'ProductCardTitle__global')]",
-        (node) => node.textContent()
-      )
-    );
-    const url = <string>(
-      await this.extractProperty(productCard, "..//a[1]", (node) =>
-        node.getAttribute("href")
-      )
-    );
-
-    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator("div#breadcrumbs a"),
-      1,
-      productCard.page().locator("div#breadcrumbs > div > span")
-    );
-
-    const result: ListingProductInfo = {
-      name,
-      url,
-      categoryUrl,
-      popularityCategory: categoryTree,
-    };
-
-    return result;
+    return baseExtractCardProductInfo(this, categoryUrl, productCard);
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
