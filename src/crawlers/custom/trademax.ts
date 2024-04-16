@@ -89,6 +89,8 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   override async assertCorrectProductPage(
     ctx: PlaywrightCrawlingContext<Dictionary>
   ): Promise<void> {
+    await super.assertCorrectProductPage(ctx);
+
     if (!isProductPage(ctx.page.url())) {
       throw new PageNotFoundError("Url is not a product page url");
     }

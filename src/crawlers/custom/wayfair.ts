@@ -35,6 +35,8 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
   override async assertCorrectProductPage(
     ctx: PlaywrightCrawlingContext<Dictionary>
   ): Promise<void> {
+    await super.assertCorrectProductPage(ctx);
+
     const page = ctx.page;
     const url = page.url();
     const responseStatus = ctx.response?.status();
