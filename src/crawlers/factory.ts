@@ -121,6 +121,12 @@ export class CrawlerFactory {
       maxConcurrency: 4,
       maxRequestRetries: 2,
       navigationTimeoutSecs: 150,
+      failedRequestHandler: async (ctx) => {
+        await AbstractCrawlerDefinition.saveScreenshot(
+          ctx.page,
+          ctx.page.url()
+        );
+      },
       ...overrides,
       preNavigationHooks: [
         ...(overrides?.preNavigationHooks ?? []),

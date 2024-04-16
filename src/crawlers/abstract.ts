@@ -127,7 +127,8 @@ export abstract class AbstractCrawlerDefinition
   // Do not make this protected or public all pushes to the dataset should be done through
   // the current class, to handle other actions such as logging and screenshots
   private readonly _detailsDataset: Dataset;
-  protected readonly _cloudBlobStorage: BlobStorage;
+  protected static readonly _cloudBlobStorage: BlobStorage =
+    new GoogleCloudBlobStorage();
 
   protected readonly listingUrlSelector?: string;
   protected readonly productCardSelector?: string;
@@ -174,19 +175,23 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
-
-    this._cloudBlobStorage = new GoogleCloudBlobStorage();
   }
 
-  async __injectDateTime(page: Page): Promise<void> {
+  private static async __injectDateTime(page: Page): Promise<void> {
     // Inject HTML for the time display
     await page.evaluate(() => {
       const timeDisplay = document.createElement("div");
       timeDisplay.id = "current-time";
-      document.body.appendChild(timeDisplay);
+
+      const timeDisplayInner = document.createElement("div");
+      timeDisplayInner.id = "current-time-inner";
+      timeDisplay.appendChild(timeDisplayInner);
+
+      // Add the time display to the page
+      document.body.prepend(timeDisplay);
 
       // Set the time initially
-      timeDisplay.innerText = new Date().toLocaleString("sv-SE");
+      timeDisplayInner.innerText = new Date().toLocaleString("sv-SE");
     });
 
     // Inject CSS to style the time display and position it
@@ -195,23 +200,31 @@ export abstract class AbstractCrawlerDefinition
       // z-index is the highest possible value to avoid being overlapped by cookie consents
       style.textContent = `
       #current-time {
+        position: relative;
+        width: 100%;
+        height: 0;
+      }
+      
+      #current-time-inner {
         position: absolute;
-        bottom: 0;
-        left: 0;
+        top: 0;
+        right: 0;
+        width: 200px;
         background-color: black;
         color: white;
         padding: 5px;
         font-size: 16px;
         font-family: Arial, sans-serif;
-        z-index: 2147483647;
+        z-index: 2147483647;  
       }
     `;
       document.head.appendChild(style);
     });
   }
 
-  async __saveScreenshot(page: Page, url: string): Promise<void> {
-    await this.__injectDateTime(page);
+  public static async saveScreenshot(page: Page, url: string): Promise<void> {
+    await playwrightUtils.closeCookieModals(page);
+    await AbstractCrawlerDefinition.__injectDateTime(page);
 
     /**
      * Inspired by:
@@ -263,13 +276,17 @@ export abstract class AbstractCrawlerDefinition
       type: "jpeg",
       scale: "css",
     });
-    await this._cloudBlobStorage
-      .uploadFromBuffer(
-        screenshotBuffer,
-        `${crypto.createHash("md5").update(url).digest("hex")}.jpg`,
-        "image/jpeg"
-      )
-      .then(() => log.info(`Uploaded screenshot of page: ${url}`));
+    const screenshotName = `${crypto
+      .createHash("md5")
+      .update(url)
+      .digest("hex")}.jpg`;
+    await AbstractCrawlerDefinition._cloudBlobStorage
+      .uploadFromBuffer(screenshotBuffer, screenshotName, "image/jpeg")
+      .then(() =>
+        log.info(
+          `Uploaded screenshot of page: ${url}, with name ${screenshotName}`
+        )
+      );
   }
 
   async handleDetailPage(
@@ -293,7 +310,7 @@ export abstract class AbstractCrawlerDefinition
       this.handleCrawlDetailPageError(e, ctx);
     } finally {
       logProductScrapingInfo(ctx, productDetails);
-      await this.__saveScreenshot(
+      await AbstractCrawlerDefinition.saveScreenshot(
         ctx.page,
         productDetails ? productDetails.url : ctx.page.url()
       );
