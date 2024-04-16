@@ -29,7 +29,7 @@ async function debugScrapeDetails(targetUrl: string) {
   const detailedItems = await scrapeDetails(
     [dummyRequest],
     {
-      headless: true,
+      headless: false,
     },
     false,
     {
@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.venturedesign.se/products/stolsdyna-116x46-brun-1101-306"
+  "https://www.homeroom.se/venture-home/matgrupp-dennis-med-4-st-matstolar-levis/1650101-01-0"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

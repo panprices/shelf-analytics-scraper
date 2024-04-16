@@ -32,6 +32,10 @@ import { GoogleCloudBlobStorage } from "../blob-storage/google";
 import { getInjectableScript } from "idcac-playwright";
 import fs from "fs";
 
+export interface ScreenshotOptions {
+  hasBlockedImages?: boolean;
+}
+
 export interface CrawlerDefinitionOptions {
   /**
    * Keeps the detailed data about products, the one extracted from a product page
@@ -98,6 +102,13 @@ export interface CrawlerLaunchOptions {
    */
   ignoreVariants?: boolean;
   uniqueCrawlerKey: string;
+
+  /**
+   * Flag that tells the crawler whether the images were blocked or not.
+   * This helps the crawler know if it has to display a message that serves as a placeholder for the images in the
+   * screenshots.
+   */
+  hasBlockedImages?: boolean;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -147,6 +158,8 @@ export abstract class AbstractCrawlerDefinition
 
   private readonly productInfos: Map<string, ListingProductInfo>;
 
+  private readonly hasBlockedImages: boolean;
+
   protected constructor(options: CrawlerDefinitionOptions) {
     const crawlerDefinition = this;
 
@@ -177,6 +190,7 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
+    this.hasBlockedImages = options?.launchOptions?.hasBlockedImages ?? false;
   }
 
   private static async __injectDateTime(page: Page): Promise<void> {
@@ -267,9 +281,42 @@ export abstract class AbstractCrawlerDefinition
     }, idcacJS);
   }
 
-  public static async saveScreenshot(page: Page, url: string): Promise<void> {
+  private static async __insertMissingImagesMessage(page: Page): Promise<void> {
+    await page.evaluate(() => {
+      const imageElements = document.querySelectorAll("img");
+      imageElements.forEach((imageElement) => {
+        const explanatoryTag = document.createElement("p");
+        explanatoryTag.innerText =
+          "Images were removed from the screenshot, but you can see them at app.getloupe.co";
+
+        const explanatoryTagStyle = `
+                      position: absolute;
+                      top: 0;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: fit-content;
+                      width: fit-content;
+                      margin: auto;
+                      overflow-wrap: break-word;
+                  `;
+        explanatoryTag.setAttribute("style", explanatoryTagStyle);
+
+        imageElement.insertAdjacentElement("afterend", explanatoryTag);
+      });
+    });
+  }
+
+  public static async saveScreenshot(
+    page: Page,
+    url: string,
+    options: ScreenshotOptions = {}
+  ): Promise<void> {
     await AbstractCrawlerDefinition.__attemptCookieConsent(page);
     await AbstractCrawlerDefinition.__injectDateTime(page);
+    if (options.hasBlockedImages) {
+      await AbstractCrawlerDefinition.__insertMissingImagesMessage(page);
+    }
 
     /**
      * Inspired by:
@@ -359,7 +406,10 @@ export abstract class AbstractCrawlerDefinition
       logProductScrapingInfo(ctx, productDetails);
       await AbstractCrawlerDefinition.saveScreenshot(
         ctx.page,
-        productDetails ? productDetails.url : ctx.page.url()
+        productDetails ? productDetails.url : ctx.page.url(),
+        {
+          hasBlockedImages: this.hasBlockedImages,
+        }
       );
     }
   }

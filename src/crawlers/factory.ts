@@ -289,7 +289,11 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "trademax.se":
-        definition = await TrademaxCrawlerDefinition.create(launchOptions);
+        definition = await TrademaxCrawlerDefinition.create({
+          ...launchOptions,
+          // Removing images step 3. Let the default screenshot function know that there are no images
+          hasBlockedImages: true,
+        });
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -299,12 +303,25 @@ export class CrawlerFactory {
           proxyConfiguration: proxyConfiguration.SE,
           preNavigationHooks: [
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
-            ...blockImagesAndScriptsHooks,
+            ...blockImagesAndScriptsHooks, // Removing images Step 1. actual removing of images
           ],
+          failedRequestHandler: async (ctx) => {
+            // Removing images step 2. let the fallback screenshot function know that there are no images
+            await AbstractCrawlerDefinition.saveScreenshot(
+              ctx.page,
+              ctx.page.url(),
+              {
+                hasBlockedImages: true,
+              }
+            );
+          },
         };
         return [new PlaywrightCrawler(options), definition];
       case "chilli.se":
-        definition = await ChilliCrawlerDefinition.create(launchOptions);
+        definition = await ChilliCrawlerDefinition.create({
+          ...launchOptions,
+          hasBlockedImages: true,
+        });
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -316,10 +333,23 @@ export class CrawlerFactory {
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
           ],
+          failedRequestHandler: async (ctx) => {
+            // Removing images step 2. let the fallback screenshot function know that there are no images
+            await AbstractCrawlerDefinition.saveScreenshot(
+              ctx.page,
+              ctx.page.url(),
+              {
+                hasBlockedImages: true,
+              }
+            );
+          },
         };
         return [new PlaywrightCrawler(options), definition];
       case "furniturebox.se":
-        definition = await FurnitureboxCrawlerDefinition.create(launchOptions);
+        definition = await FurnitureboxCrawlerDefinition.create({
+          ...launchOptions,
+          hasBlockedImages: true,
+        });
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -331,6 +361,16 @@ export class CrawlerFactory {
             ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
             ...blockImagesAndScriptsHooks,
           ],
+          failedRequestHandler: async (ctx) => {
+            // Removing images step 2. let the fallback screenshot function know that there are no images
+            await AbstractCrawlerDefinition.saveScreenshot(
+              ctx.page,
+              ctx.page.url(),
+              {
+                hasBlockedImages: true,
+              }
+            );
+          },
         };
         return [new PlaywrightCrawler(options), definition];
       case "bernomobler.se":
