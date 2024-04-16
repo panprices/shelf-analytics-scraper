@@ -302,7 +302,7 @@ export abstract class AbstractCrawlerDefinition
     const currentScrollY = await page.evaluate(() => window.scrollY);
     const currentViewportSize = page.viewportSize();
 
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("networkidle").catch(() => {});
 
     /**
      * We are doing this rather than using the function `saveSnapshot` from crawlee utils
