@@ -230,10 +230,6 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          preNavigationHooks: [
-            ...(defaultOptions.preNavigationHooks as PlaywrightHook[]),
-            ...blockImagesAndScriptsHooks,
-          ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "nordiskarum.se":

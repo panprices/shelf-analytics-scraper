@@ -178,7 +178,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 //
-await debugScrapeDetails("https://www.amazon.de/-/en/dp/B0BDYTX3ZF");
+await debugScrapeDetails(
+  "https://www.venturedesign.se/products/stolsdyna-116x46-brun-1101-306"
+);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"

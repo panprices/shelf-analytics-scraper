@@ -1,7 +1,6 @@
 import { BlobStorage } from "./abstract";
 import { Storage, TransferManager } from "@google-cloud/storage";
 import * as Buffer from "node:buffer";
-import fs from "fs";
 
 export class GoogleCloudBlobStorage implements BlobStorage {
   private readonly __bucketName;
@@ -32,7 +31,6 @@ export class GoogleCloudBlobStorage implements BlobStorage {
     name: string,
     contentType: string
   ): Promise<void> {
-    fs.writeFileSync(`storage/screenshots/${name}`, buf);
     await this.__storage
       .bucket(this.__bucketName)
       .file(`screenshots/${name}`)
