@@ -337,7 +337,7 @@ export abstract class AbstractCrawlerDefinition
   }
 
   /**
-   * Check if the product page has any issue before trying to scrape it.
+   * Check for any issue in the product page before trying to scrape it.
    * E.g. check for 404 Page not found, redirect to a category page, ...
    */
   async assertCorrectProductPage(
