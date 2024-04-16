@@ -336,13 +336,31 @@ export abstract class AbstractCrawlerDefinition
       );
   }
 
+  /**
+   * Check if the product page has any issue before trying to scrape it.
+   * E.g. check for 404 Page not found, redirect to a category page, ...
+   */
+  async checkProductPageError(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<Error | null> {
+    if (ctx.response?.status() === 404) {
+      return new PageNotFoundError("404 Not Found");
+    }
+
+    return null;
+  }
+
   async handleDetailPage(
     ctx: PlaywrightCrawlingContext,
     additionalFields: Partial<DetailedProductInfo> = {}
   ) {
     log.info(`Looking at product with url ${ctx.page.url()}`);
     let productDetails = null;
+
     try {
+      const error = await this.checkProductPageError(ctx);
+      if (error) throw error;
+
       productDetails = await this.extractProductDetails(ctx.page);
 
       const request = ctx.request;
