@@ -29,6 +29,8 @@ import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils";
 import * as crypto from "crypto";
 import { BlobStorage } from "../blob-storage/abstract";
 import { GoogleCloudBlobStorage } from "../blob-storage/google";
+import { getInjectableScript } from "idcac-playwright";
+import fs from "fs";
 
 export interface CrawlerDefinitionOptions {
   /**
@@ -222,8 +224,51 @@ export abstract class AbstractCrawlerDefinition
     });
   }
 
+  /**
+   * Uses the logic of https://github.com/apify/idcac/, but instead of the compiled script we load the CSS script and
+   * JS script
+   *
+   * To update the version of the plugin:
+   * 1. Go to the plugin page. Ex: https://chromewebstore.google.com/detail/i-dont-care-about-cookies/fihnjjcciajhdojfnbdddfaoknhalnja
+   *  Notice the last part "fihnjjcciajhdojfnbdddfaoknhalnja" that's the id of the extension
+   * 2. Open up chromium and check the version we are currently using
+   *  Ex command: `open ~/Library/Caches/ms-playwright/chromium-1071/chrome-mac/Chromium.app`
+   * 3. Fill in the variables in the following URL:
+   *  https://clients2.google.com/service/update2/crx?response=redirect&prodversion=[chrome_version]&acceptformat=crx2,crx3&x=id%3D[extension_id]%26uc
+   * 4. Download the contents using curl and unzip the contents of the file
+   * 5. Drop that directory over "extenions/idcac"
+   *
+   * OBS: some of the logic might change between versions. Make sure we are still loading the correct files.
+   *
+   * @param page
+   * @private
+   */
+  private static async __attemptCookieConsent(page: Page): Promise<void> {
+    const idcacCSS = fs.readFileSync(
+      "extensions/idcac/data/css/common.css",
+      "utf-8"
+    );
+
+    await page.evaluate((customCss: string) => {
+      const styleTag = document.createElement("style");
+      styleTag.textContent = customCss;
+      document.head.appendChild(styleTag);
+    }, idcacCSS);
+
+    const idcacJS = fs.readFileSync(
+      "extensions/idcac/data/js/common.js",
+      "utf-8"
+    );
+
+    await page.evaluate((customJs: string) => {
+      const scriptTag = document.createElement("script");
+      scriptTag.textContent = customJs;
+      document.head.appendChild(scriptTag);
+    }, idcacJS);
+  }
+
   public static async saveScreenshot(page: Page, url: string): Promise<void> {
-    await playwrightUtils.closeCookieModals(page);
+    await AbstractCrawlerDefinition.__attemptCookieConsent(page);
     await AbstractCrawlerDefinition.__injectDateTime(page);
 
     /**
