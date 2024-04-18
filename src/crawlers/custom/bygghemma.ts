@@ -6,7 +6,6 @@ import {
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { extractDomainFromUrl } from "../../utils";
 import {
   DetailedProductInfo,
   ListingProductInfo,
@@ -23,6 +22,14 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     await ctx.page.evaluate(() => window.scrollTo(0, 500)); // to have the thumbnails in viewport
   }
 
+  override async handleCookieConsent(page: Page): Promise<void> {
+    await super.handleCookieConsent(page);
+    await BygghemmaCrawlerDefinition.clickOverlayButton(
+      page,
+      "div#modal button"
+    );
+  }
+
   /**
    * Need to override this so that since 1 product may have multiple colour variants
    * => Multiple products from 1 original url, each has their own GTIN/SKU.
@@ -31,11 +38,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
     await this.prepareHeadlessScreen(ctx);
-    await this.handleCookieConsent(ctx.page);
-    await BygghemmaCrawlerDefinition.clickOverlayButton(
-      ctx.page,
-      "div#modal button"
-    );
     await super.crawlDetailPage(ctx);
   }
 
@@ -222,19 +224,24 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
 
     const priceString = await this.extractProperty(
       page,
-      "div.gZqc6 div:first-child",
+      "div.gZqc6 div:first-child > span:first-child",
       (node) => node.textContent()
     );
     if (!priceString) throw new Error("Cannot extract priceString");
     const price = parsePrice(priceString);
 
-    const campaignBannerText = await this.extractProperty(
+    const originalPriceString = await this.extractProperty(
       page,
-      "div.gZqc6 div:last-child",
+      "div.gZqc6 div:first-child > span:last-child",
       (node) => node.textContent()
     );
-    const isDiscounted = !!campaignBannerText?.trim();
-    const originalPrice = undefined; // cannot find original price even if on campaign
+
+    const isDiscounted =
+      !!originalPriceString && originalPriceString !== priceString;
+    const originalPrice =
+      originalPriceString && originalPriceString !== priceString
+        ? parsePrice(originalPriceString)
+        : undefined;
 
     const images = await this.extractImages(page);
 

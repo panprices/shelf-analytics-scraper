@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.homeroom.se/venture-home/matgrupp-dennis-med-4-st-matstolar-levis/1650101-01-0"
+  "https://www.bygghemma.se/kok-och-bad/badrum/badrumsmobler/tvattstallsskap-och-kommod/tvattstallsskap-noro-studio/p-947204"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

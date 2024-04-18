@@ -355,7 +355,6 @@ export abstract class AbstractCrawlerDefinition
       })
       .then((h) => h.jsonValue());
 
-    await page.waitForLoadState("networkidle").catch(() => {});
     /**
      * We are doing this rather than using the function `saveSnapshot` from crawlee utils
      * because at the time of this writing that function was affected by an annoying bug that
@@ -387,6 +386,11 @@ export abstract class AbstractCrawlerDefinition
           `Uploaded screenshot of page: ${url}, with name ${screenshotName}`
         )
       );
+
+    // Recover after the screenshot
+    if (currentViewportSize) {
+      await page.setViewportSize(currentViewportSize);
+    }
   }
 
   async handleDetailPage(
@@ -1080,6 +1084,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     } catch (e) {
       log.warning("Failed to get options for param index: " + parameterIndex);
       log.debug("Trying to recover by navigation to group url");
+      await this.handleCookieConsent(ctx.page);
 
       await this.recoverState(ctx, currentOption, variantGroupUrl);
       try {
