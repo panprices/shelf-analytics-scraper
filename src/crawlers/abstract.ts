@@ -31,6 +31,7 @@ import { BlobStorage } from "../blob-storage/abstract";
 import { GoogleCloudBlobStorage } from "../blob-storage/google";
 import { getInjectableScript } from "idcac-playwright";
 import fs from "fs";
+import { join } from "path";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;
@@ -259,12 +260,16 @@ export abstract class AbstractCrawlerDefinition
       "extensions/idcac/data/css/common.css",
       "utf-8"
     );
+    const customCookieConsentSelectors = `
+      .needsclick, #coiOverlay, #kconsent
+      {display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}  
+    `;
 
     await page.evaluate((customCss: string) => {
       const styleTag = document.createElement("style");
       styleTag.textContent = customCss;
       document.head.appendChild(styleTag);
-    }, idcacCSS);
+    }, idcacCSS + "\n\n" + customCookieConsentSelectors);
 
     const idcacJS = fs.readFileSync(
       "extensions/idcac/data/js/common.js",

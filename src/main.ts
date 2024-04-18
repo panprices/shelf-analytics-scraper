@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.venturedesign.se/products/poster-window-light-30x40"
+  "https://www.nordiskarum.se/kenya-fatolj-1004-444.html"
 );
 
 // await debugScrapeDetailsRecordHARForTests(
