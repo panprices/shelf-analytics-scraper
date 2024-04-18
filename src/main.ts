@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.bygghemma.se/kok-och-bad/badrum/badrumsmobler/tvattstallsskap-och-kommod/tvattstallsskap-noro-studio/p-947204"
+  "https://www.venturedesign.se/products/poster-window-light-30x40"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

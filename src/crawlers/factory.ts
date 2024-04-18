@@ -226,10 +226,21 @@ export class CrawlerFactory {
         }
         return [new PlaywrightCrawler(options), definition];
       case "venturedesign.se":
-        definition = await VentureDesignCrawlerDefinition.create(launchOptions);
+        definition = await VentureDesignCrawlerDefinition.create({
+          ...launchOptions,
+          screenshotOptions: {
+            waitForNetwork: true,
+          },
+        });
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+          failedRequestHandler: async (ctx) => {
+            await AbstractCrawlerDefinition.saveScreenshot(
+              ctx.page,
+              ctx.page.url()
+            );
+          },
         };
         return [new PlaywrightCrawler(options), definition];
       case "nordiskarum.se":
@@ -292,7 +303,9 @@ export class CrawlerFactory {
         definition = await TrademaxCrawlerDefinition.create({
           ...launchOptions,
           // Removing images step 3. Let the default screenshot function know that there are no images
-          hasBlockedImages: true,
+          screenshotOptions: {
+            hasBlockedImages: true,
+          },
         });
         options = {
           ...defaultOptions,
@@ -320,7 +333,9 @@ export class CrawlerFactory {
       case "chilli.se":
         definition = await ChilliCrawlerDefinition.create({
           ...launchOptions,
-          hasBlockedImages: true,
+          screenshotOptions: {
+            hasBlockedImages: true,
+          },
         });
         options = {
           ...defaultOptions,
@@ -348,7 +363,9 @@ export class CrawlerFactory {
       case "furniturebox.se":
         definition = await FurnitureboxCrawlerDefinition.create({
           ...launchOptions,
-          hasBlockedImages: true,
+          screenshotOptions: {
+            hasBlockedImages: true,
+          },
         });
         options = {
           ...defaultOptions,

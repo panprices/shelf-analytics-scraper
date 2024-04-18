@@ -34,6 +34,7 @@ import fs from "fs";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;
+  waitForNetwork?: boolean;
 }
 
 export interface CrawlerDefinitionOptions {
@@ -103,12 +104,7 @@ export interface CrawlerLaunchOptions {
   ignoreVariants?: boolean;
   uniqueCrawlerKey: string;
 
-  /**
-   * Flag that tells the crawler whether the images were blocked or not.
-   * This helps the crawler know if it has to display a message that serves as a placeholder for the images in the
-   * screenshots.
-   */
-  hasBlockedImages?: boolean;
+  screenshotOptions?: ScreenshotOptions;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -190,7 +186,8 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
-    this.hasBlockedImages = options?.launchOptions?.hasBlockedImages ?? false;
+    this.hasBlockedImages =
+      options?.launchOptions?.screenshotOptions?.hasBlockedImages ?? false;
   }
 
   private static async __injectDateTime(page: Page): Promise<void> {
@@ -355,6 +352,10 @@ export abstract class AbstractCrawlerDefinition
       })
       .then((h) => h.jsonValue());
 
+    if (options.waitForNetwork) {
+      await page.waitForLoadState("networkidle");
+    }
+
     /**
      * We are doing this rather than using the function `saveSnapshot` from crawlee utils
      * because at the time of this writing that function was affected by an annoying bug that
@@ -417,9 +418,7 @@ export abstract class AbstractCrawlerDefinition
       await AbstractCrawlerDefinition.saveScreenshot(
         ctx.page,
         productDetails ? productDetails.url : ctx.page.url(),
-        {
-          hasBlockedImages: this.hasBlockedImages,
-        }
+        this.launchOptions?.screenshotOptions
       );
     }
   }
