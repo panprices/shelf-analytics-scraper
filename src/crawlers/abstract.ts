@@ -318,6 +318,14 @@ export abstract class AbstractCrawlerDefinition
       await AbstractCrawlerDefinition.__insertMissingImagesMessage(page);
     }
 
+    const currentViewportSize = page.viewportSize();
+    const currentScrollY = await page.evaluate(() => window.scrollY);
+    const totalViewedHeight =
+      currentScrollY + (currentViewportSize?.height ?? 0);
+
+    // Make screenshots more uniform
+    await page.setViewportSize({ width: 1280, height: 1000 });
+
     /**
      * Inspired by:
      * https://github.com/microsoft/playwright/blob/b5e36583f67745fddf32145fa2355e5f122c2903/packages/playwright-core/src/server/screenshotter.ts#L182-L200
@@ -346,11 +354,8 @@ export abstract class AbstractCrawlerDefinition
         };
       })
       .then((h) => h.jsonValue());
-    const currentScrollY = await page.evaluate(() => window.scrollY);
-    const currentViewportSize = page.viewportSize();
 
     await page.waitForLoadState("networkidle").catch(() => {});
-
     /**
      * We are doing this rather than using the function `saveSnapshot` from crawlee utils
      * because at the time of this writing that function was affected by an annoying bug that
@@ -363,12 +368,13 @@ export abstract class AbstractCrawlerDefinition
         x: 0,
         y: 0,
         width: fullPageSize?.width ?? 0,
-        height: currentScrollY + (currentViewportSize?.height ?? 0),
+        height: totalViewedHeight,
       },
       fullPage: true,
       quality: 40,
       type: "jpeg",
       scale: "css",
+      timeout: 40000,
     });
     const screenshotName = `${crypto
       .createHash("md5")
