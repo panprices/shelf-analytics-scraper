@@ -103,6 +103,8 @@ export interface RequestBatch {
 
 export interface RequestCategoryExploration {
   url: string;
+  retailerDomain: string;
+  country: string;
   jobContext: JobContext;
   overrides?: PlaywrightCrawlerOptions;
 }
