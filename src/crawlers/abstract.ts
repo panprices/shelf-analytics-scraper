@@ -399,13 +399,28 @@ export abstract class AbstractCrawlerDefinition
     }
   }
 
+  /**
+   * Check for any issue in the product page before trying to scrape it.
+   * E.g. check for 404 Page not found, redirect to a category page, ...
+   */
+  async assertCorrectProductPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    if (ctx.response?.status() === 404) {
+      throw new PageNotFoundError("404 Not Found");
+    }
+  }
+
   async handleDetailPage(
     ctx: PlaywrightCrawlingContext,
     additionalFields: Partial<DetailedProductInfo> = {}
   ) {
     log.info(`Looking at product with url ${ctx.page.url()}`);
     let productDetails = null;
+
     try {
+      this.assertCorrectProductPage(ctx);
+
       productDetails = await this.extractProductDetails(ctx.page);
 
       const request = ctx.request;

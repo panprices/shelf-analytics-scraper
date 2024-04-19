@@ -86,11 +86,17 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     return baseExtractCardProductInfo(this, categoryUrl, productCard);
   }
 
-  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    if (!isProductPage(page.url())) {
-      throw new PageNotFoundError("Page not found");
-    }
+  override async assertCorrectProductPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await super.assertCorrectProductPage(ctx);
 
+    if (!isProductPage(ctx.page.url())) {
+      throw new PageNotFoundError("Url is not a product page url");
+    }
+  }
+
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     await page.waitForSelector("main div.bw h1");
     await this.handleCookieConsent(page);
 
