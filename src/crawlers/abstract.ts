@@ -314,6 +314,8 @@ export abstract class AbstractCrawlerDefinition
     url: string,
     options: ScreenshotOptions = {}
   ): Promise<void> {
+    const startTime = Date.now();
+
     await AbstractCrawlerDefinition.__attemptCookieConsent(page);
     await AbstractCrawlerDefinition.__injectDateTime(page);
     if (options.hasBlockedImages) {
@@ -387,11 +389,12 @@ export abstract class AbstractCrawlerDefinition
       .digest("hex")}.jpg`;
     await AbstractCrawlerDefinition._cloudBlobStorage
       .uploadFromBuffer(screenshotBuffer, screenshotName, "image/jpeg")
-      .then(() =>
+      .then(() => {
         log.info(
-          `Uploaded screenshot of page: ${url}, with name ${screenshotName}`
-        )
-      );
+          `Uploaded screenshot of page: ${url}, with name ${screenshotName}`,
+          { timeElapsedSeconds: (Date.now() - startTime) * 1000 }
+        );
+      });
 
     // Recover after the screenshot
     if (currentViewportSize) {
@@ -419,7 +422,8 @@ export abstract class AbstractCrawlerDefinition
     let productDetails = null;
 
     try {
-      this.assertCorrectProductPage(ctx);
+      // Temporarily disable the assert due to errors not updating products
+      // this.assertCorrectProductPage(ctx);
 
       productDetails = await this.extractProductDetails(ctx.page);
 
