@@ -392,7 +392,7 @@ export abstract class AbstractCrawlerDefinition
       .then(() => {
         log.info(
           `Uploaded screenshot of page: ${url}, with name ${screenshotName}`,
-          { timeElapsedSeconds: (Date.now() - startTime) * 1000 }
+          { timeElapsedSeconds: (Date.now() - startTime) / 1000 }
         );
       });
 
