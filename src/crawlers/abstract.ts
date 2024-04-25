@@ -29,13 +29,23 @@ import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils";
 import * as crypto from "crypto";
 import { BlobStorage } from "../blob-storage/abstract";
 import { GoogleCloudBlobStorage } from "../blob-storage/google";
-import { getInjectableScript } from "idcac-playwright";
 import fs from "fs";
-import { join } from "path";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;
   waitForNetwork?: boolean;
+  /**
+   * Only works is `waitForNetwork` is set to true.
+   *
+   * If not defined the function will use the default timeout set by crawlee
+   */
+  waitForNetworkTimeout?: number;
+
+  customScreenshotResolution?: {
+    width: number;
+    height: number;
+  };
+  disablePageResize?: boolean;
 }
 
 export interface CrawlerDefinitionOptions {
@@ -106,6 +116,7 @@ export interface CrawlerLaunchOptions {
   uniqueCrawlerKey: string;
 
   screenshotOptions?: ScreenshotOptions;
+  shouldUseGenericCookieConsentLogic?: boolean;
 }
 
 export interface CheerioCrawlerDefinitionOptions {
@@ -261,7 +272,7 @@ export abstract class AbstractCrawlerDefinition
       "utf-8"
     );
     const customCookieConsentSelectors = `
-      .needsclick, #coiOverlay, #kconsent
+      .needsclick, #coiOverlay, #kconsent, .recommendation-modal__backdrop, .recommendation-modal__container, #CybotCookiebotDialog
       {display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}  
     `;
 
@@ -285,27 +296,46 @@ export abstract class AbstractCrawlerDefinition
 
   private static async __insertMissingImagesMessage(page: Page): Promise<void> {
     await page.evaluate(() => {
-      const imageElements = document.querySelectorAll("img");
-      imageElements.forEach((imageElement) => {
-        const explanatoryTag = document.createElement("p");
-        explanatoryTag.innerText =
-          "Images were removed from the screenshot, but you can see them at app.getloupe.co";
+      const imagesMessageParentDiv = document.createElement("div");
+      imagesMessageParentDiv.id = "images-message";
 
-        const explanatoryTagStyle = `
-                      position: absolute;
-                      top: 0;
-                      bottom: 0;
-                      left: 0;
-                      right: 0;
-                      height: fit-content;
-                      width: fit-content;
-                      margin: auto;
-                      overflow-wrap: break-word;
-                  `;
-        explanatoryTag.setAttribute("style", explanatoryTagStyle);
+      const imagesMessageInnerDiv = document.createElement("div");
+      imagesMessageInnerDiv.id = "images-message-inner";
+      imagesMessageParentDiv.appendChild(imagesMessageInnerDiv);
 
-        imageElement.insertAdjacentElement("afterend", explanatoryTag);
-      });
+      // Add the time display to the page
+      document.body.prepend(imagesMessageParentDiv);
+
+      // Set the time initially
+      imagesMessageInnerDiv.innerText =
+        "Images were removed from the screenshot, but you can see them at app.getloupe.co";
+    });
+
+    // Inject CSS to style the Image message and position it
+    await page.evaluate(() => {
+      const style = document.createElement("style");
+      // z-index is the highest possible value to avoid being overlapped by cookie consents
+      style.textContent = `
+      #images-message {
+        position: relative;
+        width: 100%;
+        height: 0;
+      }
+      
+      #images-message-inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: fit-content;
+        background-color: black;
+        color: white;
+        padding: 5px;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        z-index: 2147483647;  
+      }
+    `;
+      document.head.appendChild(style);
     });
   }
 
@@ -327,8 +357,12 @@ export abstract class AbstractCrawlerDefinition
     const totalViewedHeight =
       currentScrollY + (currentViewportSize?.height ?? 0);
 
-    // Make screenshots more uniform
-    await page.setViewportSize({ width: 1280, height: 1000 });
+    if (!options.disablePageResize) {
+      // Make screenshots more uniform
+      await page.setViewportSize(
+        options.customScreenshotResolution ?? { width: 1280, height: 1000 }
+      );
+    }
 
     /**
      * Inspired by:
@@ -360,8 +394,14 @@ export abstract class AbstractCrawlerDefinition
       .then((h) => h.jsonValue());
 
     if (options.waitForNetwork) {
-      await page.waitForLoadState("networkidle");
+      await page
+        .waitForLoadState("networkidle", {
+          timeout: options.waitForNetworkTimeout,
+        })
+        .catch(() => log.warning("Waited for networkidle but it timed out"));
     }
+
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
 
     /**
      * We are doing this rather than using the function `saveSnapshot` from crawlee utils
@@ -397,9 +437,13 @@ export abstract class AbstractCrawlerDefinition
       });
 
     // Recover after the screenshot
-    if (currentViewportSize) {
+    if (currentViewportSize && !options.disablePageResize) {
       await page.setViewportSize(currentViewportSize);
     }
+    await page.evaluate(
+      (topScroll: number) => window.scrollTo({ top: topScroll }),
+      currentScrollY
+    );
   }
 
   /**
@@ -421,6 +465,9 @@ export abstract class AbstractCrawlerDefinition
     log.info(`Looking at product with url ${ctx.page.url()}`);
     let productDetails = null;
 
+    if (this.launchOptions?.shouldUseGenericCookieConsentLogic) {
+      await AbstractCrawlerDefinition.__attemptCookieConsent(ctx.page);
+    }
     try {
       // Temporarily disable the assert due to errors not updating products
       // this.assertCorrectProductPage(ctx);

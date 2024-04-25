@@ -179,7 +179,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // );
 //
 await debugScrapeDetails(
-  "https://www.nordiskarum.se/kenya-fatolj-1004-444.html"
+  "https://www.wayfair.de/garten/pdp/garten-living-6-tlg-verstellbares-gartenstuhl-set-copacabana-d001887028.html"
 );
 
 // await debugScrapeDetailsRecordHARForTests(

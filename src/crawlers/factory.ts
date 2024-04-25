@@ -58,6 +58,7 @@ import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
 import { HMCrawlerDefinition } from "./custom/hm";
+import fs from "fs";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -155,23 +156,18 @@ export class CrawlerFactory {
 
     const blockImagesAndScriptsHooks: PlaywrightHook[] = [
       async ({ page }) => {
-        await page.route("**/*", (route) => {
-          const base64Image =
-            "data:image/png;base64," +
-            "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9ElEQVQ4jWP4//8/" +
-            "AyWMyvIyMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCzMDAwMDCz" +
-            "MDAwMDCzMDAwMDCzMDAwMDAwoJjKUEl6AEmU6zQAe3/8nGxjKQNsbMDEyM///n19nJpMjR9zVlZUDcwufmBoKkCGxkA/" +
-            "g+VHlpDQACAKrE1fJ5eYZMAAAAASUVORK5CYII=";
+        const noImageReplacer = fs.readFileSync("resources/no_image.png");
 
+        await page.route("**/*", (route) => {
           return route.request().resourceType() === "image"
             ? route.fulfill({
                 contentType: "image/png",
-                body: Buffer.from(base64Image.split(",")[1], "base64"),
+                body: noImageReplacer,
               })
             : route.continue();
         });
 
-        Promise.all(
+        await Promise.all(
           [
             "https://www.googletagmanager.com",
             "https://cdn.cookielaw.org",
@@ -245,7 +241,22 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "nordiskarum.se":
-        definition = await NordiskaRumCrawlerDefinition.create(launchOptions);
+        definition = await NordiskaRumCrawlerDefinition.create({
+          ...launchOptions,
+          screenshotOptions: {
+            waitForNetwork: true,
+            /**
+             * Nordiskarum's website doesn't show the main image anymore if the screen is under a certain width.
+             *
+             * When taking the screenshot playwright briefly opens the developer tools, which makes the available
+             * width of the page small enough to hide the main image. The actual screenshot is taken without the
+             * developer tools open, but it seems the website doesn't have enough time to recover from one state
+             * to the other. By giving it a larger screen width, we make sure the main image is still visible even
+             * with developer tools open.
+             */
+            customScreenshotResolution: { width: 1960, height: 1000 },
+          },
+        });
         options = {
           ...defaultOptions,
           maxConcurrency: 5,
@@ -285,7 +296,13 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "unoliving.com":
-        definition = await UnolivingCrawlerDefinition.create(launchOptions);
+        definition = await UnolivingCrawlerDefinition.create({
+          ...launchOptions,
+          screenshotOptions: {
+            waitForNetwork: true,
+            waitForNetworkTimeout: 4000,
+          },
+        });
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -453,7 +470,10 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "wayfair.de":
-        definition = await WayfairCrawlerDefinition.create(launchOptions);
+        definition = await WayfairCrawlerDefinition.create({
+          ...launchOptions,
+          screenshotOptions: { disablePageResize: true },
+        });
         options = {
           ...defaultOptions,
           launchContext: {
@@ -525,7 +545,10 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
       case "nordlyliving.dk":
-        definition = await NordlyLivingCrawlerDefinition.create(launchOptions);
+        definition = await NordlyLivingCrawlerDefinition.create({
+          ...launchOptions,
+          shouldUseGenericCookieConsentLogic: true,
+        });
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

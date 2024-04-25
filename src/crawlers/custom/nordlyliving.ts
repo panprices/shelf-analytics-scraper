@@ -100,7 +100,7 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
     if (!price) throw Error("Price not found");
 
     return {
-      price: Number(price),
+      price: Number(price.replace(/[^0-9,\\. ]/g, "")),
       currency: "DKK",
       isDiscounted: salePriceExists,
       originalPrice: originalPrice ? Number(originalPrice) : undefined,
