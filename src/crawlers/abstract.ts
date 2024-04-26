@@ -810,14 +810,14 @@ export abstract class AbstractCrawlerDefinition
   }
 
   async handleCookieConsent(page: Page): Promise<void> {
-    if (this.crawlerOptions.cookieConsentSelector === undefined) {
-      return;
+    if (this.crawlerOptions.cookieConsentSelector) {
+      await AbstractCrawlerDefinition.clickOverlayButton(
+        page,
+        this.crawlerOptions.cookieConsentSelector
+      );
+    } else {
+      await AbstractCrawlerDefinition.__attemptCookieConsent(page);
     }
-
-    await AbstractCrawlerDefinition.clickOverlayButton(
-      page,
-      this.crawlerOptions.cookieConsentSelector
-    );
   }
 
   static async clickOverlayButton(
