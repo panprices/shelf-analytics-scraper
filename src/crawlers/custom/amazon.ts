@@ -422,8 +422,8 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     // Method 2: identify using the "Add to Cart/Basket" button
     const addToCartButtonText = await this.extractProperty(
       page,
-      "div#buybox #add-to-cart-button-ubb",
-      (node) => node.textContent()
+      "div#buybox #add-to-cart-button",
+      (node) => node.getAttribute("value")
     );
     if (!addToCartButtonText) {
       log.debug(

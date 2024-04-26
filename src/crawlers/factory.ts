@@ -467,6 +467,51 @@ export class CrawlerFactory {
           ...defaultOptions,
           requestHandler: definition.router,
           proxyConfiguration: proxyConfiguration.DE,
+          postNavigationHooks: [
+            async (context) => {
+              const cookies = await context.page.context().cookies();
+              const isBrowsingFromUS =
+                cookies.filter(
+                  (c) => c.name === "sp-cdn" && c.value.endsWith(':US"')
+                ).length > 0;
+
+              if (!isBrowsingFromUS) {
+                return;
+              }
+
+              try {
+                const changeAddressButton = context.page.locator(
+                  "//input[@data-action-type='SELECT_LOCATION']"
+                );
+                await changeAddressButton.click();
+
+                const postalCodeInput = context.page.locator(
+                  "//input[@data-action='GLUXPostalInputAction']"
+                );
+                await postalCodeInput.click();
+                await postalCodeInput.fill("90402");
+
+                const postalCodeUpdateButton = context.page.locator(
+                  "//span[@data-action='GLUXPostalUpdateAction']/input"
+                );
+                await postalCodeUpdateButton.click();
+
+                const postalCodeConfirmationButton = context.page.locator(
+                  ".a-popover-footer #GLUXConfirmClose"
+                );
+                await postalCodeConfirmationButton.click();
+
+                // Give the page 2 seconds to notice the change and then wait for the page to reload
+                await context.page
+                  .waitForTimeout(2000)
+                  .then(async () =>
+                    context.page.waitForLoadState("domcontentloaded")
+                  );
+              } catch (err) {
+                log.warning("Could not change address out of US", { err });
+              }
+            },
+          ],
         };
         return [new PlaywrightCrawler(options), definition];
       case "wayfair.de":

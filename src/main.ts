@@ -178,9 +178,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 //
-await debugScrapeDetails(
-  "https://www.wayfair.de/garten/pdp/garten-living-6-tlg-verstellbares-gartenstuhl-set-copacabana-d001887028.html"
-);
+await debugScrapeDetails("https://www.amazon.de/-/en/dp/B0BKGJGFVN");
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
