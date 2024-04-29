@@ -54,13 +54,15 @@ export const scrollToBottomV1: ScrollToBottomStrategy = async function (
  * needed. It doesn't work well when we have 1000+ products on the page and the
  * callback takes too long.
  */
-export const scrollToBottomV2: ScrollToBottomStrategy = async function (
+export const scrollToBottomV2 = async function (
   ctx: PlaywrightCrawlingContext,
   registerProductCards: (ctx: PlaywrightCrawlingContext) => Promise<void>,
-  registerAfterEachScroll?: boolean
+  registerAfterEachScroll?: boolean,
+  buttonSelector?: string
 ) {
   const scrollOptions: InfiniteScrollOptions = {
     scrollDownAndUp: true,
+    buttonSelector: buttonSelector,
     stopScrollCallback: async () => {
       // Scroll up a bit more to make sure we get all the products.
       // Some pages have really long footer.
