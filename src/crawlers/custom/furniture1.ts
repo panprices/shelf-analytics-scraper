@@ -46,10 +46,17 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator("main a.ty-breadcrumbs__a"),
+      1,
+      productCard.page().locator("main span.ty-breadcrumbs__current").first()
+    );
+
     return {
       name,
       url,
       categoryUrl,
+      popularityCategory: categoryTree,
     };
   }
 

@@ -2,6 +2,7 @@ import { Locator, Page } from "playwright";
 import {
   browserCrawlerEnqueueLinks,
   Dataset,
+  Dictionary,
   log,
   PlaywrightCrawlingContext,
 } from "crawlee";
@@ -66,7 +67,6 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
-      // previewImageUrl,
       categoryUrl,
       popularityCategory: categoryTree,
     };
@@ -211,6 +211,15 @@ export class GardenStoreCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return productInfo;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: ".nwt-menu li.level2 > a",
+      label: "LIST",
+    });
   }
 
   static async create(
