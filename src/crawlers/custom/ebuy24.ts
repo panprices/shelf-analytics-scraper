@@ -2,6 +2,7 @@ import { Locator, Page } from "playwright";
 import {
   browserCrawlerEnqueueLinks,
   Dataset,
+  Dictionary,
   log,
   PlaywrightCrawlingContext,
 } from "crawlee";
@@ -25,40 +26,14 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
   override listingUrlSelector = "ul.pagination.small li:last-child a[href]";
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    if (!this.productCardSelector) {
-      throw new Error("productCardSelector not defined");
-    }
-    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
-
-    await this.scrollToBottom(ctx);
-    await this.registerProductCards(ctx);
-
-    // if ((await ctx.page.locator(this.listingUrlSelector).count()) === 0) {
-    //   // Only 1 page => just scrape it
-    //   await this.scrollToBottom(ctx);
-    //   return;
-    // }
-
-    // // Have pagination => click and scrape each page
-    // let [previousPageUrl, currentPageUrl] = ["", ctx.page.url()];
-    // while (currentPageUrl !== previousPageUrl) {
-    //   await ctx.page.locator(this.listingUrlSelector).click({ timeout: 5000 });
-
-    //   await ctx.page.waitForTimeout(3000);
-    //   await this.scrollToBottom(ctx);
-
-    //   previousPageUrl = currentPageUrl;
-    //   currentPageUrl = ctx.page.url();
-    // }
+    await super.crawlListPage(ctx);
 
     // Scrape next pages if exist:
     while ((await ctx.page.locator(this.listingUrlSelector).count()) > 0) {
       await ctx.page.locator(this.listingUrlSelector).click({ timeout: 5000 });
+      await ctx.page.waitForTimeout(5000);
 
-      await ctx.page.waitForTimeout(3000);
-      await ctx.page.waitForLoadState("networkidle");
-      await this.scrollToBottom(ctx);
-      await this.registerProductCards(ctx);
+      await super.crawlListPage(ctx);
     }
   }
 
@@ -85,10 +60,16 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
+    const categoryTree = await this.extractCategoryTree(
+      productCard.page().locator("div.m-breadcrumb a"),
+      1
+    );
+
     const currentProductInfo: ListingProductInfo = {
       name: productName,
       url,
       categoryUrl,
+      popularityCategory: categoryTree,
     };
 
     return currentProductInfo;
@@ -216,6 +197,15 @@ export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
       categoryTree,
       metadata,
     };
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "div.navigation a",
+      label: "LIST",
+    });
   }
 
   static async create(

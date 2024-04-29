@@ -274,7 +274,8 @@ export async function searchForProducts(
 }
 
 export async function extractLeafCategories(
-  targetUrls: string[]
+  targetUrls: string[],
+  overrides?: PlaywrightCrawlerOptions
 ): Promise<RequestOptions[]> {
   const uniqueCrawlerKey = uuidv4();
   if (targetUrls.length === 0) {
@@ -297,6 +298,8 @@ export async function extractLeafCategories(
     {
       headless: true,
       maxConcurrency: 5,
+      requestHandlerTimeoutSecs: 600,
+      ...overrides,
     }
   );
   await crawler.run(

@@ -2,6 +2,7 @@ import { Locator, Page } from "playwright";
 import {
   browserCrawlerEnqueueLinks,
   Dataset,
+  Dictionary,
   log,
   PlaywrightCrawlingContext,
 } from "crawlee";
@@ -169,6 +170,19 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return productInfo;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "ul.site-nav div.block a",
+      label: "LIST",
+    });
+    await ctx.enqueueLinks({
+      selector: "ul.site-nav ul.site-nav__dropdown-list a",
+      label: "LIST",
+    });
   }
 
   static async create(

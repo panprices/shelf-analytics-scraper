@@ -6,6 +6,7 @@ import {
   Specification,
 } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import { PlaywrightCrawlingContext, Dictionary } from "crawlee";
 
 export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
@@ -204,6 +205,16 @@ export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {
       // variantGroupUrl: "",
       // variant: 0, // 0, 1, 2, 3, ...
     };
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await this.handleCookieConsent(ctx.page);
+    await ctx.enqueueLinks({
+      selector: "nav ul.subchildmenu li.ui-menu-item.level2 a",
+      label: "LIST",
+    });
   }
 
   static async create(

@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
@@ -12,7 +12,6 @@ import {
   SchemaOrg,
   Specification,
 } from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
 
 export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -187,6 +186,15 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
     };
 
     return productInfo;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "nav.main-nav li.item > a",
+      label: "LIST",
+    });
   }
 
   static async create(

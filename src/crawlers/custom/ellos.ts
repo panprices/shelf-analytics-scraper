@@ -399,6 +399,25 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
     return currentState;
   }
 
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.page.locator("header ul .header-level2-item").first().waitFor();
+
+    for (const header of await ctx.page
+      .locator("header ul .header-level2-item")
+      .all()) {
+      await this.handleCookieConsent(ctx.page);
+      await header.hover();
+      await ctx.page.waitForTimeout(500);
+
+      await ctx.enqueueLinks({
+        selector: "header ul .header-level3-items li a",
+        label: "LIST",
+      });
+    }
+  }
+
   static async create(
     launchOptions: CrawlerLaunchOptions
   ): Promise<EllosCrawlerDefinition> {

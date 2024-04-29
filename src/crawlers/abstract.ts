@@ -627,6 +627,8 @@ export abstract class AbstractCrawlerDefinition
    * crawlerOptions.scrollToBottomStrategy
    */
   async scrollToBottom(ctx: PlaywrightCrawlingContext) {
+    await this.handleCookieConsent(ctx.page);
+
     if (this.crawlerOptions.scrollToBottomStrategy) {
       await this.crawlerOptions.scrollToBottomStrategy(
         ctx,

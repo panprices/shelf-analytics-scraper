@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import {
@@ -305,6 +305,21 @@ export class NordiskaRumCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     return categoryTree;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    for (const navHeader of await ctx.page
+      .locator("div#viewport .sf-header-navigation-item")
+      .all()) {
+      await navHeader.hover();
+      await ctx.page.waitForTimeout(500);
+    }
+    await ctx.enqueueLinks({
+      selector: ".sf-mega-menu li.sf-list__item a",
+      label: "LIST",
+    });
   }
 
   static async create(

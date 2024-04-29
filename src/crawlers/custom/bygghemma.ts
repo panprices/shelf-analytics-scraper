@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { log, PlaywrightCrawlingContext } from "crawlee";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
 import {
   AbstractCrawlerDefinition,
@@ -366,6 +366,44 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
     p.variantGroupUrl = createVariantGroupUrl(p.url);
   }
 
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    const page = ctx.page;
+    await this.handleCookieConsent(page);
+
+    const firstLevelNodes = page.locator("div.N3Sg1");
+    const firstLevelNodesCount = await firstLevelNodes.count();
+    console.log("First level:", firstLevelNodesCount);
+
+    const categoryUrls = [];
+    for (let i1 = 0; i1 < firstLevelNodesCount; i1++) {
+      const firstLevelNode = firstLevelNodes.nth(i1);
+      await firstLevelNode.hover();
+      const secondLevelNodes = firstLevelNode.locator("ul.tOsbX li");
+      const secondLevelsCount = await secondLevelNodes.count();
+      console.log("Second level:", secondLevelsCount);
+
+      for (let i2 = 0; i2 < secondLevelsCount; i2++) {
+        const secondLevelNode = secondLevelNodes.nth(i2);
+        await secondLevelNode.hover();
+        console.log(secondLevelNode);
+
+        // Wait for 3rd level categories to be loaded:
+        await page.waitForTimeout(1000);
+        // await page.waitForSelector("div.LgNuf div.DR3bk a");
+        const thirdLevelNodes = firstLevelNode.locator("div.LgNuf div.DR3bk a");
+
+        const thirdLevelNodesCount = await thirdLevelNodes.count();
+        console.log("Third level:", thirdLevelNodesCount);
+
+        await ctx.enqueueLinks({
+          selector: "div.N3Sg1 div.LgNuf div.DR3bk a",
+          label: "LIST",
+        });
+      }
+    }
+  }
   static async create(
     launchOptions: CrawlerLaunchOptions
   ): Promise<BygghemmaCrawlerDefinition> {
