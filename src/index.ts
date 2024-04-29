@@ -175,6 +175,21 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   });
 });
 
+app.post("/extractCategories", async (req: Request, res: Response) => {
+  const intermediateCategories = req.body.intermediate_categories;
+
+  const categoryObjects = await extractLeafCategories(
+    intermediateCategories,
+    req.body.overrides
+  );
+  const categoryUrls = categoryObjects.map((c) => c.url);
+
+  res.status(200).send({
+    nrCategories: categoryUrls.length,
+    categories: categoryUrls,
+  });
+});
+
 app.post(
   "/startJobWithIntermediateCategories",
   async (req: Request, res: Response) => {
