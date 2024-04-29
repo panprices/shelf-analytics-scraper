@@ -2,7 +2,7 @@ import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import { extractNumberFromText } from "../../utils";
-import { log } from "crawlee";
+import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
 import { scrollToBottomV2 } from "../scraper-utils";
 import { PageNotFoundError } from "../../types/errors";
 
@@ -157,6 +157,15 @@ export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     return images;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "ul.mega-menu__nav ul li a",
+      label: "LIST",
+    });
   }
 
   static async create(
