@@ -10,7 +10,7 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
-import { text } from "body-parser";
+import { scrollToBottomV2 } from "../scraper-utils";
 
 export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   /**
@@ -35,10 +35,6 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       1,
       productCard.page().locator("div.w > section > div h1").first()
     );
-
-    console.log(categoryTree);
-
-    // We skip the price even if we could fetch it from here, we are interested in the popularity index
 
     return {
       name: name,
@@ -234,6 +230,15 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
     };
   }
 
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "nav li ul li > a",
+      label: "LIST",
+    });
+  }
+
   async extractImagesFromDetailedPage(page: Page): Promise<string[]> {
     await this.handleCookieConsent(page);
 
@@ -272,8 +277,20 @@ export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVarian
       productCardSelector: "div.product-list a.item-card",
       detailsUrlSelector: "div.product-list a.item-card",
       // listingUrlSelector: "",
-      cookieConsentSelector: "a#savecookiesettings-acceptall",
+      // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
+      scrollToBottomStrategy: async function (
+        ctx: PlaywrightCrawlingContext,
+        registerProductCards: (ctx: PlaywrightCrawlingContext) => Promise<void>,
+        registerAfterEachScroll?: boolean
+      ) {
+        await scrollToBottomV2(
+          ctx,
+          registerProductCards,
+          registerAfterEachScroll,
+          "section#produkter div.product-list__more-btn button"
+        );
+      },
       launchOptions,
     });
   }

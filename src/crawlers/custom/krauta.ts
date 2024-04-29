@@ -2,6 +2,7 @@ import { Locator, Page } from "playwright";
 import {
   browserCrawlerEnqueueLinks,
   Dataset,
+  Dictionary,
   log,
   PlaywrightCrawlingContext,
 } from "crawlee";
@@ -251,6 +252,27 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
       (node) => node.first().getAttribute("src")
     );
     return previewImageUrl;
+  }
+
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    const page = ctx.page;
+    await this.handleCookieConsent(page);
+
+    const firstLevelNodes = page.locator(
+      "div.product-header .product-header__top-level-category-item"
+    );
+
+    for (const node of await firstLevelNodes.all()) {
+      await node.hover();
+      await page.waitForTimeout(1000);
+      await ctx.enqueueLinks({
+        selector:
+          "div.product-header__content__top-notification-visible .subcategory-container > ul a",
+        label: "LIST",
+      });
+    }
   }
 
   static async create(
