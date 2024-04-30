@@ -26,6 +26,9 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
         // wait for consistency
         await new Promise((f) => setTimeout(f, 500));
       } catch (error) {
+        log.info("Received error while loading more product cards: ", {
+          error,
+        });
         // No more expand button to click => break
         break;
       }
@@ -211,7 +214,6 @@ export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
       // listingUrlSelector: "button.ais-InfiniteHits-loadMore",
       detailsUrlSelector: "ol li.plp__grid-item div.product-item-name a",
       productCardSelector: "ol li.plp__grid-item",
-      cookieConsentSelector: "button.coi-banner__accept",
       dynamicProductCardLoading: false,
       launchOptions,
     });

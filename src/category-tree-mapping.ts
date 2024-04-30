@@ -1498,4 +1498,14 @@ const categoryTreeMapping = {
       url: "https://bernomobler.se/collections/mattkampanj",
     },
   ],
+  "https://nordlyliving.dk/collections/house-nordic": [
+    {
+      name: "Brands",
+      url: "https://nordlyliving.dk/pages/brands",
+    },
+    {
+      name: "House Nordic",
+      url: "https://nordlyliving.dk/collections/house-nordic",
+    },
+  ],
 };
