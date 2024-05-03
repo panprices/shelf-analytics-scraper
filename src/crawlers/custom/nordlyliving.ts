@@ -139,6 +139,12 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const pricingData = await this._extractPricingData(productCard);
 
+    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+      productCard.page().locator("//nav[@class='breadcrumb']//span[last()]"),
+      1,
+      productCard.page().locator("//nav[@class='breadcrumb']//span[last()]")
+    );
+
     return {
       name: name,
       url: url,
@@ -146,6 +152,8 @@ export class NordlyLivingCrawlerDefinition extends AbstractCrawlerDefinition {
       brand: brand,
       ...pricingData,
       categoryUrl,
+      categoryTree,
+      popularityCategory: categoryTree,
     };
   }
 
