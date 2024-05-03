@@ -270,5 +270,17 @@ async function extractImagesFromProductDetailsPage(
     }
   }
 
+  /**
+   * When the product only has one image there are no thumbnails and we should fetch the one image form the
+   * expanded view
+   */
+  if (thumbnailsCount === 0) {
+    const mainImageLocator = page.locator('//img[@itemprop="image"]');
+    const mainImageUrl = await mainImageLocator.getAttribute("src");
+    if (mainImageUrl) {
+      imageUrls.push(mainImageUrl);
+    }
+  }
+
   return imageUrls;
 }

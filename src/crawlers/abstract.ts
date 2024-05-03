@@ -272,7 +272,7 @@ export abstract class AbstractCrawlerDefinition
       "utf-8"
     );
     const customCookieConsentSelectors = `
-      .needsclick, #coiOverlay, #kconsent, .recommendation-modal__backdrop, .recommendation-modal__container, #CybotCookiebotDialog
+      .mc-modal, .mc-modal-bg, .needsclick, #coiOverlay, #kconsent, .recommendation-modal__backdrop, .recommendation-modal__container, #CybotCookiebotDialog
       {display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}  
     `;
 
