@@ -134,6 +134,25 @@ export function convertCurrencySymbolToISO(symbol: string): string {
   return code;
 }
 
+export function pascalCaseToSnakeCase(text: string): string {
+  const regex = /(?<!^)(?=[A-Z])/g;
+  return text.replaceAll(regex, "_").toLocaleLowerCase();
+}
+
+/**
+ * Merge 2 objects while prioritising non-null and defined properties.
+ * If both have the same propertise, prioritise obj2 (same as the spread syntax)
+ */
+export function mergeTwoObjectsPrioritiseNonNull(obj1: any, obj2: any) {
+  const merged = { ...obj1, ...obj2 };
+  for (const key in obj1) {
+    if (!merged[key] && obj1[key]) {
+      merged[key] = obj1[key];
+    }
+  }
+  return merged;
+}
+
 /** Normalise an url.
  * Especially useful when we need to use the url as an unique identifier.
  */
