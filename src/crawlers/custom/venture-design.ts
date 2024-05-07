@@ -81,11 +81,6 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
         node.textContent()
       )
     );
-    const previewImageUrl = <string>(
-      await this.extractProperty(productCard, "xpath=(.//img)[1]", (node) =>
-        node.getAttribute("src")
-      )
-    );
     const url = <string>(
       await this.extractProperty(productCard, "xpath=(.//a)[1]", (node) =>
         node.getAttribute("href")
@@ -100,7 +95,6 @@ export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWit
       name,
       url,
       categoryUrl,
-      previewImageUrl,
       popularityCategory: categoryTree,
     };
   }

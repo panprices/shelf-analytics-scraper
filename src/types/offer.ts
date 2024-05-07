@@ -68,7 +68,6 @@ export interface BaseProductInfo {
 }
 
 export interface ListingProductInfo extends BaseProductInfo {
-  previewImageUrl?: string;
   categoryUrl: string;
 }
 
