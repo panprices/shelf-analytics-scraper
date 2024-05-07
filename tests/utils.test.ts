@@ -15,6 +15,7 @@ test.each([
   ["InStock", "in_stock"],
   ["OutOfStock", "out_of_stock"],
   ["IHaveAQuestion", "i_have_a_question"],
+  ["already_a_snake_case", "already_a_snake_case"],
 ])("PascalCase to snake_case", (text, expectedResult) => {
   expect(pascalCaseToSnakeCase(text)).toEqual(expectedResult);
 });
