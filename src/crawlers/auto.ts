@@ -3,22 +3,43 @@ import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
 import { log } from "crawlee";
 import jsonic from "jsonic";
+import { extractDomainFromUrl, pascalCaseToSnakeCase } from "../utils";
+
+interface PriceOffer {
+  found: boolean;
+  name: string | null;
+  price: number | null;
+  currency: string | null;
+  availability: string | null;
+  images: string[];
+  metadata?: any;
+}
 
 class AutoCrawler extends AbstractCrawlerDefinition {
   extractCardProductInfo(
-    _: string,
-    __: Locator
+    _categoryUrl: string,
+    _productCard: Locator
   ): Promise<ListingProductInfo | undefined> {
     return Promise.resolve(undefined);
   }
 
-  async fetchOpenGraphMetadata(page: Page): Promise<{
-    found: boolean;
-    price: number | null;
-    currency: string | null;
-    availability: string | null;
-    images: string[];
-  }> {
+  private async tryHandlePriceComparisionWebsiteRedirectUrl(page: Page) {
+    if (extractDomainFromUrl(page.url()).includes("pricerunner")) {
+      let timeWaited = 0;
+      while (
+        extractDomainFromUrl(page.url()).includes("pricerunner") &&
+        timeWaited < 10_000
+      ) {
+        await page.waitForTimeout(1000);
+        timeWaited += 1000;
+      }
+    }
+  }
+
+  async fetchOpenGraphMetadata(page: Page): Promise<PriceOffer> {
+    // Example page: https://www.baldai1.lt/spintos/spinta-hartford-254-matine-balta-baltas-marmuras.html
+
+    const productNameTagOptions = ["og:title"];
     const priceCurrencyTagOptions = ["g:sale_price", "g:price"];
     const priceTagOptions = [
       "og:sale_price:amount",
@@ -46,10 +67,23 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       "additional_image_link",
     ];
 
+    let name: string | null = null;
     let price: number | null = null;
     let currency: string | null = null;
     let availability: string | null = null;
     let images: string[] = [];
+
+    // Fetch name of the product
+    for (const tagOption of productNameTagOptions) {
+      name = await page
+        .$eval(
+          `meta[property='${tagOption}']`,
+          (el) => el.getAttribute("content"),
+          null
+        )
+        .catch(() => null);
+      if (name) break;
+    }
 
     // Fetch price and currency from combined tag options first
     for (const tagOption of priceCurrencyTagOptions) {
@@ -109,30 +143,31 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     }
 
     // Fetch images
-    for (const tagOption of imageTagOptions) {
-      const content = await page
-        .$eval(
-          `meta[property='${tagOption}']`,
-          (el) => el.getAttribute("content"),
-          null
-        )
-        .catch(() => null);
-      if (content) {
-        images.push(content);
-      }
-    }
+    // for (const tagOption of imageTagOptions) {
+    //   const content = await page
+    //     .$eval(
+    //       `meta[property='${tagOption}']`,
+    //       (el) => el.getAttribute("content"),
+    //       null
+    //     )
+    //     .catch(() => null);
+    //   if (content) {
+    //     images.push(content);
+    //   }
+    // }
+    images = [];
 
-    return { found: price !== null, price, currency, availability, images };
+    return {
+      found: price !== null,
+      name,
+      price,
+      currency,
+      availability,
+      images,
+    };
   }
 
-  async fetchJsonSchema(page: Page): Promise<{
-    found: boolean;
-    price: number | null;
-    currency: string | null;
-    availability: string | null;
-    images: string[];
-    metadata?: any;
-  }> {
+  async fetchJsonSchema(page: Page): Promise<PriceOffer> {
     let schemaOrgProducts: any[] = [];
     const schemaOrgScripts = await page.$$eval(
       "script[type='application/ld+json']",
@@ -169,13 +204,14 @@ class AutoCrawler extends AbstractCrawlerDefinition {
           );
         }
       } catch (error) {
-        log.warning(`JSON parsing error for script: ${error}`);
+        log.warning(`JSON parsing error for script`, { error });
       }
     });
 
     if (schemaOrgProducts.length === 0) {
       return {
         found: false,
+        name: null,
         price: null,
         currency: null,
         availability: null,
@@ -222,6 +258,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
       return {
         found: true,
+        name: product.name,
         price: parseFloat(price),
         currency,
         availability,
@@ -229,11 +266,12 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         metadata: product,
       };
     } catch (error) {
-      log.error(`Error processing product offers: ${error}`);
+      log.error(`Error processing product offers`, { error });
     }
 
     return {
       found: false,
+      name: null,
       price: null,
       currency: null,
       availability: null,
@@ -241,16 +279,25 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     };
   }
 
-  async fetchSchemaAttributes(page: Page): Promise<{
-    found: boolean;
-    price: number | null;
-    currency: string | null;
-    availability: string | null;
-    images: string[];
-  }> {
+  async fetchSchemaAttributes(page: Page): Promise<PriceOffer> {
+    let name: string | null = null;
     let price: number | null = null;
     let currency: string | null = null;
     let availability: string | null = null;
+
+    // Attempt to fetch the product name
+    const nameLocator = await page.locator(
+      "[itemtype='https://schema.org/Product'] [itemprop='name']"
+    );
+    if ((await nameLocator.count()) === 1) {
+      name =
+        (await nameLocator.getAttribute("content")) ||
+        (await nameLocator.textContent());
+    } else if ((await nameLocator.count()) > 1) {
+      log.warning(
+        "Found more than 1 html element for product name with schema.org attributes"
+      );
+    }
 
     // Attempt to fetch the price
     const priceContent: string | null = await page
@@ -314,30 +361,34 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       availability = parts[parts.length - 1];
     }
 
-    const images = await page
-      .$$eval(
-        "[img[itemprop='image']]",
-        (elements: Element[]) => {
-          return elements
-            .map((el) => el.getAttribute("src") || null)
-            .filter((el) => el !== null);
-        },
-        null
-      )
-      .then((images) =>
-        images.filter((image) => image !== null).map((i) => i as string)
-      );
+    // DEPRECATED: the images found this way usually include tiny thumbnails
+    // const images = await page
+    //   .$$eval(
+    //     "img[itemprop='image']",
+    //     (elements: Element[]) => {
+    //       return elements
+    //         .map((el) => el.getAttribute("src") || null)
+    //         .filter((el) => el !== null);
+    //     },
+    //     null
+    //   )
+    //   .then((images) =>
+    //     images.filter((image) => image !== null).map((i) => i as string)
+    //   );
+    const images: string[] = [];
 
-    return { found: price !== null, price, currency, availability, images };
+    return {
+      found: price !== null,
+      name,
+      price,
+      currency,
+      availability,
+      images,
+    };
   }
 
-  async fetchWooCommerceData(page: Page): Promise<{
-    found: boolean;
-    price: number | null;
-    currency: string | null;
-    availability: string | null;
-    images: string[];
-  }> {
+  async fetchWooCommerceData(page: Page): Promise<PriceOffer> {
+    // Example page: https://rorbutiken.se/produkt/fmm-9000e-flexi-takduschset-forkromad
     const priceContent = await page
       .$eval(".woocommerce-Price-amount", (el: Element) => {
         return el.textContent || null;
@@ -346,6 +397,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     if (!priceContent) {
       return {
         found: false,
+        name: null,
         price: null,
         currency: null,
         availability: null,
@@ -368,17 +420,19 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     return {
       found: true,
+      name: null,
       price: parseFloat(
         priceContent.trim().split(" ")[0].trim().replace(",", ".")
       ),
       currency: null,
-      availability: availabilityInStock ? "inStock" : "outOfStock",
+      availability: availabilityInStock ? "in_stock" : "out_of_stock",
       images,
     };
   }
 
-  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+  async fetchProductData(page: Page): Promise<DetailedProductInfo> {
     let found = false,
+      name = null,
       price = null,
       currency = null,
       availability = null,
@@ -386,31 +440,37 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     try {
       let metadata = undefined;
-      ({ found, price, currency, availability, images, metadata } =
+      ({ found, name, price, currency, availability, images, metadata } =
         await this.fetchJsonSchema(page));
 
       if (found) {
+        log.info("Product scraped using schema.org JSON data");
         return {
           url: page.url(),
+          name: name ? name : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
           images,
-          metadata,
           specifications: [],
+          metadata,
         };
       }
     } catch (error) {
-      log.info(`Problem extracting product details with schema json: ${error}`);
+      log.warning(`Problem extracting product details with schema json`, {
+        error,
+      });
     }
 
     try {
-      ({ found, price, currency, availability, images } =
+      ({ found, name, price, currency, availability, images } =
         await this.fetchSchemaAttributes(page));
 
       if (found) {
+        log.info("Product scraped using schema.org attributes data");
         return {
           url: page.url(),
+          name: name ? name : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
@@ -419,18 +479,20 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         };
       }
     } catch (error) {
-      log.info(
-        `Problem extracting product details with schema attributes: ${error}`
-      );
+      log.warning(`Problem extracting product details with schema attributes`, {
+        error,
+      });
     }
 
     try {
-      ({ found, price, currency, availability, images } =
+      ({ found, name, price, currency, availability, images } =
         await this.fetchOpenGraphMetadata(page));
 
       if (found) {
+        log.info("Product scraped using OpenGraph data");
         return {
           url: page.url(),
+          name: name ? name : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
@@ -439,16 +501,20 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         };
       }
     } catch (error) {
-      log.info(`Problem extracting product details with open graph: ${error}`);
+      log.warning(`Problem extracting product details with open graph`, {
+        error,
+      });
     }
 
     try {
-      ({ found, price, currency, availability, images } =
+      ({ found, name, price, currency, availability, images } =
         await this.fetchWooCommerceData(page));
 
       if (found) {
+        log.info("Product scraped using WooCommerce data");
         return {
           url: page.url(),
+          name: name ? name : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
@@ -457,12 +523,23 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         };
       }
     } catch (error) {
-      log.info(
-        `Problem extracting product details with WooCommerce data: ${error}`
-      );
+      log.warning(`Problem extracting product details with WooCommerce data`, {
+        error,
+      });
     }
 
-    return { url: page.url(), images: [], specifications: [] };
+    throw new Error("Cannot extract price light data");
+  }
+
+  async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    await this.tryHandlePriceComparisionWebsiteRedirectUrl(page);
+    const product = await this.fetchProductData(page);
+
+    if (product.availability) {
+      product.availability = pascalCaseToSnakeCase(product.availability);
+    }
+
+    return product;
   }
 
   static async create(

@@ -18,7 +18,11 @@ import {
   ListingProductInfo,
   Specification,
 } from "../types/offer";
-import { extractDomainFromUrl, normaliseUrl } from "../utils";
+import {
+  extractDomainFromUrl,
+  mergeTwoObjectsPrioritiseNonNull,
+  normaliseUrl,
+} from "../utils";
 import { v4 as uuidv4 } from "uuid";
 import {
   GotBlockedError,
@@ -473,24 +477,33 @@ export abstract class AbstractCrawlerDefinition
       // this.assertCorrectProductPage(ctx);
 
       productDetails = await this.extractProductDetails(ctx.page);
-
-      const request = ctx.request;
-      await this._detailsDataset.pushData(<DetailedProductInfo>{
-        ...request.userData,
+      productDetails = {
         ...productDetails,
         fetchedAt: new Date().toISOString(),
         retailerDomain: extractDomainFromUrl(ctx.page.url()),
-        ...additionalFields,
-      });
+      };
+
+      productDetails = mergeTwoObjectsPrioritiseNonNull(
+        additionalFields,
+        productDetails // if both have an attribute then prioritise this new data
+      );
+      await this._detailsDataset.pushData(productDetails);
     } catch (e) {
       this.handleCrawlDetailPageError(e, ctx);
     } finally {
       logProductScrapingInfo(ctx, productDetails);
-      await AbstractCrawlerDefinition.saveScreenshot(
-        ctx.page,
-        productDetails ? productDetails.url : ctx.page.url(),
-        this.launchOptions?.screenshotOptions
-      );
+      try {
+        await AbstractCrawlerDefinition.saveScreenshot(
+          ctx.page,
+          productDetails ? productDetails.url : ctx.page.url(),
+          this.launchOptions?.screenshotOptions
+        );
+      } catch (saveScreenshotError) {
+        log.error("Error saving screenshot", {
+          url: ctx.page.url(),
+          error: saveScreenshotError,
+        });
+      }
     }
   }
 
@@ -500,7 +513,7 @@ export abstract class AbstractCrawlerDefinition
    * This method also saves to a crawlee `Dataset`. In the future it has to save to an external storage like firestore
    */
   async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
-    return await this.handleDetailPage(ctx);
+    return await this.handleDetailPage(ctx, ctx.request.userData);
   }
 
   /**
@@ -1057,6 +1070,7 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     variant: number
   ): Promise<void> {
     return await this.handleDetailPage(ctx, {
+      ...ctx.request.userData,
       variantGroupUrl,
       variant,
     });

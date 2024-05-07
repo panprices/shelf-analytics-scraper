@@ -58,6 +58,7 @@ import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
 import { HMCrawlerDefinition } from "./custom/hm";
+import { AutoCrawler } from "./auto";
 import fs from "fs";
 
 export interface CrawlerFactoryArgs {
@@ -633,6 +634,23 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      default:
+        definition = await AutoCrawler.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+          useSessionPool: true,
+          persistCookiesPerSession: true,
+          sessionPoolOptions: {
+            persistStateKeyValueStoreId: "KEY_VALUE_" + uuidv4(),
+            maxPoolSize: 1,
+            sessionOptions: {
+              maxUsageCount: 10, // rotate IPs often to avoid getting blocked
+            },
+            blockedStatusCodes: [], // we handle blocking issues ourselves
+          },
         };
         return [new PlaywrightCrawler(options), definition];
     }

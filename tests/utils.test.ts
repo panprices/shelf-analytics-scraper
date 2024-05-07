@@ -1,4 +1,8 @@
-import { extractDomainFromUrl, pascalCaseToSnakeCase } from "../src/utils";
+import {
+  extractDomainFromUrl,
+  mergeTwoObjectsPrioritiseNonNull,
+  pascalCaseToSnakeCase,
+} from "../src/utils";
 
 test.each([
   [
@@ -18,4 +22,27 @@ test.each([
   ["already_a_snake_case", "already_a_snake_case"],
 ])("PascalCase to snake_case", (text, expectedResult) => {
   expect(pascalCaseToSnakeCase(text)).toEqual(expectedResult);
+});
+
+test.each([
+  [
+    { name: "Table", price: 1000 },
+    { name: undefined, currency: "SEK" },
+    { name: "Table", price: 1000, currency: "SEK" },
+  ],
+  [
+    { name: null, price: 1000 },
+    { name: "Table", currency: "SEK" },
+    { name: "Table", price: 1000, currency: "SEK" },
+  ],
+  // Should prioritise 2nd object if both have a property
+  [
+    { name: "Table", price: 1000 },
+    { name: "Venture Design Table group", currency: "SEK" },
+    { name: "Venture Design Table group", price: 1000, currency: "SEK" },
+  ],
+])("mergeTwoObjectsPrioritiseNonNull", (obj1, obj2, expectedResult) => {
+  console.log(obj1);
+
+  expect(mergeTwoObjectsPrioritiseNonNull(obj1, obj2)).toEqual(expectedResult);
 });
