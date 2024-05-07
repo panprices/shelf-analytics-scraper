@@ -9,7 +9,6 @@ import {
 import { clearStorage, extractDomainFromUrl, normaliseUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
-import { findCategoryTree } from "./category-tree-mapping";
 import { v4 as uuidv4 } from "uuid";
 
 export async function exploreCategory(
@@ -340,7 +339,6 @@ export async function scrapeDetails(
   if (detailedPages.length === 0) {
     return [];
   }
-  const uniqueCrawlerKey = uuidv4();
 
   const allProducts = [];
 
@@ -349,6 +347,7 @@ export async function scrapeDetails(
     detailedPages.map((p) => extractDomainFromUrl(p.url))
   );
   for (const domain of domains) {
+    const uniqueCrawlerKey = uuidv4();
     const pagesToScrape = detailedPages.filter(
       (p) => extractDomainFromUrl(p.url) === domain
     );
@@ -385,11 +384,11 @@ export async function scrapeDetails(
 
     const products = await extractProductDetails(crawlerDefinition);
     allProducts.push(...products);
+
+    await clearStorage(uniqueCrawlerKey);
   }
 
-  const result = allProducts;
-  await clearStorage(uniqueCrawlerKey);
-  return result;
+  return allProducts;
 }
 
 async function extractProductDetails(
@@ -405,7 +404,7 @@ async function extractProductDetails(
   const errors = [];
   for (const p of products) {
     try {
-      // postProcessProductDetail(p, crawlerDefinition);
+      postProcessProductDetail(p, crawlerDefinition);
       processedProducts.push(p);
     } catch (e) {
       errors.push({
@@ -484,14 +483,6 @@ function postProcessProductDetail(
         p.originalPrice = Math.floor(p.originalPrice * 100);
       }
     }
-  }
-
-  if (!p.categoryTree) {
-    // Try to get it from categoryTreeMapping instead. Namely for the retailer Berno Mobler.
-    if (!p.categoryUrl) {
-      throw new Error("Cannot find neither categoryTree nor categoryUrl");
-    }
-    p.categoryTree = findCategoryTree(p.categoryUrl);
   }
 
   if (crawlerDefinition.normalizeProductUrl) {
