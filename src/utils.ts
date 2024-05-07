@@ -134,6 +134,11 @@ export function convertCurrencySymbolToISO(symbol: string): string {
   return code;
 }
 
+export function pascalCaseToSnakeCase(text: string): string {
+  const regex = /(?<!^)(?=[A-Z])/g;
+  return text.replaceAll(regex, "_").toLocaleLowerCase();
+}
+
 /** Normalise an url.
  * Especially useful when we need to use the url as an unique identifier.
  */
