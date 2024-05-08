@@ -641,16 +641,7 @@ export class CrawlerFactory {
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
-          useSessionPool: true,
-          persistCookiesPerSession: true,
-          sessionPoolOptions: {
-            persistStateKeyValueStoreId: "KEY_VALUE_" + uuidv4(),
-            maxPoolSize: 1,
-            sessionOptions: {
-              maxUsageCount: 10, // rotate IPs often to avoid getting blocked
-            },
-            blockedStatusCodes: [], // we handle blocking issues ourselves
-          },
+          proxyConfiguration: proxyConfiguration.SE,
         };
         return [new PlaywrightCrawler(options), definition];
     }
