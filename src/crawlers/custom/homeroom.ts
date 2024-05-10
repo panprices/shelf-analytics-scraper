@@ -348,11 +348,20 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
-    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator("ul.breadcrumbs > li > a"),
-      0,
-      productCard.page().locator(".content-wrapper-category-header h1")
-    );
+    let categoryTree;
+    if (isBrandPage(productCard.page().url())) {
+      categoryTree = await this.extractCategoryTreeFromCategoryPage(
+        productCard.page().locator("ul.breadcrumbs > li > a"),
+        0,
+        productCard.page().locator("ul.breadcrumbs ~ p.last-item")
+      );
+    } else {
+      categoryTree = await this.extractCategoryTreeFromCategoryPage(
+        productCard.page().locator("ul.breadcrumbs > li > a"),
+        0,
+        productCard.page().locator(".content-wrapper-category-header h1")
+      );
+    }
 
     const currentProductInfo: ListingProductInfo = {
       url,
@@ -546,4 +555,8 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     );
     return description;
   }
+}
+
+function isBrandPage(url: string) {
+  return url.includes("/brand");
 }
