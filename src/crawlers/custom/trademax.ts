@@ -109,7 +109,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     }
 
     const priceText = await page
-      .locator("main div.bw.hh div.jb.jc")
+      .locator("main div.bw.hh div.jf.jg")
       .textContent()
       .then((text) => text?.trim());
     const price = priceText
@@ -264,7 +264,9 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       reviewSummary = undefined;
     }
 
-    const addToCartLocator = page.locator("#A2C_ACTION");
+    const addToCartLocator = page.locator(
+      "button[data-test-id='add-to-cart-button']"
+    );
     const availability =
       (await addToCartLocator.count()) > 0 ? "in_stock" : "out_of_stock";
 
@@ -415,7 +417,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const subCategoryLocator =
       "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]";
 
-    const subCategoryUrls = await ctx.page
+    const subCategoryUrls = await ctx.pag
       .locator(subCategoryLocator)
       .evaluateAll((list: HTMLElement[]) =>
         list.map((e) => e.getAttribute("href"))
