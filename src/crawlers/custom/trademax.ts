@@ -417,7 +417,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     const subCategoryLocator =
       "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]";
 
-    const subCategoryUrls = await ctx.pag
+    const subCategoryUrls = await ctx.page
       .locator(subCategoryLocator)
       .evaluateAll((list: HTMLElement[]) =>
         list.map((e) => e.getAttribute("href"))

@@ -109,7 +109,9 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const price = extractPriceFromText(priceString);
 
-    const skuAndEanListItem = page.locator("ul.article-numbers li");
+    const skuAndEanListItem = page.locator(
+      "div.product-info ul.article-numbers li"
+    );
     if ((await skuAndEanListItem.count()) !== 2) {
       throw new Error("Found more than 2 row in ArticleNumber-EAN ul");
     }

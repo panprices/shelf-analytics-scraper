@@ -58,6 +58,7 @@ import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
 import { HMCrawlerDefinition } from "./custom/hm";
+import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
 import { AutoCrawler } from "./auto";
 import fs from "fs";
 
@@ -631,6 +632,13 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "hm.com":
         definition = await HMCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "gigameubel.nl":
+        definition = await GigameubelCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

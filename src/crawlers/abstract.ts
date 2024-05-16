@@ -170,8 +170,6 @@ export abstract class AbstractCrawlerDefinition
 
   private readonly productInfos: Map<string, ListingProductInfo>;
 
-  private readonly hasBlockedImages: boolean;
-
   protected constructor(options: CrawlerDefinitionOptions) {
     const crawlerDefinition = this;
 
@@ -202,8 +200,6 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
-    this.hasBlockedImages =
-      options?.launchOptions?.screenshotOptions?.hasBlockedImages ?? false;
   }
 
   private static async __injectDateTime(page: Page): Promise<void> {
@@ -1347,6 +1343,39 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
     _: PlaywrightCrawlingContext,
     currentOption: number[]
   ): Promise<boolean>;
+}
+
+/**
+ * Crawler for products with variants, but the urls of the variants
+ * are available in the html and thus don't need complicated navigatons nor
+ * button clicking.
+ *
+ * See gigameubel.nl scraper for example.
+ */
+export abstract class AbstractCrawlerDefinitionWithSimpleVariants extends AbstractCrawlerDefinition {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await this.handleCookieConsent(ctx.page);
+    // Add the variantGroupUrl property if it's the first time we get the product
+    if (!ctx.request.userData.variantGroupUrl)
+      ctx.request.userData = {
+        ...ctx.request.userData,
+        variantGroupUrl: ctx.page.url(),
+      };
+
+    await super.crawlDetailPage(ctx);
+
+    await ctx.enqueueLinks({
+      urls: await this.extractVariantUrls(ctx),
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
+  }
+
+  abstract extractVariantUrls(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<string[]>;
 }
 
 export abstract class AbstractCheerioCrawlerDefinition

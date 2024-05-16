@@ -1,4 +1,5 @@
 import {
+  convertSchemaOrgAvailability,
   extractDomainFromUrl,
   mergeTwoObjectsPrioritiseNonNull,
   pascalCaseToSnakeCase,
@@ -22,6 +23,13 @@ test.each([
   ["already_a_snake_case", "already_a_snake_case"],
 ])("PascalCase to snake_case", (text, expectedResult) => {
   expect(pascalCaseToSnakeCase(text)).toEqual(expectedResult);
+});
+
+test.each([
+  ["http://schema.org/Discontinued", "discontinued"],
+  ["http://schema.org/InStock", "in_stock"],
+])("convertSchemaOrgAvailability", (schemaOrgText, expectedResult) => {
+  expect(convertSchemaOrgAvailability(schemaOrgText)).toEqual(expectedResult);
 });
 
 test.each([

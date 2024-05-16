@@ -6,6 +6,7 @@ import { LocalContextStore } from "./types/utils";
 import { readdir } from "fs/promises";
 import { MemoryStorage } from "@crawlee/memory-storage";
 import fs from "fs";
+import { Availability } from "./types/offer";
 
 export const localContext = new AsyncLocalStorage<LocalContextStore>();
 
@@ -137,6 +138,20 @@ export function convertCurrencySymbolToISO(symbol: string): string {
 export function pascalCaseToSnakeCase(text: string): string {
   const regex = /(?<!^)(?=[A-Z])/g;
   return text.replaceAll(regex, "_").toLocaleLowerCase();
+}
+
+/**
+ * Convert schema.org availability into our own.
+ * For example: "http:\/\/schema.org\/InStock" -> "in_stock"
+ */
+export function convertSchemaOrgAvailability(
+  schemaOrgAvailability: string
+): string {
+  const text = schemaOrgAvailability.split("/").pop();
+  if (!text) {
+    throw new Error(`Invalid value of schema.org availability: ${text}`);
+  }
+  return pascalCaseToSnakeCase(text);
 }
 
 /**

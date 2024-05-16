@@ -477,10 +477,10 @@ function postProcessProductDetail(
     // SEK, USD, EUR
     default: {
       if (p.price) {
-        p.price = Math.floor(p.price * 100);
+        p.price = Math.round(p.price * 100);
       }
       if (p.originalPrice) {
-        p.originalPrice = Math.floor(p.originalPrice * 100);
+        p.originalPrice = Math.round(p.originalPrice * 100);
       }
     }
   }
