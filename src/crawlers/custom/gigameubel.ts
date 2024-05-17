@@ -150,6 +150,15 @@ export class GigameubelCrawlerDefinition extends AbstractCrawlerDefinitionWithSi
     return variantUrls;
   }
 
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext<Dictionary>
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "nav ul li.level2 a",
+      label: "LIST",
+    });
+  }
+
   static async create(
     launchOptions?: CrawlerLaunchOptions
   ): Promise<GigameubelCrawlerDefinition> {
