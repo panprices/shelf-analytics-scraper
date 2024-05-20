@@ -61,10 +61,6 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    if (page.url().includes("?redirect=301")) {
-      throw new PageNotFoundError("Page not found");
-    }
-
     const productNameSelector = "h1.pdp-buySection-title";
     await page.waitForSelector(productNameSelector);
 
@@ -149,7 +145,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
     const productInfo: DetailedProductInfo = {
       name: productName,
       description,
-      url: page.url(),
+      url: page.url().replace("/?redirect=301", ""),
       price,
       currency: "EUR",
       isDiscounted: false, // cannot find any info about discounts
