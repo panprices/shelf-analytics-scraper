@@ -4,6 +4,7 @@ import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
 import { log } from "crawlee";
 import jsonic from "jsonic";
 import { extractDomainFromUrl, pascalCaseToSnakeCase } from "../utils";
+import { IllFormattedPageError, PageNotFoundError } from "../types/errors";
 
 interface PriceOffer {
   found: boolean;
@@ -535,6 +536,10 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     if (product.availability) {
       product.availability = pascalCaseToSnakeCase(product.availability);
+    }
+
+    if (!product.name) {
+      throw new IllFormattedPageError("Cannot extract name of product");
     }
 
     return product;
