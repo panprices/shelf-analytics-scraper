@@ -24,12 +24,10 @@ class AutoCrawler extends AbstractCrawlerDefinition {
   }
 
   private async tryHandlePriceComparisionWebsiteRedirectUrl(page: Page) {
-    if (extractDomainFromUrl(page.url()).includes("pricerunner")) {
+    if (isComparisonWebsite(page)) {
+      // Wait untilt the page is redirected to a retailer wesite
       let timeWaited = 0;
-      while (
-        extractDomainFromUrl(page.url()).includes("pricerunner") &&
-        timeWaited < 10_000
-      ) {
+      while (isComparisonWebsite(page) && timeWaited < 10_000) {
         await page.waitForTimeout(1000);
         timeWaited += 1000;
       }
@@ -561,6 +559,23 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       launchOptions,
     });
   }
+}
+
+function isComparisonWebsite(page: Page) {
+  const domain = extractDomainFromUrl(page.url());
+  const comparisonWebsiteDomainIncludes = [
+    "pricerunner",
+    "prisjakt",
+    "idealo",
+    "google",
+  ];
+
+  for (const domainInclude of comparisonWebsiteDomainIncludes) {
+    if (domain.includes(domainInclude)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export { AutoCrawler };
