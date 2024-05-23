@@ -213,7 +213,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    await page.waitForSelector('//*[@itemprop="name"]');
+    await page.waitForSelector('//h1[@itemprop="name"]');
 
     const hasVariants = await this.hasVariants(page);
 
@@ -232,7 +232,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const name = await this.extractProperty(
       page,
-      '//*[@itemprop="name"]',
+      '//h1[@itemprop="name"]',
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!name) throw new Error("Cannot find name of product");
@@ -251,7 +251,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
     const isDiscountedStr = await this.extractProperty(
       page,
-      "form span#price span.js-price-sale",
+      "form span#price span.price-original",
       (node) => node.count().then((c) => (c > 0).toString())
     );
     const isDiscounted = isDiscountedStr === "true";
@@ -271,18 +271,18 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     if (isDiscounted) {
       price = await this.extractProperty(
         page,
-        "form span#price span.js-price-sale",
+        "//div[contains(@class, 'price-container')]//span[contains(@class, 'price-localized')]/span[1]",
         (node) => node.textContent().then(extractPrice)
       );
       currency = await this.extractProperty(
         page,
-        "form span#price span.js-price-sale",
+        "//div[contains(@class, 'price-container')]//span[contains(@class, 'price-localized')]/span[1]",
         (node) => node.textContent().then(extractCurrency)
       );
 
       originalPrice = await this.extractProperty(
         page,
-        "form span#price span.js-price-original",
+        "form span#price span.price-original",
         (node) => node.textContent().then(extractPrice)
       );
     } else {

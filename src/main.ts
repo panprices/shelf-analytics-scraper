@@ -29,7 +29,7 @@ async function debugScrapeDetails(targetUrls: string[]) {
   const detailedItems = await scrapeDetails(
     dummyRequests,
     {
-      headless: true,
+      headless: false,
     },
     false,
     {
@@ -52,7 +52,7 @@ async function debugScrapeDetails(targetUrls: string[]) {
 
 async function debugCategoryExploration(targetUrl: string) {
   const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
-    headless: true,
+    headless: false,
   });
 
   log.info(`Categories explored`, {
@@ -61,7 +61,9 @@ async function debugCategoryExploration(targetUrl: string) {
 }
 
 async function debugCategoryExplorationEndToEnd(targetUrls: string[]) {
-  const detailedProducts = await exploreCategoryEndToEnd(targetUrls);
+  const detailedProducts = await exploreCategoryEndToEnd(targetUrls, {
+    headless: false,
+  });
 
   writeFileSync(join(".", "data.json"), JSON.stringify(detailedProducts), {
     flag: "w",
@@ -195,31 +197,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // const urls = readUrlsFromFile("urls.txt")
 //   .map((u) => (u.startsWith('"') ? u.substring(1, u.length - 1) : u))
 //   .filter((u) => u.startsWith("http"));
+//
+// await debugScrapeDetails([
+//   "https://andlight.dk/shop/flos-bellhop-battery-11161p.html",
+// ]);
 
-await debugScrapeDetails([
-  "https://flos.com/it/it/toio/M-toio.html?gad_source=1&gclid=EAIaIQobChMI--qwq_PjggMVGoVoCR39DQfTEAAYASAAEgKOTfD_BwE",
-  "https://flos.com/it/it/bilboquet-sage-led-retrofit/F0995039.html",
-  "https://flos.com/it/it/ceramique/M-ceramique.html?dwvar_M-ceramique_color=colour_moss-green&dwvar_M-ceramique_modelInfo=Ceramique%20Down&quantity=1",
-  "https://flos.com/it/it/skynest-suspension-blue-tourmaline/F6392003.html",
-  "https://flos.com/it/it/glo-ball-suspension-2-white-alogena-glo-ball-suspension-2/F3010061.html",
-  "https://flos.com/it/it/2097-30--clear-bulbs--chrome-led-retrofit-2097-30--clear-bulbs-/A1402057.html",
-  "https://flos.com/it/it/265-black-alogena/A0300030.html",
-  "https://flos.com/it/it/arco-led-steel-arco-led/F0303000.html",
-  "https://flos.com/it/it/bellhop/M-bellhop.html?dwvar_M-bellhop_color=colour_brick-red&quantity=1",
-  "https://flos.com/en/it/captain-flint-anthracite-black-marble/F1530030.html",
-  "https://flos.com/en/it/foglio/M-foglio.html?dwvar_M-foglio_color=colour_white&quantity=1",
-  "https://flos.com/en/it/frisbi-chrome-halogen/F2500000.html",
-  "https://flos.com/en/it/ic-lights-f1-brass-halogen-ic-lights-floor-1/F3173059.html",
-  "https://flos.com/en/it/ic-lights-suspension/M-ic-lights-suspension.html?dwvar_M-ic-lights-suspension_color=colour_brass&dwvar_M-ic-lights-suspension_modelInfo=IC%20Lights%20Suspension%201&quantity=1",
-  "https://flos.com/en/it/lampadina/M-lampadina.html?dwvar_M-lampadina_color=colour_black&quantity=1",
-  "https://flos.com/en/it/mayday/M-mayday.html?dwvar_M-mayday_color=colour_orange&quantity=1",
-  "https://flos.com/en/it/glo-ball-ceiling-wall/M-glo-ball-ceiling-wall.html?dwvar_M-glo-ball-ceiling-wall_modelInfo=Mini%20Glo-Ball%20Ceiling%2FWall&quantity=1",
-  "https://flos.com/en/it/parentesi/M-parentesi.html?dwvar_M-parentesi_Additional%20Element=No%20Additional%20Element&dwvar_M-parentesi_color=colour_black&dwvar_M-parentesi_modelInfo=Parentesi%20dimmer&quantity=1",
-  "https://flos.com/en/it/skygarden-1-black-halogen-skygarden-1/F0001030.html",
-  "https://flos.com/en/it/smithfield-ceiling/M-smithfield-ceiling.html?dwvar_M-smithfield-ceiling_color=colour_colour_green&dwvar_M-smithfield-ceiling_modelInfo=Smithfield%20Ceiling&quantity=1",
-  "https://flos.com/en/it/snoopy/M-snoopy.html?dwvar_M-snoopy_color=colour_black&quantity=1",
-  "https://flos.com/en/it/taccia-black-taccia/F6602030.html",
-  "https://flos.com/en/it/taraxacum-88-suspension-1-polished-aluminium-led-retrofit/F7431000.html",
+await debugCategoryExplorationEndToEnd([
+  "https://andlight.dk/shop/spejle-833c1.html",
 ]);
 
 // await debugScrapeDetailsRecordHARForTests(

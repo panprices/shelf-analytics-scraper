@@ -1184,7 +1184,12 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
       // We only expect state changes for products with variants
       // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
       if (parameterIndex !== 0) {
-        newPageState = await this.waitForChanges(ctx, pageState, 10000);
+        newPageState = await this.waitForChanges(
+          ctx,
+          pageState,
+          10000,
+          currentOption
+        );
 
         const url = await this.getCurrentVariantUrl(ctx.page, currentOption);
         if (this.variantCrawlingStrategy === "new_tabs") {
@@ -1290,11 +1295,15 @@ export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCraw
    * @param ctx
    * @param currentState
    * @param timeout
+   * @param _currentOption optional, added for specific use case in custom crawlers.
+   *
+   * Ex: for andlight we should not wait for state change if the current option is option number 0
    */
   async waitForChanges(
     ctx: PlaywrightCrawlingContext,
     currentState: any,
-    timeout: number = 1000 // ms
+    timeout: number = 1000, // ms,
+    _currentOption: number[] = []
   ): Promise<any> {
     log.debug("Wait for state to change, current state: ", currentState);
     const startTime = Date.now();

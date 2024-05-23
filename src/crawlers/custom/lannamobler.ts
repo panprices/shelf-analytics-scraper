@@ -3,6 +3,11 @@ import { DetailedProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 import { extractDomainFromUrl } from "../../utils";
 
+/**
+ * Deprecated
+ *
+ * This retailer changed a lot since the first implementation
+ */
 export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
    * This retailer does not use category scraping, it gets the URLs from sitemap
@@ -135,7 +140,7 @@ export class LannaMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       "//div[contains(@class, 'is--productinfo')]//li",
       async (node) => {
         const nodesCount = await node.count();
-        const texts = [];
+        const texts: { key: string | null; value: string | null }[] = [];
         for (let i = 0; i < nodesCount; i++) {
           const listItem = await node.nth(i);
           const key = await listItem.locator("div").nth(0).textContent();

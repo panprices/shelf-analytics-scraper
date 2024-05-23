@@ -62,6 +62,7 @@ import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
 import { AutoCrawler } from "./auto";
 import fs from "fs";
 import { FlosCrawlerDefinition } from "./custom/flos";
+import { AndLightCrawlerDefinition } from "./custom/andlight";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -443,27 +444,6 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
-      case "lannamobler.se":
-      case "lanna.no":
-      case "lanna.fi":
-        definition = await LannaMoblerCrawlerDefinition.create(launchOptions);
-        options = {
-          ...defaultOptions,
-          requestHandler: definition.router,
-        };
-        return [new PlaywrightCrawler(options), definition];
-      case "nordiskagalleriet.se":
-      case "nordiskagalleriet.fi":
-      case "nordiskagalleriet.no":
-      case "nordiskagalleriet.dk":
-        definition = await NordiskaGallerietCrawlerDefinition.create(
-          launchOptions
-        );
-        options = {
-          ...defaultOptions,
-          requestHandler: definition.router,
-        };
-        return [new PlaywrightCrawler(options), definition];
       case "amazon.de":
         definition = await AmazonCrawlerDefinition.create(launchOptions);
         options = {
@@ -645,6 +625,13 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      case "andlight.dk":
+        definition = await AndLightCrawlerDefinition.create(launchOptions);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
       /**
        * !!! WARNING !!!
        * Definitions for the retailers below this comment exist, but they are incomplete.
@@ -655,6 +642,19 @@ export class CrawlerFactory {
        */
       case "flos.com":
       case "levellight.se":
+      /**
+       * Deprecated section.
+       *
+       * Here we add the retailers that used to work but are now deprecated. We implemented them for a client that
+       * didn't renew, so we did not invest the time in fixing them
+       */
+      case "nordiskagalleriet.se":
+      case "nordiskagalleriet.fi":
+      case "nordiskagalleriet.no":
+      case "nordiskagalleriet.dk":
+      case "lannamobler.se":
+      case "lanna.no":
+      case "lanna.fi":
       default:
         definition = await AutoCrawler.create(launchOptions);
         options = {

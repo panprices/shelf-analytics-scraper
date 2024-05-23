@@ -9,6 +9,11 @@ import {
 import { extractDomainFromUrl } from "../../utils";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
+/**
+ * Deprecated & not in use anymore
+ *
+ * A lot of stuff changed since we first implemented this retailer, most importantly they removed gtins from the page
+ */
 export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   public constructor(options: CrawlerDefinitionOptions) {
     super(options, "same_tab");
@@ -121,12 +126,12 @@ export class NordiskaGallerietCrawlerDefinition extends AbstractCrawlerDefinitio
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const headlineName = await this.extractProperty(
       page,
-      ".ArtikelnamnFalt",
+      "div.contents h1",
       (node) => node.textContent().then((t) => t?.trim())
     );
     const variantSubName = await this.extractProperty(
       page,
-      "//div[contains(@class, 'VB_label')]//span[contains(@class, 'variant-beskr')]",
+      "//div[@data-testid='VariantDropdown']//button//span",
       async (nodes) => {
         const nodesCount = await nodes.count();
         return Promise.all(
