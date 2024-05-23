@@ -404,6 +404,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     return {
       found: price !== null,
+      gtin: null,
+      mpn: null,
       name,
       price,
       currency,
@@ -422,6 +424,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     if (!priceContent) {
       return {
         found: false,
+        gtin: null,
+        mpn: null,
         name: null,
         price: null,
         currency: null,
@@ -445,6 +449,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     return {
       found: true,
+      gtin: null,
+      mpn: null,
       name: null,
       price: parseFloat(
         priceContent.trim().split(" ")[0].trim().replace(",", ".")
