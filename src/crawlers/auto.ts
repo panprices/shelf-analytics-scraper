@@ -9,6 +9,8 @@ import { IllFormattedPageError, PageNotFoundError } from "../types/errors";
 interface PriceOffer {
   found: boolean;
   name: string | null;
+  gtin: string | null;
+  mpn: string | null;
   price: number | null;
   currency: string | null;
   availability: string | null;
@@ -159,6 +161,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     return {
       found: price !== null,
       name,
+      gtin: null, // not implemented
+      mpn: null, // not implemented
       price,
       currency,
       availability,
@@ -210,6 +214,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     if (schemaOrgProducts.length === 0) {
       return {
         found: false,
+        gtin: null,
+        mpn: null,
         name: null,
         price: null,
         currency: null,
@@ -236,6 +242,19 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         offers = offers.offers[0];
       }
 
+      const gtin =
+        offers.gtin ||
+        offers.gtin14 ||
+        offers.gtin13 ||
+        offers.gtin12 ||
+        offers.gtin8 ||
+        product.gtin ||
+        product.gtin14 ||
+        product.gtin13 ||
+        product.gtin12 ||
+        product.gtin8;
+      const mpn = offers.mpn || product.mpn;
+
       const price =
         offers.priceSpecification?.price ||
         offers.PriceSpecification?.Price ||
@@ -250,18 +269,23 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         offers.availability?.split("/").pop() ||
         offers.Availability?.split("/").pop();
 
-      const tentativeImages = product.image || product.Image || [];
-      const images = Array.isArray(tentativeImages)
-        ? tentativeImages
-        : [tentativeImages];
+      // Stop fetching this to avoid occasional JSON format error in the
+      // retailer's website schema.org. And we are not using this property
+      // for Price Lite.
+      // const tentativeImages = product.image || product.Image || [];
+      // const images = Array.isArray(tentativeImages)
+      //   ? tentativeImages
+      //   : [tentativeImages];
 
       return {
         found: true,
+        gtin,
+        mpn,
         name: product.name,
         price: parseFloat(price),
         currency,
         availability,
-        images,
+        images: [],
         metadata: product,
       };
     } catch (error) {
@@ -270,6 +294,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     return {
       found: false,
+      gtin: null,
+      mpn: null,
       name: null,
       price: null,
       currency: null,
@@ -432,6 +458,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
   async fetchProductData(page: Page): Promise<DetailedProductInfo> {
     let found = false,
       name = null,
+      gtin = null,
+      mpn = null,
       price = null,
       currency = null,
       availability = null,
@@ -439,14 +467,25 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     try {
       let metadata = undefined;
-      ({ found, name, price, currency, availability, images, metadata } =
-        await this.fetchJsonSchema(page));
+      ({
+        found,
+        name,
+        gtin,
+        mpn,
+        price,
+        currency,
+        availability,
+        images,
+        metadata,
+      } = await this.fetchJsonSchema(page));
 
       if (found) {
         log.info("Product scraped using schema.org JSON data");
         return {
           url: page.url(),
           name: name ? name : undefined,
+          gtin: gtin ? gtin : undefined,
+          mpn: mpn ? mpn : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
@@ -462,7 +501,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     }
 
     try {
-      ({ found, name, price, currency, availability, images } =
+      ({ found, name, gtin, mpn, price, currency, availability, images } =
         await this.fetchSchemaAttributes(page));
 
       if (found) {
@@ -470,6 +509,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         return {
           url: page.url(),
           name: name ? name : undefined,
+          gtin: gtin ? gtin : undefined,
+          mpn: mpn ? mpn : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
@@ -484,7 +525,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     }
 
     try {
-      ({ found, name, price, currency, availability, images } =
+      ({ found, name, gtin, mpn, price, currency, availability, images } =
         await this.fetchOpenGraphMetadata(page));
 
       if (found) {
@@ -492,6 +533,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         return {
           url: page.url(),
           name: name ? name : undefined,
+          gtin: gtin ? gtin : undefined,
+          mpn: mpn ? mpn : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
@@ -506,7 +549,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     }
 
     try {
-      ({ found, name, price, currency, availability, images } =
+      ({ found, name, gtin, mpn, price, currency, availability, images } =
         await this.fetchWooCommerceData(page));
 
       if (found) {
@@ -514,6 +557,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         return {
           url: page.url(),
           name: name ? name : undefined,
+          gtin: gtin ? gtin : undefined,
+          mpn: mpn ? mpn : undefined,
           price: price ? price : undefined,
           currency: currency ? currency : undefined,
           availability: availability ? availability : undefined,
