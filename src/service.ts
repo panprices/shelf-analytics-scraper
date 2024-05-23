@@ -145,16 +145,21 @@ export async function exploreCategoriesNoCapture(
 }
 
 export async function exploreCategoryEndToEnd(
-  categoryUrls: string[]
+  categoryUrls: string[],
+  overrides?: PlaywrightCrawlerOptions
 ): Promise<DetailedProductInfo[]> {
   let result: DetailedProductInfo[] = [];
   for (const u of categoryUrls) {
     console.log(u);
-    const detailedProducts = await exploreCategory(u, "end_to_end").then(
-      (detailRequests) => {
-        console.log(`Found ${detailRequests.length} detailed urls`);
+    const detailedProducts = await exploreCategory(
+      u,
+      "end_to_end",
+      overrides
+    ).then((detailRequests) => {
+      console.log(`Found ${detailRequests.length} detailed urls`);
 
-        return scrapeDetails(detailRequests).then((detailedProducts) => {
+      return scrapeDetails(detailRequests, overrides).then(
+        (detailedProducts) => {
           console.log(
             `Category ${u} obtained ${detailedProducts.length} product details`
           );
@@ -163,9 +168,9 @@ export async function exploreCategoryEndToEnd(
             throw "Missing detailed products";
           }
           return detailedProducts;
-        });
-      }
-    );
+        }
+      );
+    });
 
     result = [...result, ...detailedProducts];
   }

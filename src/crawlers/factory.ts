@@ -61,6 +61,7 @@ import { HMCrawlerDefinition } from "./custom/hm";
 import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
 import { AutoCrawler } from "./auto";
 import fs from "fs";
+import { FlosCrawlerDefinition } from "./custom/flos";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -644,6 +645,16 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+      /**
+       * !!! WARNING !!!
+       * Definitions for the retailers below this comment exist, but they are incomplete.
+       * (ex: used to quickly get product images or specifications)
+       *
+       * We restrain to using them only locally for development, but they should not be added as fully fledged retailers
+       * until they are completely defined.
+       */
+      case "flos.com":
+      case "levellight.se":
       default:
         definition = await AutoCrawler.create(launchOptions);
         options = {
