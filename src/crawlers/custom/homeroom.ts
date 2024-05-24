@@ -24,6 +24,9 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
 
   public constructor(options: CrawlerDefinitionOptions) {
     super(options, "same_tab");
+    this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", (_) =>
+      this.crawlIntermediateLowerCategoryPage(_)
+    );
   }
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
@@ -527,12 +530,21 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
 
       await ctx.enqueueLinks({
         selector: "div.menu-container ul.sub-menu li a",
-        label: "LIST",
+        label: "INTERMEDIATE_LOWER_CATEGORY",
       });
 
       // Go back to main category menu
       await ctx.page.locator("div.sub-menu-container button").click();
     }
+  }
+
+  async crawlIntermediateLowerCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "main ul .category-cta a",
+      label: "LIST",
+    });
   }
 
   async extractDescriptionFromDetailedPage(page: Page): Promise<string> {
