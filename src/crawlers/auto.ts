@@ -589,10 +589,6 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       product.availability = pascalCaseToSnakeCase(product.availability);
     }
 
-    if (!product.name) {
-      throw new IllFormattedPageError("Cannot extract name of product");
-    }
-
     return product;
   }
 

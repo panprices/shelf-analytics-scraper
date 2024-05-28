@@ -439,6 +439,14 @@ function postProcessProductDetail(
   p: DetailedProductInfo,
   crawlerDefinition: CrawlerDefinition<any>
 ): void {
+  // Mostly for AutoScraper (price lite). An error should already be thrown
+  // in the scraper when extractProductDetails if no product name is found.
+  if (!p.name) {
+    throw new Error(
+      "No product name found in the final result. It should either be scraped or supplied in the input."
+    );
+  }
+
   p.images = p.images
     .filter((imgUrl) => !!imgUrl)
     .map((imgUrl) => {
