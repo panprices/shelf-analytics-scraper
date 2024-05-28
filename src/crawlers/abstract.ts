@@ -926,7 +926,9 @@ export abstract class AbstractCrawlerDefinition
     const page = ctx.page;
     // Get all <a> elements that are not descendants of <footer> or <nav>
     const aTagLocators = await page
-      .locator("//a[not(ancestor::footer) and not(ancestor::nav)]")
+      .locator(
+        "//a[not(ancestor::footer) and not(ancestor::nav) and not (ancestor::header)]"
+      )
       .all();
 
     const hrefs = await Promise.all(
@@ -936,6 +938,10 @@ export abstract class AbstractCrawlerDefinition
     let urls: string[] = hrefs
       .filter((href): href is string => href !== null)
       .filter((href) => !href.startsWith("#"));
+    // Filter out duplicate urls such as 2 <a> tag to the same product,
+    // one on the image and one on the product name.
+    // We still want to keep separate mentions of a product/brand urls though,
+    // such as a brand being shown as header banner and as a mention later.
     const removeConsecutiveDuplicates = (list: string[]): string[] => {
       return list.filter(
         (item, index) => index === 0 || item !== list[index - 1]
@@ -1441,10 +1447,13 @@ function logProductScrapingInfo(
   ctx: PlaywrightCrawlingContext,
   productDetails: DetailedProductInfo | null
 ) {
+  const proxy = ctx.proxyInfo
+    ? `${ctx.proxyInfo.hostname}:${ctx.proxyInfo.port}`
+    : null;
   log.info("Scrape product finished", {
     requestUrl: ctx.request.url,
     productUrl: productDetails?.url || null,
-    proxy: ctx.proxyInfo?.hostname || null,
+    proxy: proxy,
     sessionId: ctx.session?.id || null,
   });
 }
