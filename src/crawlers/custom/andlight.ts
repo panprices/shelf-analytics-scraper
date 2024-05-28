@@ -7,6 +7,7 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import { Dictionary, PlaywrightCrawlingContext } from "crawlee";
+import { convertSchemaOrgAvailability } from "../../utils";
 
 export class AndLightCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   public constructor(options: CrawlerDefinitionOptions) {
@@ -86,11 +87,14 @@ export class AndLightCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     );
     const isDiscounted = !!originalPrice;
 
-    const availability = await this.extractProperty(
+    let availability = await this.extractProperty(
       page,
       "//link[@itemprop='availability']",
-      (element) => element.getAttribute("href").then((a) => a?.split("/").pop())
+      (element) => element.getAttribute("href")
     );
+    availability = availability
+      ? convertSchemaOrgAvailability(availability)
+      : undefined;
 
     const gtin = await this.extractProperty(
       page,
