@@ -27,17 +27,6 @@ import { PageNotFoundError } from "../../types/errors";
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 36;
 
-  constructor(
-    options: CrawlerDefinitionOptions,
-    variantCrawlingStrategy: VariantCrawlingStrategy
-  ) {
-    super(options, variantCrawlingStrategy);
-
-    this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", (_) =>
-      this.crawlIntermediateLowerCategoryPage(_)
-    );
-  }
-
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     await super.crawlListPage(ctx);
 
@@ -403,34 +392,31 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    await ctx.enqueueLinks({
-      selector:
-        "//div[contains(@class, 'subCategories-enter-done')]//a[not(contains(@aria-label, 'Kampanj'))]",
-      label: "INTERMEDIATE_LOWER_CATEGORY",
-    });
-  }
+    const page = ctx.page;
+    const topLevelLocators = page.locator(
+      "header nav:first-of-type > ul > li > a"
+    );
+    for (const topLevelATag of await topLevelLocators.all()) {
+      await topLevelATag.click();
+      await page.waitForTimeout(2000);
 
-  async crawlIntermediateLowerCategoryPage(
-    ctx: PlaywrightCrawlingContext
-  ): Promise<void> {
-    const rootUrl = extractDomainFromUrl(ctx.page.url());
-    const subCategoryLocator =
-      "//div[@id = 'toggledCategories']//a[not(contains(@aria-label, 'Kampanj'))]";
-
-    const subCategoryUrls = await ctx.page
-      .locator(subCategoryLocator)
-      .evaluateAll((list: HTMLElement[]) =>
-        list.map((e) => e.getAttribute("href"))
-      );
-    const isLeafCategory = subCategoryUrls
-      .map((u) => `${rootUrl}${u}`)
-      .some((u) => ctx.page.url() == u);
-    const label = isLeafCategory ? "LIST" : "INTERMEDIATE_LOWER_CATEGORY";
-
-    await ctx.enqueueLinks({
-      selector: subCategoryLocator,
-      label,
-    });
+      // Expand all subcategories by clicking "Visa mer" buttons:
+      for (const button of await page
+        .locator("header nav:last-of-type button")
+        .all()) {
+        const isSeeMoreButton = (await button.textContent())
+          ?.toLowerCase()
+          .includes("visa mer");
+        if (isSeeMoreButton) {
+          await button.click();
+          await page.waitForTimeout(500);
+        }
+      }
+      await ctx.enqueueLinks({
+        selector: "header nav:last-of-type ul li a",
+        label: "LIST",
+      });
+    }
   }
 
   async extractImageFromProductPage(page: Page): Promise<string[]> {
