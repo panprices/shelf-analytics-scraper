@@ -3,7 +3,9 @@ import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
+  VariantCrawlingStrategy,
 } from "../abstract";
 import {
   DetailedProductInfo,
@@ -14,6 +16,16 @@ import { extractImagesFromDetailedPage } from "./base-homeroom";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   // protected override categoryPageSize: number = 56;
+
+  public constructor(
+    options: CrawlerDefinitionOptions,
+    variantCrawlingStrategy: VariantCrawlingStrategy
+  ) {
+    super(options, variantCrawlingStrategy);
+    this._router.addHandler("INTERMEDIATE_LOWER_CATEGORY", (_) =>
+      this.crawlIntermediateLowerCategoryPage(_)
+    );
+  }
 
   // override async crawlDetailPage(
   //   ctx: PlaywrightCrawlingContext
@@ -413,9 +425,18 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
 
       await ctx.enqueueLinks({
         selector: "header ul .header-level3-items li a",
-        label: "LIST",
+        label: "INTERMEDIATE_LOWER_CATEGORY",
       });
     }
+  }
+
+  async crawlIntermediateLowerCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: "nav.progressive-navigation-wrapper ul li a",
+      label: "LIST",
+    });
   }
 
   static async create(
@@ -426,15 +447,18 @@ export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariant
         launchOptions?.uniqueCrawlerKey
       );
 
-    return new EllosCrawlerDefinition({
-      detailsDataset,
-      listingDataset,
-      detailsUrlSelector: "//article[contains(@class, 'product-card')]//a[1]",
-      productCardSelector: "article.product-card",
-      cookieConsentSelector: "a.cta-ok",
-      dynamicProductCardLoading: true,
-      launchOptions,
-    });
+    return new EllosCrawlerDefinition(
+      {
+        detailsDataset,
+        listingDataset,
+        detailsUrlSelector: "//article[contains(@class, 'product-card')]//a[1]",
+        productCardSelector: "article.product-card",
+        cookieConsentSelector: "a.cta-ok",
+        dynamicProductCardLoading: true,
+        launchOptions,
+      },
+      "new_tabs"
+    );
   }
 }
 
