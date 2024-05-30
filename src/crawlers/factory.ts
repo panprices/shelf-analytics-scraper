@@ -122,7 +122,7 @@ export class CrawlerFactory {
         loggingIntervalSecs: 300,
       },
       headless: true,
-      maxRequestsPerMinute: 10,
+      maxRequestsPerMinute: 20,
       requestHandlerTimeoutSecs: 90,
       maxConcurrency: 4,
       maxRequestRetries: 2,
@@ -504,6 +504,7 @@ export class CrawlerFactory {
         });
         options = {
           ...defaultOptions,
+          maxRequestsPerMinute: 10,
           launchContext: {
             ...defaultOptions.launchContext,
             launchOptions: {
