@@ -1,8 +1,12 @@
-import { exploreCategory, scrapeDetails } from "../src/service";
+import {
+  exploreCategory,
+  extractLeafCategories,
+  scrapeDetails,
+} from "../src/service";
 import { ListingProductInfo } from "../src/types/offer";
-import { expectExploreCategory } from "./utils.test";
+import { expectExploreCategory, setupBeforeTest } from "./utils.test";
 
-jest.setTimeout(300000);
+setupBeforeTest();
 
 function dummyRequest(targetUrl: string) {
   return {
@@ -15,6 +19,19 @@ function dummyRequest(targetUrl: string) {
     },
   };
 }
+
+test("Extract categories", async () => {
+  const url = "https://www.ellos.se/hem-inredning";
+  const result = await extractLeafCategories([url]);
+
+  expect(result.length).toBeGreaterThan(100);
+  expect(result.map((obj) => obj.url)).toContain(
+    "https://www.ellos.se/hem-inredning/mobler/bord"
+  );
+  expect(result.map((obj) => obj.url)).toContain(
+    "https://www.ellos.se/hem-inredning/mobler/bord/barbord"
+  );
+});
 
 test("Category page", async () => {
   const targetUrl = "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord";
@@ -42,9 +59,7 @@ test("Category page", async () => {
   ]);
 });
 
-// Skip this because one of the variant is out of stock and is not displayed
-// on the page anymore.
-test.skip("Product page with 2 variants", async () => {
+test("Product page with 2 variants", async () => {
   const targetUrl =
     "https://www.ellos.se/venture-home/matgrupp-tempe-med-2st-matstolar-polar/1722582-02";
   const result = await scrapeDetails([dummyRequest(targetUrl)]);
