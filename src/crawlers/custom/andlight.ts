@@ -102,7 +102,7 @@ export class AndLightCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     let availability = await this.extractProperty(
       page,
       "//link[@itemprop='availability']",
-      (element) => element.getAttribute("href").then((a) => a?.split("/").pop())
+      (element) => element.getAttribute("href")
     );
     availability = availability
       ? convertSchemaOrgAvailability(availability)
