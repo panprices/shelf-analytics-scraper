@@ -41,6 +41,18 @@ export class AndLightCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       0,
       productCard.page().locator("div.category-info h1")
     );
+
+    if (categoryTree) {
+      const firstPageUrl = await this.extractProperty(
+        productCard.page(),
+        "//ul[contains(@class, 'pagination')]//a[@title='1']",
+        (node) => node.getAttribute("href")
+      );
+      if (firstPageUrl) {
+        categoryTree[categoryTree.length - 1].url = firstPageUrl;
+      }
+    }
+
     return {
       url,
       categoryUrl,
@@ -90,7 +102,7 @@ export class AndLightCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     let availability = await this.extractProperty(
       page,
       "//link[@itemprop='availability']",
-      (element) => element.getAttribute("href")
+      (element) => element.getAttribute("href").then((a) => a?.split("/").pop())
     );
     availability = availability
       ? convertSchemaOrgAvailability(availability)
