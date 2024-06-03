@@ -470,7 +470,8 @@ export abstract class AbstractCrawlerDefinition
     }
     try {
       // Temporarily disable the assert due to errors not updating products
-      // this.assertCorrectProductPage(ctx);
+      // TODO: Decide what to do about this, I enabled it for Furniture1
+      await this.assertCorrectProductPage(ctx);
 
       productDetails = await this.extractProductDetails(ctx.page);
       productDetails = {

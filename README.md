@@ -54,3 +54,10 @@ kubectl apply -f k8s/deployment.yaml
 ```commandline
 kubectl rollout restart deployment/shelf-analytics-scraper
 ```
+
+## Misc. 
+
+Start the chromium browser manually (MacOS): 
+```commandline
+open ~/Library/Caches/ms-playwright/chromium-1071/chrome-mac/Chromium.app/
+```

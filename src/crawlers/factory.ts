@@ -158,6 +158,49 @@ export class CrawlerFactory {
       ],
     };
 
+    const antiBotDetectionOptions: PlaywrightCrawlerOptions = {
+      ...defaultOptions,
+      maxRequestsPerMinute: 10,
+      browserPoolOptions: {
+        ...defaultOptions.browserPoolOptions,
+        // Don't try to fool Wayfair because they send back a script to check that we didn't send
+        // a gibberish fingerprint
+        useFingerprints: false,
+      },
+      maxConcurrency: 1, // can't scrape too quickly due to captcha
+      headless: false, // wayfair will throw captcha if headless
+
+      // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool
+      useSessionPool: true,
+      persistCookiesPerSession: true,
+      sessionPoolOptions: {
+        persistStateKeyValueStoreId: "KEY_VALUE_" + uuidv4(),
+        maxPoolSize: 1,
+        sessionOptions: {
+          maxUsageCount: 10, // rotate IPs often to avoid getting blocked
+        },
+        blockedStatusCodes: [], // we handle the 429 error ourselves
+      },
+
+      preNavigationHooks: [
+        async (ctx) =>
+          await addCachedCookiesToBrowserContext(firestore, ctx, domain),
+        ...(defaultOptions.preNavigationHooks ?? []),
+      ],
+
+      postNavigationHooks: [
+        async (ctx) =>
+          await syncBrowserCookiesToFirestore(firestore, ctx, domain),
+        ...(defaultOptions.postNavigationHooks ?? []),
+      ],
+      proxyConfiguration: new ProxyConfiguration({
+        newUrlFunction: async (_sessionId) => {
+          const availableIp = await newAvailableIp(firestore);
+          return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
+        },
+      }),
+    };
+
     const blockImagesAndScriptsHooks: PlaywrightHook[] = [
       async ({ page }) => {
         const noImageReplacer = fs.readFileSync("resources/no_image.png");
@@ -428,10 +471,19 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "baldai1.lt":
         definition = await Furniture1CrawlerDefinition.create(launchOptions);
+
         options = {
-          ...defaultOptions,
+          ...antiBotDetectionOptions,
+          launchContext: {
+            ...defaultOptions.launchContext,
+            launchOptions: {
+              ...(defaultOptions.launchContext?.launchOptions ?? []),
+              // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
+              devtools: true,
+              args: ["--window-size=1920,1080"],
+            },
+          },
           requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.DE,
         };
         return [new PlaywrightCrawler(options), definition];
       case "finnishdesignshop.fi":
@@ -503,8 +555,7 @@ export class CrawlerFactory {
           screenshotOptions: { disablePageResize: true },
         });
         options = {
-          ...defaultOptions,
-          maxRequestsPerMinute: 10,
+          ...antiBotDetectionOptions,
           launchContext: {
             ...defaultOptions.launchContext,
             launchOptions: {
@@ -514,55 +565,7 @@ export class CrawlerFactory {
               args: ["--window-size=1920,1080"],
             },
           },
-          browserPoolOptions: {
-            ...defaultOptions.browserPoolOptions,
-            // Don't try to fool Wayfair because they send back a script to check that we didn't send
-            // a gibberish fingerprint
-            useFingerprints: false,
-          },
           requestHandler: definition.router,
-          maxConcurrency: 1, // can't scrape too quickly due to captcha
-          headless: false, // wayfair will throw captcha if headless
-
-          // Read more from the docs at https://crawlee.dev/api/core/class/SessionPool
-          useSessionPool: true,
-          persistCookiesPerSession: true,
-          sessionPoolOptions: {
-            persistStateKeyValueStoreId: "KEY_VALUE_" + uuidv4(),
-            maxPoolSize: 1,
-            sessionOptions: {
-              maxUsageCount: 10, // rotate IPs often to avoid getting blocked
-            },
-            blockedStatusCodes: [], // we handle the 429 error ourselves
-          },
-
-          preNavigationHooks: [
-            async (ctx) =>
-              await addCachedCookiesToBrowserContext(firestore, ctx, domain),
-            ...(defaultOptions.preNavigationHooks ?? []),
-          ],
-
-          postNavigationHooks: [
-            async (ctx) =>
-              await syncBrowserCookiesToFirestore(firestore, ctx, domain),
-            ...(defaultOptions.postNavigationHooks ?? []),
-          ],
-
-          // failedRequestHandler: async (_ctx, error) => {
-          //   if (error instanceof CaptchaEncounteredError) {
-          //     if (!proxyManager.currentIp) {
-          //       log.error("Cannot extract current IP to sync to Firebase");
-          //       return;
-          //     }
-          //     await proxyManager.removeCookies(proxyManager.currentIp, domain);
-          //   }
-          // },
-          proxyConfiguration: new ProxyConfiguration({
-            newUrlFunction: async (_sessionId) => {
-              const availableIp = await newAvailableIp(firestore);
-              return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
-            },
-          }),
         };
         const crawler = new PlaywrightCrawler(options);
         return [crawler, definition];
