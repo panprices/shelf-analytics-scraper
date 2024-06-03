@@ -137,11 +137,14 @@ async function syncCookieToFirestore(
   await firestore
     .collection("proxy_status")
     .doc(ip)
-    .update({
-      cookies: {
-        [domain]: JSON.stringify(cookies),
+    .set(
+      {
+        cookies: {
+          [domain]: JSON.stringify(cookies),
+        },
       },
-    });
+      { merge: true }
+    );
 
   log.info(`Updated cookies on Firestore`, {
     nrCookies: cookies.length,
