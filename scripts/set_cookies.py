@@ -70,5 +70,5 @@ def make_requests():
 
 
 if __name__ == "__main__":
-    for _ in range(10):
+    for _ in range(25):
         set_cookie_for_an_IP()
