@@ -478,8 +478,6 @@ export class CrawlerFactory {
             ...defaultOptions.launchContext,
             launchOptions: {
               ...(defaultOptions.launchContext?.launchOptions ?? []),
-              // Wayfair will like us more if we open the devtools ¯\_(ツ)_/¯
-              devtools: true,
               args: ["--window-size=1920,1080"],
             },
           },
