@@ -1,6 +1,5 @@
 import { Page } from "playwright";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
-import { getFirestore } from "firebase-admin/firestore";
 import { URLSearchParams } from "url";
 
 import {
@@ -16,11 +15,6 @@ import {
   ProductReviews,
   Specification,
 } from "../../types/offer";
-import {
-  CaptchaEncounteredError,
-  GotBlockedError,
-  PageNotFoundError,
-} from "../../types/errors";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override variantCrawlingStrategy: VariantCrawlingStrategy =
@@ -30,35 +24,6 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
    */
   extractCardProductInfo(): Promise<undefined> {
     return Promise.resolve(undefined);
-  }
-
-  override async assertCorrectProductPage(
-    ctx: PlaywrightCrawlingContext<Dictionary>
-  ): Promise<void> {
-    await super.assertCorrectProductPage(ctx);
-
-    const page = ctx.page;
-    const url = page.url();
-    const responseStatus = ctx.response?.status();
-
-    if (url.includes("https://www.wayfair.de/blocked.php")) {
-      throw new GotBlockedError("Got blocked");
-    }
-    if (
-      url.includes("https://www.wayfair.de/v/captcha") ||
-      (await page.locator("iframe[title='reCAPTCHA']").count()) > 0 ||
-      (await page.locator("div[class='px-captcha-error-container']").count()) >
-        0 ||
-      responseStatus == 429
-    ) {
-      throw new CaptchaEncounteredError("Captcha encountered");
-    }
-    if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
-      throw new PageNotFoundError("Redirected to homepage");
-    }
-    if (!url.includes("/pdp/")) {
-      throw new PageNotFoundError("Redirected to another page");
-    }
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
@@ -377,48 +342,6 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
       },
       "new_tabs"
     );
-  }
-
-  override handleCrawlDetailPageError(
-    error: any,
-    ctx: PlaywrightCrawlingContext
-  ) {
-    // For now Captcha logic is wayfair specific
-    if (error instanceof CaptchaEncounteredError) {
-      log.error(`Captcha encountered`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-
-      ctx.session?.retire();
-      const firestoreDB = getFirestore();
-      const proxyUrl = ctx.proxyInfo?.url;
-
-      // Proxy URL is has the following format: `http://panprices:BB4NC4WQmx@${ip}:60000`
-      if (proxyUrl) {
-        const proxyIp = proxyUrl.split("@")[1].split(":")[0];
-        firestoreDB
-          .collection("proxy_status")
-          .where("ip", "==", proxyIp)
-          .get()
-          .then((snapshot) => {
-            snapshot.forEach((doc) => {
-              firestoreDB
-                .collection("proxy_status")
-                .doc(doc.id)
-                .update({
-                  last_burned: new Date(),
-                })
-                .then(() => log.warning(`IP ${proxyIp} blocked`));
-            });
-          });
-      }
-
-      throw error;
-    }
-    super.handleCrawlDetailPageError(error, ctx);
   }
 }
 

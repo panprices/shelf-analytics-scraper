@@ -1,14 +1,11 @@
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
-  CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-  VariantCrawlingStrategy,
 } from "../abstract";
-import { Locator, Page, selectors } from "playwright";
-import { Dataset, Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { Locator, Page } from "playwright";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
-  Category,
   DetailedProductInfo,
   IndividualReview,
   ListingProductInfo,
@@ -16,13 +13,7 @@ import {
   ProductReviews,
   Specification,
 } from "../../types/offer";
-import { extractDomainFromUrl } from "../../utils";
-import {
-  isProductPage,
-  getVariantUrlsFromSchemaOrg,
-  extractCardProductInfo as baseExtractCardProductInfo,
-} from "./base-chill";
-import { PageNotFoundError } from "../../types/errors";
+import { extractCardProductInfo as baseExtractCardProductInfo } from "./base-chill";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 36;
@@ -73,16 +64,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     productCard: Locator
   ): Promise<ListingProductInfo> {
     return baseExtractCardProductInfo(this, categoryUrl, productCard);
-  }
-
-  override async assertCorrectProductPage(
-    ctx: PlaywrightCrawlingContext<Dictionary>
-  ): Promise<void> {
-    await super.assertCorrectProductPage(ctx);
-
-    if (!isProductPage(ctx.page.url())) {
-      throw new PageNotFoundError("Url is not a product page url");
-    }
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {

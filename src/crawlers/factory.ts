@@ -33,8 +33,6 @@ import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 import { Route } from "playwright-core";
 import { Furniture1CrawlerDefinition } from "./custom/furniture1";
 import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
-import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
-import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
 import { getFirestore } from "firebase-admin/firestore";
@@ -61,8 +59,10 @@ import { HMCrawlerDefinition } from "./custom/hm";
 import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
 import { AutoCrawler } from "./auto";
 import fs from "fs";
-import { FlosCrawlerDefinition } from "./custom/flos";
 import { AndLightCrawlerDefinition } from "./custom/andlight";
+import { WayfairDetailErrorHandler } from "../strategies/detail-error/wayfair";
+import { AntiBotDetailErrorHandler } from "../strategies/detail-error/anti-bot";
+import { TrademaxDetailErrorHandler } from "../strategies/detail-error/trademax";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -372,6 +372,7 @@ export class CrawlerFactory {
             hasBlockedImages: true,
           },
         });
+        definition.registerDetailErrorHandler(new TrademaxDetailErrorHandler());
         options = {
           ...defaultOptions,
           requestHandler: definition.router,
@@ -471,6 +472,10 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       case "baldai1.lt":
         definition = await Furniture1CrawlerDefinition.create(launchOptions);
+        definition.registerDetailErrorHandler(
+          new AntiBotDetailErrorHandler(),
+          "first"
+        );
 
         options = {
           ...antiBotDetectionOptions,
@@ -552,6 +557,10 @@ export class CrawlerFactory {
           ...launchOptions,
           screenshotOptions: { disablePageResize: true },
         });
+        definition.registerDetailErrorHandler(
+          new WayfairDetailErrorHandler(),
+          "first"
+        );
         options = {
           ...antiBotDetectionOptions,
           launchContext: {
