@@ -1,12 +1,12 @@
-import { DefaultDetailErrorHandler } from "./default";
 import { PlaywrightCrawlingContext } from "crawlee";
 import {
   CaptchaEncounteredError,
   GotBlockedError,
   PageNotFoundError,
 } from "../../types/errors";
+import { AntiBotDetailErrorHandler } from "./anti-bot";
 
-export class WayfairDetailErrorHandler extends DefaultDetailErrorHandler {
+export class WayfairDetailErrorHandler extends AntiBotDetailErrorHandler {
   override async assertCorrectProductPage(ctx: PlaywrightCrawlingContext) {
     const page = ctx.page;
     const url = page.url();
