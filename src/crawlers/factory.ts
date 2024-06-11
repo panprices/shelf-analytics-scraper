@@ -128,10 +128,18 @@ export class CrawlerFactory {
       maxRequestRetries: 2,
       navigationTimeoutSecs: 150,
       failedRequestHandler: async (ctx) => {
-        await AbstractCrawlerDefinition.saveScreenshot(
-          ctx.page,
-          ctx.page.url()
-        );
+        // Try to save screenshot. Should not throw an error if fails to do so.
+        try {
+          await AbstractCrawlerDefinition.saveScreenshot(
+            ctx.page,
+            ctx.page.url()
+          );
+        } catch (saveScreenshotError) {
+          log.error("Error saving screenshot", {
+            url: ctx.page.url(),
+            error: saveScreenshotError,
+          });
+        }
       },
       ...overrides,
       preNavigationHooks: [
