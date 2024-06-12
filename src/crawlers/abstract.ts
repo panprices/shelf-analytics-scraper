@@ -421,7 +421,7 @@ export abstract class AbstractCrawlerDefinition
       quality: 40,
       type: "jpeg",
       scale: "css",
-      timeout: 40000,
+      timeout: 60_000,
     });
     const screenshotName = `${crypto
       .createHash("md5")

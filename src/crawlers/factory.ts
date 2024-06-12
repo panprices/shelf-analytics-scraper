@@ -300,6 +300,7 @@ export class CrawlerFactory {
           ...launchOptions,
           screenshotOptions: {
             waitForNetwork: true,
+            waitForNetworkTimeout: 10_000,
             /**
              * Nordiskarum's website doesn't show the main image anymore if the screen is under a certain width.
              *
