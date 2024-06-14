@@ -29,8 +29,10 @@ import * as crypto from "crypto";
 import { BlobStorage } from "../blob-storage/abstract";
 import { GoogleCloudBlobStorage } from "../blob-storage/google";
 import fs from "fs";
-import { DetailErrorHandler } from "../strategies/detail-error/interface";
-import { DefaultDetailErrorHandler } from "../strategies/detail-error/default";
+import { DetailErrorAssertion } from "../strategies/detail-error-assertion/interface";
+import { DefaultErrorAssertion } from "../strategies/detail-error-assertion/default";
+import { DetailErrorHandler } from "../strategies/detail-error-handling/interface";
+import { DefaultDetailErrorHandler } from "../strategies/detail-error-handling/default";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;
@@ -165,7 +167,8 @@ export abstract class AbstractCrawlerDefinition
    */
   protected readonly categoryPageSize?: number;
 
-  private __detailPageErrorHandlers: DetailErrorHandler[];
+  protected __detailPageErrorHandlers: DetailErrorHandler[];
+  protected __detailPageErrorAssertions: DetailErrorAssertion[];
 
   private readonly productInfos: Map<string, ListingProductInfo>;
 
@@ -200,6 +203,7 @@ export abstract class AbstractCrawlerDefinition
 
     this.productInfos = new Map<string, ListingProductInfo>();
     this.__detailPageErrorHandlers = [new DefaultDetailErrorHandler()];
+    this.__detailPageErrorAssertions = [new DefaultErrorAssertion()];
   }
 
   private static async __injectDateTime(page: Page): Promise<void> {
@@ -456,7 +460,7 @@ export abstract class AbstractCrawlerDefinition
   async assertCorrectProductPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    for (const handler of this.__detailPageErrorHandlers) {
+    for (const handler of this.__detailPageErrorAssertions) {
       await handler.assertCorrectProductPage(ctx);
     }
   }
@@ -478,32 +482,6 @@ export abstract class AbstractCrawlerDefinition
 
       // At this point the error was handled so we stop iterating through the handlers
       break;
-    }
-  }
-
-  registerDetailErrorHandler(
-    errorHandler: DetailErrorHandler,
-    position: number | "first" | "last" = "last"
-  ): void {
-    if (position === "first") {
-      this.__detailPageErrorHandlers = [
-        errorHandler,
-        ...this.__detailPageErrorHandlers,
-      ];
-    } else if (position === "last") {
-      this.__detailPageErrorHandlers = [
-        ...this.__detailPageErrorHandlers,
-        errorHandler,
-      ];
-    } else {
-      this.__detailPageErrorHandlers = [
-        ...this.__detailPageErrorHandlers.slice(0, position),
-        errorHandler,
-        ...this.__detailPageErrorHandlers.slice(
-          position,
-          this.__detailPageErrorHandlers.length
-        ),
-      ];
     }
   }
 

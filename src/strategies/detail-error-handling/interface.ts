@@ -20,6 +20,5 @@ import { PlaywrightCrawlingContext } from "crawlee";
  * inherit from `AbstractCrawlerDefinitionWithVariants` (Wayfair)
  */
 export interface DetailErrorHandler {
-  assertCorrectProductPage(ctx: PlaywrightCrawlingContext): Promise<void>;
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext): void;
 }

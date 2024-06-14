@@ -5,6 +5,7 @@ import { URLSearchParams } from "url";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
 } from "../abstract";
@@ -15,10 +16,29 @@ import {
   ProductReviews,
   Specification,
 } from "../../types/offer";
+import { WayfairErrorAssertion } from "../../strategies/detail-error-assertion/wayfair";
+import { AntiBotDetailErrorHandler } from "../../strategies/detail-error-handling/anti-bot";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override variantCrawlingStrategy: VariantCrawlingStrategy =
     "same_tab";
+
+  constructor(
+    options: CrawlerDefinitionOptions,
+    variantCrawlingStrategy: VariantCrawlingStrategy = "same_tab"
+  ) {
+    super(options, variantCrawlingStrategy);
+
+    this.__detailPageErrorAssertions = [
+      new WayfairErrorAssertion(),
+      ...this.__detailPageErrorAssertions,
+    ];
+    this.__detailPageErrorHandlers = [
+      new AntiBotDetailErrorHandler(),
+      ...this.__detailPageErrorHandlers,
+    ];
+  }
+
   /**
    * This retailer does not do category scraping
    */

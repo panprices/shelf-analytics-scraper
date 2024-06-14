@@ -1,7 +1,9 @@
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
+  CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
+  VariantCrawlingStrategy,
 } from "../abstract";
 import { Locator, Page } from "playwright";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
@@ -14,9 +16,22 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractCardProductInfo as baseExtractCardProductInfo } from "./base-chill";
+import { TrademaxErrorAssertion } from "../../strategies/detail-error-assertion/trademax";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 36;
+
+  constructor(
+    options: CrawlerDefinitionOptions,
+    variantCrawlingStrategy: VariantCrawlingStrategy
+  ) {
+    super(options, variantCrawlingStrategy);
+
+    this.__detailPageErrorAssertions = [
+      ...this.__detailPageErrorAssertions,
+      new TrademaxErrorAssertion(),
+    ];
+  }
 
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
     await super.crawlListPage(ctx);

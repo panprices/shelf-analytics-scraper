@@ -1,7 +1,11 @@
 import { Locator, Page } from "playwright";
-import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import {
   DetailedProductInfo,
   ListingProductInfo,
@@ -9,10 +13,23 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
-import { CaptchaEncounteredError } from "../../types/errors";
-import { getFirestore } from "firebase-admin/firestore";
+import { AntiBotErrorAssertion } from "../../strategies/detail-error-assertion/anti-bot";
+import { AntiBotDetailErrorHandler } from "../../strategies/detail-error-handling/anti-bot";
 
 export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
+  public constructor(options: CrawlerDefinitionOptions) {
+    super(options);
+
+    this.__detailPageErrorHandlers = [
+      new AntiBotDetailErrorHandler(),
+      ...this.__detailPageErrorHandlers,
+    ];
+    this.__detailPageErrorAssertions = [
+      new AntiBotErrorAssertion(),
+      ...this.__detailPageErrorAssertions,
+    ];
+  }
+
   override async crawlDetailPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {

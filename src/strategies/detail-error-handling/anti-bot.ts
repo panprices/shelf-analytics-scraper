@@ -41,12 +41,4 @@ export class AntiBotDetailErrorHandler implements DetailErrorHandler {
       throw error;
     }
   }
-
-  async assertCorrectProductPage(ctx: PlaywrightCrawlingContext) {
-    const responseStatus = ctx.response?.status();
-
-    if (responseStatus == 429) {
-      throw new CaptchaEncounteredError("Captcha encountered");
-    }
-  }
 }

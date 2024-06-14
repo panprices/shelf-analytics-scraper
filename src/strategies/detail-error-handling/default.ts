@@ -33,10 +33,4 @@ export class DefaultDetailErrorHandler implements DetailErrorHandler {
     // Unknown error, throw it
     throw error;
   }
-
-  async assertCorrectProductPage(ctx: PlaywrightCrawlingContext) {
-    if (ctx.response?.status() === 404) {
-      throw new PageNotFoundError("404 Not Found");
-    }
-  }
 }
