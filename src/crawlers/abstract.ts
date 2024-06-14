@@ -24,16 +24,15 @@ import {
   normaliseUrl,
 } from "../utils";
 import { v4 as uuidv4 } from "uuid";
-import {
-  GotBlockedError,
-  IllFormattedPageError,
-  PageNotFoundError,
-} from "../types/errors";
 import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils";
 import * as crypto from "crypto";
 import { BlobStorage } from "../blob-storage/abstract";
 import { GoogleCloudBlobStorage } from "../blob-storage/google";
 import fs from "fs";
+import { DetailErrorAssertion } from "../strategies/detail-error-assertion/interface";
+import { DefaultErrorAssertion } from "../strategies/detail-error-assertion/default";
+import { DetailErrorHandler } from "../strategies/detail-error-handling/interface";
+import { DefaultDetailErrorHandler } from "../strategies/detail-error-handling/default";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;
@@ -168,6 +167,9 @@ export abstract class AbstractCrawlerDefinition
    */
   protected readonly categoryPageSize?: number;
 
+  protected __detailPageErrorHandlers: DetailErrorHandler[];
+  protected __detailPageErrorAssertions: DetailErrorAssertion[];
+
   private readonly productInfos: Map<string, ListingProductInfo>;
 
   protected constructor(options: CrawlerDefinitionOptions) {
@@ -200,6 +202,8 @@ export abstract class AbstractCrawlerDefinition
     this.crawlerOptions = options;
 
     this.productInfos = new Map<string, ListingProductInfo>();
+    this.__detailPageErrorHandlers = [new DefaultDetailErrorHandler()];
+    this.__detailPageErrorAssertions = [new DefaultErrorAssertion()];
   }
 
   private static async __injectDateTime(page: Page): Promise<void> {
@@ -449,12 +453,35 @@ export abstract class AbstractCrawlerDefinition
   /**
    * Check for any issue in the product page before trying to scrape it.
    * E.g. check for 404 Page not found, redirect to a category page, ...
+   *
+   * Overriding this method is discouraged. Use a new error handling strategy if you want to
+   * add behaviour here
    */
   async assertCorrectProductPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    if (ctx.response?.status() === 404) {
-      throw new PageNotFoundError("404 Not Found");
+    for (const handler of this.__detailPageErrorAssertions) {
+      await handler.assertCorrectProductPage(ctx);
+    }
+  }
+
+  /**
+   * Overriding this method is discouraged. Use a new error handling strategy if you want to
+   * add behaviour here
+   *
+   * @param error
+   * @param ctx
+   */
+  handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {
+    for (const handler of this.__detailPageErrorHandlers) {
+      try {
+        handler.handleCrawlDetailPageError(error, ctx);
+      } catch (e) {
+        continue;
+      }
+
+      // At this point the error was handled so we stop iterating through the handlers
+      break;
     }
   }
 
@@ -981,32 +1008,6 @@ export abstract class AbstractCrawlerDefinition
     );
 
     return [detailsDataset, listingDataset];
-  }
-  handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext): void {
-    // Known errors: just log and continue
-    if (
-      error instanceof IllFormattedPageError ||
-      error instanceof PageNotFoundError
-    ) {
-      log.info(`Known error encountered`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-      throw error;
-    }
-    if (error instanceof GotBlockedError) {
-      log.error(`Got blocked`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-      throw error;
-    }
-    // Unknown error, throw it
-    throw error;
   }
 }
 

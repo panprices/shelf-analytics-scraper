@@ -33,8 +33,6 @@ import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
 import { Route } from "playwright-core";
 import { Furniture1CrawlerDefinition } from "./custom/furniture1";
 import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
-import { LannaMoblerCrawlerDefinition } from "./custom/lannamobler";
-import { NordiskaGallerietCrawlerDefinition } from "./custom/nordiskagalleriet";
 import { AmazonCrawlerDefinition } from "./custom/amazon";
 import { WayfairCrawlerDefinition } from "./custom/wayfair";
 import { getFirestore } from "firebase-admin/firestore";
@@ -61,7 +59,6 @@ import { HMCrawlerDefinition } from "./custom/hm";
 import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
 import { AutoCrawler } from "./auto";
 import fs from "fs";
-import { FlosCrawlerDefinition } from "./custom/flos";
 import { AndLightCrawlerDefinition } from "./custom/andlight";
 
 export interface CrawlerFactoryArgs {

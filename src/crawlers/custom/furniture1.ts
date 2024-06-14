@@ -1,7 +1,11 @@
 import { Locator, Page } from "playwright";
-import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import {
   DetailedProductInfo,
   ListingProductInfo,
@@ -9,66 +13,21 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
-import { CaptchaEncounteredError } from "../../types/errors";
-import { getFirestore } from "firebase-admin/firestore";
+import { AntiBotErrorAssertion } from "../../strategies/detail-error-assertion/anti-bot";
+import { AntiBotDetailErrorHandler } from "../../strategies/detail-error-handling/anti-bot";
 
 export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
-  /**
-   * TODO: Dirty copy paste from Wayfair to scrape overnight, should fix next day
-   * @param ctx
-   */
-  override async assertCorrectProductPage(
-    ctx: PlaywrightCrawlingContext<Dictionary>
-  ): Promise<void> {
-    await super.assertCorrectProductPage(ctx);
+  public constructor(options: CrawlerDefinitionOptions) {
+    super(options);
 
-    const responseStatus = ctx.response?.status();
-
-    if (responseStatus == 429) {
-      throw new CaptchaEncounteredError("Captcha encountered");
-    }
-  }
-
-  override handleCrawlDetailPageError(
-    error: any,
-    ctx: PlaywrightCrawlingContext
-  ) {
-    // For now Captcha logic is wayfair specific
-    if (error instanceof CaptchaEncounteredError) {
-      log.error(`Captcha encountered`, {
-        url: ctx.page.url(),
-        requestUrl: ctx.request.url,
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-
-      ctx.session?.retire();
-      const firestoreDB = getFirestore();
-      const proxyUrl = ctx.proxyInfo?.url;
-
-      // Proxy URL is has the following format: `http://panprices:BB4NC4WQmx@${ip}:60000`
-      if (proxyUrl) {
-        const proxyIp = proxyUrl.split("@")[1].split(":")[0];
-        firestoreDB
-          .collection("proxy_status")
-          .where("ip", "==", proxyIp)
-          .get()
-          .then((snapshot) => {
-            snapshot.forEach((doc) => {
-              firestoreDB
-                .collection("proxy_status")
-                .doc(doc.id)
-                .update({
-                  last_burned: new Date(),
-                })
-                .then(() => log.warning(`IP ${proxyIp} blocked`));
-            });
-          });
-      }
-
-      throw error;
-    }
-    super.handleCrawlDetailPageError(error, ctx);
+    this.__detailPageErrorHandlers = [
+      new AntiBotDetailErrorHandler(),
+      ...this.__detailPageErrorHandlers,
+    ];
+    this.__detailPageErrorAssertions = [
+      new AntiBotErrorAssertion(),
+      ...this.__detailPageErrorAssertions,
+    ];
   }
 
   override async crawlDetailPage(

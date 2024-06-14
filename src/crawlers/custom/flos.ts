@@ -27,6 +27,10 @@ export class FlosCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    // wait to load the full resolution images
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(1000);
+
     const name = await this.extractProperty(
       page,
       ".product-detail__body div.u-h3",

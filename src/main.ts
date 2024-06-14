@@ -151,11 +151,11 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // Berno Mobler
 
 // await debugCategoryExploration(
-//   "https://www.bygghemma.se/golv-och-vagg/malarfarg-och-tapet/tapeter/"
-// );{
-// await debugScrapeDetails(
-//   "https://www.nordiskarum.se/trondheim-x-josefin-lustig-ullmatta-400x400cm-beige/white-51074-320.html"
+//   "https://andlight.dk/shop/plakater-og-rammer-4459c1.html"
 // );
+await debugScrapeDetails([
+  "https://www.baldai1.lt/konsoles/konsole-dallas-3185-beige.html",
+]);
 // await debugCategoryExploration(
 //   "https://nordlyliving.dk/collections/dekoration"
 // );
@@ -199,12 +199,12 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   .filter((u) => u.startsWith("http"));
 //
 // await debugScrapeDetails([
-//   "https://andlight.dk/shop/flos-bellhop-battery-11161p.html",
+//   "https://www.baldai1.lt/lauko-baldai/stalo-ir-kedziu-komplektai/stalo-ir-kedziu-komplektas-dallas-2238-pilka-tamsi-pilka.html",
 // ]);
 
-await debugCategoryExplorationEndToEnd([
-  "https://andlight.dk/shop/spejle-833c1.html",
-]);
+// await debugCategoryExplorationEndToEnd([
+//   "https://andlight.dk/shop/spejle-833c1.html",
+// ]);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
