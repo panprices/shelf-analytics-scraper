@@ -1,7 +1,7 @@
 import { DetailErrorHandler } from "./interface";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import { CaptchaEncounteredError } from "../../types/errors";
-import { getFirestore } from "firebase-admin/lib/firestore";
+import { getFirestore } from "firebase-admin/firestore";
 
 export class AntiBotDetailErrorHandler implements DetailErrorHandler {
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {
