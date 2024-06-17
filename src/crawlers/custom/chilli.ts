@@ -4,22 +4,17 @@ import {
   CrawlerLaunchOptions,
 } from "../abstract";
 import { Locator, Page } from "playwright";
-import { Dataset, log, PlaywrightCrawlingContext } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 import {
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
-  OfferMetadata,
-  ProductReviews,
   Specification,
 } from "../../types/offer";
 import { extractDomainFromUrl } from "../../utils";
-import { v4 as uuidv4 } from "uuid";
 import {
   createCrawlerDefinitionOption,
   extractCardProductInfo as baseExtractCardProductInfo,
   extractProductDetails as baseExtractProductDetails,
-  getVariantUrlsFromSchemaOrg,
   isProductPage,
 } from "./base-chill";
 
@@ -122,7 +117,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       const descriptionExpander = page.locator(
         "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']"
       );
-      await descriptionExpander.click({ timeout: 5000 });
+      await descriptionExpander.click({ timeout: 500 });
       description = await this.extractProperty(
         page,
         "//main//div[contains(@class, 'ac') and .//span/text()='Produktinformation']/div",
@@ -139,7 +134,7 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       const specificationsExpander = page.locator(
         "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']"
       );
-      await specificationsExpander.click({ timeout: 5000 });
+      await specificationsExpander.click({ timeout: 500 });
       await page.waitForSelector(
         "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//div//div//div//span[2]"
       );
@@ -157,13 +152,10 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
       log.info(`Specification not found for product with url: ${page.url()}`);
     }
 
-    const images = await extractImagesFromProductPage(page);
-
     return {
       ...productInfo,
       description,
       sku: articleNumber,
-      images,
       specifications,
     };
   }
@@ -210,28 +202,4 @@ export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
 
     return new ChilliCrawlerDefinition({ ...options, launchOptions });
   }
-}
-
-async function extractImagesFromProductPage(page: Page): Promise<string[]> {
-  const imageThumbnailLocator = page.locator("main div.a0j > div.z div.cr img");
-
-  try {
-    await imageThumbnailLocator.waitFor({ timeout: 10000 });
-  } catch (e) {
-    // Probably no images thumbnails -> do nothing and just scrape the main image
-  }
-
-  const imagesCount = await imageThumbnailLocator.count();
-  for (let i = 0; i < imagesCount; i++) {
-    const currentThumbnail = imageThumbnailLocator.nth(i);
-    await currentThumbnail.click();
-    await page.waitForTimeout(200);
-  }
-  const images = await page
-    .locator("main div.a0j > div.z div.ht img")
-    .evaluateAll((list: HTMLElement[]) =>
-      list.map((element) => <string>element.getAttribute("src"))
-    );
-
-  return images;
 }

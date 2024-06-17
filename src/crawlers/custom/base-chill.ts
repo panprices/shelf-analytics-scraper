@@ -3,12 +3,8 @@
  * including: chilli.se, furniturebox.se, trademax.se
  */
 
-import { log } from "crawlee";
 import { Locator, Page } from "playwright";
 import {
-  Category,
-  DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
   OfferMetadata,
   ProductReviews,
@@ -20,6 +16,7 @@ import {
 } from "../abstract";
 import { PageNotFoundError } from "../../types/errors";
 import { extractNumberFromText } from "../../utils";
+import { findElementByCSSProperties } from "../scraper-utils";
 
 export async function createCrawlerDefinitionOption(
   launchOptions?: CrawlerLaunchOptions
@@ -71,6 +68,46 @@ export async function extractCardProductInfo(
   };
 }
 
+export async function extractImageFromProductPage(
+  page: Page,
+  mainLocator: Locator
+): Promise<string[]> {
+  const imagesPreviewRootLocator = await findElementByCSSProperties(
+    mainLocator,
+    { maxHeight: "495px", gridAutoFlow: "row" },
+    "div"
+  );
+  if (!imagesPreviewRootLocator) {
+    throw new Error("No images preview root found");
+  }
+
+  const imagesPreviewLocator = imagesPreviewRootLocator.locator("img");
+  const imagesCount = await imagesPreviewLocator.count();
+  for (let i = 0; i < imagesCount; i++) {
+    const currentImagePreview = imagesPreviewLocator.nth(i);
+    await currentImagePreview.click();
+    await page.waitForTimeout(50);
+  }
+
+  const imageUrls = [];
+  const imageViewRootLocator = await findElementByCSSProperties(mainLocator, {
+    columnGap: "0px",
+    rowGap: "0px",
+  });
+  if (!imageViewRootLocator) {
+    throw new Error("No image view found");
+  }
+
+  for (const img of await imageViewRootLocator.locator("img").all()) {
+    const url = await img.getAttribute("src");
+    if (url) {
+      imageUrls.push(url);
+    }
+  }
+
+  return imageUrls;
+}
+
 export async function extractProductDetails(
   crawlerDefinition: AbstractCrawlerDefinition,
   page: Page
@@ -78,59 +115,77 @@ export async function extractProductDetails(
   if (!isProductPage(page.url())) {
     throw new PageNotFoundError("Page not found");
   }
-
-  try {
-    await page.waitForSelector("main div.d.a3 h1", {
-      timeout: 15000,
-    });
-  } catch (error) {
-    log.error(
-      `No product title found, potentially brokenlink. Url: ${page.url()}`
-    );
-    throw error;
-  }
   await crawlerDefinition.handleCookieConsent(page);
 
-  const productName = (
-    await page.locator("main div.d.a3 h1").innerText()
-  ).replace("\n", " ");
-  if (!productName) {
+  const mainLocator = page.locator("main#maincontent");
+  const productMainLocator = mainLocator.locator("xpath=./div[2]");
+
+  const productNameLocator = await findElementByCSSProperties(
+    productMainLocator,
+    {
+      fontSize: "20px",
+    },
+    "h1"
+  );
+  if (!productNameLocator) {
     throw new Error("Cannot extract productName");
   }
 
-  let brand = undefined;
+  const productName = await productNameLocator
+    .innerText()
+    .then((t) => t?.split("\n")[0]);
+
+  let brand = await findElementByCSSProperties(
+    productNameLocator,
+    {
+      fontWeight: "400",
+    },
+    "div"
+  )
+    .then((l) => l?.textContent())
+    .then((t) => t?.trim());
+
+  const brandUrl =
+    (await findElementByCSSProperties(
+      productMainLocator,
+      {
+        maxHeight: "35px",
+      },
+      // easier to get the image inside the `a` element and fetch its parent
+      "img"
+    )
+      .then((l) => l?.locator("xpath=.."))
+      .then((l) => l?.getAttribute("href"))) ?? undefined;
+
   const overviewData = await page
     .locator(
       "//main//div[contains(@class, 'ac') and .//span/text()='Översikt']//ul/li"
     )
     .allTextContents();
-  for (const text of overviewData) {
-    if (text.includes("Varumärke:")) {
-      brand = text.replace("Varumärke:", "").trim();
+  if (!brand) {
+    for (const text of overviewData) {
+      if (text.includes("Varumärke:")) {
+        brand = text.replace("Varumärke:", "").trim();
+      }
     }
   }
-  let brandUrl = await crawlerDefinition
-    .extractProperty(page, "main div.d.a3 a.cw", (a) =>
-      a.first().getAttribute("href")
-    )
-    // // Double check since the css selector isn't really unique
-    .then((url) =>
-      url?.includes("varumarken") ||
-      url?.includes("varumärken") ||
-      url?.includes("varum%C3%A4rken")
-        ? url
-        : undefined
-    );
 
-  const priceText = await page.locator("main div.d.a3 span.dq").textContent();
+  const priceText = await findElementByCSSProperties(
+    productMainLocator,
+    {
+      fontWeight: "800",
+    },
+    "span"
+  ).then((l) => l?.textContent());
   if (!priceText) throw new Error("Cannot extract priceText");
   const price = parseInt(priceText.replace("kr", "").replace(/\s/g, ""));
 
-  const originalPriceString = await crawlerDefinition.extractProperty(
-    page,
-    "main div.d.a3 span.an",
-    (node) => node.textContent()
-  );
+  const originalPriceString = await findElementByCSSProperties(
+    productMainLocator,
+    {
+      textDecorationLine: "line-through",
+    }
+  ).then((l) => l?.textContent());
   const isDiscounted = originalPriceString !== undefined;
   const originalPrice = originalPriceString
     ? parseInt(originalPriceString.replace("SEK", "").replace(/\s/g, ""))
@@ -181,9 +236,11 @@ export async function extractProductDetails(
 
   const mpn = metadata.schemaOrg?.mpn;
 
+  const images = await extractImageFromProductPage(page, productMainLocator);
+
   // NOTE: The commented out fields are different for each website, so they are not extracted here.
   // Implement them in the specific Chilli/Furniturebox/Trademax crawler.
-  const intermediateResult = {
+  return {
     name: productName,
     brand,
     brandUrl,
@@ -199,14 +256,12 @@ export async function extractProductDetails(
     mpn,
 
     availability,
-    // images,
+    images,
     reviews: reviewSummary,
     // specifications,
     categoryTree,
     metadata,
   };
-
-  return intermediateResult;
 }
 
 export function isProductPage(url: string): boolean {

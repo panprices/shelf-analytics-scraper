@@ -15,8 +15,12 @@ import {
   ProductReviews,
   Specification,
 } from "../../types/offer";
-import { extractCardProductInfo as baseExtractCardProductInfo } from "./base-chill";
+import {
+  extractCardProductInfo as baseExtractCardProductInfo,
+  extractImageFromProductPage,
+} from "./base-chill";
 import { TrademaxErrorAssertion } from "../../strategies/detail-error-assertion/trademax";
+import { findElementByCSSProperties } from "../scraper-utils";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 36;
@@ -82,20 +86,43 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    await page.waitForSelector("main div.bw h1");
     await this.handleCookieConsent(page);
+    const rootLocator = page.locator("html");
 
-    const productName = await page
-      .locator("main div.bw h1")
-      .textContent()
-      .then((text) => text?.trim());
+    const mainLocator = await findElementByCSSProperties(
+      rootLocator,
+      {
+        columnGap: "40px",
+      },
+      "div"
+    ).then((l) => l?.nth(0));
+    if (!mainLocator) {
+      throw new Error("Cannot extract mainLocator");
+    }
+
+    const productName = await findElementByCSSProperties(
+      mainLocator,
+      {
+        fontSize: "20px",
+        fontWeight: "800",
+      },
+      "h1"
+    )
+      .then((l) => l?.innerText())
+      .then((text) => text?.trim().split("\n")[0]);
     if (!productName) {
       throw new Error("Cannot extract productName");
     }
 
-    const priceText = await page
-      .locator("main div.bw.hh div.jf.jg")
-      .textContent()
+    const priceText = await findElementByCSSProperties(
+      mainLocator,
+      {
+        fontWeight: "800",
+        paddingTop: "2px",
+      },
+      "div"
+    )
+      .then((l) => l?.textContent())
       .then((text) => text?.trim());
     const price = priceText
       ? parseInt(
@@ -103,27 +130,31 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
         )
       : undefined;
 
-    const images = await this.extractImageFromProductPage(page);
+    const images = await extractImageFromProductPage(page, mainLocator);
 
     const breadcrumbLocator = page.locator("main nav span a");
     const categoryTree = await this.extractCategoryTree(breadcrumbLocator, 1);
 
-    const brand = await this.extractProperty(
-      page,
-      "main div.bw.hh > div > a",
-      (node) => node.textContent()
-    ).then((text) => text?.trim());
-    const brandUrl = await this.extractProperty(
-      page,
-      "main div.bw.hh > div > a",
-      (node) => node.getAttribute("href")
+    const brandLocator = await findElementByCSSProperties(
+      mainLocator,
+      {
+        fontWeight: "600",
+      },
+      "p"
     );
 
-    const originalPriceString = await this.extractProperty(
-      page,
-      "xpath=(//div[contains(@class, 'productInfoContent--buySectionBlock')]//div[@data-cy = 'original-price'])[1]",
-      (node) => node.textContent()
-    );
+    const brand = await brandLocator
+      ?.textContent()
+      .then((text) => text?.trim());
+    const brandUrl =
+      (await brandLocator?.locator("xpath=..").getAttribute("href")) ??
+      undefined;
+
+    const originalPriceString = await findElementByCSSProperties(
+      mainLocator,
+      { textDecorationLine: "line-through" },
+      "span"
+    ).then((l) => l?.textContent());
     const isDiscounted = originalPriceString !== undefined;
     const originalPrice = originalPriceString
       ? parseInt(
@@ -413,30 +444,6 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
         label: "LIST",
       });
     }
-  }
-
-  async extractImageFromProductPage(page: Page): Promise<string[]> {
-    const imagesPreviewLocator = page.locator(
-      "main div.bw div.z.o  div[style] > div > img.cr"
-    );
-    const imagesCount = await imagesPreviewLocator.count();
-    for (let i = 0; i < imagesCount; i++) {
-      const currentImagePreview = imagesPreviewLocator.nth(i);
-      await currentImagePreview.click();
-      await page.waitForTimeout(50);
-    }
-
-    const imageUrls = [];
-    for (const img of await page
-      .locator("main div.bw div.z.o  div[style] > div > img[sizes]")
-      .all()) {
-      const url = await img.getAttribute("src");
-      if (url) {
-        imageUrls.push(url);
-      }
-    }
-
-    return imageUrls;
   }
 
   static async create(

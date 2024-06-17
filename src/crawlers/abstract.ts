@@ -473,6 +473,7 @@ export abstract class AbstractCrawlerDefinition
    * @param ctx
    */
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {
+    let wasHandled = false;
     for (const handler of this.__detailPageErrorHandlers) {
       try {
         handler.handleCrawlDetailPageError(error, ctx);
@@ -480,8 +481,13 @@ export abstract class AbstractCrawlerDefinition
         continue;
       }
 
-      // At this point the error was handled so we stop iterating through the handlers
+      wasHandled = true;
+      // At this point the error was handled, so we stop iterating through the handlers
       break;
+    }
+
+    if (!wasHandled) {
+      throw error;
     }
   }
 
@@ -496,8 +502,6 @@ export abstract class AbstractCrawlerDefinition
       await AbstractCrawlerDefinition.__attemptCookieConsent(ctx.page);
     }
     try {
-      // Temporarily disable the assert due to errors not updating products
-      // TODO: Decide what to do about this, I enabled it for Furniture1
       await this.assertCorrectProductPage(ctx);
 
       productDetails = await this.extractProductDetails(ctx.page);
@@ -513,7 +517,12 @@ export abstract class AbstractCrawlerDefinition
       );
       await this._detailsDataset.pushData(productDetails);
     } catch (e) {
-      this.handleCrawlDetailPageError(e, ctx);
+      try {
+        this.handleCrawlDetailPageError(e, ctx);
+      } catch (e) {
+        log.error(`Unhandled error in handleDetailPage: ${e}`);
+        throw e;
+      }
     } finally {
       logProductScrapingInfo(ctx, productDetails);
       try {

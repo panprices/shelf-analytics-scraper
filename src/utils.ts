@@ -229,3 +229,17 @@ export async function clearStorage(uniqueCrawlerKey: string) {
     uniqueCrawlerKey
   );
 }
+
+export function hexToRgb(hex: string) {
+  // Remove the leading # if present
+  hex = hex.replace(/^#/, "");
+
+  // Parse the hex values
+  let bigint = parseInt(hex, 16);
+  let r = (bigint >> 16) & 255;
+  let g = (bigint >> 8) & 255;
+  let b = bigint & 255;
+
+  // Return the RGB string
+  return `rgb(${r}, ${g}, ${b})`;
+}

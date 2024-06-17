@@ -1,8 +1,11 @@
 import {
+  Dictionary,
   InfiniteScrollOptions,
   PlaywrightCrawlingContext,
   playwrightUtils,
 } from "crawlee";
+import { Locator } from "playwright";
+import { hexToRgb } from "../utils";
 
 export interface ScrollToBottomStrategy {
   (
@@ -80,3 +83,62 @@ export const scrollToBottomV2 = async function (
   await playwrightUtils.infiniteScroll(ctx.page, scrollOptions);
   await registerProductCards(ctx);
 };
+
+/**
+ * Finds an element by the computed styles.
+ * @param rootLocator
+ * @param cssProperties
+ * @param elementType
+ */
+export async function findElementByCSSProperties(
+  rootLocator: Locator,
+  cssProperties: Dictionary<string>,
+  elementType: string = "*"
+): Promise<Locator | undefined> {
+  const elementCSSSelector = await rootLocator.evaluate(
+    (
+      rootElement: HTMLElement,
+      {
+        cssProperties,
+        elementType,
+      }: { cssProperties: Dictionary<string>; elementType: string }
+    ) => {
+      const elements = rootElement.querySelectorAll(elementType);
+      const potentialResult = Array.from(elements).filter((element) => {
+        const style = window.getComputedStyle(element);
+        for (const [property, value] of Object.entries(cssProperties)) {
+          const computedValue =
+            property.toLowerCase().endsWith("color") && value.startsWith("#")
+              ? hexToRgb(value)
+              : value;
+
+          // @ts-ignore
+          if (style[property] !== value) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      if (potentialResult.length === 0) {
+        return undefined;
+      }
+
+      return (
+        potentialResult[0].nodeName +
+        "." +
+        potentialResult[0].className.split(" ").join(".")
+      );
+    },
+    {
+      cssProperties,
+      elementType,
+    }
+  );
+  if (!elementCSSSelector) {
+    return undefined;
+  }
+
+  return rootLocator.locator(elementCSSSelector);
+}
