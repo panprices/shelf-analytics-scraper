@@ -6,7 +6,7 @@ import {
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
 } from "../abstract";
-import { extractDomainFromUrl } from "../../utils";
+import { extractDomainFromUrl, parsePrice } from "../../utils";
 import { PlaywrightCrawlingContext, Dictionary, log } from "crawlee";
 
 /**
@@ -260,8 +260,6 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
     let currency: string | null | undefined;
     let originalPrice: string | null | undefined = undefined;
 
-    const extractPrice = (t: string | null | undefined) =>
-      t?.replace(/[^0-9,\\. ]/g, "");
     const extractCurrency = (t: string | null | undefined) =>
       t
         ?.replace(/[^A-Z€£]/g, "")
@@ -272,7 +270,8 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       price = await this.extractProperty(
         page,
         "//div[contains(@class, 'price-container')]//span[contains(@class, 'price-localized')]/span[1]",
-        (node) => node.textContent().then(extractPrice)
+        (node) =>
+          node.textContent().then((t) => (t ? `${parsePrice(t)}` : undefined))
       );
       currency = await this.extractProperty(
         page,
@@ -283,7 +282,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
       originalPrice = await this.extractProperty(
         page,
         "form span#price span.price-original",
-        (node) => node.textContent().then(extractPrice)
+        (node) => node.textContent().then((t) => (t ? `${parsePrice(t)}` : t))
       );
     } else {
       const priceCurrencyString = await this.extractProperty(
@@ -292,7 +291,9 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
         (node) => node.textContent()
       );
 
-      price = extractPrice(priceCurrencyString);
+      price = !priceCurrencyString
+        ? undefined
+        : `${parsePrice(priceCurrencyString)}`;
 
       // Handle custom number formatting depending on locale
       if (page.url().includes("/en-no/")) {
@@ -342,7 +343,7 @@ export class FinnishDesignShopCrawlerDefinition extends AbstractCrawlerDefinitio
 
       brand: brand,
       description: description,
-      price: parseFloat(price),
+      price: parseFloat(price), // Safe to use parseFloat because we already parsed the string to a friendly format
       currency: currency,
       isDiscounted: isDiscounted,
       originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,

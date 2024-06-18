@@ -2,6 +2,7 @@ import {
   convertSchemaOrgAvailability,
   extractDomainFromUrl,
   mergeTwoObjectsPrioritiseNonNull,
+  parsePrice,
   pascalCaseToSnakeCase,
 } from "../src/utils";
 
@@ -53,4 +54,46 @@ test.each([
   console.log(obj1);
 
   expect(mergeTwoObjectsPrioritiseNonNull(obj1, obj2)).toEqual(expectedResult);
+});
+
+describe("parsePrice", () => {
+  it("should parse price with comma as thousand separator and dot as decimal point", () => {
+    expect(parsePrice("2,370.00 EUR")).toBe(2370);
+  });
+
+  it("should parse price with space as thousand separator", () => {
+    expect(parsePrice("54 672 :-")).toBe(54672);
+  });
+
+  it("should parse price with dot as thousand separator", () => {
+    expect(parsePrice("2.456")).toBe(2456);
+  });
+
+  it("should parse price with dot as decimal point", () => {
+    expect(parsePrice("2.45")).toBe(2.45);
+  });
+
+  it("should parse price with currency symbol", () => {
+    expect(parsePrice("100 USD")).toBe(100);
+  });
+
+  it("should parse price with multiple spaces and symbols", () => {
+    expect(parsePrice("  $ 1,234.56   ")).toBe(1234.56);
+  });
+
+  it("should parse price with comma as decimal point", () => {
+    expect(parsePrice("2,45")).toBe(2.45);
+  });
+
+  it("should parse integer price with commas and dots", () => {
+    expect(parsePrice("1,000.")).toBe(1000);
+  });
+
+  it("should parse price with leading and trailing non-numeric characters", () => {
+    expect(parsePrice("USD 123")).toBe(123);
+  });
+
+  it("should parse price with multiple types of separators", () => {
+    expect(parsePrice("2.456,78 EUR")).toBe(2456.78);
+  });
 });

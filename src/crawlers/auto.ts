@@ -3,7 +3,11 @@ import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
 import { log } from "crawlee";
 import jsonic from "jsonic";
-import { extractDomainFromUrl, pascalCaseToSnakeCase } from "../utils";
+import {
+  extractDomainFromUrl,
+  parsePrice,
+  pascalCaseToSnakeCase,
+} from "../utils";
 import { IllFormattedPageError, PageNotFoundError } from "../types/errors";
 
 interface PriceOffer {
@@ -94,9 +98,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         )
         .catch(() => {});
       if (content) {
-        const parts = content.split(" ");
-        price = parseFloat(parts[0]);
-        currency = parts[1];
+        price = parsePrice(content);
+        currency = content.replace(/[0-9., ]/g, "");
         break;
       }
     }
@@ -112,7 +115,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
           )
           .catch(() => null);
         if (content) {
-          price = parseFloat(content);
+          price = parsePrice(content);
           break;
         }
       }
@@ -282,7 +285,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         gtin,
         mpn,
         name: product.name,
-        price: parseFloat(price),
+        price: parsePrice(price),
         currency,
         availability,
         images: [],
@@ -336,27 +339,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       .catch(() => null);
 
     if (priceContent) {
-      let processedPrice = priceContent.trim();
-      if (processedPrice.includes(" ")) {
-        const priceParts = processedPrice.split(" ");
-        const priceExpression = /\d{1,3}([,.]\d{3,3})*([,.]\d+)?/;
-
-        // The price may be expressed as "€ 379,00" or "379,00 €"
-        if (priceExpression.test(priceParts[0])) {
-          processedPrice = priceParts[0];
-        } else if (priceExpression.test(priceParts[1])) {
-          processedPrice = priceParts[1];
-        }
-      }
-      if (processedPrice.includes(",")) {
-        // Handling European number format, e.g., 1.234,56
-        if (processedPrice.indexOf(",") === processedPrice.length - 3) {
-          processedPrice = processedPrice.replace(/\./g, "").replace(",", ".");
-        } else {
-          processedPrice = processedPrice.replace(",", ".");
-        }
-      }
-      price = parseFloat(processedPrice);
+      price = parsePrice(priceContent);
     }
 
     // Attempt to fetch the currency
@@ -452,9 +435,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       gtin: null,
       mpn: null,
       name: null,
-      price: parseFloat(
-        priceContent.trim().split(" ")[0].trim().replace(",", ".")
-      ),
+      price: parsePrice(priceContent.trim()),
       currency: null,
       availability: availabilityInStock ? "in_stock" : "out_of_stock",
       images,

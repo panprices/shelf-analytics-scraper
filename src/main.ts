@@ -154,7 +154,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://andlight.dk/shop/plakater-og-rammer-4459c1.html"
 // );
 await debugScrapeDetails([
-  "https://www.baldai1.lt/konsoles/konsole-dallas-3185-beige.html",
+  "https://curatedclt.com/products/arco-led?variant=39350653911217&currency=USD&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOoq9nE14P98AlFfAxbHAqe0Q6pgwsJLfZFYBtgnsTeYN-HFKlngS9Ws",
 ]);
 // await debugCategoryExploration(
 //   "https://nordlyliving.dk/collections/dekoration"

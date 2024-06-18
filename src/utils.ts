@@ -10,6 +10,58 @@ import { Availability } from "./types/offer";
 
 export const localContext = new AsyncLocalStorage<LocalContextStore>();
 
+export function parsePrice(priceText: string): number {
+  // Remove any currency symbols, spaces, or other non-numeric characters
+  const cleanedPrice = priceText.replace(/[^0-9.,]/g, "");
+
+  const commasCount = cleanedPrice.match(/,/g)?.length || 0;
+  const dotsCount = cleanedPrice.match(/\./g)?.length || 0;
+
+  if (commasCount === 0 && dotsCount === 0) {
+    // no separators, parse the price and move on
+    return parseFloat(cleanedPrice);
+  }
+
+  if (commasCount > 1) {
+    // Treat commas as thousands separator
+    const noCommas = cleanedPrice.replace(/,/g, ".");
+    return parseFloat(noCommas);
+  }
+  if (dotsCount > 1) {
+    // Treat dots as thousands separator
+    const noDots = cleanedPrice.replace(/\./g, "");
+    return parseFloat(noDots.replace(",", "."));
+  }
+
+  if (dotsCount === 1 && commasCount === 1) {
+    // Treat the one that appears first as thousands separator and the second one as decimal separator
+    const dotIndex = cleanedPrice.indexOf(".");
+    const commaIndex = cleanedPrice.indexOf(",");
+
+    if (dotIndex < commaIndex) {
+      return parseFloat(cleanedPrice.replace(".", "").replace(",", "."));
+    }
+    return parseFloat(cleanedPrice.replace(",", ""));
+  }
+
+  // At this point we might have
+  // - one comma (",") no dots (".")
+  // - no commas, one dot
+  // In this case, we treat the separator as thousands separator only if it has exactly 3 digits after it
+
+  // we work only with comma from now on
+  const cleanedPriceStandard = cleanedPrice.replace(".", ",");
+
+  const commaIndex = cleanedPriceStandard.indexOf(",");
+
+  if (cleanedPriceStandard.length - commaIndex === 4) {
+    // Example: 2,345 we consider this to be 2345, but 2.34 we parse as 2.34
+    return parseFloat(cleanedPriceStandard.replace(",", ""));
+  }
+
+  return parseFloat(cleanedPriceStandard.replace(",", "."));
+}
+
 /**
  * Config logging for local dev and to debug on GCP.
  */
