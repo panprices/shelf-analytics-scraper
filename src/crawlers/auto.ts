@@ -1,4 +1,8 @@
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "./abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerDefinitionOptions,
+  CrawlerLaunchOptions,
+} from "./abstract";
 import { Locator, Page } from "playwright";
 import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
 import { log } from "crawlee";
@@ -21,7 +25,20 @@ interface PriceOffer {
   metadata?: any;
 }
 
+export type LiteOfferStrategy =
+  | "schema-json"
+  | "schema-attributes"
+  | "opengraph"
+  | "woocommerce";
+
 class AutoCrawler extends AbstractCrawlerDefinition {
+  constructor(
+    options: CrawlerDefinitionOptions,
+    private readonly disabledStrategies: LiteOfferStrategy[] = []
+  ) {
+    super(options);
+  }
+
   extractCardProductInfo(
     _categoryUrl: string,
     _productCard: Locator
@@ -463,111 +480,125 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       availability = null,
       images = [];
 
-    try {
-      let metadata = undefined;
-      ({
-        found,
-        name,
-        gtin,
-        mpn,
-        price,
-        currency,
-        availability,
-        images,
-        metadata,
-      } = await this.fetchJsonSchema(page));
-
-      if (found) {
-        log.info("Product scraped using schema.org JSON data");
-        return {
-          url: page.url(),
-          name: name ? name : undefined,
-          gtin: gtin ? gtin : undefined,
-          mpn: mpn ? mpn : undefined,
-          price: price ? price : undefined,
-          currency: currency ? currency : undefined,
-          availability: availability ? availability : undefined,
+    if (!this.disabledStrategies.includes("schema-json")) {
+      try {
+        let metadata = undefined;
+        ({
+          found,
+          name,
+          gtin,
+          mpn,
+          price,
+          currency,
+          availability,
           images,
-          specifications: [],
           metadata,
-        };
+        } = await this.fetchJsonSchema(page));
+
+        if (found) {
+          log.info("Product scraped using schema.org JSON data");
+          return {
+            url: page.url(),
+            name: name ? name : undefined,
+            gtin: gtin ? gtin : undefined,
+            mpn: mpn ? mpn : undefined,
+            price: price ? price : undefined,
+            currency: currency ? currency : undefined,
+            availability: availability ? availability : undefined,
+            images,
+            specifications: [],
+            metadata,
+          };
+        }
+      } catch (error) {
+        log.warning(`Problem extracting product details with schema json`, {
+          error,
+        });
       }
-    } catch (error) {
-      log.warning(`Problem extracting product details with schema json`, {
-        error,
-      });
     }
 
-    try {
-      ({ found, name, gtin, mpn, price, currency, availability, images } =
-        await this.fetchSchemaAttributes(page));
+    if (!this.disabledStrategies.includes("schema-attributes")) {
+      try {
+        ({ found, name, gtin, mpn, price, currency, availability, images } =
+          await this.fetchSchemaAttributes(page));
 
-      if (found) {
-        log.info("Product scraped using schema.org attributes data");
-        return {
-          url: page.url(),
-          name: name ? name : undefined,
-          gtin: gtin ? gtin : undefined,
-          mpn: mpn ? mpn : undefined,
-          price: price ? price : undefined,
-          currency: currency ? currency : undefined,
-          availability: availability ? availability : undefined,
-          images,
-          specifications: [],
-        };
+        if (found) {
+          log.info("Product scraped using schema.org attributes data");
+          return {
+            url: page.url(),
+            name: name ? name : undefined,
+            gtin: gtin ? gtin : undefined,
+            mpn: mpn ? mpn : undefined,
+            price: price ? price : undefined,
+            currency: currency ? currency : undefined,
+            availability: availability ? availability : undefined,
+            images,
+            specifications: [],
+          };
+        }
+      } catch (error) {
+        log.warning(
+          `Problem extracting product details with schema attributes`,
+          {
+            error,
+          }
+        );
       }
-    } catch (error) {
-      log.warning(`Problem extracting product details with schema attributes`, {
-        error,
-      });
     }
 
-    try {
-      ({ found, name, gtin, mpn, price, currency, availability, images } =
-        await this.fetchOpenGraphMetadata(page));
+    if (!this.disabledStrategies.includes("opengraph")) {
+      try {
+        ({ found, name, gtin, mpn, price, currency, availability, images } =
+          await this.fetchOpenGraphMetadata(page));
 
-      if (found) {
-        log.info("Product scraped using OpenGraph data");
-        return {
-          url: page.url(),
-          name: name ? name : undefined,
-          gtin: gtin ? gtin : undefined,
-          mpn: mpn ? mpn : undefined,
-          price: price ? price : undefined,
-          currency: currency ? currency : undefined,
-          availability: availability ? availability : undefined,
-          images,
-          specifications: [],
-        };
+        if (found) {
+          log.info("Product scraped using OpenGraph data");
+          return {
+            url: page.url(),
+            name: name ? name : undefined,
+            gtin: gtin ? gtin : undefined,
+            mpn: mpn ? mpn : undefined,
+            price: price ? price : undefined,
+            currency: currency ? currency : undefined,
+            availability: availability ? availability : undefined,
+            images,
+            specifications: [],
+          };
+        }
+      } catch (error) {
+        log.warning(`Problem extracting product details with open graph`, {
+          error,
+        });
       }
-    } catch (error) {
-      log.warning(`Problem extracting product details with open graph`, {
-        error,
-      });
     }
 
-    try {
-      ({ found, name, gtin, mpn, price, currency, availability, images } =
-        await this.fetchWooCommerceData(page));
+    if (!this.disabledStrategies.includes("woocommerce")) {
+      try {
+        ({ found, name, gtin, mpn, price, currency, availability, images } =
+          await this.fetchWooCommerceData(page));
 
-      if (found) {
-        log.info("Product scraped using WooCommerce data");
-        return {
-          url: page.url(),
-          name: name ? name : undefined,
-          gtin: gtin ? gtin : undefined,
-          mpn: mpn ? mpn : undefined,
-          price: price ? price : undefined,
-          currency: currency ? currency : undefined,
-          availability: availability ? availability : undefined,
-          images,
-          specifications: [],
-        };
+        if (found) {
+          log.info("Product scraped using WooCommerce data");
+          return {
+            url: page.url(),
+            name: name ? name : undefined,
+            gtin: gtin ? gtin : undefined,
+            mpn: mpn ? mpn : undefined,
+            price: price ? price : undefined,
+            currency: currency ? currency : undefined,
+            availability: availability ? availability : undefined,
+            images,
+            specifications: [],
+          };
+        }
+      } catch (error) {
+        log.warning(
+          `Problem extracting product details with WooCommerce data`,
+          {
+            error,
+          }
+        );
       }
-    } catch (error) {
-      log.warning(`Problem extracting product details with WooCommerce data`, {
-        error,
-      });
     }
 
     throw new Error("Cannot extract price light data");
@@ -585,23 +616,27 @@ class AutoCrawler extends AbstractCrawlerDefinition {
   }
 
   static async create(
-    launchOptions: CrawlerLaunchOptions
+    launchOptions: CrawlerLaunchOptions,
+    disabledStrategies: LiteOfferStrategy[] = []
   ): Promise<AutoCrawler> {
     const [detailsDataset, listingDataset] =
       await AbstractCrawlerDefinition.openDatasets(
         launchOptions?.uniqueCrawlerKey
       );
 
-    return new AutoCrawler({
-      detailsDataset,
-      listingDataset,
-      listingUrlSelector: "",
-      detailsUrlSelector: "",
-      productCardSelector: "",
-      cookieConsentSelector: "",
-      dynamicProductCardLoading: false,
-      launchOptions,
-    });
+    return new AutoCrawler(
+      {
+        detailsDataset,
+        listingDataset,
+        listingUrlSelector: "",
+        detailsUrlSelector: "",
+        productCardSelector: "",
+        cookieConsentSelector: "",
+        dynamicProductCardLoading: false,
+        launchOptions,
+      },
+      disabledStrategies
+    );
   }
 }
 

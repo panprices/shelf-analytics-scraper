@@ -663,6 +663,17 @@ export class CrawlerFactory {
       case "lannamobler.se":
       case "lanna.no":
       case "lanna.fi":
+      case "lampen24.nl":
+        definition = await AutoCrawler.create(launchOptions, [
+          "schema-attributes",
+          "schema-json",
+        ]);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.SE,
+        };
+        return [new PlaywrightCrawler(options), definition];
       default:
         definition = await AutoCrawler.create(launchOptions);
         options = {
