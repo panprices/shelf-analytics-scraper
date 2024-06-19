@@ -8,7 +8,6 @@ import {
   parsePrice,
   pascalCaseToSnakeCase,
 } from "../utils";
-import { IllFormattedPageError, PageNotFoundError } from "../types/errors";
 
 interface PriceOffer {
   found: boolean;
@@ -39,6 +38,16 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         timeWaited += 1000;
       }
     }
+  }
+
+  private parsePriceFromSafeSource(priceContent: string): number | undefined {
+    // check if the string is a properly formatted number with regex
+    // `parsePrice` doesn't work well with numbers with exactly 3 decimals so we avoid calling that function
+    // if we can certify that the price in schema.org is correctly formatted
+    if (priceContent.match(/^[0-9]*\.?[0-9]+$/)) {
+      return parseFloat(priceContent);
+    }
+    return parsePrice(priceContent);
   }
 
   async fetchOpenGraphMetadata(page: Page): Promise<PriceOffer> {
@@ -285,7 +294,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         gtin,
         mpn,
         name: product.name,
-        price: parsePrice(price),
+        price: this.parsePriceFromSafeSource(price) ?? null,
         currency,
         availability,
         images: [],
@@ -339,7 +348,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       .catch(() => null);
 
     if (priceContent) {
-      price = parsePrice(priceContent);
+      price = this.parsePriceFromSafeSource(priceContent) ?? null;
     }
 
     // Attempt to fetch the currency
@@ -435,6 +444,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       gtin: null,
       mpn: null,
       name: null,
+      // Avoid using `parsePriceFromSafeSource` because this field is more likely to contain the price formatted for
+      // visualization (including thousands separators, currency etc.)
       price: parsePrice(priceContent.trim()),
       currency: null,
       availability: availabilityInStock ? "in_stock" : "out_of_stock",
