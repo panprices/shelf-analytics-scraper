@@ -27,3 +27,10 @@ export class GotBlockedError extends Error {
     this.name = "GotBlockedError";
   }
 }
+
+export class PriceLiteUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PriceLiteUnavailableError";
+  }
+}

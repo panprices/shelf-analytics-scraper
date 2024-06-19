@@ -8,10 +8,13 @@ import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
 import { log } from "crawlee";
 import jsonic from "jsonic";
 import {
+  convertCurrencySymbolToISO,
   extractDomainFromUrl,
   parsePrice,
   pascalCaseToSnakeCase,
 } from "../utils";
+import { PriceLiteUnavailableError } from "../types/errors";
+import { AutoCrawlerErrorHandler } from "../strategies/detail-error-handling/auto";
 
 interface PriceOffer {
   found: boolean;
@@ -37,6 +40,11 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     private readonly disabledStrategies: LiteOfferStrategy[] = []
   ) {
     super(options);
+
+    this.__detailPageErrorHandlers = [
+      ...this.__detailPageErrorHandlers,
+      new AutoCrawlerErrorHandler(),
+    ];
   }
 
   extractCardProductInfo(
@@ -307,11 +315,11 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       //   : [tentativeImages];
 
       return {
-        found: true,
+        found: !!price, // price lite does not make sense is if price is missing from the data
         gtin,
         mpn,
         name: product.name,
-        price: this.parsePriceFromSafeSource(price) ?? null,
+        price: price ? this.parsePriceFromSafeSource(price) ?? null : null,
         currency,
         availability,
         images: [],
@@ -378,6 +386,16 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         null
       )
       .catch(() => null);
+
+    if (price && !currency) {
+      const potentialIntegratedCurrency = priceContent?.match(/[A-Za-z€$]+/);
+      if (potentialIntegratedCurrency) {
+        currency = potentialIntegratedCurrency[0];
+        if (["$", "€"].includes(currency)) {
+          currency = convertCurrencySymbolToISO(currency);
+        }
+      }
+    }
 
     // Attempt to fetch the availability
     const availabilityContent: string | null = await page
@@ -601,7 +619,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       }
     }
 
-    throw new Error("Cannot extract price light data");
+    throw new PriceLiteUnavailableError("Cannot extract price lite data");
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
