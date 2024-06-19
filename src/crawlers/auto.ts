@@ -9,6 +9,7 @@ import { log } from "crawlee";
 import jsonic from "jsonic";
 import {
   convertCurrencySymbolToISO,
+  extractCountryFromDomain,
   extractDomainFromUrl,
   parsePrice,
   pascalCaseToSnakeCase,
@@ -362,18 +363,20 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     }
 
     // Attempt to fetch the price
-    const priceContent: string | null = await page
+    const priceContents: string[] | null = await page
       .$eval(
         "[itemprop='price']",
         (el: Element) => {
-          return el.getAttribute("content") || el.textContent || null;
+          return [el.getAttribute("content"), el.textContent]
+            .filter((c) => c !== null)
+            .map((e) => e as string);
         },
         null
       )
       .catch(() => null);
 
-    if (priceContent) {
-      price = this.parsePriceFromSafeSource(priceContent) ?? null;
+    if (priceContents && priceContents.length > 0) {
+      price = this.parsePriceFromSafeSource(priceContents[0]) ?? null;
     }
 
     // Attempt to fetch the currency
@@ -387,12 +390,18 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       )
       .catch(() => null);
 
-    if (price && !currency) {
-      const potentialIntegratedCurrency = priceContent?.match(/[A-Za-z€$]+/);
-      if (potentialIntegratedCurrency) {
-        currency = potentialIntegratedCurrency[0];
-        if (["$", "€"].includes(currency)) {
-          currency = convertCurrencySymbolToISO(currency);
+    if (priceContents && price && !currency) {
+      for (const priceContent of priceContents) {
+        if (currency) {
+          break;
+        }
+
+        const potentialIntegratedCurrency = priceContent?.match(/[A-Za-z€$£]+/);
+        if (potentialIntegratedCurrency) {
+          currency = potentialIntegratedCurrency[0];
+          if (["$", "€", "£"].includes(currency)) {
+            currency = convertCurrencySymbolToISO(currency);
+          }
         }
       }
     }
@@ -443,6 +452,9 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
   async fetchWooCommerceData(page: Page): Promise<PriceOffer> {
     // Example page: https://rorbutiken.se/produkt/fmm-9000e-flexi-takduschset-forkromad
+    const domain = extractDomainFromUrl(page.url());
+    const country = extractCountryFromDomain(domain);
+
     const priceContent = await page
       .$eval(".woocommerce-Price-amount", (el: Element) => {
         return el.textContent || null;
@@ -474,15 +486,23 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       )
       .then((r) => r.filter((i) => i !== null).map((i) => i as string));
 
+    const currencySymbol = await page.$eval(
+      ".woocommerce-Price-currencySymbol",
+      (e) => e.textContent || null
+    );
+    const price = parsePrice(priceContent.trim());
+
     return {
-      found: true,
+      found: !!price,
       gtin: null,
       mpn: null,
       name: null,
       // Avoid using `parsePriceFromSafeSource` because this field is more likely to contain the price formatted for
       // visualization (including thousands separators, currency etc.)
-      price: parsePrice(priceContent.trim()),
-      currency: null,
+      price,
+      currency: currencySymbol
+        ? convertCurrencySymbolToISO(currencySymbol, country)
+        : null,
       availability: availabilityInStock ? "in_stock" : "out_of_stock",
       images,
     };

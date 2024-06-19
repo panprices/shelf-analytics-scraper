@@ -1,12 +1,11 @@
 import { log, LoggerJson, LogLevel } from "crawlee";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AsyncLocalStorage } from "async_hooks";
 import { v4 as uuidv4 } from "uuid";
 import { LocalContextStore } from "./types/utils";
 import { readdir } from "fs/promises";
 import { MemoryStorage } from "@crawlee/memory-storage";
 import fs from "fs";
-import { Availability } from "./types/offer";
 
 export const localContext = new AsyncLocalStorage<LocalContextStore>();
 
@@ -175,16 +174,47 @@ export function extractNumberFromText(text: string): number {
 /**
  * Convert currency symbol to ISO 4217 code.
  */
-export function convertCurrencySymbolToISO(symbol: string): string {
+export function convertCurrencySymbolToISO(
+  symbol: string,
+  country: string | undefined = undefined
+): string {
   const symbolToCode: Record<string, string> = {
     "€": "EUR",
     $: "USD", // for some reason the quotation mark is not needed and removed by prettier
+    "£": "GBP",
   };
 
   const code = symbolToCode[symbol];
-  if (!code) throw Error(`Unknown currency symbol: ${symbol}`);
+  if (code) {
+    return code;
+  }
 
-  return code;
+  const countryToCurrency: Record<string, string> = {
+    se: "SEK",
+    dk: "DKK",
+    no: "NOK",
+    ch: "CHF",
+    fr: "EUR",
+    it: "EUR",
+    de: "EUR",
+    nl: "EUR",
+    be: "EUR",
+  };
+
+  if (country && countryToCurrency[country]) {
+    return countryToCurrency[country];
+  }
+  throw Error(`Unknown currency symbol: ${symbol}`);
+}
+
+export function extractCountryFromDomain(domain: string): string | undefined {
+  const domainSplit = domain.split(".");
+
+  const knownCountries = ["se", "dk", "ch", "fr", "it", "de", "no", "nl", "be"];
+  const potentialCountry = domainSplit[domainSplit.length - 1];
+  return knownCountries.includes(potentialCountry)
+    ? potentialCountry
+    : undefined;
 }
 
 export function pascalCaseToSnakeCase(text: string): string {
