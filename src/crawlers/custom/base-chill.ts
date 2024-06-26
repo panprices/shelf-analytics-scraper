@@ -29,7 +29,8 @@ export async function createCrawlerDefinitionOption(
   return {
     detailsDataset,
     listingDataset,
-    listingUrlSelector: "div.d9 a",
+    listingUrlSelector:
+      "//div[@data-scroll-id='product-listing'] //div[contains(text(), 'Visar')] /..//a[@data-spa-link][last()]",
     detailsUrlSelector: "li a[role='article']",
     productCardSelector: "li a[role='article']",
     cookieConsentSelector: "#onetrust-accept-btn-handler",
