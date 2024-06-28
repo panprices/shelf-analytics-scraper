@@ -33,8 +33,10 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
     ).then((text) => text?.trim());
     if (!productName) throw new Error("Cannot find productName of productCard");
 
-    const url = await this.extractProperty(productCard, "a", (node) =>
-      node.getAttribute("href")
+    const url = await this.extractProperty(
+      productCard,
+      "a:first-of-type",
+      (node) => node.getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
@@ -197,7 +199,7 @@ export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
       detailsDataset,
       listingDataset,
       productCardSelector: "main div.grid article",
-      detailsUrlSelector: "main div.grid article a",
+      detailsUrlSelector: "main div.grid article a:first-of-type",
       listingUrlSelector: "div.pagination span.next a",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,

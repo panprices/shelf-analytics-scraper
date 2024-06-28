@@ -50,7 +50,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<ListingProductInfo> {
     const name = await this.extractProperty(
       productCard,
-      ".ty-grid-list__item-name > a",
+      ".ty-grid-list__item .product-title",
       (node) => node.textContent()
     ).then((text) => text?.trim());
     if (!name) {
@@ -59,7 +59,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
 
     const url = await this.extractProperty(
       productCard,
-      ".ty-grid-list__item-name > a",
+      ".ty-grid-list__item a.product-clickable",
       (node) => node.getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
@@ -259,8 +259,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       detailsDataset,
       listingDataset,
       productCardSelector: "div.grid-list .ty-column3",
-      detailsUrlSelector:
-        "div.grid-list .ty-column3 .ty-grid-list__item-name > a",
+      detailsUrlSelector: ".ty-grid-list__item a.product-clickable",
       listingUrlSelector: "a.ty-pagination__next",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,

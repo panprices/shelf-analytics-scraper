@@ -28,7 +28,7 @@ export class KrautaCrawlerDefinition extends AbstractCrawlerDefinition {
   ): Promise<ListingProductInfo> {
     const productName = await this.extractProperty(
       productCard,
-      "h2",
+      ".product-card__name",
       (node) => node.textContent(),
       false
     );

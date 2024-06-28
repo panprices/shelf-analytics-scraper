@@ -446,6 +446,10 @@ function postProcessProductDetail(
       "No product name found in the final result. It should either be scraped or supplied in the input."
     );
   }
+  // Avoid empty string
+  p.description = p.description || undefined;
+  p.brand = p.brand || undefined;
+  p.brandUrl = p.brandUrl || undefined;
 
   p.images = p.images
     .filter((imgUrl) => !!imgUrl)
