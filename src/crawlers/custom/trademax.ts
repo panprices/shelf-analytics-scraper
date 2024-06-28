@@ -17,6 +17,7 @@ import {
 } from "../../types/offer";
 import {
   extractCardProductInfo as baseExtractCardProductInfo,
+  createCrawlerDefinitionOption,
   extractImageFromProductPage,
 } from "./base-chill";
 import { TrademaxErrorAssertion } from "../../strategies/detail-error-assertion/trademax";
@@ -449,19 +450,11 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
   static async create(
     launchOptions: CrawlerLaunchOptions
   ): Promise<TrademaxCrawlerDefinition> {
-    const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets(
-        launchOptions?.uniqueCrawlerKey
-      );
+    const options = await createCrawlerDefinitionOption(launchOptions);
 
     return new TrademaxCrawlerDefinition(
       {
-        detailsDataset,
-        listingDataset,
-        listingUrlSelector: "div.d9 div.cz > div > a",
-        detailsUrlSelector: "li a[role='article']",
-        productCardSelector: "li a[role='article']",
-        cookieConsentSelector: "#onetrust-accept-btn-handler",
+        ...options,
         dynamicProductCardLoading: false,
         launchOptions,
       },
