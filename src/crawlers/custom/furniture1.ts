@@ -259,8 +259,7 @@ export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
       detailsDataset,
       listingDataset,
       productCardSelector: "div.grid-list .ty-column3",
-      detailsUrlSelector:
-        "div.grid-list .ty-column3 .ty-grid-list__item-name > a",
+      detailsUrlSelector: ".ty-grid-list__item a.product-clickable",
       listingUrlSelector: "a.ty-pagination__next",
       // cookieConsentSelector: "",
       dynamicProductCardLoading: false,
