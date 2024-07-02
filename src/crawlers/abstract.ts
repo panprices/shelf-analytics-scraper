@@ -517,12 +517,7 @@ export abstract class AbstractCrawlerDefinition
       );
       await this._detailsDataset.pushData(productDetails);
     } catch (e) {
-      try {
-        this.handleCrawlDetailPageError(e, ctx);
-      } catch (e) {
-        log.error(`Unhandled error in handleDetailPage: ${e}`);
-        throw e;
-      }
+      this.handleCrawlDetailPageError(e, ctx);
     } finally {
       logProductScrapingInfo(ctx, productDetails);
       try {

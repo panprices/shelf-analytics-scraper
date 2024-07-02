@@ -8,7 +8,6 @@ import {
 
 export class DefaultDetailErrorHandler implements DetailErrorHandler {
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {
-    // Known errors: just log and continue
     if (
       error instanceof IllFormattedPageError ||
       error instanceof PageNotFoundError
