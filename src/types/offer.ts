@@ -32,23 +32,20 @@ export interface IndividualReview {
 export interface ProductReviews {
   reviewCount: number;
   averageReview: number;
+  /** No need to implement since we haven't been using this data */
   recentReviews: IndividualReview[];
-}
-
-export enum Availability {
-  InStock = "in_stock",
-  OutOfStock = "out_of_stock",
 }
 
 export interface BaseProductInfo {
   url: string;
-  name?: string;
 
+  name?: string;
   brand?: string;
   brandUrl?: string;
   description?: string;
   price?: number;
-  currency?: string;
+  /** ISO 4217 currency code. E.g. {"SEK", "EUR", ...} */
+  currency?: string; //
   isDiscounted?: boolean;
   originalPrice?: number;
 
@@ -56,12 +53,19 @@ export interface BaseProductInfo {
   sku?: string;
   mpn?: string;
 
+  /** No need to implement - will be automatically set before publishing popularity data */
   popularityIndex?: number;
-  popularityCategory?: Category[];
+  /** For category data from category pages */
+  popularityCategory?: Category[]; //
+  /** DEPRECATED: Toan think it's not really being used right now,
+   * but need to check before removing. */
   categoryUrl?: string;
-  categoryTree?: Category[];
+  /** For category data from product-page breadcrumbs */
+  categoryTree?: Category[]; //
 
+  /** No need to implement - will be automatically set before publishing the offer */
   fetchedAt?: string;
+  /** No need to implement - will be automatically set before publishing the offer */
   retailerDomain?: string;
 
   metadata?: OfferMetadata;
@@ -72,7 +76,7 @@ export interface ListingProductInfo extends BaseProductInfo {
 }
 
 export interface DetailedProductInfo extends BaseProductInfo {
-  availability?: string;
+  availability?: string; // {"in_stock", "out_of_stock"}
 
   images: string[]; // if not applicable return an empty array
   specifications: Specification[]; // if not applicable return an empty array

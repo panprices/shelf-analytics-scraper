@@ -6,33 +6,17 @@ Run `npm install`
 
 # Getting started with Crawlee
 
-This example uses `PlaywrightCrawler` to recursively crawl https://crawlee.dev using the browser automation library [Playwright](https://playwright.dev).
-
+This project uses Playwright through the Crawlee library to scrape product information.
 You can find more examples and documentation at the following links:
 
-- [Step-by-step tutorial](https://crawlee.dev/docs/introduction) for Crawlee
+- [Introduction to Crawlee](https://crawlee.dev/docs/introduction)
 - `PlaywrightCrawler` [API documentation](https://crawlee.dev/api/playwright-crawler/class/PlaywrightCrawler)
 - Other [examples](https://crawlee.dev/docs/examples/playwright-crawler)
 
-# How to test XPATH locators in the browser
+# Create a new scraper
 
-Go to developer console and use
-`$x('YOUR_XPATH_HERE')`
-
-# How to record a har file for tests:
-
-Add the following `overrides` option to the crawler:
-
-```javascript
-        launchContext: {
-          launchOptions: <any>{
-            recordHar: {
-              path: "example.har",
-            },
-          },
-          experimentalContainers: true,
-          launcher:
-        },
+```bash
+npm run script:create-scraper gigameubel.nl Gigameubel
 ```
 
 # Kubernetes
@@ -59,9 +43,31 @@ kubectl apply -f k8s/deployment.yaml
 kubectl rollout restart deployment/shelf-analytics-scraper
 ```
 
-## Misc. 
+## Misc.
 
-Start the chromium browser manually (MacOS): 
+### How to test XPATH locators in the browser
+
+Go to developer console and use
+`$x('YOUR_XPATH_HERE')`
+
+### How to record a har file for tests:
+
+Add the following `overrides` option to the crawler:
+
+```javascript
+        launchContext: {
+          launchOptions: <any>{
+            recordHar: {
+              path: "example.har",
+            },
+          },
+          experimentalContainers: true,
+          launcher:
+        },
+```
+
+### Start the chromium browser manually (MacOS):
+
 ```commandline
 open ~/Library/Caches/ms-playwright/chromium-1071/chrome-mac/Chromium.app/
 ```

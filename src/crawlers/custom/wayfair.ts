@@ -11,7 +11,6 @@ import {
 } from "../abstract";
 import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
 import {
-  Availability,
   DetailedProductInfo,
   ProductReviews,
   Specification,
@@ -95,9 +94,7 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
 
     const outOfStockOverlayExist =
       (await page.locator(".OutOfStockOverlay").count()) > 0;
-    const availability = outOfStockOverlayExist
-      ? Availability.OutOfStock
-      : Availability.InStock;
+    const availability = outOfStockOverlayExist ? "out_of_stock" : "in_stock";
 
     const skuText = await this.extractProperty(
       page,
