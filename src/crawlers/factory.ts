@@ -640,6 +640,8 @@ export class CrawlerFactory {
           requestHandler: definition.router,
         };
         return [new PlaywrightCrawler(options), definition];
+
+      // Comment to help the script understand where to add new cases
       /**
        * !!! WARNING !!!
        * Definitions for the retailers below this comment exist, but they are incomplete.
