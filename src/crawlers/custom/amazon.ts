@@ -1,6 +1,5 @@
 import { Locator, Page } from "playwright";
 import {
-  Availability,
   DetailedProductInfo,
   ListingProductInfo,
   ProductReviews,
@@ -132,7 +131,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       page
     );
     const availability = await this.extractAvailability(page);
-    if (availability !== Availability.OutOfStock && !price) {
+    if (availability !== "out_of_stock" && !price) {
       log.error("Cannot extract price and currency from product page", {
         url: page.url(),
       });
@@ -410,13 +409,13 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     );
     if (!availabilityText) {
       log.debug("No availability text found");
-      return Availability.OutOfStock;
+      return "out_of_stock";
     }
     if (
       availabilityText?.toLowerCase().includes("unavailable") ||
       availabilityText?.toLowerCase().includes("out of stock")
     ) {
-      return Availability.OutOfStock;
+      return "out_of_stock";
     }
 
     // Method 2: identify using the "Add to Cart/Basket" button
@@ -429,10 +428,10 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
       log.debug(
         "No add to cart button text found - product is probably out of stock"
       );
-      return Availability.OutOfStock;
+      return "out_of_stock";
     }
 
-    return Availability.InStock;
+    return "in_stock";
   }
 
   override getSearchUrl(
