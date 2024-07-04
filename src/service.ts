@@ -239,6 +239,7 @@ export async function extractCategories(
   targetUrls: string[],
   overrides?: PlaywrightCrawlerOptions
 ): Promise<RequestOptions[]> {
+  log.info("Extracting categories");
   const uniqueCrawlerKey = uuidv4();
   if (targetUrls.length === 0) {
     return [];

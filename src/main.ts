@@ -154,18 +154,18 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 }
 
 //
-// await debugCategoryExtraction(["https://nordlyliving.dk/"]);
+await debugCategoryExtraction(["https://www.bygghemma.se/"]);
 
-// await debugCategoryExploration(
-//   "https://andlight.dk/shop/plakater-og-rammer-4459c1.html"
-// );
+await debugCategoryExploration(
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
+);
 
-// await debugScrapeDetails(
-//   "https://www.baldai1.lt/valgomojo-komplektai/valgomojo-komplektas-ja3381-lt.html"
-// );
+await debugScrapeDetails([
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
+]);
 
 await debugCategoryExplorationEndToEnd([
-  "https://andlight.dk/shop/spejle-833c1.html",
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
 ]);
 
 // await debugScrapeDetailsRecordHARForTests(

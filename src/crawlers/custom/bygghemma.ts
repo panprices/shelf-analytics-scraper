@@ -367,7 +367,7 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
   }
 
   override async crawlIntermediateCategoryPage(
-    ctx: PlaywrightCrawlingContext<Dictionary>
+    ctx: PlaywrightCrawlingContext
   ): Promise<void> {
     const page = ctx.page;
     await this.handleCookieConsent(page);
