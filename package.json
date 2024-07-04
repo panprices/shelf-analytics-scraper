@@ -47,7 +47,7 @@
     "dev": "npm run start:dev",
     "start:prod": "node --experimental-specifier-resolution=node dist/index.js",
     "start:dev": "ts-node-esm --experimental-specifier-resolution=node -T src/index.ts",
-    "run-main": "ts-node-esm --experimental-specifier-resolution=node -T src/main.ts",
+    "demo": "ts-node-esm --experimental-specifier-resolution=node -T src/demo.ts",
     "build": "tsc",
     "test": "jest",
     "docker": "npm run build && docker build -t test-crawlee . && docker run --rm -p 8080:8080 -e PORT=8080 test-crawlee",

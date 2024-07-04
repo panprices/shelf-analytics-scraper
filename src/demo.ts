@@ -154,7 +154,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 }
 
 //
-await debugCategoryExtraction(["https://www.bygghemma.se/"]);
+// await debugCategoryExtraction(["https://www.bygghemma.se/"]);
 
 await debugCategoryExploration(
   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
@@ -164,9 +164,9 @@ await debugScrapeDetails([
   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
 ]);
 
-await debugCategoryExplorationEndToEnd([
-  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
-]);
+// await debugCategoryExplorationEndToEnd([
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
+// ]);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
