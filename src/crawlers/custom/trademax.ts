@@ -20,7 +20,7 @@ import {
   createCrawlerDefinitionOption,
   extractImageFromProductPage,
 } from "./base-chill";
-import { TrademaxErrorAssertion } from "../../strategies/detail-error-assertion/trademax";
+import { TrademaxErrorAssertion } from "../../error-handling/detail-error-assertion/trademax";
 import { findElementByCSSProperties } from "../scraper-utils";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {

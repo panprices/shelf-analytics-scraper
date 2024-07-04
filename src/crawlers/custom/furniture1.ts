@@ -13,8 +13,8 @@ import {
   Specification,
 } from "../../types/offer";
 import { extractNumberFromText } from "../../utils";
-import { AntiBotErrorAssertion } from "../../strategies/detail-error-assertion/anti-bot";
-import { AntiBotDetailErrorHandler } from "../../strategies/detail-error-handling/anti-bot";
+import { AntiBotErrorAssertion } from "../../error-handling/detail-error-assertion/anti-bot";
+import { AntiBotDetailErrorHandler } from "../../error-handling/detail-error-handling/anti-bot";
 
 export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   public constructor(options: CrawlerDefinitionOptions) {

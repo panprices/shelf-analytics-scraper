@@ -23,6 +23,12 @@ npm run script:create-scraper gigameubel.nl Gigameubel
 
 Then just fill in the missing parts in that new scraper.
 
+# Deployment
+
+Configuration for production deployment on kubernetes is in the k8s/ folder.
+Sandbox deployment is still on CloudRun to reduce cost (k8s need an always running pod),
+and its configuration is `cloudbuild_sandbox.yaml`.
+
 # Kubernetes
 
 ## Installation

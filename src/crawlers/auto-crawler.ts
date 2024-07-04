@@ -15,7 +15,7 @@ import {
   pascalCaseToSnakeCase,
 } from "../utils";
 import { PriceLiteUnavailableError } from "../types/errors";
-import { AutoCrawlerErrorHandler } from "../strategies/detail-error-handling/auto";
+import { AutoCrawlerErrorHandler } from "../error-handling/detail-error-handling/auto";
 
 interface PriceOffer {
   found: boolean;

@@ -15,8 +15,8 @@ import {
   ProductReviews,
   Specification,
 } from "../../types/offer";
-import { WayfairErrorAssertion } from "../../strategies/detail-error-assertion/wayfair";
-import { AntiBotDetailErrorHandler } from "../../strategies/detail-error-handling/anti-bot";
+import { WayfairErrorAssertion } from "../../error-handling/detail-error-assertion/wayfair";
+import { AntiBotDetailErrorHandler } from "../../error-handling/detail-error-handling/anti-bot";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override variantCrawlingStrategy: VariantCrawlingStrategy =

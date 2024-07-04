@@ -29,10 +29,10 @@ import * as crypto from "crypto";
 import { BlobStorage } from "../blob-storage/abstract";
 import { GoogleCloudBlobStorage } from "../blob-storage/google";
 import fs from "fs";
-import { DetailErrorAssertion } from "../strategies/detail-error-assertion/interface";
-import { DefaultErrorAssertion } from "../strategies/detail-error-assertion/default";
-import { DetailErrorHandler } from "../strategies/detail-error-handling/interface";
-import { DefaultDetailErrorHandler } from "../strategies/detail-error-handling/default";
+import { DetailErrorAssertion } from "../error-handling/detail-error-assertion/interface";
+import { DefaultErrorAssertion } from "../error-handling/detail-error-assertion/default";
+import { DetailErrorHandler } from "../error-handling/detail-error-handling/interface";
+import { DefaultDetailErrorHandler } from "../error-handling/detail-error-handling/default";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;
@@ -1446,8 +1446,6 @@ export abstract class AbstractCheerioCrawlerDefinition
 /**
  * Log a canonical line summarise the result of scraping a product page.
  * See https://stripe.com/blog/canonical-log-lines for why it's good to have
- *
- * Note: might be better to bring this to the postNavigationHook of crawlee
  */
 function logProductScrapingInfo(
   ctx: PlaywrightCrawlingContext,

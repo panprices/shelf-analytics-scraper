@@ -1,11 +1,6 @@
 import { CrawlerFactory } from "./crawlers/factory";
-import { CustomRequestQueue } from "./custom_crawlee/custom_request_queue";
-import {
-  Dictionary,
-  log,
-  PlaywrightCrawlerOptions,
-  RequestOptions,
-} from "crawlee";
+import { CustomRequestQueue } from "./custom-crawlee/custom-request-queue";
+import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
 import { clearStorage, extractDomainFromUrl, normaliseUrl } from "./utils";
 import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
 import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";

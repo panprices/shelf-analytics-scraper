@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import {
   CustomQueueSettings,
   CustomRequestQueue,
-} from "../custom_crawlee/custom_request_queue";
+} from "../custom-crawlee/custom-request-queue";
 import { HomeroomCrawlerDefinition } from "./custom/homeroom";
 import { TrademaxCrawlerDefinition } from "./custom/trademax";
 import {
