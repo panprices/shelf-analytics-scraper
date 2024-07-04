@@ -51,7 +51,7 @@ async function debugScrapeDetails(targetUrls: string[]) {
 }
 
 async function debugCategoryExploration(targetUrl: string) {
-  const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
+  const detailedPages = await exploreCategory(targetUrl, {
     headless: false,
   });
 
@@ -113,7 +113,7 @@ async function debugScrapeDetailsRecordHARForTests(targetUrl: string) {
 }
 
 async function debugCategoryExplorationRecordHARForTests(targetUrl: string) {
-  const detailedPages = await exploreCategory(targetUrl, "job_test_1", {
+  const detailedPages = await exploreCategory(targetUrl, {
     launchContext: {
       launchOptions: <any>{
         recordHar: {
