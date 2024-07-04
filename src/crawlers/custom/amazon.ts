@@ -400,7 +400,7 @@ export class AmazonCrawlerDefinition extends AbstractCrawlerDefinition {
     return additionalInfo;
   }
 
-  async extractAvailability(page: Page): Promise<Availability> {
+  async extractAvailability(page: Page): Promise<string> {
     // Method 1: identify using the availability text
     const availabilityText = await this.extractProperty(
       page,
