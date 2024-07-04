@@ -100,50 +100,8 @@ function postProcessListingProduct(
 }
 
 /**
- * Explore the category page and goes into product pages.
+ * Explore the category page and then scrape product pages.
  */
-export async function exploreCategoriesNoCapture(
-  targetUrls: string[],
-  overrides: PlaywrightCrawlerOptions
-): Promise<DetailedProductInfo[]> {
-  if (targetUrls.length === 0) {
-    return [];
-  }
-  const uniqueCrawlerKey = uuidv4();
-  const domain = extractDomainFromUrl(targetUrls[0]);
-
-  const [crawler, crawlerDefinition] =
-    await CrawlerFactory.buildPlaywrightCrawler(
-      {
-        domain,
-        type: "categoryExploration",
-        customQueueSettings: {
-          captureLabels: [],
-        },
-      },
-      {
-        uniqueCrawlerKey,
-      },
-      {
-        ...overrides,
-        maxConcurrency: 1,
-        requestHandlerTimeoutSecs: 3600,
-      }
-    );
-  await crawler.run(
-    targetUrls.map((t) => {
-      return {
-        url: t,
-        label: "LIST",
-      };
-    })
-  );
-
-  const result = await extractProductDetails(crawlerDefinition);
-  await clearStorage(uniqueCrawlerKey);
-  return result;
-}
-
 export async function exploreCategoryEndToEnd(
   categoryUrls: string[],
   overrides?: PlaywrightCrawlerOptions
@@ -277,7 +235,7 @@ export async function searchForProducts(
   return result;
 }
 
-export async function extractLeafCategories(
+export async function extractCategories(
   targetUrls: string[],
   overrides?: PlaywrightCrawlerOptions
 ): Promise<RequestOptions[]> {

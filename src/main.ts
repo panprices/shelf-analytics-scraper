@@ -4,7 +4,7 @@ import {
   exploreCategory,
   exploreCategoryEndToEnd,
   exploreCategoryEndToEndCheerio,
-  extractLeafCategories,
+  extractCategories,
   scrapeDetails,
 } from "./service";
 import path, { join } from "path";
@@ -65,14 +65,19 @@ async function debugCategoryExplorationEndToEnd(targetUrls: string[]) {
     headless: false,
   });
 
-  writeFileSync(join(".", "data.json"), JSON.stringify(detailedProducts), {
-    flag: "w",
-  });
+  writeFileSync(
+    join(".", "data.json"),
+    JSON.stringify(detailedProducts, null, 2),
+    {
+      flag: "w",
+    }
+  );
+  log.info("Result written to data.json");
 }
 
-async function debugLeafCategoryExtraction(targetUrls: string[]) {
+async function debugCategoryExtraction(targetUrls: string[]) {
   const startTime = Date.now();
-  const categoryUrls = await extractLeafCategories(targetUrls);
+  const categoryUrls = await extractCategories(targetUrls);
 
   console.log(JSON.stringify(categoryUrls));
   const endTime = Date.now();
@@ -148,63 +153,20 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
   });
 }
 
-// Berno Mobler
+//
+// await debugCategoryExtraction(["https://nordlyliving.dk/"]);
 
 // await debugCategoryExploration(
 //   "https://andlight.dk/shop/plakater-og-rammer-4459c1.html"
 // );
-await debugScrapeDetails([
-  "https://curatedclt.com/products/arco-led?variant=39350653911217&currency=USD&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOoq9nE14P98AlFfAxbHAqe0Q6pgwsJLfZFYBtgnsTeYN-HFKlngS9Ws",
-]);
-// await debugCategoryExploration(
-//   "https://nordlyliving.dk/collections/dekoration"
-// );
-
-// await debugLeafCategoryExtraction(["https://nordlyliving.dk/"]);
 
 // await debugScrapeDetails(
 //   "https://www.baldai1.lt/valgomojo-komplektai/valgomojo-komplektas-ja3381-lt.html"
 // );
 
-// await debugCategoryExploration(
-//   "https://www.finnishdesignshop.com/en-dk/lighting/ceiling-lamps"
-// );
-
-// await debugLeafCategoryExtraction([
-//   "https://www.venturedesign.se/innemobler",
-//   "https://www.venturedesign.se/utemobler",
-//   "https://www.venturedesign.se/nyheter",
-// ]);
-
-// await debugCategoryExplorationRecordHARForTests(
-//   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
-// );
-//
-// await debugScrapeDetails(
-//   "https://www.lampenwelt.de/p/louis-poulsen-panthella-320-tischleuchte-chrom-6090405.html?lw_om_view=recotop"
-// );
-
-// function readUrlsFromFile(filePath: string) {
-//   try {
-//     const fileContent = fs.readFileSync(filePath, { encoding: "utf-8" });
-//     return fileContent.split(/\r?\n/); // This regex handles both Linux (\n) and Windows (\r\n) line endings
-//   } catch (error) {
-//     console.error(`Error reading file from ${filePath}:`, error);
-//     return [];
-//   }
-// }
-//
-// const urls = readUrlsFromFile("urls.txt")
-//   .map((u) => (u.startsWith('"') ? u.substring(1, u.length - 1) : u))
-//   .filter((u) => u.startsWith("http"));
-//
-// await debugScrapeDetails([
-//   "https://www.baldai1.lt/lauko-baldai/stalo-ir-kedziu-komplektai/stalo-ir-kedziu-komplektas-dallas-2238-pilka-tamsi-pilka.html",
-// ]);
-
-// await debugCategoryExplorationEndToEnd([
-//   "https://andlight.dk/shop/spejle-833c1.html",
-// ]);
+await debugCategoryExplorationEndToEnd([
+  "https://andlight.dk/shop/spejle-833c1.html",
+]);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
@@ -213,8 +175,3 @@ await debugScrapeDetails([
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
-
-// await debugCategoryExplorationEndToEnd([
-//   "https://www.baldai1.lt/search/?q=dallas",
-//   // "https://www.baldai1.lt/biuro-baldai/biuro-komodos/",
-// ]);

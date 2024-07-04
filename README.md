@@ -15,9 +15,13 @@ You can find more examples and documentation at the following links:
 
 # Create a new scraper
 
+First run this script to create a `scraper.ts` file based on our template
+
 ```bash
 npm run script:create-scraper gigameubel.nl Gigameubel
 ```
+
+Then just fill in the missing parts in that new scraper.
 
 # Kubernetes
 
