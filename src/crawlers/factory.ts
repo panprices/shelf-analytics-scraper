@@ -57,7 +57,7 @@ import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
 import { HMCrawlerDefinition } from "./custom/hm";
 import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
-import { AutoCrawler } from "./auto";
+import { AutoCrawler } from "./auto-crawler";
 import fs from "fs";
 import { AndLightCrawlerDefinition } from "./custom/andlight";
 
