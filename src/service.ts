@@ -91,16 +91,22 @@ export async function exploreCategoryEndToEnd(
   for (const u of categoryUrls) {
     console.log(u);
     const detailedProducts = await exploreCategory(u, overrides).then(
-      (detailRequests) => {
-        console.log(`Found ${detailRequests.length} detailed urls`);
+      (listingProducts) => {
+        console.log(`Found ${listingProducts.length} detailed urls`);
 
-        return scrapeDetails(detailRequests, overrides).then(
+        const requestOptions = listingProducts.map((p) => {
+          return {
+            url: p.url,
+            userData: p,
+          } as RequestOptions;
+        });
+        return scrapeDetails(requestOptions, overrides).then(
           (detailedProducts) => {
             console.log(
               `Category ${u} obtained ${detailedProducts.length} product details`
             );
 
-            if (detailedProducts.length < detailRequests.length) {
+            if (detailedProducts.length < listingProducts.length) {
               throw "Missing detailed products";
             }
             return detailedProducts;

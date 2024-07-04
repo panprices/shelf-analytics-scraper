@@ -29,7 +29,7 @@ export async function publishListingProductsInBatch(
   const requestPromises = _.chunk(listingProducts, maxBatchSize).map(
     async (pages) => {
       log.info(`Sending a request batch with ${pages.length} requests`);
-      const batchRequest: RequestBatch = {
+      const batchRequest = {
         productDetails: pages,
         jobContext: jobContext,
       };
@@ -170,7 +170,7 @@ function convertToSnakeCase(key: string) {
 }
 
 export async function updateProductsPopularity(
-  products: ListingProductInfo[],
+  productListings: ListingProductInfo[],
   jobContext: JobContext
 ) {
   const pubSubClient = new PubSub();
@@ -182,11 +182,11 @@ export async function updateProductsPopularity(
   const topic = process.env.SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC;
 
   log.info(`Publishing popularity info`, {
-    nrProducts: products.length,
+    nrProducts: productListings.length,
   });
 
   const payload = {
-    products: products,
+    productListings: productListings,
     jobContext: jobContext,
   };
   try {
