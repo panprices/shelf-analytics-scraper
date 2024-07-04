@@ -1,5 +1,5 @@
 import { Locator, Page } from "playwright";
-import { log } from "crawlee";
+import { log, PlaywrightCrawlingContext } from "crawlee";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
 
@@ -71,13 +71,21 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
       specifications, // if not applicable return an empty array
       reviews,
 
-      // categoryTree, // is only optional if we already scraped it in the category page.
-
       variantGroupUrl,
       variant: 0, // 0, 1, 2, 3, ...
 
       metadata: { schemaOrg },
     };
+  }
+
+  // Remove this if the retailer doesn't need category indexing
+  override async crawlIntermediateCategoryPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await ctx.enqueueLinks({
+      selector: ,
+      label: "LIST",
+    });
   }
 
   static async create(

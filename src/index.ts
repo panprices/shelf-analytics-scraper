@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import {
   exploreCategory,
   exploreHomepage,
-  extractLeafCategories,
+  extractCategories,
   scrapeDetails,
   searchForProducts,
 } from "./service";
@@ -40,6 +40,26 @@ app.get("/", (_: any, res: Response) => {
   res.send(`Hello World!`);
 });
 
+/** Extract categories and return a list of result to be used for
+ * category indexing later. */
+app.post("/extractCategories", async (req: Request, res: Response) => {
+  const startUrls = req.body.intermediate_categories;
+
+  const categoryObjects = await extractCategories(
+    startUrls,
+    req.body.overrides
+  );
+  const categoryUrls = categoryObjects.map((c) => c.url);
+
+  res.status(200).send({
+    nrCategories: categoryUrls.length,
+    categories: categoryUrls,
+  });
+});
+
+/** Explore categories to
+ * (1) find products to scrape detailes
+ * and (2) update product popularities. */
 app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestCategoryExploration>req.body;
   let detailedPages = await exploreCategory(
@@ -175,21 +195,6 @@ app.post("/scrapeDetails", async (req: Request, res: Response) => {
   });
 });
 
-app.post("/extractCategories", async (req: Request, res: Response) => {
-  const intermediateCategories = req.body.intermediate_categories;
-
-  const categoryObjects = await extractLeafCategories(
-    intermediateCategories,
-    req.body.overrides
-  );
-  const categoryUrls = categoryObjects.map((c) => c.url);
-
-  res.status(200).send({
-    nrCategories: categoryUrls.length,
-    categories: categoryUrls,
-  });
-});
-
 app.post(
   "/startJobWithIntermediateCategories",
   async (req: Request, res: Response) => {
@@ -204,11 +209,9 @@ app.post(
     }
 
     const existingCategoryUrls = body.category_urls ?? [];
-    const leafCategoryObjects = await extractLeafCategories(
-      intermediateCategories
-    );
-    const leafCategoryUrls = leafCategoryObjects.map((c) => c.url);
-    const newCategoryUrls = leafCategoryUrls.filter(
+    const categoryObjects = await extractCategories(intermediateCategories);
+    const categoryUrls = categoryObjects.map((c) => c.url);
+    const newCategoryUrls = categoryUrls.filter(
       (c) => !existingCategoryUrls.includes(c)
     );
 
@@ -216,6 +219,9 @@ app.post(
 
     res.status(200).send({
       nrNewCategories: newCategoryUrls.length,
+      nrTotalCategories: [
+        ...new Set([...(body.category_urls ?? []), ...newCategoryUrls]),
+      ].length,
     });
   }
 );
@@ -227,9 +233,8 @@ app.post("/exploreHomepage", async (req: Request, res: Response) => {
   res.status(200).send("OK");
 });
 
-// Start the server
-
+// Start the http server
 const port = parseInt(<string>process.env.PORT) || 8080;
 app.listen(port, () => {
-  console.log(`helloworld: listening on port ${port}`);
+  log.info(`Server started, listening on port ${port}`);
 });

@@ -1,6 +1,6 @@
 import {
   exploreCategory,
-  extractLeafCategories,
+  extractCategories,
   scrapeDetails,
 } from "../src/service";
 import { ListingProductInfo } from "../src/types/offer";
@@ -22,7 +22,7 @@ function dummyRequest(targetUrl: string) {
 
 test("Extract categories", async () => {
   const url = "https://www.ellos.se/hem-inredning";
-  const result = await extractLeafCategories([url]);
+  const result = await extractCategories([url]);
 
   expect(result.length).toBeGreaterThan(100);
   expect(result.map((obj) => obj.url)).toContain(
