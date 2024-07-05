@@ -25,6 +25,7 @@
     "node-fetch": "^3.3.2",
     "playwright": "1.36.2",
     "playwright-core": "1.36.2",
+    "tsconfig-paths": "^4.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -40,18 +41,18 @@
     "jest": "^28.0.0",
     "prettier": "2.7.1",
     "ts-jest": "^28.0.8",
-    "ts-node": "^10.8.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.2"
   },
   "scripts": {
     "dev": "npm run start:dev",
-    "start:prod": "node --experimental-specifier-resolution=node dist/index.js",
-    "start:dev": "ts-node-esm --experimental-specifier-resolution=node -T src/index.ts",
-    "demo": "ts-node-esm --experimental-specifier-resolution=node -T src/demo.ts",
+    "start:prod": "node --loader ts-node/esm dist/index.js",
+    "start:dev": "node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts",
+    "demo": "node --loader ts-node/esm --experimental-specifier-resolution=node src/demo.ts",
     "build": "tsc",
     "test": "jest",
     "docker": "npm run build && docker build -t shelf-analytics-scraper . && docker run --rm -p 8080:8080 -e PORT=8080 shelf-analytics-scraper",
-    "script:create-scraper": "ts-node-esm script.ts",
-    "script:check-proxy": "ts-node-esm --experimental-specifier-resolution=node -T scripts/check-proxy.ts"
+    "script:create-scraper": "node --experimental-specifier-resolution=node --loader ts-node/esm script.ts royaldesign.dk RoyalDesign",
+    "script:check-proxy": "node --experimental-specifier-resolution=node --loader ts-node/esm scripts/check-proxy.ts"
   }
 }

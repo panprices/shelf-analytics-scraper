@@ -8,15 +8,15 @@ import {
   ListingProductInfo,
   OfferMetadata,
   ProductReviews,
-} from "../../types/offer";
+} from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
-import { PageNotFoundError } from "../../types/errors";
-import { extractNumberFromText } from "../../utils";
-import { findElementByCSSProperties } from "../scraper-utils";
+} from "../abstract.js";
+import { PageNotFoundError } from "../../types/errors.js";
+import { extractNumberFromText } from "../../utils.js";
+import { findElementByCSSProperties } from "../scraper-utils.js";
 
 export async function createCrawlerDefinitionOption(
   launchOptions?: CrawlerLaunchOptions

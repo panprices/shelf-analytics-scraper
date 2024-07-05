@@ -1,4 +1,4 @@
-import { BlobStorage } from "./abstract";
+import { BlobStorage } from "./abstract.js";
 import { Storage, TransferManager } from "@google-cloud/storage";
 import * as Buffer from "node:buffer";
 

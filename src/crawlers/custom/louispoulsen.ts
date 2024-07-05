@@ -1,10 +1,10 @@
 import { Page } from "playwright";
-import { DetailedProductInfo } from "../../types/offer";
+import { DetailedProductInfo } from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 
 export class LouisPoulsenCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {

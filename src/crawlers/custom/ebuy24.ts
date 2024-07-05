@@ -8,7 +8,10 @@ import {
 } from "crawlee";
 import { v4 as uuidv4 } from "uuid";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
 import {
   Category,
   DetailedProductInfo,
@@ -18,9 +21,9 @@ import {
   ProductReviews,
   SchemaOrg,
   Specification,
-} from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
-import { PageNotFoundError } from "../../types/errors";
+} from "../../types/offer.js";
+import { extractNumberFromText } from "../../utils.js";
+import { PageNotFoundError } from "../../types/errors.js";
 
 export class Ebuy24CrawlerDefinition extends AbstractCrawlerDefinition {
   override listingUrlSelector = "ul.pagination.small li:last-child a[href]";

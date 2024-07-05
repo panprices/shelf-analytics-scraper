@@ -7,7 +7,7 @@ import {
   extractCategories,
   scrapeDetails,
   searchForProducts,
-} from "./service";
+} from "./service.js";
 import { log } from "crawlee";
 import {
   ListingProductInfo,
@@ -15,15 +15,15 @@ import {
   RequestCategoryExploration,
   RequestSearch,
   ScraperSchedule,
-} from "./types/offer";
+} from "./types/offer.js";
 import {
   persistProductsToDatabase,
   publishProductsToUpdate,
   publishListingProductsInBatch,
   triggerJobWithNewCategories,
   updateProductsPopularity,
-} from "./publishing";
-import { extractDomainFromUrl, loggingMiddleware } from "./utils";
+} from "./publishing.js";
+import { extractDomainFromUrl, loggingMiddleware } from "./utils.js";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 
 dotenv.config();

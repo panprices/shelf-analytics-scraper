@@ -6,13 +6,13 @@ import {
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
-} from "../abstract";
+} from "../abstract.js";
 import {
   DetailedProductInfo,
   ListingProductInfo,
   ProductReviews,
-} from "../../types/offer";
-import { extractImagesFromDetailedPage } from "./base-homeroom";
+} from "../../types/offer.js";
+import { extractImagesFromDetailedPage } from "./base-homeroom.js";
 
 export class EllosCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   // protected override categoryPageSize: number = 56;

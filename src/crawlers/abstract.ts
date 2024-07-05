@@ -17,22 +17,22 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
-} from "../types/offer";
+} from "../types/offer.js";
 import {
   extractDomainFromUrl,
   mergeTwoObjectsPrioritiseNonNull,
   normaliseUrl,
-} from "../utils";
+} from "../utils.js";
 import { v4 as uuidv4 } from "uuid";
-import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils";
+import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils.js";
 import * as crypto from "crypto";
-import { BlobStorage } from "../blob-storage/abstract";
-import { GoogleCloudBlobStorage } from "../blob-storage/google";
+import { BlobStorage } from "../blob-storage/abstract.js";
+import { GoogleCloudBlobStorage } from "../blob-storage/google.js";
 import fs from "fs";
-import { DetailErrorAssertion } from "../error-handling/detail-error-assertion/interface";
-import { DefaultErrorAssertion } from "../error-handling/detail-error-assertion/default";
-import { DetailErrorHandler } from "../error-handling/detail-error-handling/interface";
-import { DefaultDetailErrorHandler } from "../error-handling/detail-error-handling/default";
+import { DetailErrorAssertion } from "../error-handling/detail-error-assertion/interface.js";
+import { DefaultErrorAssertion } from "../error-handling/detail-error-assertion/default.js";
+import { DetailErrorHandler } from "../error-handling/detail-error-handling/interface.js";
+import { DefaultDetailErrorHandler } from "../error-handling/detail-error-handling/default.js";
 
 export interface ScreenshotOptions {
   hasBlockedImages?: boolean;

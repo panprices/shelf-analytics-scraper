@@ -5,7 +5,7 @@ import {
   AbstractCrawlerDefinitionWithVariants,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import {
   Category,
   DetailedProductInfo,
@@ -14,9 +14,9 @@ import {
   OfferMetadata,
   ProductReviews,
   SchemaOrg,
-} from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
-import { extractImagesFromDetailedPage } from "./base-homeroom";
+} from "../../types/offer.js";
+import { extractNumberFromText } from "../../utils.js";
+import { extractImagesFromDetailedPage } from "./base-homeroom.js";
 
 export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 58;

@@ -12,5 +12,8 @@
     "experimentalDecorators": true,
     "noImplicitAny": true
   },
+  "paths": {
+      "@/*": ["./src/*"]
+  },
   "include": ["./src/**/*.ts"]
 }

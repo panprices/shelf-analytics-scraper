@@ -1,19 +1,22 @@
 import { Locator, Page } from "playwright";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
 import {
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
-} from "../../types/offer";
+} from "../../types/offer.js";
 import {
   createCrawlerDefinitionOption,
   extractCardProductInfo as baseExtractCardProductInfo,
   extractProductDetails as baseExtractProductDetails,
   isProductPage,
-} from "./base-chill";
-import { extractDomainFromUrl } from "../../utils";
+} from "./base-chill.js";
+import { extractDomainFromUrl } from "../../utils.js";
 
 export class FurnitureboxCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(

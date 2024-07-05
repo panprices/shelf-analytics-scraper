@@ -1,7 +1,10 @@
 import { Page } from "playwright";
-import { DetailedProductInfo, OfferMetadata } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractNumberFromText } from "../../utils";
+import { DetailedProductInfo, OfferMetadata } from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
+import { extractNumberFromText } from "../../utils.js";
 
 export class JardindecoCrawlerDefinition extends AbstractCrawlerDefinition {
   /**
