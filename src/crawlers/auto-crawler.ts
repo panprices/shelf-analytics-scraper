@@ -11,6 +11,7 @@ import {
   convertCurrencySymbolToISO,
   extractCountryFromDomain,
   extractDomainFromUrl,
+  isCorrectAvailabilityValue,
   parsePrice,
   pascalCaseToSnakeCase,
 } from "../utils";
@@ -648,6 +649,12 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     if (product.availability) {
       product.availability = pascalCaseToSnakeCase(product.availability);
+      if (!isCorrectAvailabilityValue(product.availability)) {
+        log.warning(
+          `Unknown availability value: ${product.availability}, changing to undefined.`
+        );
+        product.availability = undefined;
+      }
     }
 
     return product;

@@ -290,6 +290,22 @@ async function renameFoldersForDeletion(
   }
 }
 
+export function isCorrectAvailabilityValue(availability: string) {
+  const allowedAvailabilityValues = [
+    "back_order",
+    "discounted",
+    "in_stock",
+    "in_store_only",
+    "limited_availability",
+    "online_only",
+    "out_of_stock",
+    "pre_order",
+    "pre_sale",
+    "sold_out",
+  ];
+  return allowedAvailabilityValues.includes(availability);
+}
+
 /**
  * Changes the name of the folders from __CRAWLEE_PANPRICES_* to __CRAWLEE_TEMPORARY_* so they will be deleted on the
  * next run of a crawler on the same instance / pod
