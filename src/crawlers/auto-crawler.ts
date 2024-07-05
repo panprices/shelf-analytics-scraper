@@ -651,7 +651,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       product.availability = pascalCaseToSnakeCase(product.availability);
       if (!isCorrectAvailabilityValue(product.availability)) {
         log.warning(
-          `Unknown availability value: ${product.availability}, changing to undefined.`
+          `Unknown availability value: ${product.availability}, changing to undefined.`,
+          { url: page.url() }
         );
         product.availability = undefined;
       }
