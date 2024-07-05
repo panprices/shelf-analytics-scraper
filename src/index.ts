@@ -19,7 +19,7 @@ import {
 import {
   persistProductsToDatabase,
   publishProductsToUpdate,
-  sendRequestBatch,
+  publishListingProductsInBatch,
   triggerJobWithNewCategories,
   updateProductsPopularity,
 } from "./publishing";
@@ -62,45 +62,35 @@ app.post("/extractCategories", async (req: Request, res: Response) => {
  * and (2) update product popularities. */
 app.post("/exploreCategory", async (req: Request, res: Response) => {
   const body = <RequestCategoryExploration>req.body;
-  let detailedPages = await exploreCategory(
-    body.url,
-    body.jobContext.jobId,
-    body.overrides
-  );
-  detailedPages = detailedPages.map((p) => {
+  let listingProducts = await exploreCategory(body.url, body.overrides);
+  listingProducts = listingProducts.map((p) => {
     return {
       ...p,
-      userData: {
-        ...p.userData,
-        retailerDomain: body.retailerDomain,
-        country: body.country,
-      },
+      retailerDomain: body.retailerDomain,
+      country: body.country,
     };
   });
 
   try {
     log.info(`Category explored`, {
       categoryUrl: body.url,
-      nrProductsFound: detailedPages.length,
+      nrProductsFound: listingProducts.length,
       retailer: extractDomainFromUrl(body.url),
       jobId: body.jobContext.jobId,
     });
 
-    log.debug(JSON.stringify(detailedPages[0], null, 2));
+    log.debug(JSON.stringify(listingProducts[0], null, 2));
   } catch (error) {
     /* logging failed, do nothing */
   }
 
   if (!body.jobContext.skipPublishing) {
-    await sendRequestBatch(detailedPages, req.body.jobContext);
-    await updateProductsPopularity(
-      detailedPages.map((p) => p.userData as ListingProductInfo),
-      body.jobContext
-    );
+    await publishListingProductsInBatch(listingProducts, req.body.jobContext);
+    await updateProductsPopularity(listingProducts, body.jobContext);
   }
 
   res.status(200).send({
-    nrProductsFound: detailedPages.length,
+    nrProductsFound: listingProducts.length,
   });
 });
 
@@ -119,7 +109,7 @@ app.post("/search", async (req: Request, res: Response) => {
     /* logging failed, do nothing */
   }
   if (!body.jobContext.skipPublishing) {
-    await sendRequestBatch(products, req.body.jobContext);
+    await publishListingProductsInBatch(products, req.body.jobContext);
   }
 
   res.status(200).send({

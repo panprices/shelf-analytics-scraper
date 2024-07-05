@@ -8,9 +8,8 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function exploreCategory(
   targetUrl: string,
-  jobId: string,
   overrides?: PlaywrightCrawlerOptions
-): Promise<RequestOptions[]> {
+): Promise<ListingProductInfo[]> {
   const domain = extractDomainFromUrl(targetUrl);
   const uniqueCrawlerKey = uuidv4();
 
@@ -39,7 +38,7 @@ export async function exploreCategory(
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
 
-  let requestOptions = [];
+  let listingProducts = [];
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
     if (!request) {
@@ -53,25 +52,12 @@ export async function exploreCategory(
       log.error("Error when post processing listing products", { error: e });
     }
 
-    // Normalize the request url so that we can check for it in postges later
-    // and determine if we should proceed with scraping the product or not.
-    const normalizedRequestUrl = crawlerDefinition.normalizeProductUrl(
-      request.url
-    );
-
-    requestOptions.push({
-      url: normalizedRequestUrl,
-      userData: {
-        jobId: jobId,
-        ...product,
-      },
-    });
+    listingProducts.push(product);
     await inWaitQueue.markRequestHandled(request);
   }
 
-  const result = requestOptions;
   await clearStorage(uniqueCrawlerKey);
-  return result;
+  return listingProducts;
 }
 
 function postProcessListingProduct(
@@ -104,26 +90,30 @@ export async function exploreCategoryEndToEnd(
   let result: DetailedProductInfo[] = [];
   for (const u of categoryUrls) {
     console.log(u);
-    const detailedProducts = await exploreCategory(
-      u,
-      "end_to_end",
-      overrides
-    ).then((detailRequests) => {
-      console.log(`Found ${detailRequests.length} detailed urls`);
+    const detailedProducts = await exploreCategory(u, overrides).then(
+      (listingProducts) => {
+        console.log(`Found ${listingProducts.length} detailed urls`);
 
-      return scrapeDetails(detailRequests, overrides).then(
-        (detailedProducts) => {
-          console.log(
-            `Category ${u} obtained ${detailedProducts.length} product details`
-          );
+        const requestOptions = listingProducts.map((p) => {
+          return {
+            url: p.url,
+            userData: p,
+          } as RequestOptions;
+        });
+        return scrapeDetails(requestOptions, overrides).then(
+          (detailedProducts) => {
+            console.log(
+              `Category ${u} obtained ${detailedProducts.length} product details`
+            );
 
-          if (detailedProducts.length < detailRequests.length) {
-            throw "Missing detailed products";
+            if (detailedProducts.length < listingProducts.length) {
+              throw "Missing detailed products";
+            }
+            return detailedProducts;
           }
-          return detailedProducts;
-        }
-      );
-    });
+        );
+      }
+    );
 
     result = [...result, ...detailedProducts];
   }
@@ -137,29 +127,28 @@ export async function exploreCategoryEndToEndCheerio(
   let result: DetailedProductInfo[] = [];
   for (const u of categoryUrls) {
     console.log(u);
-    const detailedProducts = await exploreCategory(
-      u,
-      "end_to_end_2022_01_03_v2"
-    ).then(async (detailRequests) => {
-      console.log(`Found ${detailRequests.length} detailed urls`);
+    const detailedProducts = await exploreCategory(u).then(
+      async (detailRequests) => {
+        console.log(`Found ${detailRequests.length} detailed urls`);
 
-      const detailedProducts = await scrapeDetails(
-        detailRequests,
-        undefined,
-        true
-      );
-      console.log(
-        `Category ${u} obtained ${detailedProducts.length} product details`
-      );
+        const detailedProducts = await scrapeDetails(
+          detailRequests,
+          undefined,
+          true
+        );
+        console.log(
+          `Category ${u} obtained ${detailedProducts.length} product details`
+        );
 
-      if (detailedProducts.length < detailRequests.length) {
-        log.error("Missing detailed products", {
-          fromCategoryExplore: detailRequests.length,
-          got: detailedProducts.length,
-        });
+        if (detailedProducts.length < detailRequests.length) {
+          log.error("Missing detailed products", {
+            fromCategoryExplore: detailRequests.length,
+            got: detailedProducts.length,
+          });
+        }
+        return detailedProducts;
       }
-      return detailedProducts;
-    });
+    );
 
     log.info(JSON.stringify(detailedProducts, null, 2));
     log.info("Item found", {
@@ -178,7 +167,7 @@ export async function searchForProducts(
   query: string,
   retailerDomain: string,
   overrides?: PlaywrightCrawlerOptions
-): Promise<RequestOptions[]> {
+): Promise<ListingProductInfo[]> {
   const uniqueCrawlerKey = uuidv4();
   const [crawler, crawlerDefinition] =
     await CrawlerFactory.buildPlaywrightCrawler(
@@ -205,29 +194,25 @@ export async function searchForProducts(
   ]);
 
   const inWaitQueue = (<CustomRequestQueue>crawler.requestQueue).inWaitQueue;
-  let requestOptions = [];
+  let listingProducts = [];
   while (true) {
     const request = await inWaitQueue.fetchNextRequest();
     if (!request) {
       break;
     }
 
-    // Normalize the request url so that we can check for it in postges later
-    // and determine if we should proceed with scraping the product or not.
-    const normalizedRequestUrl = crawlerDefinition.normalizeProductUrl(
-      request.url
-    );
+    const product = request.userData as ListingProductInfo;
+    try {
+      postProcessListingProduct(product, crawlerDefinition);
+    } catch (e) {
+      log.error("Error when post processing listing products", { error: e });
+    }
 
-    requestOptions.push({
-      url: normalizedRequestUrl,
-      userData: request.userData,
-    });
+    listingProducts.push(product);
     await inWaitQueue.markRequestHandled(request);
   }
 
-  const result = requestOptions;
-  await clearStorage(uniqueCrawlerKey);
-  return result;
+  return listingProducts;
 }
 
 export async function extractCategories(

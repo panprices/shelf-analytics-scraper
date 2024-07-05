@@ -10,8 +10,11 @@ import {
 } from "./types/offer";
 import { BigQuery } from "@google-cloud/bigquery";
 
-export async function sendRequestBatch(
-  detailedPages: RequestOptions[],
+/** Publish products found through category indexing or searching, so that
+ * new products can be found and scraped.
+ */
+export async function publishListingProductsInBatch(
+  listingProducts: ListingProductInfo[],
   jobContext: JobContext
 ) {
   const maxBatchSize = 1000;
@@ -23,10 +26,10 @@ export async function sendRequestBatch(
   }
   const topic = process.env.SHELF_ANALYTICS_PERSIST_NEW_URLS_TOPIC;
 
-  const requestPromises = _.chunk(detailedPages, maxBatchSize).map(
+  const requestPromises = _.chunk(listingProducts, maxBatchSize).map(
     async (pages) => {
       log.info(`Sending a request batch with ${pages.length} requests`);
-      const batchRequest: RequestBatch = {
+      const batchRequest = {
         productDetails: pages,
         jobContext: jobContext,
       };
@@ -167,7 +170,7 @@ function convertToSnakeCase(key: string) {
 }
 
 export async function updateProductsPopularity(
-  products: ListingProductInfo[],
+  productListings: ListingProductInfo[],
   jobContext: JobContext
 ) {
   const pubSubClient = new PubSub();
@@ -179,11 +182,11 @@ export async function updateProductsPopularity(
   const topic = process.env.SHELF_ANALYTICS_UPDATE_POPULARITY_TOPIC;
 
   log.info(`Publishing popularity info`, {
-    nrProducts: products.length,
+    nrProducts: productListings.length,
   });
 
   const payload = {
-    products: products,
+    productListings: productListings,
     jobContext: jobContext,
   };
   try {
