@@ -49,6 +49,7 @@ steps:
       - "--location=$_GKE_LOCATION"
       - "--namespace=$_K8S_NAMESPACE"
     id: Apply deploy
+    timeout: 600s
 images:
   - "$_IMAGE_NAME:$COMMIT_SHA"
 options:
@@ -65,7 +66,7 @@ substitutions:
   _K8S_NAMESPACE: default
   _K8S_YAML_PATH: k8s/
   _OUTPUT_BUCKET_PATH: panprices_cloudbuild/deploy
-timeout: 600
+timeout: 600s
 tags:
   - gcp-cloud-build-deploy
   - $_K8S_APP_NAME
