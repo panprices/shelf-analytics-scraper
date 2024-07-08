@@ -1,0 +1,27 @@
+steps:
+  # build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    id: Build docker image
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA", "."]
+    # push container image
+  - name: "gcr.io/cloud-builders/docker"
+    id: Push the image
+    args: ["push", "gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA"]
+    # deploy container image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    id: Deploy to K8s
+    args:
+      - run
+      - --filename=$_K8S_YAML_PATH
+      - --image=gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA
+      - --location=$_GKE_LOCATION
+      - --cluster=$_GKE_CLUSTER
+      - --links="Build details=https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=$PROJECT_ID"
+options:
+  substitutionOption: ALLOW_LOOSE
+substitutions:
+  _GKE_CLUSTER: shelf-analytics-scraping
+  _GKE_LOCATION: europe-west1
+  _IMAGE_NAME: shelf-analytics-scraper
+  _K8S_APP_NAME: shelf-analytics-scraper
+  _K8S_YAML_PATH: k8s/
