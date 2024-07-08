@@ -9,9 +9,9 @@ import {
   Dataset,
   CheerioCrawlingContext,
 } from "crawlee";
-import { DetailedProductInfo } from "../../types/offer";
-import { extractDomainFromUrl } from "../../utils";
-import { AbstractCheerioCrawlerDefinition } from "../abstract";
+import { DetailedProductInfo } from "../../types/offer.js";
+import { extractDomainFromUrl } from "../../utils.js";
+import { AbstractCheerioCrawlerDefinition } from "../abstract.js";
 
 export class ChilliCheerioCrawlerDefinition extends AbstractCheerioCrawlerDefinition {
   extractProductDetails(ctx: CheerioCrawlingContext): DetailedProductInfo {

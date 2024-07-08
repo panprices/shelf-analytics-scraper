@@ -2,21 +2,21 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import { Locator, Page } from "playwright";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import {
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
-} from "../../types/offer";
-import { extractDomainFromUrl } from "../../utils";
+} from "../../types/offer.js";
+import { extractDomainFromUrl } from "../../utils.js";
 import {
   createCrawlerDefinitionOption,
   extractCardProductInfo as baseExtractCardProductInfo,
   extractProductDetails as baseExtractProductDetails,
   isProductPage,
-} from "./base-chill";
+} from "./base-chill.js";
 
 export class ChilliCrawlerDefinition extends AbstractCrawlerDefinition {
   constructor(options: CrawlerDefinitionOptions) {

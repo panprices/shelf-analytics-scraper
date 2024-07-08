@@ -2,9 +2,9 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "./abstract";
+} from "./abstract.js";
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../types/offer.js";
 import { log } from "crawlee";
 import jsonic from "jsonic";
 import {
@@ -14,9 +14,9 @@ import {
   isCorrectAvailabilityValue,
   parsePrice,
   pascalCaseToSnakeCase,
-} from "../utils";
-import { PriceLiteUnavailableError } from "../types/errors";
-import { AutoCrawlerErrorHandler } from "../error-handling/detail-error-handling/auto";
+} from "../utils.js";
+import { PriceLiteUnavailableError } from "../types/errors.js";
+import { AutoCrawlerErrorHandler } from "../error-handling/detail-error-handling/auto.js";
 
 interface PriceOffer {
   found: boolean;
@@ -649,13 +649,6 @@ class AutoCrawler extends AbstractCrawlerDefinition {
 
     if (product.availability) {
       product.availability = pascalCaseToSnakeCase(product.availability);
-      if (!isCorrectAvailabilityValue(product.availability)) {
-        log.warning(
-          `Unknown availability value: ${product.availability}, changing to undefined.`,
-          { url: page.url() }
-        );
-        product.availability = undefined;
-      }
     }
 
     return product;

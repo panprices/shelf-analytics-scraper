@@ -1,10 +1,10 @@
-import { DetailErrorHandler } from "./interface";
+import { DetailErrorHandler } from "./interface.js";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import {
   GotBlockedError,
   IllFormattedPageError,
   PageNotFoundError,
-} from "../../types/errors";
+} from "../../types/errors.js";
 
 export class DefaultDetailErrorHandler implements DetailErrorHandler {
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {

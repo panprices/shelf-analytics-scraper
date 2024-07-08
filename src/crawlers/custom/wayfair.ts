@@ -8,15 +8,18 @@ import {
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
-} from "../abstract";
-import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
+} from "../abstract.js";
+import {
+  convertCurrencySymbolToISO,
+  extractNumberFromText,
+} from "../../utils.js";
 import {
   DetailedProductInfo,
   ProductReviews,
   Specification,
-} from "../../types/offer";
-import { WayfairErrorAssertion } from "../../error-handling/detail-error-assertion/wayfair";
-import { AntiBotDetailErrorHandler } from "../../error-handling/detail-error-handling/anti-bot";
+} from "../../types/offer.js";
+import { WayfairErrorAssertion } from "../../error-handling/detail-error-assertion/wayfair.js";
+import { AntiBotDetailErrorHandler } from "../../error-handling/detail-error-handling/anti-bot.js";
 
 export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override variantCrawlingStrategy: VariantCrawlingStrategy =

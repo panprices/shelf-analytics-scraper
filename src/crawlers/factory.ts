@@ -14,52 +14,52 @@ import { v4 as uuidv4 } from "uuid";
 import {
   CustomQueueSettings,
   CustomRequestQueue,
-} from "../custom-crawlee/custom-request-queue";
-import { HomeroomCrawlerDefinition } from "./custom/homeroom";
-import { TrademaxCrawlerDefinition } from "./custom/trademax";
+} from "../custom-crawlee/custom-request-queue.js";
+import { HomeroomCrawlerDefinition } from "./custom/homeroom.js";
+import { TrademaxCrawlerDefinition } from "./custom/trademax.js";
 import {
   AbstractCheerioCrawlerDefinition,
   AbstractCrawlerDefinition,
   CrawlerLaunchOptions,
-} from "./abstract";
+} from "./abstract.js";
 import {
   addCachedCookiesToBrowserContext,
   newAvailableIp,
   syncBrowserCookiesToFirestore,
-} from "./proxy-rotator";
+} from "./proxy-rotator.js";
 
-import { VentureDesignCrawlerDefinition } from "./custom/venture-design";
-import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum";
+import { VentureDesignCrawlerDefinition } from "./custom/venture-design.js";
+import { NordiskaRumCrawlerDefinition } from "./custom/nordiskarum.js";
 import { Route } from "playwright-core";
-import { Furniture1CrawlerDefinition } from "./custom/furniture1";
-import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop";
-import { AmazonCrawlerDefinition } from "./custom/amazon";
-import { WayfairCrawlerDefinition } from "./custom/wayfair";
+import { Furniture1CrawlerDefinition } from "./custom/furniture1.js";
+import { FinnishDesignShopCrawlerDefinition } from "./custom/finnishdesignshop.js";
+import { AmazonCrawlerDefinition } from "./custom/amazon.js";
+import { WayfairCrawlerDefinition } from "./custom/wayfair.js";
 import { getFirestore } from "firebase-admin/firestore";
-import { KrautaCrawlerDefinition } from "./custom/krauta";
-import { BygghemmaCrawlerDefinition } from "./custom/bygghemma";
-import { ChilliCrawlerDefinition } from "./custom/chilli";
-import { GardenStoreCrawlerDefinition } from "./custom/gardenstore";
-import { UnolivingCrawlerDefinition } from "./custom/unoliving";
-import { Ebuy24CrawlerDefinition } from "./custom/ebuy24";
-import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox";
-import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler";
-import { extractDomainFromUrl } from "../utils";
-import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio";
-import { EllosCrawlerDefinition } from "./custom/ellos";
-import { TrendrumCrawlerDefinition } from "./custom/trendrum";
-import { ConnoxCrawlerDefinition } from "./custom/connox";
-import { NorlivingCrawlerDefinition } from "./custom/norliving";
-import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving";
-import { LouisPoulsenCrawlerDefinition } from "./custom/louispoulsen";
-import { JardindecoCrawlerDefinition } from "./custom/jardindeco";
+import { KrautaCrawlerDefinition } from "./custom/krauta.js";
+import { BygghemmaCrawlerDefinition } from "./custom/bygghemma.js";
+import { ChilliCrawlerDefinition } from "./custom/chilli.js";
+import { GardenStoreCrawlerDefinition } from "./custom/gardenstore.js";
+import { UnolivingCrawlerDefinition } from "./custom/unoliving.js";
+import { Ebuy24CrawlerDefinition } from "./custom/ebuy24.js";
+import { FurnitureboxCrawlerDefinition } from "./custom/furniturebox.js";
+import { BernoMoblerCrawlerDefinition } from "./custom/bernomobler.js";
+import { extractDomainFromUrl } from "../utils.js";
+import { ChilliCheerioCrawlerDefinition } from "./custom/chilli-cheerio.js";
+import { EllosCrawlerDefinition } from "./custom/ellos.js";
+import { TrendrumCrawlerDefinition } from "./custom/trendrum.js";
+import { ConnoxCrawlerDefinition } from "./custom/connox.js";
+import { NorlivingCrawlerDefinition } from "./custom/norliving.js";
+import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving.js";
+import { LouisPoulsenCrawlerDefinition } from "./custom/louispoulsen.js";
+import { JardindecoCrawlerDefinition } from "./custom/jardindeco.js";
 // for the script that adds a new scraper to work properly, the last import has to be a one-liner
-import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany";
-import { HMCrawlerDefinition } from "./custom/hm";
-import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
-import { AutoCrawler } from "./auto-crawler";
+import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany.js";
+import { HMCrawlerDefinition } from "./custom/hm.js";
+import { GigameubelCrawlerDefinition } from "./custom/gigameubel.js";
+import { AutoCrawler } from "./auto-crawler.js";
 import fs from "fs";
-import { AndLightCrawlerDefinition } from "./custom/andlight";
+import { AndLightCrawlerDefinition } from "./custom/andlight.js";
 
 export interface CrawlerFactoryArgs {
   domain: string;

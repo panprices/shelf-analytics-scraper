@@ -1,10 +1,10 @@
-import { DetailErrorAssertion } from "./interface";
+import { DetailErrorAssertion } from "./interface.js";
 import { PlaywrightCrawlingContext } from "crawlee";
 import {
   CaptchaEncounteredError,
   GotBlockedError,
   PageNotFoundError,
-} from "../../types/errors";
+} from "../../types/errors.js";
 
 export class WayfairErrorAssertion implements DetailErrorAssertion {
   async assertCorrectProductPage(ctx: PlaywrightCrawlingContext) {
