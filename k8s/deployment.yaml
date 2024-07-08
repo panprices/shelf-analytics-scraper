@@ -34,7 +34,7 @@ spec:
               value: "1"
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/secrets/google/key.json
-          image: gcr.io/panprices/test-crawlee
+          image: gcr.io/panprices/shelf-analytics-scraper
           name: shelf-analytics-scraper
           ports:
             - containerPort: 8080

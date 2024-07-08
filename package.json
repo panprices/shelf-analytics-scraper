@@ -1,5 +1,5 @@
 {
-  "name": "test-crawlee",
+  "name": "shelf-analytics-scraper",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
@@ -50,7 +50,7 @@
     "demo": "ts-node-esm --experimental-specifier-resolution=node -T src/demo.ts",
     "build": "tsc",
     "test": "jest",
-    "docker": "npm run build && docker build -t test-crawlee . && docker run --rm -p 8080:8080 -e PORT=8080 test-crawlee",
+    "docker": "npm run build && docker build -t shelf-analytics-scraper . && docker run --rm -p 8080:8080 -e PORT=8080 shelf-analytics-scraper",
     "script:create-scraper": "ts-node-esm script.ts",
     "script:check-proxy": "ts-node-esm --experimental-specifier-resolution=node -T scripts/check-proxy.ts"
   }
