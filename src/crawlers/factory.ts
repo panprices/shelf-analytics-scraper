@@ -60,6 +60,7 @@ import { GigameubelCrawlerDefinition } from "./custom/gigameubel";
 import { AutoCrawler } from "./auto-crawler";
 import fs from "fs";
 import { AndLightCrawlerDefinition } from "./custom/andlight";
+import { RoyalDesignCrawlerDefinition } from "./custom/royaldesign";
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -641,6 +642,15 @@ export class CrawlerFactory {
         };
         return [new PlaywrightCrawler(options), definition];
 
+      case "royaldesign.se":
+        definition = await RoyalDesignCrawlerDefinition.create(
+          launchOptions
+        );
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+        };
+        return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
       /**
        * !!! WARNING !!!

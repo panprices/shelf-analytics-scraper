@@ -164,9 +164,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
 // ]);
 
-await debugCategoryExplorationEndToEnd([
-  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
-]);
+// await debugCategoryExplorationEndToEnd([
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
+// ]);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
@@ -175,3 +175,13 @@ await debugCategoryExplorationEndToEnd([
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
+
+await debugScrapeDetails([
+  "https://royaldesign.se/flowerpot-vp9-bordslampa-portabel-v531523?p=335494",
+]);
+
+// // Discounted Royal Design
+// await debugScrapeDetails([
+//   "https://royaldesign.se/le-grand-air-utomhus-3-sitssoffa-sunbrella?p=351715",
+// ]);
+
