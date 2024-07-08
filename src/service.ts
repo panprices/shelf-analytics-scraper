@@ -1,9 +1,12 @@
-import { CrawlerFactory } from "./crawlers/factory";
-import { CustomRequestQueue } from "./custom-crawlee/custom-request-queue";
+import { CrawlerFactory } from "./crawlers/factory.js";
+import { CustomRequestQueue } from "./custom-crawlee/custom-request-queue.js";
 import { log, PlaywrightCrawlerOptions, RequestOptions } from "crawlee";
-import { clearStorage, extractDomainFromUrl, normaliseUrl } from "./utils";
-import { DetailedProductInfo, ListingProductInfo } from "./types/offer";
-import { CrawlerDefinition, CrawlerLaunchOptions } from "./crawlers/abstract";
+import { clearStorage, extractDomainFromUrl, normaliseUrl } from "./utils.js";
+import { DetailedProductInfo, ListingProductInfo } from "./types/offer.js";
+import {
+  CrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "./crawlers/abstract.js";
 import { v4 as uuidv4 } from "uuid";
 
 export async function exploreCategory(

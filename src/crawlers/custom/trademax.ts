@@ -4,7 +4,7 @@ import {
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
   VariantCrawlingStrategy,
-} from "../abstract";
+} from "../abstract.js";
 import { Locator, Page } from "playwright";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 import {
@@ -14,14 +14,14 @@ import {
   OfferMetadata,
   ProductReviews,
   Specification,
-} from "../../types/offer";
+} from "../../types/offer.js";
 import {
   extractCardProductInfo as baseExtractCardProductInfo,
   createCrawlerDefinitionOption,
   extractImageFromProductPage,
-} from "./base-chill";
-import { TrademaxErrorAssertion } from "../../error-handling/detail-error-assertion/trademax";
-import { findElementByCSSProperties } from "../scraper-utils";
+} from "./base-chill.js";
+import { TrademaxErrorAssertion } from "../../error-handling/detail-error-assertion/trademax.js";
+import { findElementByCSSProperties } from "../scraper-utils.js";
 
 export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   protected override categoryPageSize: number = 36;
