@@ -176,12 +176,38 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
 
-await debugScrapeDetails([
-  "https://royaldesign.se/flowerpot-vp9-bordslampa-portabel-v531523?p=335494",
-]);
+// await debugScrapeDetails([
+//   "https://royaldesign.se/flowerpot-vp9-bordslampa-portabel-v531523?p=335494",
+// ]);
 
-// // Discounted Royal Design
+// // Discounted Royal Design with 3 variants
 // await debugScrapeDetails([
 //   "https://royaldesign.se/le-grand-air-utomhus-3-sitssoffa-sunbrella?p=351715",
 // ]);
 
+// // 10 variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/copenhague-cph-20-bord-o90x74-cm?p=314473",
+// ]);
+
+// // A lot of variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/bistro-stol-metall?p=163632",
+// ]);
+
+// await debugCategoryExtraction(["https://royaldesign.se/"]);
+
+// await extractCategories(["https://royaldesign.se/"]);
+
+// await debugCategoryExploration(
+//   "https://royaldesign.se/belysning/takbelysning/plafonder"
+// );
+
+// await debugCategoryExplorationEndToEnd([
+//   "https://royaldesign.se/belysning/takbelysning/plafonder",
+// ]);
+
+// A lot of variants
+await debugScrapeDetails([
+  "https://royaldesign.se/tage-50-plafond?p=177464",
+]);

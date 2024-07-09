@@ -1,27 +1,34 @@
 import { Locator, Page } from "playwright";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinitionWithSimpleVariants,
+  CrawlerLaunchOptions,
+} from "../abstract";
 import { findElementByCSSProperties } from "../scraper-utils";
 import { convertSchemaOrgAvailability } from "../../utils";
+import { url } from "node:inspector";
 
-export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
-
+export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithSimpleVariants {
+  
   // Only needed for category exploration. Return <undefined> otherwise.
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const url = await this.extractProperty(productCard, "", (node) =>
-      node.getAttribute("href")
+    const url = await this.extractProperty(
+      productCard,
+      'div > a',
+      (node) => node.first().getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator(""),
-      0,
-      productCard.page().locator("")
+      productCard.page().locator("//span[text()='Shop']/../../..//a"),
+      1,
+      productCard.page().locator("//h1[@color='white' and @font-size='7,,10']")
     );
+
     return {
       url,
       categoryUrl,
@@ -30,9 +37,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-
     const rootElement = page.locator('body');
-
     const name = await findElementByCSSProperties(
       rootElement,
       {
@@ -44,8 +49,8 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     )
     .then((element) => element?.innerText())
     .then(text => text?.trim());
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
+    if (!name) {
+      throw new Error("Cannot extract name");
     }
     
     const brand = await findElementByCSSProperties(
@@ -60,9 +65,6 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       (element) => element?.getAttribute('alt')
     )
     .then(text => text?.trim());
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
-    }
 
     const brandUrl = await findElementByCSSProperties(
       rootElement,
@@ -76,9 +78,6 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       (element) => element?.locator("..").locator("..").getAttribute('href')
     )
     .then(text => text?.trim());
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
-    }
 
     const description = await findElementByCSSProperties(
       rootElement,
@@ -93,9 +92,6 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       (element) => element?.locator("div").innerText()
     )
     .then(text => text?.trim());
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
-    }
 
     const nonDiscountedpriceText = await findElementByCSSProperties(
       rootElement,
@@ -107,12 +103,9 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       "span"
     )
     .then(
-      (element) => element?.innerText()
+      (element) => element?.first().innerText()
     )
     .then(text => text?.trim())
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
-    }
 
     const discountedPriceText = await findElementByCSSProperties(
       rootElement,
@@ -127,9 +120,6 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       (element) => element?.innerText()
     )
     .then(text => text?.trim());
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
-    }
 
     const originalPriceText = await findElementByCSSProperties(
       rootElement,
@@ -144,9 +134,6 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       (element) => element?.innerText()
     )
     .then(text => text?.split("Tid. pris")[1].trim());
-    if (!rootElement) {
-      throw new Error("Cannot extract rootElement");
-    }
 
     let price: number | undefined;
     let originalPrice: number | undefined;
@@ -159,11 +146,10 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       price = extractPriceFromPriceText(discountedPriceText);
       originalPrice = extractPriceFromPriceText(originalPriceText);
       isDiscounted = true;
+    } else {
+      throw new Error("Cannot extract price");
     }
 
-    // I will hardcode this for now as this seems to be the way we usually do this.
-    // but it should be possible to do this dynamically from grabbing the currency
-    // from the website.
     const currency = "SEK";
 
     const schemaOrgString = await this.extractProperty(
@@ -187,7 +173,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
         log.warning("Error extracting data from schema.org", { error });
       }
     }
-    
+
     return {
       name,
       url: page.url(),
@@ -205,24 +191,45 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
       sku,
       mpn,
       //
-      images, // if not applicable return an empty array
+      images,
       // specifications, // if not applicable return an empty array
       // reviews,
       //
       // variantGroupUrl,
       // variant: 0, // 0, 1, 2, 3, ...
       //
-      // metadata: { schemaOrg },
+      metadata: { schemaOrg },
     };
   }
 
-  // Remove this if the retailer doesn't need category indexing
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
+    // Get all links from this seo-links object at Royal Design
+    const linksLocator = await ctx.page
+      .locator('ul[data-type="seo-links"] a')
+      .all();
+    // We are only interested in the sub categories of the main categories
+    const wantedURLs = [
+      '/servering', '/inredning', '/belysning', '/mobler',
+      '/koket', '/textil-och-mattor', '/utemobler', '/belysning'
+    ]
+    // Convert the wantedURLs array to a single regex pattern
+    const regexPattern = new RegExp(`^(${wantedURLs.join('|')})`);
+    const links: string[] = []; 
+    for (const link of linksLocator) {
+      const path = await link
+        .getAttribute("href")
+        .then(url => {
+          if (url && regexPattern.test(url)) {
+            links.push("https://royaldesign.se" + url);
+          }
+        });
+    }
+    // Return the links to the crawl queue
     await ctx.enqueueLinks({
-      // selector: ,
-      label: "LIST",
+      urls: links,
+      label: 'LIST',
     });
   }
 
@@ -230,22 +237,37 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinition {
     launchOptions?: CrawlerLaunchOptions
   ): Promise<RoyalDesignCrawlerDefinition> {
     const [detailsDataset, listingDataset] =
-      await AbstractCrawlerDefinition.openDatasets(
+      await AbstractCrawlerDefinitionWithSimpleVariants.openDatasets(
         launchOptions?.uniqueCrawlerKey
       );
 
     return new RoyalDesignCrawlerDefinition({
       detailsDataset,
       listingDataset,
-
-      // Only needed for category exploration
-      // listingUrlSelector: ,
-      // detailsUrlSelector: ,
-      // productCardSelector: ,
-      // cookieConsentSelector: ,
-      // dynamicProductCardLoading: false,
+      listingUrlSelector: "//button[a[contains(text(), 'Nästa')]]//a",
+      productCardSelector: '//div[@data-type="product_list_item"]',
+      dynamicProductCardLoading: false,
       launchOptions,
     });
+  }
+
+  override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    if (!this.productCardSelector) {
+      log.info("No product card selector defined, skipping");
+      return;
+    }
+
+    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
+
+    await this.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
+
+    if (this.listingUrlSelector) {
+      await ctx.enqueueLinks({
+        selector: this.listingUrlSelector,
+        label: "LIST",
+      });
+    }
   }
 }
 
