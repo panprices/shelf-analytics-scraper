@@ -4,9 +4,15 @@ import {
   ListingProductInfo,
   ProductReviews,
   Specification,
-} from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { convertCurrencySymbolToISO, extractNumberFromText } from "../../utils";
+} from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
+import {
+  convertCurrencySymbolToISO,
+  extractNumberFromText,
+} from "../../utils.js";
 import { log, PlaywrightCrawlingContext, playwrightUtils } from "crawlee";
 
 /**

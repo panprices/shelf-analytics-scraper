@@ -1,13 +1,13 @@
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import { Dictionary, PlaywrightCrawlingContext } from "crawlee";
-import { convertSchemaOrgAvailability } from "../../utils";
+import { convertSchemaOrgAvailability } from "../../utils.js";
 
 export class AndLightCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   public constructor(options: CrawlerDefinitionOptions) {

@@ -1,6 +1,6 @@
-import { DetailErrorAssertion } from "./interface";
+import { DetailErrorAssertion } from "./interface.js";
 import { PlaywrightCrawlingContext } from "crawlee";
-import { CaptchaEncounteredError } from "../../types/errors";
+import { CaptchaEncounteredError } from "../../types/errors.js";
 
 export class AntiBotErrorAssertion implements DetailErrorAssertion {
   async assertCorrectProductPage(ctx: PlaywrightCrawlingContext) {

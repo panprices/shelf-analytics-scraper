@@ -5,7 +5,7 @@ import {
   playwrightUtils,
 } from "crawlee";
 import { Locator } from "playwright";
-import { hexToRgb } from "../utils";
+import { hexToRgb } from "../utils.js";
 
 export interface ScrollToBottomStrategy {
   (

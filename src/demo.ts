@@ -6,7 +6,7 @@ import {
   exploreCategoryEndToEndCheerio,
   extractCategories,
   scrapeDetails,
-} from "./service";
+} from "./service.js";
 import path, { join } from "path";
 import { initializeApp, applicationDefault } from "firebase-admin/app";
 

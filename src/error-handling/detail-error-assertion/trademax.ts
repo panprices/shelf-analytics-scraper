@@ -1,7 +1,7 @@
-import { DetailErrorAssertion } from "./interface";
+import { DetailErrorAssertion } from "./interface.js";
 import { PlaywrightCrawlingContext } from "crawlee";
-import { isProductPage } from "../../crawlers/custom/base-chill";
-import { PageNotFoundError } from "../../types/errors";
+import { isProductPage } from "../../crawlers/custom/base-chill.js";
+import { PageNotFoundError } from "../../types/errors.js";
 
 export class TrademaxErrorAssertion implements DetailErrorAssertion {
   async assertCorrectProductPage(ctx: PlaywrightCrawlingContext) {

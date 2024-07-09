@@ -1,6 +1,6 @@
-import { DetailErrorHandler } from "./interface";
+import { DetailErrorHandler } from "./interface.js";
 import { log, PlaywrightCrawlingContext } from "crawlee";
-import { PriceLiteUnavailableError } from "../../types/errors";
+import { PriceLiteUnavailableError } from "../../types/errors.js";
 
 export class AutoCrawlerErrorHandler implements DetailErrorHandler {
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext): void {

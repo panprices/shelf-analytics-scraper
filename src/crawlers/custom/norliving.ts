@@ -1,10 +1,13 @@
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractNumberFromText } from "../../utils";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
+import { extractNumberFromText } from "../../utils.js";
 import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
-import { scrollToBottomV2 } from "../scraper-utils";
-import { PageNotFoundError } from "../../types/errors";
+import { scrollToBottomV2 } from "../scraper-utils.js";
+import { PageNotFoundError } from "../../types/errors.js";
 
 export class NorlivingCrawlerDefinition extends AbstractCrawlerDefinition {
   // NOTE: We don't need to do variant scraping for this because individual

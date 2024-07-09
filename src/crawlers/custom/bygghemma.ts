@@ -5,14 +5,14 @@ import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import {
   DetailedProductInfo,
   ListingProductInfo,
   OfferMetadata,
   Specification,
-} from "../../types/offer";
-import { PageNotFoundError } from "../../types/errors";
+} from "../../types/offer.js";
+import { PageNotFoundError } from "../../types/errors.js";
 
 export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   async prepareHeadlessScreen(ctx: PlaywrightCrawlingContext) {

@@ -3,12 +3,12 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
-} from "../../types/offer";
+} from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import { PlaywrightCrawlingContext, log } from "crawlee";
 import { forEach } from "lodash";
 

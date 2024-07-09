@@ -1,7 +1,10 @@
 import { Locator, Page } from "playwright";
 import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
 import {
   Category,
   DetailedProductInfo,
@@ -11,7 +14,7 @@ import {
   ProductReviews,
   SchemaOrg,
   Specification,
-} from "../../types/offer";
+} from "../../types/offer.js";
 
 export class UnolivingCrawlerDefinition extends AbstractCrawlerDefinition {
   override async scrollToBottom(ctx: PlaywrightCrawlingContext): Promise<void> {

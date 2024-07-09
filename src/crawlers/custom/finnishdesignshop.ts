@@ -1,12 +1,12 @@
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
-import { extractDomainFromUrl, parsePrice } from "../../utils";
+} from "../abstract.js";
+import { extractDomainFromUrl, parsePrice } from "../../utils.js";
 import { PlaywrightCrawlingContext, Dictionary, log } from "crawlee";
 
 /**

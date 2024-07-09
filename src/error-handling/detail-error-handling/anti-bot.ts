@@ -1,6 +1,6 @@
-import { DetailErrorHandler } from "./interface";
+import { DetailErrorHandler } from "./interface.js";
 import { log, PlaywrightCrawlingContext } from "crawlee";
-import { CaptchaEncounteredError } from "../../types/errors";
+import { CaptchaEncounteredError } from "../../types/errors.js";
 import { getFirestore } from "firebase-admin/firestore";
 
 export class AntiBotDetailErrorHandler implements DetailErrorHandler {
