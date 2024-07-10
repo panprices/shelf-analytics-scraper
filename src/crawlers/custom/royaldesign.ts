@@ -230,6 +230,15 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     return variantUrls;
   }
 
+  /* On Royal Design's homepage they have an element called "seo-links"
+  in which they seem to list all links on their website, similar to a sitemap.
+  When we are after all the sub category pages we can easily find them within
+  this "seo-links" element. One problem though is that we will also receive
+  links to blog posts, brand pages and other things which we do not want. 
+  The simple solution below is to filter on URLs which starts with one of 
+  the root categories since Royal Design's category pages always starts with
+  either of these root categories in their URL's.
+  */
   override async crawlIntermediateCategoryPage(
     ctx: PlaywrightCrawlingContext
   ): Promise<void> {
@@ -238,6 +247,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       .locator('ul[data-type="seo-links"] a')
       .all();
     // We are only interested in the sub categories of the main categories
+    // TODO: Fetch these root categories from the website instead of hardcoding
     const wantedURLs = [
       '/servering', '/inredning', '/belysning', '/mobler',
       '/koket', '/textil-och-mattor', '/utemobler', '/belysning'
