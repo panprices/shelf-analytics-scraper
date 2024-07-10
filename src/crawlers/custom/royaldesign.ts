@@ -9,8 +9,16 @@ import { findElementByCSSProperties } from "../scraper-utils";
 import { convertSchemaOrgAvailability } from "../../utils";
 import { url } from "node:inspector";
 
+/* 
+  PLEASE NOTE:
+  Royal Design applies dynamically rendered CSS classes that likely changes
+  after each new build of the React powered website. Therefore we can not rely on simple
+  CSS selecting based on the class names. Occasionally we can use Xpath's to find the
+  elements. Sometimes however we need to do find the elements based on CSS properties.
+  In 2024-07-10, Robert had just come up with this method and used it for Trademax.
+*/
+
 export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithSimpleVariants {
-  
   // Only needed for category exploration. Return <undefined> otherwise.
   async extractCardProductInfo(
     categoryUrl: string,
@@ -35,7 +43,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       popularityCategory: categoryTree ? categoryTree : undefined,
     };
   }
-
+  /* PRODUCT DETAILS SELECTOR */
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
     const rootElement = page.locator('body');
     const name = await findElementByCSSProperties(
@@ -52,7 +60,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     if (!name) {
       throw new Error("Cannot extract name");
     }
-    
+    /* BRAND SELECTOR */
     const brand = await findElementByCSSProperties(
       rootElement,
       {
@@ -65,7 +73,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       (element) => element?.getAttribute('alt')
     )
     .then(text => text?.trim());
-
+    /* BRAND URL SELECTOR */
     const brandUrl = await findElementByCSSProperties(
       rootElement,
       {
@@ -78,7 +86,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       (element) => element?.locator("..").locator("..").getAttribute('href')
     )
     .then(text => text?.trim());
-
+    /* DESCRIPTION SELECTOR */
     const description = await findElementByCSSProperties(
       rootElement,
       {
@@ -92,7 +100,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       (element) => element?.locator("div").innerText()
     )
     .then(text => text?.trim());
-
+    /* NON DISCOUNTED PRICE SELECTOR */
     const nonDiscountedpriceText = await findElementByCSSProperties(
       rootElement,
       {
@@ -106,7 +114,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       (element) => element?.first().innerText()
     )
     .then(text => text?.trim())
-
+    /* DISCOUNTED PRICE SELECTOR */
     const discountedPriceText = await findElementByCSSProperties(
       rootElement,
       {
@@ -120,7 +128,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       (element) => element?.innerText()
     )
     .then(text => text?.trim());
-
+    /* ORIGINAL PRICE WHEN ON DISCOUNT SELECTOR */
     const originalPriceText = await findElementByCSSProperties(
       rootElement,
       {
@@ -134,11 +142,10 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       (element) => element?.innerText()
     )
     .then(text => text?.split("Tid. pris")[1].trim());
-
+    /* RETURN PRICE AS THE DISCOUNTED PRICE IF ON DISCOUNT OTHERWISE NORMAL PRICE */
     let price: number | undefined;
     let originalPrice: number | undefined;
     let isDiscounted: boolean | undefined;
-
     if (nonDiscountedpriceText !== undefined) {
       price = extractPriceFromPriceText(nonDiscountedpriceText);
       isDiscounted = false;
@@ -149,9 +156,14 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     } else {
       throw new Error("Cannot extract price");
     }
-
+    /* HARDCODED CURRENCY */
     const currency = "SEK";
-
+    /* SPECIFICATION SELECTOR */
+    const specifications = await this.extractSpecificationsFromTable(
+      page.locator("//span[contains(@class, 'product-sku')]/../../..//ancestor::li[1]/div[1]"),
+      page.locator("//span[contains(@class, 'product-sku')]/../../..//ancestor::li[1]/div[2]")
+    );
+    /* DEFAULT SCHEMA ORG SELECTOR */
     const schemaOrgString = await this.extractProperty(
       page,
       "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]",
@@ -192,7 +204,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       mpn,
       //
       images,
-      // specifications, // if not applicable return an empty array
+      specifications,
       // reviews,
       //
       // variantGroupUrl,
@@ -200,6 +212,22 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       //
       metadata: { schemaOrg },
     };
+  }
+
+  /* We are a bit lucky with Royal Design to find that the variant drop 
+  down contains link items to all the possible variant that we can 
+  access without any need for naviation.*/
+  override async extractVariantUrls(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<string[]> {
+    const variantUrls = [];
+    for (const a of await ctx.page
+      .locator("//div[@role='combobox']/a")
+      .all()) {
+      const url = await a.getAttribute("href");
+      if (url) variantUrls.push(url);
+    }
+    return variantUrls;
   }
 
   override async crawlIntermediateCategoryPage(

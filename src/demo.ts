@@ -199,6 +199,8 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 
 // await extractCategories(["https://royaldesign.se/"]);
 
+await extractCategories(["https://bygghemma.se/"]);
+
 // await debugCategoryExploration(
 //   "https://royaldesign.se/belysning/takbelysning/plafonder"
 // );
@@ -207,7 +209,12 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://royaldesign.se/belysning/takbelysning/plafonder",
 // ]);
 
-// A lot of variants
-await debugScrapeDetails([
-  "https://royaldesign.se/tage-50-plafond?p=177464",
-]);
+// // A lot of variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/tage-50-plafond?p=177464",
+// ]);
+
+// // 10 variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/copenhague-cph-20-bord-o90x74-cm?p=314473",
+// ]);
