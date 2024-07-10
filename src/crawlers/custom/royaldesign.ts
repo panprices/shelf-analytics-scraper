@@ -34,7 +34,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     const categoryTree = await this.extractCategoryTreeFromCategoryPage(
       productCard.page().locator("//span[text()='Shop']/../../..//a"),
       1,
-      productCard.page().locator("//h1[@color='white' and @font-size='7,,10']")
+      productCard.page().locator("//h1[@font-size='7,,10']")
     );
 
     return {
