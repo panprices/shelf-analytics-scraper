@@ -53,14 +53,15 @@ import { NorlivingCrawlerDefinition } from "./custom/norliving.js";
 import { NordlyLivingCrawlerDefinition } from "./custom/nordlyliving.js";
 import { LouisPoulsenCrawlerDefinition } from "./custom/louispoulsen.js";
 import { JardindecoCrawlerDefinition } from "./custom/jardindeco.js";
-// for the script that adds a new scraper to work properly, the last import has to be a one-liner
 import { JensenCompanyCrawlerDefinition } from "./custom/jensencompany.js";
 import { HMCrawlerDefinition } from "./custom/hm.js";
 import { GigameubelCrawlerDefinition } from "./custom/gigameubel.js";
 import { AutoCrawler } from "./auto-crawler.js";
 import fs from "fs";
-import { AndLightCrawlerDefinition } from "./custom/andlight";
-import { RoyalDesignCrawlerDefinition } from "./custom/royaldesign";
+import { AndLightCrawlerDefinition } from "./custom/andlight.js";
+import { RoyalDesignCrawlerDefinition } from "./custom/royaldesign.js";
+
+// for the script that adds a new scraper to work properly, the last import has to be a one-liner
 
 export interface CrawlerFactoryArgs {
   domain: string;
@@ -643,9 +644,7 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
 
       case "royaldesign.se":
-        definition = await RoyalDesignCrawlerDefinition.create(
-          launchOptions
-        );
+        definition = await RoyalDesignCrawlerDefinition.create(launchOptions);
         options = {
           ...defaultOptions,
           requestHandler: definition.router,

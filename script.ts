@@ -22,7 +22,7 @@ const newCase = `case "${url}":
         return [new PlaywrightCrawler(options), definition];
       `;
 
-const importStatement = `import { ${retailerName}CrawlerDefinition } from "./custom/${retailerName.toLowerCase()}";`;
+const importStatement = `import { ${retailerName}CrawlerDefinition } from "./custom/${retailerName.toLowerCase()}.js";`;
 
 fs.readFile("custom-retailer.ts.template", "utf8", (err, data) => {
   if (err) {
