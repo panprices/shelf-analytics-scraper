@@ -1,13 +1,12 @@
 import { Locator, Page } from "playwright";
 import { log, PlaywrightCrawlingContext } from "crawlee";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
 import {
   AbstractCrawlerDefinitionWithSimpleVariants,
   CrawlerLaunchOptions,
-} from "../abstract";
-import { findElementByCSSProperties } from "../scraper-utils";
-import { convertSchemaOrgAvailability } from "../../utils";
-import { url } from "node:inspector";
+} from "../abstract.js";
+import { findElementByCSSProperties } from "../scraper-utils.js";
+import { convertSchemaOrgAvailability } from "../../utils.js";
 
 /* 
   PLEASE NOTE:
@@ -24,10 +23,8 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     categoryUrl: string,
     productCard: Locator
   ): Promise<ListingProductInfo> {
-    const url = await this.extractProperty(
-      productCard,
-      'div > a',
-      (node) => node.first().getAttribute("href")
+    const url = await this.extractProperty(productCard, "div > a", (node) =>
+      node.first().getAttribute("href")
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
@@ -45,18 +42,18 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
   }
   /* PRODUCT DETAILS SELECTOR */
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    const rootElement = page.locator('body');
+    const rootElement = page.locator("body");
     const name = await findElementByCSSProperties(
       rootElement,
       {
         "margin-bottom": "16px",
         "font-size": "24px",
-        "font-weight": "500"
+        "font-weight": "500",
       },
       "h1"
     )
-    .then((element) => element?.innerText())
-    .then(text => text?.trim());
+      .then((element) => element?.innerText())
+      .then((text) => text?.trim());
     if (!name) {
       throw new Error("Cannot extract name");
     }
@@ -65,83 +62,73 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       rootElement,
       {
         "max-width": "100px",
-        "max-height": "32px"
+        "max-height": "32px",
       },
       "img"
     )
-    .then(
-      (element) => element?.getAttribute('alt')
-    )
-    .then(text => text?.trim());
+      .then((element) => element?.getAttribute("alt"))
+      .then((text) => text?.trim());
     /* BRAND URL SELECTOR */
     const brandUrl = await findElementByCSSProperties(
       rootElement,
       {
         "max-width": "100px",
-        "max-height": "32px"
+        "max-height": "32px",
       },
       "img"
     )
-    .then(
-      (element) => element?.locator("..").locator("..").getAttribute('href')
-    )
-    .then(text => text?.trim());
+      .then((element) =>
+        element?.locator("..").locator("..").getAttribute("href")
+      )
+      .then((text) => text?.trim());
     /* DESCRIPTION SELECTOR */
     const description = await findElementByCSSProperties(
       rootElement,
       {
-        "fontSize": "14px",
-        "marginTop": "14px",
-        "lineHeight": "21px"
+        fontSize: "14px",
+        marginTop: "14px",
+        lineHeight: "21px",
       },
       "span"
     )
-    .then(
-      (element) => element?.locator("div").innerText()
-    )
-    .then(text => text?.trim());
+      .then((element) => element?.locator("div").innerText())
+      .then((text) => text?.trim());
     /* NON DISCOUNTED PRICE SELECTOR */
     const nonDiscountedpriceText = await findElementByCSSProperties(
       rootElement,
       {
-        "fontSize": "28px",
-        "color": "rgb(0, 0, 0)",
-        "fontWeight": "300"
+        fontSize: "28px",
+        color: "rgb(0, 0, 0)",
+        fontWeight: "300",
       },
       "span"
     )
-    .then(
-      (element) => element?.first().innerText()
-    )
-    .then(text => text?.trim())
+      .then((element) => element?.first().innerText())
+      .then((text) => text?.trim());
     /* DISCOUNTED PRICE SELECTOR */
     const discountedPriceText = await findElementByCSSProperties(
       rootElement,
       {
-        "fontSize": "28px",
-        "color": "rgb(235, 95, 95)",
-        "fontWeight": "300"
+        fontSize: "28px",
+        color: "rgb(235, 95, 95)",
+        fontWeight: "300",
       },
       "span"
     )
-    .then(
-      (element) => element?.innerText()
-    )
-    .then(text => text?.trim());
+      .then((element) => element?.innerText())
+      .then((text) => text?.trim());
     /* ORIGINAL PRICE WHEN ON DISCOUNT SELECTOR */
     const originalPriceText = await findElementByCSSProperties(
       rootElement,
       {
-        "color": "rgb(128, 128, 128)",
-        "textDecoration": "none solid rgb(128, 128, 128)",
-        "marginRight": "12px"
+        color: "rgb(128, 128, 128)",
+        textDecoration: "none solid rgb(128, 128, 128)",
+        marginRight: "12px",
       },
       "span"
     )
-    .then(
-      (element) => element?.innerText()
-    )
-    .then(text => text?.split("Tid. pris")[1].trim());
+      .then((element) => element?.innerText())
+      .then((text) => text?.split("Tid. pris")[1].trim());
     /* RETURN PRICE AS THE DISCOUNTED PRICE IF ON DISCOUNT OTHERWISE NORMAL PRICE */
     let price: number | undefined;
     let originalPrice: number | undefined;
@@ -149,7 +136,10 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     if (nonDiscountedpriceText !== undefined) {
       price = extractPriceFromPriceText(nonDiscountedpriceText);
       isDiscounted = false;
-    } else if (discountedPriceText !== undefined && originalPriceText !== undefined) {
+    } else if (
+      discountedPriceText !== undefined &&
+      originalPriceText !== undefined
+    ) {
       price = extractPriceFromPriceText(discountedPriceText);
       originalPrice = extractPriceFromPriceText(originalPriceText);
       isDiscounted = true;
@@ -160,8 +150,12 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     const currency = "SEK";
     /* SPECIFICATION SELECTOR */
     const specifications = await this.extractSpecificationsFromTable(
-      page.locator("//span[contains(@class, 'product-sku')]/../../..//ancestor::li[1]/div[1]"),
-      page.locator("//span[contains(@class, 'product-sku')]/../../..//ancestor::li[1]/div[2]")
+      page.locator(
+        "//span[contains(@class, 'product-sku')]/../../..//ancestor::li[1]/div[1]"
+      ),
+      page.locator(
+        "//span[contains(@class, 'product-sku')]/../../..//ancestor::li[1]/div[2]"
+      )
     );
     /* DEFAULT SCHEMA ORG SELECTOR */
     const schemaOrgString = await this.extractProperty(
@@ -177,7 +171,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
         gtin = schemaOrg.gtin13;
         mpn = schemaOrg.mpn;
         sku = schemaOrg.sku;
-        images = schemaOrg.image
+        images = schemaOrg.image;
         availability = convertSchemaOrgAvailability(
           schemaOrg.offers.availability
         );
@@ -221,9 +215,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     ctx: PlaywrightCrawlingContext
   ): Promise<string[]> {
     const variantUrls = [];
-    for (const a of await ctx.page
-      .locator("//div[@role='combobox']/a")
-      .all()) {
+    for (const a of await ctx.page.locator("//div[@role='combobox']/a").all()) {
       const url = await a.getAttribute("href");
       if (url) variantUrls.push(url);
     }
@@ -249,25 +241,29 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     // We are only interested in the sub categories of the main categories
     // TODO: Fetch these root categories from the website instead of hardcoding
     const wantedURLs = [
-      '/servering', '/inredning', '/belysning', '/mobler',
-      '/koket', '/textil-och-mattor', '/utemobler', '/belysning'
-    ]
+      "/servering",
+      "/inredning",
+      "/belysning",
+      "/mobler",
+      "/koket",
+      "/textil-och-mattor",
+      "/utemobler",
+      "/belysning",
+    ];
     // Convert the wantedURLs array to a single regex pattern
-    const regexPattern = new RegExp(`^(${wantedURLs.join('|')})`);
-    const links: string[] = []; 
+    const regexPattern = new RegExp(`^(${wantedURLs.join("|")})`);
+    const links: string[] = [];
     for (const link of linksLocator) {
-      const path = await link
-        .getAttribute("href")
-        .then(url => {
-          if (url && regexPattern.test(url)) {
-            links.push("https://royaldesign.se" + url);
-          }
-        });
+      const path = await link.getAttribute("href").then((url) => {
+        if (url && regexPattern.test(url)) {
+          links.push("https://royaldesign.se" + url);
+        }
+      });
     }
     // Return the links to the crawl queue
     await ctx.enqueueLinks({
       urls: links,
-      label: 'LIST',
+      label: "LIST",
     });
   }
 
@@ -311,7 +307,5 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
 
 export function extractPriceFromPriceText(priceText: string): number {
   /** 1 643 kr -> 1643 */
-  return parseFloat(
-    priceText.replace(/\s/g, "").replace("kr", "").trim()
-  );
+  return parseFloat(priceText.replace(/\s/g, "").replace("kr", "").trim());
 }
