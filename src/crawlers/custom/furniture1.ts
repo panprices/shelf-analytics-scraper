@@ -5,16 +5,16 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import {
   DetailedProductInfo,
   ListingProductInfo,
   ProductReviews,
   Specification,
-} from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
-import { AntiBotErrorAssertion } from "../../error-handling/detail-error-assertion/anti-bot";
-import { AntiBotDetailErrorHandler } from "../../error-handling/detail-error-handling/anti-bot";
+} from "../../types/offer.js";
+import { extractNumberFromText } from "../../utils.js";
+import { AntiBotErrorAssertion } from "../../error-handling/detail-error-assertion/anti-bot.js";
+import { AntiBotDetailErrorHandler } from "../../error-handling/detail-error-handling/anti-bot.js";
 
 export class Furniture1CrawlerDefinition extends AbstractCrawlerDefinition {
   public constructor(options: CrawlerDefinitionOptions) {

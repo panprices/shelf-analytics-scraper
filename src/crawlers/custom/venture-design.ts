@@ -2,12 +2,12 @@ import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
 import { log, PlaywrightCrawlingContext } from "crawlee";
-import { extractDomainFromUrl } from "../../utils";
-import { IllFormattedPageError } from "../../types/errors";
+import { extractDomainFromUrl } from "../../utils.js";
+import { IllFormattedPageError } from "../../types/errors.js";
 
 export class VentureDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   override async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {

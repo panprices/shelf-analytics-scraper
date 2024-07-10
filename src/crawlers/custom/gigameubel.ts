@@ -1,13 +1,13 @@
 import { Locator, Page } from "playwright";
 import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithSimpleVariants,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
-} from "../abstract";
-import { convertSchemaOrgAvailability } from "../../utils";
+} from "../abstract.js";
+import { convertSchemaOrgAvailability } from "../../utils.js";
 
 export class GigameubelCrawlerDefinition extends AbstractCrawlerDefinitionWithSimpleVariants {
   // Only needed for category exploration. Return <undefined> otherwise.

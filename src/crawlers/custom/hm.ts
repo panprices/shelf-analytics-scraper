@@ -1,8 +1,11 @@
 import { Locator, Page } from "playwright";
 import { log } from "crawlee";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { convertCurrencySymbolToISO } from "../../utils";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
+import { convertCurrencySymbolToISO } from "../../utils.js";
 
 export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
   // Only needed for category exploration. Return <undefined> otherwise.

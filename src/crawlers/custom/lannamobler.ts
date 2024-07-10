@@ -1,7 +1,10 @@
 import { Page } from "playwright";
-import { DetailedProductInfo } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
-import { extractDomainFromUrl } from "../../utils";
+import { DetailedProductInfo } from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
+import { extractDomainFromUrl } from "../../utils.js";
 
 /**
  * Deprecated

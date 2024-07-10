@@ -1,7 +1,10 @@
 import { Locator, Page } from "playwright";
 import { log } from "crawlee";
-import { DetailedProductInfo, ListingProductInfo } from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
 
 export class FlosCrawlerDefinition extends AbstractCrawlerDefinition {
   // Only needed for category exploration. Return <undefined> otherwise.

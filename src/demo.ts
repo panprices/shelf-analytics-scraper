@@ -6,7 +6,7 @@ import {
   exploreCategoryEndToEndCheerio,
   extractCategories,
   scrapeDetails,
-} from "./service";
+} from "./service.js";
 import path, { join } from "path";
 import { initializeApp, applicationDefault } from "firebase-admin/app";
 
@@ -156,9 +156,14 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //
 // await debugCategoryExtraction(["https://www.bygghemma.se/"]);
 
-// await debugCategoryExploration(
-//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
-// );
+
+await debugCategoryExploration(
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
+);
+
+// await debugScrapeDetails([
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
+// ]);
 
 // await debugScrapeDetails([
 //   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
@@ -175,3 +180,46 @@ await debugCategoryExplorationEndToEnd([
 // await debugCategoryExplorationRecordHARForTests(
 //   "https://www.ellos.se/hem-inredning/mobler/bord/skrivbord"
 // );
+
+// await debugScrapeDetails([
+//   "https://royaldesign.se/flowerpot-vp9-bordslampa-portabel-v531523?p=335494",
+// ]);
+
+// // Discounted Royal Design with 3 variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/le-grand-air-utomhus-3-sitssoffa-sunbrella?p=351715",
+// ]);
+
+// // 10 variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/copenhague-cph-20-bord-o90x74-cm?p=314473",
+// ]);
+
+// // A lot of variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/bistro-stol-metall?p=163632",
+// ]);
+
+// await debugCategoryExtraction(["https://royaldesign.se/"]);
+
+// await extractCategories(["https://royaldesign.se/"]);
+
+await extractCategories(["https://bygghemma.se/"]);
+
+// await debugCategoryExploration(
+//   "https://royaldesign.se/belysning/takbelysning/plafonder"
+// );
+
+// await debugCategoryExplorationEndToEnd([
+//   "https://royaldesign.se/belysning/takbelysning/plafonder",
+// ]);
+
+// // A lot of variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/tage-50-plafond?p=177464",
+// ]);
+
+// // 10 variants
+// await debugScrapeDetails([
+//   "https://royaldesign.se/copenhague-cph-20-bord-o90x74-cm?p=314473",
+// ]);

@@ -6,13 +6,13 @@ import {
   AbstractCrawlerDefinitionWithVariants,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import {
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
-} from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
+} from "../../types/offer.js";
+import { extractNumberFromText } from "../../utils.js";
 
 export class TrendrumCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   constructor(options: CrawlerDefinitionOptions) {

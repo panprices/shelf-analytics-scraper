@@ -3,14 +3,14 @@ import {
   DetailedProductInfo,
   ListingProductInfo,
   Specification,
-} from "../../types/offer";
+} from "../../types/offer.js";
 import {
   AbstractCrawlerDefinition,
   AbstractCrawlerDefinitionWithVariants,
   CrawlerLaunchOptions,
-} from "../abstract";
+} from "../abstract.js";
 import { Dictionary, PlaywrightCrawlingContext, log } from "crawlee";
-import { scrollToBottomV2 } from "../scraper-utils";
+import { scrollToBottomV2 } from "../scraper-utils.js";
 
 export class ConnoxCrawlerDefinition extends AbstractCrawlerDefinitionWithVariants {
   /**

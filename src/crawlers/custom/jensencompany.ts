@@ -4,8 +4,11 @@ import {
   ListingProductInfo,
   OfferMetadata,
   Specification,
-} from "../../types/offer";
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+} from "../../types/offer.js";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
 import { PlaywrightCrawlingContext, Dictionary } from "crawlee";
 
 export class JensenCompanyCrawlerDefinition extends AbstractCrawlerDefinition {

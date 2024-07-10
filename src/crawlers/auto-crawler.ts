@@ -2,20 +2,21 @@ import {
   AbstractCrawlerDefinition,
   CrawlerDefinitionOptions,
   CrawlerLaunchOptions,
-} from "./abstract";
+} from "./abstract.js";
 import { Locator, Page } from "playwright";
-import { DetailedProductInfo, ListingProductInfo } from "../types/offer";
+import { DetailedProductInfo, ListingProductInfo } from "../types/offer.js";
 import { log } from "crawlee";
 import jsonic from "jsonic";
 import {
   convertCurrencySymbolToISO,
   extractCountryFromDomain,
   extractDomainFromUrl,
+  isCorrectAvailabilityValue,
   parsePrice,
   pascalCaseToSnakeCase,
-} from "../utils";
-import { PriceLiteUnavailableError } from "../types/errors";
-import { AutoCrawlerErrorHandler } from "../error-handling/detail-error-handling/auto";
+} from "../utils.js";
+import { PriceLiteUnavailableError } from "../types/errors.js";
+import { AutoCrawlerErrorHandler } from "../error-handling/detail-error-handling/auto.js";
 
 interface PriceOffer {
   found: boolean;

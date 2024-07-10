@@ -1,26 +1,19 @@
 import { Locator, Page } from "playwright";
-import {
-  browserCrawlerEnqueueLinks,
-  Dataset,
-  Dictionary,
-  log,
-  PlaywrightCrawlingContext,
-} from "crawlee";
-import { v4 as uuidv4 } from "uuid";
+import { Dictionary, log, PlaywrightCrawlingContext } from "crawlee";
 
-import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract";
+import {
+  AbstractCrawlerDefinition,
+  CrawlerLaunchOptions,
+} from "../abstract.js";
 import {
   Category,
   DetailedProductInfo,
-  IndividualReview,
   ListingProductInfo,
   OfferMetadata,
   ProductReviews,
-  SchemaOrg,
   Specification,
-} from "../../types/offer";
-import { extractNumberFromText } from "../../utils";
-import { PageNotFoundError } from "../../types/errors";
+} from "../../types/offer.js";
+import { PageNotFoundError } from "../../types/errors.js";
 
 export class BernoMoblerCrawlerDefinition extends AbstractCrawlerDefinition {
   async extractCardProductInfo(
