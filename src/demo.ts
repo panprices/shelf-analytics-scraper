@@ -156,9 +156,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //
 // await debugCategoryExtraction(["https://www.bygghemma.se/"]);
 
-// await debugCategoryExploration(
-//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
-// );
+await debugCategoryExploration(
+  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
+);
 
 // await debugScrapeDetails([
 //   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",

@@ -1,13 +1,14 @@
 import {
   Configuration,
+  Dictionary,
   getRequestId,
   purgeDefaultStorages,
   QueueOperationInfo,
   Request,
   RequestOptions,
+  RequestProviderOptions,
   RequestQueue,
   RequestQueueOperationOptions,
-  RequestQueueOptions,
   Source,
   StorageManager,
   StorageManagerOptions,
@@ -51,7 +52,7 @@ export class CustomRequestQueue extends RequestQueue {
   private readonly uniqueKey;
 
   constructor(
-    options: RequestQueueOptions,
+    options: RequestProviderOptions,
     inWaitQueue: RequestQueue,
     syncedQueue: RequestQueue,
     config?: Configuration,
@@ -67,23 +68,33 @@ export class CustomRequestQueue extends RequestQueue {
     this.uniqueKey = uniqueKey ?? uuidv4();
   }
 
+  ensureRequestObject(requestLike: Source) {
+    if (requestLike instanceof Request) {
+      return requestLike;
+    }
+
+    return new Request(requestLike as RequestOptions<Dictionary>);
+  }
+
   override async addRequest(
     requestLike: Source,
     options?: RequestQueueOperationOptions
   ): Promise<RequestQueueOperationInfo> {
+    const request = this.ensureRequestObject(requestLike);
+
     const alreadyKnownRequest = await this.checkRequestIsKnownInAnyQueue(
-      <string>requestLike.uniqueKey
+      <string>request.uniqueKey
     );
     if (alreadyKnownRequest) {
       return {
         wasAlreadyPresent: true,
         wasAlreadyHandled: true,
-        requestId: <string>requestLike.id,
-        uniqueKey: <string>requestLike.uniqueKey,
+        requestId: <string>request.id,
+        uniqueKey: <string>request.uniqueKey,
       };
     }
 
-    if (requestLike.label && this.captureLabels.includes(requestLike.label)) {
+    if (request.label && this.captureLabels.includes(request.label)) {
       /**
        * Add the request to the secondary `inWaitQueue` instead.
        *
@@ -93,23 +104,21 @@ export class CustomRequestQueue extends RequestQueue {
       this.log.info(
         `Cached individual url for later processing: ${requestLike.url}`
       );
-      const result = await this.inWaitQueue.addRequest(requestLike, options);
-
-      return result;
+      return await this.inWaitQueue.addRequest(request, options);
     }
 
     // Default behavior for pages without a capture label
-    const result = await super.addRequest(requestLike, options);
-    return result;
+    return await super.addRequest(requestLike, options);
   }
 
   override async addRequests(
-    requestsLike: Source[],
+    requestLikeList: Source[],
     options: RequestQueueOperationOptions = {}
   ): Promise<BatchAddRequestsResult> {
     const delegatedRequests = []; // those that should be in the inWaitQueue
     const normalRequests = []; // those that should be in the standard queue
-    for (const request of requestsLike) {
+    for (const requestLike of requestLikeList) {
+      const request = this.ensureRequestObject(requestLike);
       const alreadyKnownRequest = await this.checkRequestIsKnownInAnyQueue(
         <string>request.uniqueKey
       );
