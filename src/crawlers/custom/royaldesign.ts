@@ -91,7 +91,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       },
       "span"
     )
-      .then((element) => element?.locator("div").innerText())
+      .then((element) => element?.locator("div").first().innerText())
       .then((text) => text?.trim());
     /* NON DISCOUNTED PRICE SELECTOR */
     const nonDiscountedpriceText = await findElementByCSSProperties(
