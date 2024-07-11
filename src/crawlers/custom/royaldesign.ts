@@ -52,7 +52,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       },
       "h1"
     )
-      .then((element) => element?.innerText())
+      .then((element) => element?.first().innerText())
       .then((text) => text?.trim());
     if (!name) {
       throw new Error("Cannot extract name");
