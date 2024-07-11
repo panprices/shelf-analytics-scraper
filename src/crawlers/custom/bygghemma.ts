@@ -374,7 +374,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
 
     const firstLevelNodes = page.locator("div.N3Sg1");
     const firstLevelNodesCount = await firstLevelNodes.count();
-    console.log("First level:", firstLevelNodesCount);
 
     const categoryUrls = [];
     for (let i1 = 0; i1 < firstLevelNodesCount; i1++) {
@@ -382,7 +381,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
       await firstLevelNode.hover();
       const secondLevelNodes = firstLevelNode.locator("ul.tOsbX li");
       const secondLevelsCount = await secondLevelNodes.count();
-      console.log("Second level:", secondLevelsCount);
 
       for (let i2 = 0; i2 < secondLevelsCount; i2++) {
         const secondLevelNode = secondLevelNodes.nth(i2);
@@ -395,7 +393,6 @@ export class BygghemmaCrawlerDefinition extends AbstractCrawlerDefinitionWithVar
         const thirdLevelNodes = firstLevelNode.locator("div.LgNuf div.DR3bk a");
 
         const thirdLevelNodesCount = await thirdLevelNodes.count();
-        console.log("Third level:", thirdLevelNodesCount);
 
         await ctx.enqueueLinks({
           selector: "div.N3Sg1 div.LgNuf div.DR3bk a",

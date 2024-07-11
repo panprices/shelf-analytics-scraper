@@ -11,7 +11,6 @@ import {
   convertCurrencySymbolToISO,
   extractCountryFromDomain,
   extractDomainFromUrl,
-  isCorrectAvailabilityValue,
   parsePrice,
   pascalCaseToSnakeCase,
 } from "../utils.js";
@@ -294,7 +293,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         product.gtin8;
       const mpn = offers.mpn || product.mpn;
 
-      const price =
+      let price =
         offers.priceSpecification?.price ||
         offers.PriceSpecification?.Price ||
         offers.price ||
@@ -307,6 +306,13 @@ class AutoCrawler extends AbstractCrawlerDefinition {
       const availability =
         offers.availability?.split("/").pop() ||
         offers.Availability?.split("/").pop();
+
+      if (price) {
+        if (!Number.isFinite(price)) {
+          // price is probably a string so we parse it
+          price = this.parsePriceFromSafeSource(price);
+        }
+      }
 
       // Stop fetching this to avoid occasional JSON format error in the
       // retailer's website schema.org. And we are not using this property
@@ -321,7 +327,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         gtin,
         mpn,
         name: product.name,
-        price: price ? this.parsePriceFromSafeSource(price) ?? null : null,
+        price,
         currency,
         availability,
         images: [],

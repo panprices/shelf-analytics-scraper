@@ -30,7 +30,7 @@ export async function publishListingProductsInBatch(
     async (pages) => {
       log.info(`Sending a request batch with ${pages.length} requests`);
       const batchRequest = {
-        productDetails: pages,
+        productListings: pages,
         jobContext: jobContext,
       };
 
