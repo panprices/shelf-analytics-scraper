@@ -1,17 +1,46 @@
+# Guide on how deep indexed retailers work
+
+**Please see the following guide on Notion before you start to work with this repositroy:**
+
+https://www.notion.so/getloupe/Deep-indexed-retailers-Overall-project-structure-and-getting-startedextractProductDetails-c9c6af62a53a4591859486ffb0c64af9?pvs=4
+
 # Setup
 
 Install node and npm: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 
 Run `npm install`
 
-# Getting started with Crawlee
+## How to test locally
+In `src/demo.ts` there are some wrapper functions you can call directly to start scraping. To run the it use the following command:
 
-This project uses Playwright through the Crawlee library to scrape product information.
-You can find more examples and documentation at the following links:
+```bash
+npm run demo
+```
 
-- [Introduction to Crawlee](https://crawlee.dev/docs/introduction)
-- `PlaywrightCrawler` [API documentation](https://crawlee.dev/api/playwright-crawler/class/PlaywrightCrawler)
-- Other [examples](https://crawlee.dev/docs/examples/playwright-crawler)
+## How to run the API (the way it runs in production)
+
+### 1. Build
+Run the following command:
+`npm run build`
+
+This will create the `/dist` folder where we can find the compiled JS files.
+
+### 2. Run
+Run the API with the following command:
+
+```bash
+npm run dev
+```
+
+Here is an example API call:
+
+```bash
+curl --location --request POST 'http://localhost:8080/exploreCategory' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "url": "https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/solstolar/d%C3%A4ckstol"
+}'
+```
 
 # Create a new scraper
 
@@ -52,6 +81,15 @@ kubectl apply -f k8s/deployment.yaml
 ```commandline
 kubectl rollout restart deployment/shelf-analytics-scraper
 ```
+
+# Getting started with Crawlee
+
+This project uses Playwright through the Crawlee library to scrape product information.
+You can find more examples and documentation at the following links:
+
+- [Introduction to Crawlee](https://crawlee.dev/docs/introduction)
+- `PlaywrightCrawler` [API documentation](https://crawlee.dev/api/playwright-crawler/class/PlaywrightCrawler)
+- Other [examples](https://crawlee.dev/docs/examples/playwright-crawler)
 
 ## Misc.
 
