@@ -2,6 +2,7 @@ import { DetailErrorHandler } from "./interface.js";
 import { log, PlaywrightCrawlingContext } from "crawlee";
 import { CaptchaEncounteredError } from "../../types/errors.js";
 import { getFirestore } from "firebase-admin/firestore";
+import { extractDomainFromUrl } from "../../utils.js";
 
 export class AntiBotDetailErrorHandler implements DetailErrorHandler {
   handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {
@@ -17,6 +18,7 @@ export class AntiBotDetailErrorHandler implements DetailErrorHandler {
       ctx.session?.retire();
       const firestoreDB = getFirestore();
       const proxyUrl = ctx.proxyInfo?.url;
+      const retailerName = extractDomainFromUrl(ctx.request.url).split(".")[0];
 
       // Proxy URL is has the following format: `http://panprices:BB4NC4WQmx@${ip}:60000`
       if (proxyUrl) {
@@ -31,7 +33,7 @@ export class AntiBotDetailErrorHandler implements DetailErrorHandler {
                 .collection("proxy_status")
                 .doc(doc.id)
                 .update({
-                  last_burned: new Date(),
+                  [`last_burned_${retailerName}`]: new Date(),
                 })
                 .then(() => log.warning(`IP ${proxyIp} blocked`));
             });
