@@ -54,10 +54,18 @@ export async function syncBrowserCookiesToFirestore(
  * It return a random IP from top 10 least recently-used ip to avoid 2 scrapers
  * accidentally retrieve the same ip at the same time.
  */
-export async function newAvailableIp(firestore: Firestore) {
+export async function newAvailableIp(
+  firestore: Firestore,
+  retailerDomain: string
+) {
+  const retailerName = retailerDomain.split(".")[0];
   const notBurnedIps = await firestore
     .collection("proxy_status")
-    .where("last_burned", "<", new Date(Date.now() - 30 * 60 * 1000))
+    .where(
+      `last_burned_${retailerName}`,
+      "<",
+      new Date(Date.now() - 30 * 60 * 1000)
+    )
     .get();
 
   if (notBurnedIps.empty) {
