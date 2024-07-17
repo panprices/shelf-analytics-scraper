@@ -156,22 +156,21 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //
 // await debugCategoryExtraction(["https://www.bygghemma.se/"]);
 
+// await debugCategoryExploration(
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
+// );
 
-await debugCategoryExploration(
-  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
-);
-
-// await debugScrapeDetails([
-//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
-// ]);
-
-// await debugScrapeDetails([
-//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
-// ]);
-
-await debugCategoryExplorationEndToEnd([
-  "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
+await debugScrapeDetails([
+  "https://allbuy.dk/products/skagerak-atlantis-parasol-330x330-cm-rahvid",
 ]);
+
+// await debugScrapeDetails([
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
+// ]);
+
+// await debugCategoryExplorationEndToEnd([
+//   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/",
+// ]);
 
 // await debugScrapeDetailsRecordHARForTests(
 //   "https://www.ellos.se/ellos-home/barbord-jolina-90x90-cm/1615542-01"
@@ -204,7 +203,9 @@ await debugCategoryExplorationEndToEnd([
 
 // await extractCategories(["https://royaldesign.se/"]);
 
-await extractCategories(["https://bygghemma.se/"]);
+// await extractCategories([
+//   "https://allbuy.dk/products/skagerak-atlantis-parasol-330x330-cm-rahvid",
+// ]);
 
 // await debugCategoryExploration(
 //   "https://royaldesign.se/belysning/takbelysning/plafonder"
