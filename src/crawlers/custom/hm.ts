@@ -192,26 +192,8 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractImageFromProductPage(page: Page): Promise<string[]> {
     const imageUrls = [];
-    // H&M don't render visible images and instead have values such as these
-    // "src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP" instead of URL's.
-    // To get the website to properly render all images we need to scroll
-    // to the bottom of the page.
-    await page.evaluate(async () => {
-      // Scroll down incrementally to ensure all lazy-loaded images are loaded
-      const scrollDelay = 500; // Delay between scrolls in milliseconds
-      const scrollStep = 1500; // Number of pixels to scroll in each step
-
-      // Get the total height of the document
-      const scrollHeight = document.body.scrollHeight;
-
-      // Scroll until we reach the bottom of the page
-      let currentScrollPosition = 0;
-      while (currentScrollPosition < scrollHeight) {
-        window.scrollBy(0, scrollStep); // Scroll down by scrollStep pixels
-        currentScrollPosition += scrollStep;
-        await new Promise(resolve => setTimeout(resolve, scrollDelay)); // Wait for new content to load
-      }
-    });
+    // Scroll to the bottom of the page to ensure all images are loaded
+    await scrollToBottom(page);
     // Get the image URL's
     for (const img of await page.locator('[data-testid="grid-gallery"] img').all()) {
       const url = await img.getAttribute("src");
@@ -219,7 +201,6 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
         imageUrls.push(url);
       }
     }
-
     return imageUrls;
   }
 
@@ -263,4 +244,23 @@ function extractPriceAndCurrencyFromText(text: string): [number, string] {
   const currency = convertCurrencySymbolToISO(currencySymbol);
 
   return [price, currency];
+}
+
+async function scrollToBottom(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    // Scroll down incrementally to ensure all lazy-loaded images are loaded
+    const scrollDelay = 500; // Delay between scrolls in milliseconds
+    const scrollStep = 1500; // Number of pixels to scroll in each step
+
+    // Get the total height of the document
+    const scrollHeight = document.body.scrollHeight;
+
+    // Scroll until we reach the bottom of the page
+    let currentScrollPosition = 0;
+    while (currentScrollPosition < scrollHeight) {
+      window.scrollBy(0, scrollStep); // Scroll down by scrollStep pixels
+      currentScrollPosition += scrollStep;
+      await new Promise(resolve => setTimeout(resolve, scrollDelay)); // Wait for new content to load
+    }
+  });
 }
