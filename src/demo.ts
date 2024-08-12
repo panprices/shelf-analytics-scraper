@@ -160,9 +160,9 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/"
 // );
 
-await debugScrapeDetails([
-  "https://allbuy.dk/products/skagerak-atlantis-parasol-330x330-cm-rahvid",
-]);
+// await debugScrapeDetails([
+//   "https://allbuy.dk/products/skagerak-atlantis-parasol-330x330-cm-rahvid",
+// ]);
 
 // await debugScrapeDetails([
 //   "https://www.bygghemma.se/inredning-och-belysning/mobler/soffor/2-sits-soffa/2-sitssoffa-scandinavian-choice-copenhagen-manchester/p-1728121",
@@ -224,3 +224,12 @@ await debugScrapeDetails([
 // await debugScrapeDetails([
 //   "https://royaldesign.se/copenhague-cph-20-bord-o90x74-cm?p=314473",
 // ]);
+
+await debugScrapeDetails([
+  "https://www2.hm.com/de_de/productpage.1219487001.html",
+]);
+
+// H&M Home product on discount
+await debugScrapeDetails([
+  "https://www2.hm.com/de_de/productpage.1207948003.html",
+]);
