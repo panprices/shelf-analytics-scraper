@@ -24,7 +24,7 @@ const newCase = `case "${url}":
 
 const importStatement = `import { ${retailerName}CrawlerDefinition } from "./custom/${retailerName.toLowerCase()}.js";`;
 
-fs.readFile("custom-retailer.ts.template", "utf8", (err, data) => {
+fs.readFile("resources/custom-retailer.ts.template", "utf8", (err, data) => {
   if (err) {
     console.error(err);
     return;

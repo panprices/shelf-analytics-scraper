@@ -4,8 +4,14 @@ import { DetailedProductInfo, ListingProductInfo } from "../../types/offer.js";
 import { AbstractCrawlerDefinition, CrawlerLaunchOptions } from "../abstract.js";
 
 export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinition {
-  
-  // Only needed for category exploration. Return <undefined> otherwise.
+  /**
+   * This method is needed for category exploration. It receives a product card and extracts some things from that.
+   *
+   * A product card = the area that defines the content for a product in a category page
+   *
+   * @param categoryUrl
+   * @param productCard
+   */
   async extractCardProductInfo(
     categoryUrl: string,
     productCard: Locator
@@ -15,24 +21,27 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
     );
     if (!url) throw new Error("Cannot find url of productCard");
 
-    const categoryTree = await this.extractCategoryTreeFromCategoryPage(
-      productCard.page().locator(""),
-      0,
-      productCard.page().locator("")
-    );
+    // const categoryTree = await this.extractCategoryTreeFromCategoryPage(
+    //   productCard.page().locator(""),
+    //   0,
+    //   productCard.page().locator("")
+    // );
     return {
       url,
       categoryUrl,
-      popularityCategory: categoryTree ? categoryTree : undefined,
+      popularityCategory: undefined,
     };
   }
 
+  /**
+   * This method implements the logic of getting all the product details from a product page
+   * @param page
+   */
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
-    const name = await this.extractProperty(
-      page,
-      "",
-      (element) => element.innerText()
-    ).then(text => text?.trim());
+    // const name = await this.extractProperty(page, "", (element) =>
+    //   element.innerText()
+    // ).then((text) => text?.trim());
+    const name = "TODO";
 
     const schemaOrgString = await this.extractProperty(
       page,
@@ -49,43 +58,35 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
         log.warning("Error extracting data from schema.org", { error });
       }
     }
-    
+
     return {
       name,
       url: page.url(),
 
-      brand,
-      brandUrl,
-      description,
-      price,
-      currency,
-      isDiscounted,
-      originalPrice,
-      availability,
-
       gtin,
-      sku,
-      mpn,
 
-      images, // if not applicable return an empty array
-      specifications, // if not applicable return an empty array
-      reviews,
-
-      variantGroupUrl,
-      variant: 0, // 0, 1, 2, 3, ...
+      images: [], // if not applicable return an empty array
+      specifications: [], // if not applicable return an empty array
 
       metadata: { schemaOrg },
     };
   }
 
-  // Remove this if the retailer doesn't need category indexing
+  /**
+   * This method should get all the category URLs available on an "Intermediate Category Page"
+   *
+   * An intermediate category page can be:
+   * - the homepage
+   * - a category page that is not a "leaf" category, (i.e. has sub-categories)
+   * @param _ctx
+   */
   override async crawlIntermediateCategoryPage(
-    ctx: PlaywrightCrawlingContext
+    _ctx: PlaywrightCrawlingContext
   ): Promise<void> {
-    await ctx.enqueueLinks({
-      selector: ,
-      label: "LIST",
-    });
+    // await ctx.enqueueLinks({
+    //   selector: ,
+    //   label: "LIST",
+    // });
   }
 
   static async create(
@@ -99,12 +100,16 @@ export class __RETAILER_NAME__CrawlerDefinition extends AbstractCrawlerDefinitio
     return new __RETAILER_NAME__CrawlerDefinition({
       detailsDataset,
       listingDataset,
-
-      // Only needed for category exploration
-      listingUrlSelector: ,
-      detailsUrlSelector: ,
-      productCardSelector: ,
-      cookieConsentSelector: ,
+      /**
+       * Defining these selectors is necessary for category exploration
+       *
+       * See the docs for details:
+       * https://www.notion.so/getloupe/Deep-indexed-retailers-Overall-project-structure-and-getting-started-c9c6af62a53a4591859486ffb0c64af9#04f074d7711a4f128f58bb6057886689
+       */
+      // listingUrlSelector: ,
+      // detailsUrlSelector: ,
+      // productCardSelector: ,
+      // cookieConsentSelector: ,
       dynamicProductCardLoading: false,
       launchOptions,
     });

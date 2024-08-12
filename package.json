@@ -52,7 +52,7 @@
     "build": "tsc",
     "test": "jest",
     "docker": "npm run build && docker build -t shelf-analytics-scraper . && docker run --rm -p 8080:8080 -e PORT=8080 shelf-analytics-scraper",
-    "script:create-scraper": "node --experimental-specifier-resolution=node --loader ts-node/esm script.ts",
+    "script:create-scraper": "node --experimental-specifier-resolution=node --loader ts-node/esm scripts/create-scraper.ts",
     "script:check-proxy": "node --experimental-specifier-resolution=node --loader ts-node/esm scripts/check-proxy.ts"
   }
 }

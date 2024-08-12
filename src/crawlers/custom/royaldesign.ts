@@ -52,7 +52,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       },
       "h1"
     )
-      .then((element) => element?.innerText())
+      .then((element) => element?.first().innerText())
       .then((text) => text?.trim());
     if (!name) {
       throw new Error("Cannot extract name");
@@ -91,7 +91,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       },
       "span"
     )
-      .then((element) => element?.locator("div").innerText())
+      .then((element) => element?.locator("div").first().innerText())
       .then((text) => text?.trim());
     /* NON DISCOUNTED PRICE SELECTOR */
     const nonDiscountedpriceText = await findElementByCSSProperties(
@@ -210,7 +210,7 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
 
   /* We are a bit lucky with Royal Design to find that the variant drop 
   down contains link items to all the possible variant that we can 
-  access without any need for naviation.*/
+  access without any need for navigation.*/
   override async extractVariantUrls(
     ctx: PlaywrightCrawlingContext
   ): Promise<string[]> {
@@ -290,8 +290,21 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
       log.info("No product card selector defined, skipping");
       return;
     }
-
-    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
+    // There can be categories at Royal Design with 0 products. Here is an example:
+    // https://royaldesign.se/inredning/dekoration/fonsterfilmer-insynsskydd
+    try {
+      // Wait for 10s to make sure the page is rendered
+      await ctx.page.locator(this.productCardSelector).nth(0).waitFor({ timeout: 10000 });
+    } catch (error) {
+      const productsFoundInfo = await ctx.page.locator("//div[text()='0 produkter']").textContent();      
+      // Check if the UI says that 0 products where found
+      if (productsFoundInfo === "0 produkter") {
+        console.log("This category page does not contain any products: ", ctx.page.url());
+        return;
+      }
+      // Throw an error if it failed for some other reason then 0 products found
+      throw new Error("There was an issue with finding products on category page: " + ctx.page.url());
+    }
 
     await this.scrollToBottom(ctx);
     await this.registerProductCards(ctx);

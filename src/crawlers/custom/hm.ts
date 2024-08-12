@@ -7,6 +7,8 @@ import {
 } from "../abstract.js";
 import { convertCurrencySymbolToISO } from "../../utils.js";
 
+import { findElementByCSSProperties } from "../scraper-utils.js";
+
 export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
   // Only needed for category exploration. Return <undefined> otherwise.
   async extractCardProductInfo(
@@ -17,9 +19,11 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    // It feels a little risky to select the h1 element here and hope they
+    // only have one. However, it seems that they only have 1 h1 for SEO.
     const name = await this.extractProperty(
       page,
-      "div.product hm-product-name h1",
+      "h1",
       (element) => element.innerText()
     ).then((text) => text?.trim());
     if (!name) {
@@ -28,36 +32,59 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
 
     const brand = await this.extractProperty(
       page,
-      "div.product hm-product-name a",
+      "h2 a",
       (node) => node.innerText()
     ).then((text) => text?.trim());
     const brandUrl = await this.extractProperty(
       page,
-      "div.product hm-product-name a",
+      "h2 a",
       (node) => node.getAttribute("href")
     );
     const description = await this.extractProperty(
       page,
-      "div.product div#section-descriptionAccordion p",
+      "#section-descriptionAccordion p",
       (node) => node.innerText()
     ).then((text) => text?.trim());
 
-    const priceText = await this.extractProperty(
-      page,
-      "div.product #product-price span:first-child",
-      (node) => node.innerText()
-    ).then((text) => text?.trim());
-    if (!priceText) {
-      throw new Error("Cannot extract price");
-    }
+    const rootElement = page.locator("body");
+    const priceText = await findElementByCSSProperties(
+      rootElement,
+      {
+        "overflow": "hidden",
+        "text-overflow": "ellipsis",
+        "text-align": "left",
+      },
+      "div"
+    )
+      .then((element) => element?.locator("span").first().innerText())
+      .then((text) => text?.trim());
+      if (!priceText) {
+        throw new Error("Cannot extract price");
+      }
 
     const [price, currency] = extractPriceAndCurrencyFromText(priceText);
 
-    const originalPriceText = await this.extractProperty(
-      page,
-      "div.product #product-price span:nth-child(2)",
-      (node) => node.innerText()
-    ).then((text) => text?.trim());
+    const originalPriceText = await findElementByCSSProperties(
+      rootElement,
+      {
+        overflow: "hidden",
+        "text-overflow": "ellipsis",
+        "text-align": "left",
+      },
+      "div"
+    )
+      .then(async (element) => {
+        if (!element) return null; // If the element itself is not found, return null
+        // Get the locator for the span element at index 1
+        const spanLocator = element.locator("span").nth(1);
+        // Check if the span element exists
+        const spanCount = await spanLocator.count();
+        if (spanCount === 0) return null; // If span does not exist, return null
+        // Return the innerText of the span element
+        return await spanLocator.innerText();
+      })
+      .then((text) => text?.trim()); // Trim any whitespace from the text
+
     const originalPrice = originalPriceText
       ? extractPriceAndCurrencyFromText(originalPriceText)[0]
       : undefined;
@@ -71,14 +98,14 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
     const images = await this.extractImageFromProductPage(page);
 
     const descriptionSpecifications = await this.extractSpecificationsFromTable(
-      page.locator("div.product div#section-descriptionAccordion dl dt"),
-      page.locator("div.product div#section-descriptionAccordion dl dd")
+      page.locator("div#section-descriptionAccordion dl dt"),
+      page.locator("div#section-descriptionAccordion dl dd"),
     );
 
     // Sometimes there are no key, only values:
     const materialSpecifications = [];
     const materialSpecLocator = page.locator(
-      "div.product div#section-materialsAndSuppliersAccordion ul li"
+      "div#section-materialsAndSuppliersAccordion ul li"
     );
     for (const materialSpecRowLocator of await materialSpecLocator.all()) {
       const key = (
@@ -95,14 +122,7 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
         value: value,
       });
     }
-    // const materialSpecifications = await this.extractSpecificationsFromTable(
-    //   page.locator(
-    //     "div.product div#section-materialsAndSuppliersAccordion ul li h4"
-    //   ),
-    //   page.locator(
-    //     "div.product div#section-materialsAndSuppliersAccordion ul li p"
-    //   )
-    // );
+
     const specifications = descriptionSpecifications
       .concat(materialSpecifications)
       .map((spec) => {
@@ -137,7 +157,7 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
     }
 
     const categoryTree = (
-      await this.extractCategoryTree(page.locator("hm-breadcrumbs nav li a"))
+      await this.extractCategoryTree(page.locator('nav[aria-label="Breadcrumb"] li a'))
     ).slice(1, -1);
 
     return {
@@ -172,13 +192,15 @@ export class HMCrawlerDefinition extends AbstractCrawlerDefinition {
 
   async extractImageFromProductPage(page: Page): Promise<string[]> {
     const imageUrls = [];
-    for (const img of await page.locator("div.product .pdp-image img").all()) {
+    // Scroll to the bottom of the page to ensure all images are loaded
+    await scrollToBottom(page);
+    // Get the image URL's
+    for (const img of await page.locator('[data-testid="grid-gallery"] img').all()) {
       const url = await img.getAttribute("src");
       if (url) {
         imageUrls.push(url);
       }
     }
-
     return imageUrls;
   }
 
@@ -222,4 +244,23 @@ function extractPriceAndCurrencyFromText(text: string): [number, string] {
   const currency = convertCurrencySymbolToISO(currencySymbol);
 
   return [price, currency];
+}
+
+async function scrollToBottom(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    // Scroll down incrementally to ensure all lazy-loaded images are loaded
+    const scrollDelay = 500; // Delay between scrolls in milliseconds
+    const scrollStep = 1500; // Number of pixels to scroll in each step
+
+    // Get the total height of the document
+    const scrollHeight = document.body.scrollHeight;
+
+    // Scroll until we reach the bottom of the page
+    let currentScrollPosition = 0;
+    while (currentScrollPosition < scrollHeight) {
+      window.scrollBy(0, scrollStep); // Scroll down by scrollStep pixels
+      currentScrollPosition += scrollStep;
+      await new Promise(resolve => setTimeout(resolve, scrollDelay)); // Wait for new content to load
+    }
+  });
 }
