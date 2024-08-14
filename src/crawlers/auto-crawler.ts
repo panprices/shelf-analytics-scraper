@@ -278,7 +278,10 @@ class AutoCrawler extends AbstractCrawlerDefinition {
           const offerUrl = offers[i].url;
           if (currentPageUrl.includes(offerUrl)) {
             const matchLength = offerUrl.length;
-            // If this match is longer than the previous longest, update the matching offer
+            // If this match is longer than the previous longest, update the matching offer.
+            // The reason for this is that we could have a base URL like amazon.com/flos-lamp
+            // match but also have a variant URL like amazon.com/flos-lamp?variant=123 in
+            // which case we want to return the second offer since it's the correct one.
             if (matchLength > longestMatchLength) {
               matchingOffer = offers[i];
               longestMatchLength = matchLength;
