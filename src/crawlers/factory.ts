@@ -675,6 +675,7 @@ export class CrawlerFactory {
       case "lanna.no":
       case "lanna.fi":
       case "lampen24.nl":
+      case "lamptwist.com":
         definition = await AutoCrawler.create(launchOptions, [
           "schema-attributes",
           "schema-json",
