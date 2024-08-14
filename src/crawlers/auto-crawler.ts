@@ -267,19 +267,25 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     try {
       let offers = product.offers || product.Offers || {};
       if (Array.isArray(offers)) {
-        log.info("Multiple offers found, searching for the one matching the current page URL.");      
+        log.info("Multiple offers found, searching for the best matching offer based on URL.");
         // Get the URL of the current page
         let currentPageUrl = await page.url();
         currentPageUrl = normalizeUrl(currentPageUrl);
         let matchingOffer = null;
-        // Loop through the offers to find one whose URL exists within the current page URL
+        let longestMatchLength = 0;
+        // Loop through the offers to find the longest URL match within the current page URL
         for (let i = 0; i < offers.length; i++) {
           const offerUrl = offers[i].url;
           if (currentPageUrl.includes(offerUrl)) {
-            matchingOffer = offers[i];
-            break; // Exit the loop once a match is found
+            const matchLength = offerUrl.length;
+            // If this match is longer than the previous longest, update the matching offer
+            if (matchLength > longestMatchLength) {
+              matchingOffer = offers[i];
+              longestMatchLength = matchLength;
+            }
           }
         }
+    
         if (matchingOffer) {
           offers = matchingOffer;
         } else {
@@ -287,7 +293,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
           offers = offers[0]; // Default to the first offer if no match is found
         }
       }
-
+    
       if (offers["@type"]?.endsWith("AggregateOffer")) {
         log.info(
           "AggregateOffer found, assuming the first individual offer is the correct one."
