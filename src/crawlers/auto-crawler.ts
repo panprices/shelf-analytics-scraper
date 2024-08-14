@@ -267,10 +267,25 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     try {
       let offers = product.offers || product.Offers || {};
       if (Array.isArray(offers)) {
-        log.info(
-          "Multiple offers found, assuming the first is the correct one."
-        );
-        offers = offers[0];
+        log.info("Multiple offers found, searching for the one matching the current page URL.");      
+        // Get the URL of the current page
+        let currentPageUrl = await page.url();
+        currentPageUrl = normalizeUrl(currentPageUrl);
+        let matchingOffer = null;
+        // Loop through the offers to find one whose URL exists within the current page URL
+        for (let i = 0; i < offers.length; i++) {
+          const offerUrl = offers[i].url;
+          if (currentPageUrl.includes(offerUrl)) {
+            matchingOffer = offers[i];
+            break; // Exit the loop once a match is found
+          }
+        }
+        if (matchingOffer) {
+          offers = matchingOffer;
+        } else {
+          log.info("No matching offer found for the current page URL, assuming the first offer.");
+          offers = offers[0]; // Default to the first offer if no match is found
+        }
       }
 
       if (offers["@type"]?.endsWith("AggregateOffer")) {
@@ -700,6 +715,22 @@ function isComparisonWebsite(page: Page) {
     }
   }
   return false;
+}
+
+// Helper function to normalize URLs by removing query parameters, decoding entities, etc.
+function normalizeUrl(url: string): string {
+  try {
+    // Decode any encoded characters (like %20 for spaces)
+    let normalizedUrl = decodeURIComponent(url);
+
+    // Remove trailing slashes
+    normalizedUrl = normalizedUrl.replace(/\/+$/, "");
+
+    return normalizedUrl;
+  } catch (error) {
+    log.error(`Error normalizing URL: ${url}`, { error });
+    return url;
+  }
 }
 
 export { AutoCrawler };

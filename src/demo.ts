@@ -225,11 +225,23 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://royaldesign.se/copenhague-cph-20-bord-o90x74-cm?p=314473",
 // ]);
 
+// await debugScrapeDetails([
+//   "https://www2.hm.com/de_de/productpage.1219487001.html",
+// ]);
+
+// // H&M Home product on discount
+// await debugScrapeDetails([
+//   "https://www2.hm.com/de_de/productpage.1207948003.html",
+// ]);
+
 await debugScrapeDetails([
-  "https://www2.hm.com/de_de/productpage.1219487001.html",
+  "https://www.fundesign.nl/hay-slit-table-high-high-tafel.html?sel=18779&srsltid=AfmBOor216jNRoZFa8wmr_T2xBUjOR5eDds0y3rNvEB-CKzGMSCK4G9O42Y",
 ]);
 
-// H&M Home product on discount
 await debugScrapeDetails([
-  "https://www2.hm.com/de_de/productpage.1207948003.html",
+  "https://www.scp.co.uk/products/slit-table-high?variant=39682353037392&currency=GBP&srsltid=AfmBOopUZIurHUx0LYVX9eUWYXe4-l_8QhGFDfVvMDEHGtZNIqRh24nwIK0",
+]);
+
+await debugScrapeDetails([
+  "https://www.connox.com/categories/furniture/seating-furniture/chairs/hay-about-a-chair-aac-22.html?itm=319224&p=103947&Action=Change&CurrencyCode=EUR&srsltid=AfmBOoqFUcv22Ejdbe2akkGBd_rQwl-UyKqqmjGTdVStYiWFme8DqbbIxW4",
 ]);
