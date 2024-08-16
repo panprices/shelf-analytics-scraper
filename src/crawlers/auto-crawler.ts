@@ -267,12 +267,36 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     try {
       let offers = product.offers || product.Offers || {};
       if (Array.isArray(offers)) {
-        log.info(
-          "Multiple offers found, assuming the first is the correct one."
-        );
-        offers = offers[0];
+        log.info("Multiple offers found, searching for the best matching offer based on URL.");
+        // Get the URL of the current page
+        let currentPageUrl = await page.url();
+        currentPageUrl = normalizeUrl(currentPageUrl);
+        let matchingOffer = null;
+        let longestMatchLength = 0;
+        // Loop through the offers to find the longest URL match within the current page URL
+        for (let i = 0; i < offers.length; i++) {
+          const offerUrl = offers[i].url;
+          if (currentPageUrl.includes(offerUrl)) {
+            const matchLength = offerUrl.length;
+            // If this match is longer than the previous longest, update the matching offer.
+            // The reason for this is that we could have a base URL like amazon.com/flos-lamp
+            // match but also have a variant URL like amazon.com/flos-lamp?variant=123 in
+            // which case we want to return the second offer since it's the correct one.
+            if (matchLength > longestMatchLength) {
+              matchingOffer = offers[i];
+              longestMatchLength = matchLength;
+            }
+          }
+        }
+    
+        if (matchingOffer) {
+          offers = matchingOffer;
+        } else {
+          log.info("No matching offer found for the current page URL, assuming the first offer.");
+          offers = offers[0]; // Default to the first offer if no match is found
+        }
       }
-
+    
       if (offers["@type"]?.endsWith("AggregateOffer")) {
         log.info(
           "AggregateOffer found, assuming the first individual offer is the correct one."
@@ -700,6 +724,22 @@ function isComparisonWebsite(page: Page) {
     }
   }
   return false;
+}
+
+// Helper function to normalize URLs by removing query parameters, decoding entities, etc.
+function normalizeUrl(url: string): string {
+  try {
+    // Decode any encoded characters (like %20 for spaces)
+    let normalizedUrl = decodeURIComponent(url);
+
+    // Remove trailing slashes
+    normalizedUrl = normalizedUrl.replace(/\/+$/, "");
+
+    return normalizedUrl;
+  } catch (error) {
+    log.error(`Error normalizing URL: ${url}`, { error });
+    return url;
+  }
 }
 
 export { AutoCrawler };
