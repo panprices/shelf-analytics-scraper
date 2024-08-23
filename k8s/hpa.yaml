@@ -6,7 +6,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: shelf-analytics-scraper-service
+    name: shelf-analytics-scraper
   minReplicas: 1
   maxReplicas: 200
   targetCPUUtilizationPercentage: 50
