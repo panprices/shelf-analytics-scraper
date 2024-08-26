@@ -14,10 +14,6 @@ spec:
       nodeSelector:
         cloud.google.com/gke-spot: "true"
       terminationGracePeriodSeconds: 25
-      volumes:
-        - name: google-cloud-key
-          secret:
-            secretName: service-account-key
       containers:
         - env:
             - name: CLOUD_TRACE_ENABLED
@@ -32,8 +28,6 @@ spec:
               value: trigger_shelf_analytics_update_products_popularity
             - name: CRAWLEE_AVAILABLE_MEMORY_RATIO
               value: "1"
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /var/secrets/google/key.json
           image: gcr.io/panprices/shelf-analytics-scraper
           name: shelf-analytics-scraper
           ports:
@@ -44,9 +38,6 @@ spec:
               cpu: 4000m
               memory: 8Gi
               ephemeral-storage: 4Gi
-          volumeMounts:
-            - name: google-cloud-key
-              mountPath: /var/secrets/google
       serviceAccountName: crawlee-scraper
   selector:
     matchLabels:
