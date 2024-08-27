@@ -278,7 +278,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         // Loop through the offers to find the longest URL match within the current page URL
         for (let i = 0; i < offers.length; i++) {
           const offerUrl = offers[i].url;
-          if (isIncluded(currentPageUrl, offerUrl)) {
+          if (offerUrl && isIncluded(currentPageUrl, offerUrl)) {
             const matchLength = offerUrl.length;
             // If this match is longer than the previous longest, update the matching offer.
             // The reason for this is that we could have a base URL like amazon.com/flos-lamp
@@ -760,7 +760,7 @@ function isIncluded(urlCurrent: string, urlTest: string): boolean {
     return true;
   }
 
-  if (urlTest.split("?")[0] !== urlTest.split("?")[0]) {
+  if (urlCurrent.split("?")[0] !== urlTest.split("?")[0]) {
     // The base query is different, there is no point in looking at the query parameters
     return false;
   }
