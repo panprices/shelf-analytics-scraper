@@ -760,6 +760,12 @@ function isIncluded(urlCurrent: string, urlTest: string): boolean {
     return true;
   }
 
+  // https://battenhome.co/blabla -> https://battenhome.co
+  if (urlTest.startsWith("/")) {
+    // If the test URL does not contain the domain, we assume the same domain as the current URL
+    urlTest = `${urlCurrent.split("/").slice(0, 3).join("/")}${urlTest}`;
+  }
+
   if (urlCurrent.split("?")[0] !== urlTest.split("?")[0]) {
     // The base query is different, there is no point in looking at the query parameters
     return false;

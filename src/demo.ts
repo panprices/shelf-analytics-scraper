@@ -235,7 +235,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // ]);
 
 await debugScrapeDetails([
-  "https://www.skandium.com/products/saucer-pendant-lamp?currency=GBP&variant=30109655859303&utm_source=google&utm_medium=cpc&utm_campaign=Google+Shopping&stkn=b90319048968",
+  "https://www.battenhome.co/products/flos-skynest-pendant?variant=44440999952609",
 ]);
 
 // await debugScrapeDetails([
