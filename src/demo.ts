@@ -235,13 +235,13 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // ]);
 
 await debugScrapeDetails([
-  "https://www.fundesign.nl/hay-slit-table-high-high-tafel.html?sel=18779&srsltid=AfmBOor216jNRoZFa8wmr_T2xBUjOR5eDds0y3rNvEB-CKzGMSCK4G9O42Y",
+  "https://www.skandium.com/products/saucer-pendant-lamp?currency=GBP&variant=30109655859303&utm_source=google&utm_medium=cpc&utm_campaign=Google+Shopping&stkn=b90319048968",
 ]);
 
-await debugScrapeDetails([
-  "https://www.scp.co.uk/products/slit-table-high?variant=39682353037392&currency=GBP&srsltid=AfmBOopUZIurHUx0LYVX9eUWYXe4-l_8QhGFDfVvMDEHGtZNIqRh24nwIK0",
-]);
-
-await debugScrapeDetails([
-  "https://www.connox.com/categories/furniture/seating-furniture/chairs/hay-about-a-chair-aac-22.html?itm=319224&p=103947&Action=Change&CurrencyCode=EUR&srsltid=AfmBOoqFUcv22Ejdbe2akkGBd_rQwl-UyKqqmjGTdVStYiWFme8DqbbIxW4",
-]);
+// await debugScrapeDetails([
+//   "https://www.scp.co.uk/products/slit-table-high?variant=39682353037392&currency=GBP&srsltid=AfmBOopUZIurHUx0LYVX9eUWYXe4-l_8QhGFDfVvMDEHGtZNIqRh24nwIK0",
+// ]);
+//
+// await debugScrapeDetails([
+//   "https://www.connox.com/categories/furniture/seating-furniture/chairs/hay-about-a-chair-aac-22.html?itm=319224&p=103947&Action=Change&CurrencyCode=EUR&srsltid=AfmBOoqFUcv22Ejdbe2akkGBd_rQwl-UyKqqmjGTdVStYiWFme8DqbbIxW4",
+// ]);

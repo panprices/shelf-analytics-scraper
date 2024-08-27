@@ -267,7 +267,9 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     try {
       let offers = product.offers || product.Offers || {};
       if (Array.isArray(offers)) {
-        log.info("Multiple offers found, searching for the best matching offer based on URL.");
+        log.info(
+          "Multiple offers found, searching for the best matching offer based on URL."
+        );
         // Get the URL of the current page
         let currentPageUrl = await page.url();
         currentPageUrl = normalizeUrl(currentPageUrl);
@@ -276,7 +278,7 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         // Loop through the offers to find the longest URL match within the current page URL
         for (let i = 0; i < offers.length; i++) {
           const offerUrl = offers[i].url;
-          if (currentPageUrl.includes(offerUrl)) {
+          if (isIncluded(currentPageUrl, offerUrl)) {
             const matchLength = offerUrl.length;
             // If this match is longer than the previous longest, update the matching offer.
             // The reason for this is that we could have a base URL like amazon.com/flos-lamp
@@ -288,15 +290,17 @@ class AutoCrawler extends AbstractCrawlerDefinition {
             }
           }
         }
-    
+
         if (matchingOffer) {
           offers = matchingOffer;
         } else {
-          log.info("No matching offer found for the current page URL, assuming the first offer.");
+          log.info(
+            "No matching offer found for the current page URL, assuming the first offer."
+          );
           offers = offers[0]; // Default to the first offer if no match is found
         }
       }
-    
+
       if (offers["@type"]?.endsWith("AggregateOffer")) {
         log.info(
           "AggregateOffer found, assuming the first individual offer is the correct one."
@@ -740,6 +744,41 @@ function normalizeUrl(url: string): string {
     log.error(`Error normalizing URL: ${url}`, { error });
     return url;
   }
+}
+
+/**
+ * Tests if urlTest is included in `urlCurrent`.
+ *
+ * The operation ignores the order of query parameters, and check only if all the parameters of `urlTest` are defined
+ * with the same values in `urlCurrent`.
+ * @param urlCurrent
+ * @param urlTest
+ */
+function isIncluded(urlCurrent: string, urlTest: string): boolean {
+  if (urlCurrent.includes(urlTest)) {
+    // if `urlTest` is a substring of `urlCurrent` we don't need to parse the urls
+    return true;
+  }
+
+  if (urlTest.split("?")[0] !== urlTest.split("?")[0]) {
+    // The base query is different, there is no point in looking at the query parameters
+    return false;
+  }
+
+  const parsedUrlCurrent = new URL(urlCurrent);
+  const parsedUrlTest = new URL(urlTest);
+
+  const currentQueryParamsDict = Object.fromEntries(
+    parsedUrlCurrent.searchParams.entries()
+  );
+
+  for (const [key, value] of parsedUrlTest.searchParams.entries()) {
+    if (!currentQueryParamsDict[key] || currentQueryParamsDict[key] !== value) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export { AutoCrawler };
