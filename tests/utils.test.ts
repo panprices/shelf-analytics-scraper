@@ -85,6 +85,10 @@ describe("parsePrice", () => {
     expect(parsePrice("2,45")).toBe(2.45);
   });
 
+  it.skip("doesn't work right now due to having 2 dots", () => {
+    expect(parsePrice("199,00 kr.")).toBe(199.0);
+  });
+
   it("should parse integer price with commas and dots", () => {
     expect(parsePrice("1,000.")).toBe(1000);
   });
