@@ -298,7 +298,7 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     metadata.schemaOrg = JSON.parse(schemaOrgString);
 
     const mpn = metadata.schemaOrg?.mpn;
-    if (articleNumber) {
+    if (!articleNumber) {
       articleNumber = metadata.schemaOrg?.sku;
     }
 
