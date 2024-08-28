@@ -170,15 +170,15 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
       specifications: Specification[] = [];
     try {
       const specificationsExpander = page.locator(
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']"
+        "//main//div[./h3/span/text()='Specifikationer']"
       );
       await specificationsExpander.click({ timeout: 5000 });
       await page.waitForSelector(
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[2]"
+        "//main//div[./h3/span/text()='Specifikationer']//div//span[2]"
       );
       articleNumber = await this.extractProperty(
         page,
-        "//main//div[contains(@class, 'ac') and .//span/text()='Specifikationer']//div//span[2]",
+        "//main//div[./h3/span/text()='Specifikationer']//div//span[2]",
         (node) => node.textContent()
       ).then((text) => text?.trim());
 
@@ -298,6 +298,9 @@ export class TrademaxCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     metadata.schemaOrg = JSON.parse(schemaOrgString);
 
     const mpn = metadata.schemaOrg?.mpn;
+    if (articleNumber) {
+      articleNumber = metadata.schemaOrg?.sku;
+    }
 
     return {
       name: productName,
