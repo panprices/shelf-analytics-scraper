@@ -491,9 +491,13 @@ class AutoCrawler extends AbstractCrawlerDefinition {
     const country = extractCountryFromDomain(domain);
 
     const priceContent = await page
-      .$eval(".woocommerce-Price-amount", (el: Element) => {
-        return el.textContent || null;
-      })
+      .$eval(
+        "//div[contains(@class, 'price-wrapper')]" +
+          "//span[contains(@class, 'woocommerce-Price-amount') and not(ancestor::*[@aria-hidden='true'])]",
+        (el: Element) => {
+          return el.textContent || null;
+        }
+      )
       .catch(() => null);
     if (!priceContent) {
       return {

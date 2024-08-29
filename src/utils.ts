@@ -10,8 +10,18 @@ import fs from "fs";
 export const localContext = new AsyncLocalStorage<LocalContextStore>();
 
 export function parsePrice(priceText: string): number {
+  const knownProblematicCurrencies = ["kr."];
+
+  let priceTextNoProblematicCurrency = priceText;
+  for (const c of knownProblematicCurrencies) {
+    priceTextNoProblematicCurrency = priceTextNoProblematicCurrency.replace(
+      c,
+      ""
+    );
+  }
+
   // Remove any currency symbols, spaces, or other non-numeric characters
-  const cleanedPrice = priceText.replace(/[^0-9.,]/g, "");
+  const cleanedPrice = priceTextNoProblematicCurrency.replace(/[^0-9.,]/g, "");
 
   const commasCount = cleanedPrice.match(/,/g)?.length || 0;
   const dotsCount = cleanedPrice.match(/\./g)?.length || 0;

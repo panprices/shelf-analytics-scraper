@@ -85,7 +85,7 @@ describe("parsePrice", () => {
     expect(parsePrice("2,45")).toBe(2.45);
   });
 
-  it.skip("doesn't work right now due to having 2 dots", () => {
+  it("should handle currencies with dots in them", () => {
     expect(parsePrice("199,00 kr.")).toBe(199.0);
   });
 
