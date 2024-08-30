@@ -15,6 +15,7 @@ import {
 } from "../../utils.js";
 import {
   DetailedProductInfo,
+  OfferMetadata,
   ProductReviews,
   Specification,
 } from "../../types/offer.js";
@@ -49,6 +50,18 @@ export class WayfairCrawlerDefinition extends AbstractCrawlerDefinitionWithVaria
   }
 
   async extractProductDetails(page: Page): Promise<DetailedProductInfo> {
+    const metadata: OfferMetadata = {};
+    const schemaOrgString = <string>(
+      await page
+        .locator(
+          "//script[@type='application/ld+json' and contains(text(), 'schema.org') and contains(text(), 'Product')]"
+        )
+        .textContent()
+    );
+    metadata.schemaOrg = JSON.parse(schemaOrgString);
+
+    log.info("SchemaOrg", { schemaOrg: metadata.schemaOrg });
+
     const name = await this.extractProperty(
       page,
       "div[data-enzyme-id='PdpLayout-infoBlock'] header h1",
