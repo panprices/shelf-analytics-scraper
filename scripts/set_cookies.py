@@ -7,14 +7,37 @@ import requests
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-product_url = (
-    "https://www.wayfair.de/accessoires/pdp/apelt-kissenfuellung-aaat1734.html"
-)
+# CHANGE THIS if you want to do retailers other than wayfair
+product_url = "https://www.wayfair.de/moebel/pdp/hykkon-sofa-tomlin-d110017167.html?piid=382835855%2C382835846"
+ips = [
+    "185.228.18.5",
+    "185.228.18.69",
+    "185.228.18.67",
+    "185.228.18.24",
+    "185.228.18.242",
+    "185.228.18.246",
+    "185.228.18.50",
+    "185.228.18.84",
+    "185.228.18.3",
+    "185.228.18.71",
+    "185.228.18.231",
+    "185.228.18.52",
+    "185.228.18.229",
+    "185.228.18.35",
+    "185.228.18.86",
+    "185.228.18.244",
+    "185.228.18.82",
+    "185.228.18.7",
+    "185.228.18.248",
+    "185.228.18.54",
+    "185.228.18.39",
+    "185.228.18.99",
+]
 
 
-def set_cookie_for_an_IP():
+def set_cookie_for_an_IP(ip: str):
     # Clean the storage folder. Just to make sure we don't persist the cookies between
-    # sessions and
+    # sessions.
     os.system("rm -r storage/")
 
     bashCommand = "npm run dev"
@@ -24,20 +47,24 @@ def set_cookie_for_an_IP():
 
         time.sleep(10)
 
-        make_requests()
+        make_requests(ip)
 
-        # This doesn't work
         process.terminate()
         process.kill()
 
+    # The process.kill() doesn't seem to work well, so we do this as well to make sure:
     os.system("kill -9 $(lsof -t -i:8080)")
+    print("Set cookie for IP: " + ip + " successfully")
 
 
-def make_requests():
+def make_requests(ip: str):
     url = "http://localhost:8080/scrapeDetails"
     payload = json.dumps(
         {
-            "launchOptions": {"ignoreVariants": True},
+            "launchOptions": {
+                "ignoreVariants": True,
+                "ip": ip,
+            },
             "overrides": {"headless": False},
             "productDetails": [
                 {
@@ -65,10 +92,9 @@ def make_requests():
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-
     print(response.text)
 
 
 if __name__ == "__main__":
-    for _ in range(25):
-        set_cookie_for_an_IP()
+    for ip in ips:
+        set_cookie_for_an_IP(ip)
