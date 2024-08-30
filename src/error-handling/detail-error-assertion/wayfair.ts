@@ -22,6 +22,9 @@ export class WayfairErrorAssertion implements DetailErrorAssertion {
         0 ||
       responseStatus == 429
     ) {
+      // USE THIS to have time to solve the CAPTCHA when you set new cookies
+      // await ctx.page.waitForTimeout(50_000);
+
       throw new CaptchaEncounteredError("Captcha encountered");
     }
     if (url === "https://www.wayfair.de" || url === "https://www.wayfair.de/") {
