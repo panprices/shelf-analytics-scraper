@@ -1,4 +1,9 @@
-import { Cookie, PlaywrightCrawlingContext, log } from "crawlee";
+import {
+  Cookie,
+  NonRetryableError,
+  PlaywrightCrawlingContext,
+  log,
+} from "crawlee";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
 
 /**
@@ -71,7 +76,7 @@ export async function newAvailableIp(
   if (notBurnedIps.empty) {
     // Potential improvement: delay the execution of all tasks. Should be long
     // enough that the proxies are unblocked.
-    throw Error("No proxy available");
+    throw new NonRetryableError("No proxy available");
   }
 
   // Get a random from top 10 least recently used ip.

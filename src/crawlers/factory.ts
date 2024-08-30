@@ -134,8 +134,9 @@ export class CrawlerFactory {
             ctx.page.url()
           );
         } catch (saveScreenshotError) {
+          const pageUrl = ctx && ctx.page ? ctx.page.url() : null;
           log.error("Error saving screenshot", {
-            url: ctx.page.url(),
+            url: pageUrl,
             error: saveScreenshotError,
           });
         }
