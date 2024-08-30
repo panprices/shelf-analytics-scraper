@@ -261,8 +261,9 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         images: [],
       };
     }
+    const currentPageUrl = normalizeUrl(page.url());
 
-    const product = schemaOrgProducts[0];
+    const product = findBestMatchingEntry(schemaOrgProducts, currentPageUrl);
 
     try {
       let offers = product.offers || product.Offers || {};
@@ -270,36 +271,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         log.info(
           "Multiple offers found, searching for the best matching offer based on URL."
         );
-        // Get the URL of the current page
-        let currentPageUrl = await page.url();
-        currentPageUrl = normalizeUrl(currentPageUrl);
-        let matchingOffer = null;
-        let longestMatchLength = 0;
-        // Loop through the offers to find the longest URL match within the current page URL
-        for (let i = 0; i < offers.length; i++) {
-          const offerUrl = offers[i].url;
-          if (offerUrl && isIncluded(currentPageUrl, offerUrl)) {
-            const matchLength = offerUrl.length;
-            // If this match is longer than the previous longest, update the matching offer.
-            // The reason for this is that we could have a base URL like amazon.com/flos-lamp
-            // match but also have a variant URL like amazon.com/flos-lamp?variant=123 in
-            // which case we want to return the second offer since it's the correct one.
-            if (matchLength > longestMatchLength) {
-              matchingOffer = offers[i];
-              longestMatchLength = matchLength;
-            }
-          }
-        }
-
-        if (matchingOffer) {
-          offers = matchingOffer;
-        } else {
-          log.info(
-            "No matching offer found for the current page URL, assuming the first offer."
-          );
-          offers = offers[0]; // Default to the first offer if no match is found
-        }
       }
+      offers = findBestMatchingEntry(offers, currentPageUrl);
 
       if (offers["@type"]?.endsWith("AggregateOffer")) {
         log.info(
@@ -789,6 +762,47 @@ function isIncluded(urlCurrent: string, urlTest: string): boolean {
   }
 
   return true;
+}
+
+/**
+ * Find the entry with the closes matching URL.
+ *
+ * An entry can be either an offer (most common) or a product, when the retailer gives us more than one product in
+ * schema.org
+ *
+ * @param entries
+ * @param currentPageUrl
+ */
+function findBestMatchingEntry<T extends { url: string }>(
+  entries: T[],
+  currentPageUrl: string
+): T {
+  // Get the URL of the current page
+  let matchingEntry = null;
+  let longestMatchLength = 0;
+  // Loop through the entries to find the longest URL match within the current page URL
+  for (let i = 0; i < entries.length; i++) {
+    const entryUrl = entries[i].url;
+    if (entryUrl && isIncluded(currentPageUrl, entryUrl)) {
+      const matchLength = entryUrl.length;
+      // If this match is longer than the previous longest, update the matching offer.
+      // The reason for this is that we could have a base URL like amazon.com/flos-lamp
+      // match but also have a variant URL like amazon.com/flos-lamp?variant=123 in
+      // which case we want to return the second offer since it's the correct one.
+      if (matchLength > longestMatchLength) {
+        matchingEntry = entries[i];
+        longestMatchLength = matchLength;
+      }
+    }
+  }
+
+  if (matchingEntry) {
+    return matchingEntry;
+  }
+  log.info(
+    "No matching entry found for the current page URL, assuming the first one."
+  );
+  return entries[0]; // Default to the first offer if no match is found
 }
 
 export { AutoCrawler };

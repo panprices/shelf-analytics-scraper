@@ -235,7 +235,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // ]);
 
 await debugScrapeDetails([
-  "https://www.battenhome.co/products/flos-skynest-pendant?variant=44440999952609",
+  "https://www.trouva.com/fr/products/hay-pao-tafellamp-oplaadbaar-rood?country=FRA&currency=EUR",
 ]);
 
 // await debugScrapeDetails([

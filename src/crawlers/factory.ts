@@ -653,6 +653,31 @@ export class CrawlerFactory {
         return [new PlaywrightCrawler(options), definition];
       // Comment to help the script understand where to add new cases
       /**
+       * Special case of price lite: we disable schema.org fetching when it is not reliable on some domains
+       */
+      case "shop.mohd.it":
+      case "lampen24.nl":
+      case "trouva.com":
+      case "lamptwist.com":
+        definition = await AutoCrawler.create(launchOptions, [
+          "schema-attributes",
+          "schema-json",
+        ]);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.SE,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      case "kontorlige.nu":
+        definition = await AutoCrawler.create(launchOptions, ["schema-json"]);
+        options = {
+          ...defaultOptions,
+          requestHandler: definition.router,
+          proxyConfiguration: proxyConfiguration.SE,
+        };
+        return [new PlaywrightCrawler(options), definition];
+      /**
        * !!! WARNING !!!
        * Definitions for the retailers below this comment exist, but they are incomplete.
        * (ex: used to quickly get product images or specifications)
@@ -675,18 +700,6 @@ export class CrawlerFactory {
       case "lannamobler.se":
       case "lanna.no":
       case "lanna.fi":
-      case "lampen24.nl":
-      case "lamptwist.com":
-        definition = await AutoCrawler.create(launchOptions, [
-          "schema-attributes",
-          "schema-json",
-        ]);
-        options = {
-          ...defaultOptions,
-          requestHandler: definition.router,
-          proxyConfiguration: proxyConfiguration.SE,
-        };
-        return [new PlaywrightCrawler(options), definition];
       default:
         definition = await AutoCrawler.create(launchOptions);
         options = {
