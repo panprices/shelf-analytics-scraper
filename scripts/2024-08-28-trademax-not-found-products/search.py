@@ -12,7 +12,7 @@ import structlog
 # import pytest
 
 
-# PUT PRODUCTS TO SCRAPET HERE
+# PUT TRADEMAX SKU TO SCRAPE HERE
 missing_skus = [
     "SYN0008147",
     "2009777",
