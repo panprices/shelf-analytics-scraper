@@ -46,7 +46,6 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     const name = await findElementByCSSProperties(
       rootElement,
       {
-        "margin-bottom": "16px",
         "font-size": "24px",
         "font-weight": "500",
       },
@@ -97,9 +96,10 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     const nonDiscountedpriceText = await findElementByCSSProperties(
       rootElement,
       {
-        fontSize: "28px",
+        fontSize: "20px",
         color: "rgb(0, 0, 0)",
-        fontWeight: "300",
+        textDecoration: "none solid rgb(0, 0, 0)",
+        fontWeight: "400",
       },
       "span"
     )
@@ -109,26 +109,22 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     const discountedPriceText = await findElementByCSSProperties(
       rootElement,
       {
-        fontSize: "28px",
-        color: "rgb(235, 95, 95)",
-        fontWeight: "300",
+        fontSize: "20px",
+        color: "rgb(154, 51, 36)",
+        fontWeight: "400",
       },
       "span"
     )
       .then((element) => element?.innerText())
       .then((text) => text?.trim());
     /* ORIGINAL PRICE WHEN ON DISCOUNT SELECTOR */
-    const originalPriceText = await findElementByCSSProperties(
-      rootElement,
-      {
-        color: "rgb(128, 128, 128)",
-        textDecoration: "none solid rgb(128, 128, 128)",
-        marginRight: "12px",
-      },
-      "span"
-    )
-      .then((element) => element?.innerText())
-      .then((text) => text?.split("Tid. pris")[1].trim());
+    const originalPriceText = await rootElement
+      .locator("span.sale.is-pdp")
+      .nth(0)
+      .innerText({
+        timeout: 500,
+      })
+      .catch(() => undefined);
     /* RETURN PRICE AS THE DISCOUNTED PRICE IF ON DISCOUNT OTHERWISE NORMAL PRICE */
     let price: number | undefined;
     let originalPrice: number | undefined;
@@ -294,16 +290,27 @@ export class RoyalDesignCrawlerDefinition extends AbstractCrawlerDefinitionWithS
     // https://royaldesign.se/inredning/dekoration/fonsterfilmer-insynsskydd
     try {
       // Wait for 10s to make sure the page is rendered
-      await ctx.page.locator(this.productCardSelector).nth(0).waitFor({ timeout: 10000 });
+      await ctx.page
+        .locator(this.productCardSelector)
+        .nth(0)
+        .waitFor({ timeout: 10000 });
     } catch (error) {
-      const productsFoundInfo = await ctx.page.locator("//div[text()='0 produkter']").textContent();      
+      const productsFoundInfo = await ctx.page
+        .locator("//div[text()='0 produkter']")
+        .textContent();
       // Check if the UI says that 0 products where found
       if (productsFoundInfo === "0 produkter") {
-        console.log("This category page does not contain any products: ", ctx.page.url());
+        console.log(
+          "This category page does not contain any products: ",
+          ctx.page.url()
+        );
         return;
       }
       // Throw an error if it failed for some other reason then 0 products found
-      throw new Error("There was an issue with finding products on category page: " + ctx.page.url());
+      throw new Error(
+        "There was an issue with finding products on category page: " +
+          ctx.page.url()
+      );
     }
 
     await this.scrollToBottom(ctx);
