@@ -203,6 +203,9 @@ export class CrawlerFactory {
       ],
       proxyConfiguration: new ProxyConfiguration({
         newUrlFunction: async (_sessionId) => {
+          if (launchOptions.ip) {
+            return `http://panprices:BB4NC4WQmx@${launchOptions.ip}:60000`;
+          }
           const availableIp = await newAvailableIp(firestore, domain);
           return `http://panprices:BB4NC4WQmx@${availableIp}:60000`;
         },

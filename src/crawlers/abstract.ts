@@ -116,6 +116,7 @@ export interface CrawlerLaunchOptions {
    * Option to ignore enquing variants of a product
    */
   ignoreVariants?: boolean;
+  ip?: string; // ip to use
   uniqueCrawlerKey: string;
 
   screenshotOptions?: ScreenshotOptions;
