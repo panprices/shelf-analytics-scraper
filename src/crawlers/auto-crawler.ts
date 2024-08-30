@@ -271,8 +271,8 @@ class AutoCrawler extends AbstractCrawlerDefinition {
         log.info(
           "Multiple offers found, searching for the best matching offer based on URL."
         );
+        offers = findBestMatchingEntry(offers, currentPageUrl);
       }
-      offers = findBestMatchingEntry(offers, currentPageUrl);
 
       if (offers["@type"]?.endsWith("AggregateOffer")) {
         log.info(
