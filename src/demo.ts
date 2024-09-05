@@ -23,7 +23,7 @@ async function debugScrapeDetails(targetUrls: string[]) {
       popularityIndex: -1,
       name: "Disa",
       label: "DETAIL",
-      matchingType: "match",
+      matchingType: "new",
     },
   }));
   const detailedItems = await scrapeDetails(
@@ -235,7 +235,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // ]);
 
 await debugScrapeDetails([
-  "https://www.trouva.com/fr/products/hay-pao-tafellamp-oplaadbaar-rood?country=FRA&currency=EUR",
+  "https://www.archiproducts.com/en/products/hay/polypropylene-chair--l-mentaire_502535?attrId=361866%2C374136&culture=en-se&persistculture=true&utm_source=google&utm_medium=organic&utm_campaign=feedpaid_se&modal=8",
 ]);
 
 // await debugScrapeDetails([

@@ -129,10 +129,7 @@ export class CrawlerFactory {
       failedRequestHandler: async (ctx) => {
         // Try to save screenshot. Should not throw an error if fails to do so.
         try {
-          await AbstractCrawlerDefinition.saveScreenshot(
-            ctx.page,
-            ctx.page.url()
-          );
+          await AbstractCrawlerDefinition.saveScreenshot(ctx, ctx.page.url());
         } catch (saveScreenshotError) {
           const pageUrl = ctx && ctx.page ? ctx.page.url() : null;
           log.error("Error saving screenshot", {
@@ -291,10 +288,7 @@ export class CrawlerFactory {
           ...defaultOptions,
           requestHandler: definition.router,
           failedRequestHandler: async (ctx) => {
-            await AbstractCrawlerDefinition.saveScreenshot(
-              ctx.page,
-              ctx.page.url()
-            );
+            await AbstractCrawlerDefinition.saveScreenshot(ctx, ctx.page.url());
           },
         };
         return [new PlaywrightCrawler(options), definition];
@@ -398,7 +392,7 @@ export class CrawlerFactory {
           failedRequestHandler: async (ctx) => {
             // Removing images step 2. let the fallback screenshot function know that there are no images
             await AbstractCrawlerDefinition.saveScreenshot(
-              ctx.page,
+              ctx,
               ctx.page.url(),
               {
                 hasBlockedImages: true,
@@ -428,7 +422,7 @@ export class CrawlerFactory {
           failedRequestHandler: async (ctx) => {
             // Removing images step 2. let the fallback screenshot function know that there are no images
             await AbstractCrawlerDefinition.saveScreenshot(
-              ctx.page,
+              ctx,
               ctx.page.url(),
               {
                 hasBlockedImages: true,
@@ -458,7 +452,7 @@ export class CrawlerFactory {
           failedRequestHandler: async (ctx) => {
             // Removing images step 2. let the fallback screenshot function know that there are no images
             await AbstractCrawlerDefinition.saveScreenshot(
-              ctx.page,
+              ctx,
               ctx.page.url(),
               {
                 hasBlockedImages: true,
