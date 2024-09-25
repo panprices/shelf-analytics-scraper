@@ -234,10 +234,6 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www2.hm.com/de_de/productpage.1207948003.html",
 // ]);
 
-await debugScrapeDetails([
-  "https://www.archiproducts.com/en/products/hay/polypropylene-chair--l-mentaire_502535?attrId=361866%2C374136&culture=en-se&persistculture=true&utm_source=google&utm_medium=organic&utm_campaign=feedpaid_se&modal=8",
-]);
-
 // await debugScrapeDetails([
 //   "https://www.scp.co.uk/products/slit-table-high?variant=39682353037392&currency=GBP&srsltid=AfmBOopUZIurHUx0LYVX9eUWYXe4-l_8QhGFDfVvMDEHGtZNIqRh24nwIK0",
 // ]);
@@ -245,3 +241,20 @@ await debugScrapeDetails([
 // await debugScrapeDetails([
 //   "https://www.connox.com/categories/furniture/seating-furniture/chairs/hay-about-a-chair-aac-22.html?itm=319224&p=103947&Action=Change&CurrencyCode=EUR&srsltid=AfmBOoqFUcv22Ejdbe2akkGBd_rQwl-UyKqqmjGTdVStYiWFme8DqbbIxW4",
 // ]);
+
+// await debugScrapeDetails([
+//   "https://www.nest.co.uk/product/hay-facet-cabinet?utm_source=google&utm_medium=base&utm_campaign=base&stock=324057",
+// ]);
+
+// await debugScrapeDetails([
+//   "https://kjellmannhome.no/10002873",
+// ]);
+
+// await debugScrapeDetails([
+//   "https://www.nest.co.uk/product/hay-peas-rug?utm_source=google&utm_medium=base&utm_campaign=base&stock=198231",
+// ]);
+
+await debugScrapeDetails([
+  "https://kjellmannhome.no/10003576",
+]);
+

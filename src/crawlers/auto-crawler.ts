@@ -799,6 +799,51 @@ function findBestMatchingEntry<T extends { url: string }>(
   if (matchingEntry) {
     return matchingEntry;
   }
+
+  // Fallback Approach: Try to find product unique identifiers in the URL
+  // and see if they exis in the schema.org offer items to establish a better
+  // match then just taking the first one. If not, take the first one.
+
+  // Extract tokens from the current page URL
+  const url = new URL(currentPageUrl);
+  const urlTokens = [
+    ...url.pathname.split('/').filter(Boolean),
+    ...Array.from(url.searchParams.values()),
+  ]
+    .flatMap((token) => token.match(/\w+/g) || [])
+    .map((token) => token.toLowerCase());
+
+  // Attempt to find a matching entry based on identifiers
+  for (const entry of entries) {
+    const itemOffered = (entry as any).itemOffered;
+    if (!itemOffered) {
+      continue; // Skip entries without 'itemOffered'
+    }
+
+    // Collect identifiers from the entry
+    const identifiers = [
+      itemOffered.productID,
+      itemOffered.sku,
+      itemOffered.gtin13,
+      itemOffered.gtin,
+      itemOffered.mpn,
+      itemOffered.serialNumber,
+      itemOffered.identifier,
+    ]
+      .filter(Boolean)
+      .map((id: string) => id.toLowerCase());
+
+    // Check if any token matches any part of the identifiers
+    for (const token of urlTokens) {
+      for (const id of identifiers) {
+        if (id.includes(token) || token.includes(id)) {
+          // Found a match, return this entry
+          return entry;
+        }
+      }
+    }
+  }
+
   log.info(
     "No matching entry found for the current page URL, assuming the first one."
   );
