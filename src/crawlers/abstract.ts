@@ -345,10 +345,16 @@ export abstract class AbstractCrawlerDefinition
   }
 
   public static async saveScreenshot(
-    page: Page,
+    ctx: PlaywrightCrawlingContext,
     url: string,
     options: ScreenshotOptions = {}
   ): Promise<void> {
+    if (ctx.request.userData["matchingType"] === "new") {
+      return;
+    }
+
+    const page = ctx.page;
+
     const startTime = Date.now();
 
     await AbstractCrawlerDefinition.__attemptCookieConsent(page);
@@ -523,7 +529,7 @@ export abstract class AbstractCrawlerDefinition
       logProductScrapingInfo(ctx, productDetails);
       try {
         await AbstractCrawlerDefinition.saveScreenshot(
-          ctx.page,
+          ctx,
           productDetails ? productDetails.url : ctx.page.url(),
           this.launchOptions?.screenshotOptions
         );

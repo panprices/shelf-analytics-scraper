@@ -23,7 +23,7 @@ async function debugScrapeDetails(targetUrls: string[]) {
       popularityIndex: -1,
       name: "Disa",
       label: "DETAIL",
-      matchingType: "match",
+      matchingType: "new",
     },
   }));
   const detailedItems = await scrapeDetails(
@@ -232,10 +232,6 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // // H&M Home product on discount
 // await debugScrapeDetails([
 //   "https://www2.hm.com/de_de/productpage.1207948003.html",
-// ]);
-
-// await debugScrapeDetails([
-//   "https://www.trouva.com/fr/products/hay-pao-tafellamp-oplaadbaar-rood?country=FRA&currency=EUR",
 // ]);
 
 // await debugScrapeDetails([
