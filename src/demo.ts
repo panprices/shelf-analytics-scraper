@@ -255,6 +255,6 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 // ]);
 
 await debugScrapeDetails([
-  "https://kjellmannhome.no/10003576",
+  "https://www.homeroom.se/venture-home/matgrupp-bois-med-6st-matstolar-dallas/1650288-01",
 ]);
 

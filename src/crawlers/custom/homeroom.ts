@@ -559,12 +559,12 @@ export class HomeroomCrawlerDefinition extends AbstractCrawlerDefinitionWithVari
     ) {
       await expandButton.click();
     }
-
-    const description = <string>(
-      await page
-        .locator("//div[contains(@class, 'long-description')]//p/span[1]")
-        .textContent()
-    );
+    const descriptionArray = await page
+      .locator("//div[contains(@class, 'description')]//p")
+      .filter({ hasNotText: 'Ladda ner högupplöst bild' })
+      .allTextContents();  
+    // Type the description as a string and join the array elements
+    const description: string = descriptionArray.join(' ');
     return description;
   }
 }
