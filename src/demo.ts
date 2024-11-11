@@ -254,10 +254,7 @@ async function debugScrapeDetailsCheerio(targetUrl: string) {
 //   "https://www.nest.co.uk/product/hay-peas-rug?utm_source=google&utm_medium=base&utm_campaign=base&stock=198231",
 // ]);
 
-// await debugScrapeDetails([
-//   "https://www.homeroom.se/venture-home/matgrupp-bois-med-6st-matstolar-dallas/1650288-01",
-// ]);
-
 await debugScrapeDetails([
-  "https://www.chilli.se/textil/s%C3%A4ngkl%C3%A4der/%C3%B6verkast-clydies-150x250-cm-beige-p1480114-v1479959",
+  "https://www.homeroom.se/venture-home/matgrupp-bois-med-6st-matstolar-dallas/1650288-01",
 ]);
+
