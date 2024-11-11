@@ -118,8 +118,8 @@ export async function extractProductDetails(
   }
   await crawlerDefinition.handleCookieConsent(page);
 
-  const mainLocator = page.locator("main#maincontent");
-  const productMainLocator = mainLocator.locator("xpath=./div[2]");
+  const mainLocator = page.locator("#maincontent");
+  const productMainLocator = mainLocator.locator("xpath=./div[3]");
 
   const productNameLocator = await findElementByCSSProperties(
     productMainLocator,
