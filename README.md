@@ -1,121 +1,42 @@
-# Guide on how deep indexed retailers work
+# shelf-analytics-scraper
 
-**Please see the following guide on Notion before you start to work with this repositroy:**
+Production web crawlers for monitoring product pages across 10+ retail websites. Built with Playwright and Crawlee, deployed on Kubernetes.
 
-https://www.notion.so/getloupe/Deep-indexed-retailers-Overall-project-structure-and-getting-startedextractProductDetails-c9c6af62a53a4591859486ffb0c64af9?pvs=4
+Part of the [Loupe](https://getloupe.com) shelf analytics platform.
 
-# Setup
+## Architecture
 
-Install node and npm: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
-
-Run `npm install`
-
-## How to test locally
-In `src/demo.ts` there are some wrapper functions you can call directly to start scraping. To run the it use the following command:
-
-```bash
-npm run demo
+```mermaid
+graph TD
+    A[Scraper Scheduler] -->|Cloud Tasks| B[K8s Pods]
+    B --> C[Crawler Factory]
+    C --> D[Retailer-specific Crawlers]
+    D --> E[Product Data Extraction]
+    E --> F[PostgreSQL]
+    D --> G[Image URLs]
+    G --> H[Cloud Storage]
+    I[Proxy Rotator] --> D
+    J[Cookie Manager - Firestore] --> D
 ```
 
-## How to run the API (the way it runs in production)
+## What it does
 
-### 1. Build
-Run the following command:
-`npm run build`
+Each crawler is built as a retailer-specific implementation that handles the unique DOM structure, anti-bot measures, and data formats of that retailer. The system:
 
-This will create the `/dist` folder where we can find the compiled JS files.
+- Navigates product pages using Playwright (headless Chromium)
+- Extracts structured product data: price, availability, images, specifications, variants
+- Handles anti-bot detection with proxy rotation, cookie persistence, and browser fingerprint management
+- Publishes extracted data to PostgreSQL and images to Cloud Storage
+- Runs on Kubernetes with horizontal pod autoscaling
 
-### 2. Run
-Run the API with the following command:
+## Key technical decisions
 
-```bash
-npm run dev
-```
+- **Crawlee framework** for request queue management, automatic retries, and session rotation
+- **Retailer-specific crawlers** rather than a generic scraper -- each site has enough unique behavior to warrant dedicated extraction logic
+- **HAR-based testing** -- recorded HTTP archives allow offline testing of extraction logic against real page structures
+- **Proxy rotation via Firestore** -- active proxy IPs are stored in Firestore with health status, enabling dynamic rotation without redeployment
+- **Anti-bot handling** per retailer -- some need residential proxies, others need cookie warming, others need specific request timing
 
-Here is an example API call:
+## Stack
 
-```bash
-curl --location --request POST 'http://localhost:8080/exploreCategory' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "url": "https://www.trademax.se/utem%C3%B6bler/utestolar-tr%C3%A4dg%C3%A5rdsstolar/solstolar/d%C3%A4ckstol"
-}'
-```
-
-# Create a new scraper
-
-First run this script to create a `scraper.ts` file based on our template
-
-```bash
-npm run script:create-scraper gigameubel.nl Gigameubel
-```
-
-Then just fill in the missing parts in that new scraper.
-
-# Deployment
-
-Configuration for production deployment on kubernetes is in the k8s/ folder.
-Sandbox deployment is still on CloudRun to reduce cost (k8s need an always running pod),
-and its configuration is `cloudbuild_sandbox.yaml`.
-
-# Kubernetes
-
-## Installation
-
-Most of the operations on kubernetes can be performed through CLI using the following client:
-
-```commandline
-gcloud components install kubectl
-```
-
-## Update the pod configuration
-
-To update the pod configuration run the following command:
-
-```commandline
-kubectl apply -f k8s/deployment.yaml
-```
-
-## Trigger image update (when the pod config stays the same but we update the image)
-
-```commandline
-kubectl rollout restart deployment/shelf-analytics-scraper
-```
-
-# Getting started with Crawlee
-
-This project uses Playwright through the Crawlee library to scrape product information.
-You can find more examples and documentation at the following links:
-
-- [Introduction to Crawlee](https://crawlee.dev/docs/introduction)
-- `PlaywrightCrawler` [API documentation](https://crawlee.dev/api/playwright-crawler/class/PlaywrightCrawler)
-- Other [examples](https://crawlee.dev/docs/examples/playwright-crawler)
-
-## Misc.
-
-### How to test XPATH locators in the browser
-
-Go to developer console and use
-`$x('YOUR_XPATH_HERE')`
-
-### How to record a har file for tests:
-
-Add the following `overrides` option to the crawler:
-
-```javascript
-        launchContext: {
-          launchOptions: <any>{
-            recordHar: {
-              path: "example.har",
-            },
-          },
-          experimentalContainers: true,
-          launcher:
-        },
-```
-
-### Start the chromium browser manually (MacOS):
-
-```commandline
-open ~/Library/Caches/ms-playwright/chromium-1071/chrome-mac/Chromium.app/
-```
+TypeScript, Playwright, Crawlee, Kubernetes, Cloud Tasks, Firestore, PostgreSQL, Cloud Storage, Docker
