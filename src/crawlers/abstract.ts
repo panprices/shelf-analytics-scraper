@@ -1,0 +1,1495 @@
+import {
+  CheerioCrawlingContext,
+  CrawlingContext,
+  createCheerioRouter,
+  createPlaywrightRouter,
+  Dataset,
+  log,
+  PlaywrightCrawlingContext,
+  playwrightUtils,
+  Router,
+  RouterHandler,
+} from "crawlee";
+import { Locator, Page } from "playwright";
+import fetch from "node-fetch";
+import {
+  Category,
+  DetailedProductInfo,
+  ListingProductInfo,
+  Specification,
+} from "../types/offer.js";
+import {
+  extractDomainFromUrl,
+  mergeTwoObjectsPrioritiseNonNull,
+  normaliseUrl,
+} from "../utils.js";
+import { v4 as uuidv4 } from "uuid";
+import { ScrollToBottomStrategy, scrollToBottomV1 } from "./scraper-utils.js";
+import * as crypto from "crypto";
+import { BlobStorage } from "../blob-storage/abstract.js";
+import { GoogleCloudBlobStorage } from "../blob-storage/google.js";
+import fs from "fs";
+import { DetailErrorAssertion } from "../error-handling/detail-error-assertion/interface.js";
+import { DefaultErrorAssertion } from "../error-handling/detail-error-assertion/default.js";
+import { DetailErrorHandler } from "../error-handling/detail-error-handling/interface.js";
+import { DefaultDetailErrorHandler } from "../error-handling/detail-error-handling/default.js";
+
+export interface ScreenshotOptions {
+  hasBlockedImages?: boolean;
+  waitForNetwork?: boolean;
+  /**
+   * Only works is `waitForNetwork` is set to true.
+   *
+   * If not defined the function will use the default timeout set by crawlee
+   */
+  waitForNetworkTimeout?: number;
+
+  customScreenshotResolution?: {
+    width: number;
+    height: number;
+  };
+  disablePageResize?: boolean;
+}
+
+export interface CrawlerDefinitionOptions {
+  /**
+   * Keeps the detailed data about products, the one extracted from a product page
+   */
+  detailsDataset: Dataset;
+
+  /**
+   * Keeps shallow data about products, extracted form product listings (ex: category pages)
+   */
+  listingDataset: Dataset;
+
+  /**
+   * Selector for the urls of individual product pages
+   */
+  detailsUrlSelector?: string; // undefined if we don't implement category scraping
+
+  /**
+   * Selector for next pages within the product listing / category
+   */
+  listingUrlSelector?: string; // undefined if we don't implement category scraping
+
+  /**
+   * Selector for individual product cards to be scraped for information available as part of the listings
+   */
+  productCardSelector?: string; // undefined if we don't implement category scraping
+
+  /**
+   * Selector for urls of products in the search results page
+   */
+  searchUrlSelector?: string; // undefined if we don't implement searching
+
+  /**
+   * Max number of urls to be scraped from the search results page.
+   * Usually the result that we are looking for is within the first 10 results
+   * or so.
+   *
+   * Set to undefined if we don't implement searching OR if we want to scrape all the results.
+   * */
+  searchMaxUrls?: number;
+
+  /**
+   * Selector for the cookie consent button
+   */
+  cookieConsentSelector?: string;
+
+  /**
+   * Whether we should consider that the category page dynamically loads in the DOM only visible products
+   *
+   * If that's the case, we need to fetch the elements after every scroll
+   */
+  dynamicProductCardLoading?: boolean;
+
+  scrollToBottomStrategy?: ScrollToBottomStrategy;
+
+  /**
+   * Options to control the crawler behavior
+   */
+  launchOptions?: CrawlerLaunchOptions;
+}
+
+export interface CrawlerLaunchOptions {
+  /**
+   * Option to ignore enquing variants of a product
+   */
+  ignoreVariants?: boolean;
+  ip?: string; // ip to use
+  uniqueCrawlerKey: string;
+
+  screenshotOptions?: ScreenshotOptions;
+  shouldUseGenericCookieConsentLogic?: boolean;
+}
+
+export interface CheerioCrawlerDefinitionOptions {
+  /**
+   * Keeps the detailed data about products, the one extracted from a product page
+   */
+  detailsDataset: Dataset;
+}
+
+/**
+ * General definition of what we need to do to x a new custom implementation for a given website.
+ *
+ * It defines the way in which both listing and individual pages should be scraped to gain information.
+ */
+export interface CrawlerDefinition<Context extends CrawlingContext> {
+  crawlDetailPage(ctx: Context): Promise<void>;
+  normalizeProductUrl(url: string): string;
+  /** Post-process product details in place. Custom for each retailer. */
+  postProcessProductDetails?(product: DetailedProductInfo): void;
+  get detailsDataset(): Dataset;
+  get router(): Router<Context>;
+}
+
+export abstract class AbstractCrawlerDefinition
+  implements CrawlerDefinition<PlaywrightCrawlingContext>
+{
+  protected readonly _router: RouterHandler<PlaywrightCrawlingContext>;
+
+  // Do not make this protected or public all pushes to the dataset should be done through
+  // the current class, to handle other actions such as logging and screenshots
+  private readonly _detailsDataset: Dataset;
+  protected static readonly _cloudBlobStorage: BlobStorage =
+    new GoogleCloudBlobStorage();
+
+  protected readonly listingUrlSelector?: string;
+  protected readonly productCardSelector?: string;
+  protected readonly searchUrlSelector?: string;
+  protected readonly searchMaxUrls?: number;
+  protected readonly launchOptions?: CrawlerLaunchOptions;
+
+  protected readonly crawlerOptions: CrawlerDefinitionOptions;
+
+  /**
+   * Number of products displayed on a category page
+   */
+  protected readonly categoryPageSize?: number;
+
+  protected __detailPageErrorHandlers: DetailErrorHandler[];
+  protected __detailPageErrorAssertions: DetailErrorAssertion[];
+
+  private readonly productInfos: Map<string, ListingProductInfo>;
+
+  protected constructor(options: CrawlerDefinitionOptions) {
+    const crawlerDefinition = this;
+
+    this._router = createPlaywrightRouter();
+    this._router.addHandler("DETAIL", (_ctx) =>
+      crawlerDefinition.crawlDetailPage(_ctx)
+    );
+    this._router.addHandler("LIST", (_ctx) =>
+      crawlerDefinition.crawlListPage(_ctx)
+    );
+    this._router.addHandler("SEARCH", (_ctx) =>
+      crawlerDefinition.crawlSearchPage(_ctx)
+    );
+    this._router.addHandler("INTERMEDIATE_CATEGORY", (_) =>
+      crawlerDefinition.crawlIntermediateCategoryPage(_)
+    );
+    this._router.addHandler("HOMEPAGE", (_ctx) =>
+      crawlerDefinition.exploreHomepage(_ctx)
+    );
+
+    this._detailsDataset = options.detailsDataset;
+
+    this.listingUrlSelector = options.listingUrlSelector;
+    this.productCardSelector = options.productCardSelector;
+    this.searchUrlSelector = options.searchUrlSelector;
+    this.searchMaxUrls = options.searchMaxUrls;
+    this.launchOptions = options?.launchOptions;
+    this.crawlerOptions = options;
+
+    this.productInfos = new Map<string, ListingProductInfo>();
+    this.__detailPageErrorHandlers = [new DefaultDetailErrorHandler()];
+    this.__detailPageErrorAssertions = [new DefaultErrorAssertion()];
+  }
+
+  private static async __injectDateTime(page: Page): Promise<void> {
+    // Inject HTML for the time display
+    await page.evaluate(() => {
+      const timeDisplay = document.createElement("div");
+      timeDisplay.id = "current-time";
+
+      const timeDisplayInner = document.createElement("div");
+      timeDisplayInner.id = "current-time-inner";
+      timeDisplay.appendChild(timeDisplayInner);
+
+      // Add the time display to the page
+      document.body.prepend(timeDisplay);
+
+      // Set the time initially
+      timeDisplayInner.innerText = new Date().toLocaleString("sv-SE");
+    });
+
+    // Inject CSS to style the time display and position it
+    await page.evaluate(() => {
+      const style = document.createElement("style");
+      // z-index is the highest possible value to avoid being overlapped by cookie consents
+      style.textContent = `
+      #current-time {
+        position: relative;
+        width: 100%;
+        height: 0;
+      }
+      
+      #current-time-inner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        background-color: black;
+        color: white;
+        padding: 5px;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        z-index: 2147483647;  
+      }
+    `;
+      document.head.appendChild(style);
+    });
+  }
+
+  /**
+   * Uses the logic of https://github.com/apify/idcac/, but instead of the compiled script we load the CSS script and
+   * JS script
+   *
+   * To update the version of the plugin:
+   * 1. Go to the plugin page. Ex: https://chromewebstore.google.com/detail/i-dont-care-about-cookies/fihnjjcciajhdojfnbdddfaoknhalnja
+   *  Notice the last part "fihnjjcciajhdojfnbdddfaoknhalnja" that's the id of the extension
+   * 2. Open up chromium and check the version we are currently using
+   *  Ex command: `open ~/Library/Caches/ms-playwright/chromium-1071/chrome-mac/Chromium.app`
+   * 3. Fill in the variables in the following URL:
+   *  https://clients2.google.com/service/update2/crx?response=redirect&prodversion=[chrome_version]&acceptformat=crx2,crx3&x=id%3D[extension_id]%26uc
+   * 4. Download the contents using curl and unzip the contents of the file
+   * 5. Drop that directory over "extenions/idcac"
+   *
+   * OBS: some of the logic might change between versions. Make sure we are still loading the correct files.
+   *
+   * @param page
+   * @private
+   */
+  private static async __attemptCookieConsent(page: Page): Promise<void> {
+    const idcacCSS = fs.readFileSync(
+      "extensions/idcac/data/css/common.css",
+      "utf-8"
+    );
+    const customCookieConsentSelectors = `
+      .mc-modal, .mc-modal-bg, .needsclick, #coiOverlay, #kconsent, .recommendation-modal__backdrop, .recommendation-modal__container, #CybotCookiebotDialog
+      {display:none !important; height:0 !important; z-index:-99999 !important; visibility:hidden !important; width:0 !important; overflow:hidden !important}  
+    `;
+
+    await page.evaluate((customCss: string) => {
+      const styleTag = document.createElement("style");
+      styleTag.textContent = customCss;
+      document.head.appendChild(styleTag);
+    }, idcacCSS + "\n\n" + customCookieConsentSelectors);
+
+    const idcacJS = fs.readFileSync(
+      "extensions/idcac/data/js/common.js",
+      "utf-8"
+    );
+
+    await page.evaluate((customJs: string) => {
+      const scriptTag = document.createElement("script");
+      scriptTag.textContent = customJs;
+      document.head.appendChild(scriptTag);
+    }, idcacJS);
+  }
+
+  private static async __insertMissingImagesMessage(page: Page): Promise<void> {
+    await page.evaluate(() => {
+      const imagesMessageParentDiv = document.createElement("div");
+      imagesMessageParentDiv.id = "images-message";
+
+      const imagesMessageInnerDiv = document.createElement("div");
+      imagesMessageInnerDiv.id = "images-message-inner";
+      imagesMessageParentDiv.appendChild(imagesMessageInnerDiv);
+
+      // Add the time display to the page
+      document.body.prepend(imagesMessageParentDiv);
+
+      // Set the time initially
+      imagesMessageInnerDiv.innerText =
+        "Images were removed from the screenshot, but you can see them at app.getloupe.co";
+    });
+
+    // Inject CSS to style the Image message and position it
+    await page.evaluate(() => {
+      const style = document.createElement("style");
+      // z-index is the highest possible value to avoid being overlapped by cookie consents
+      style.textContent = `
+      #images-message {
+        position: relative;
+        width: 100%;
+        height: 0;
+      }
+      
+      #images-message-inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: fit-content;
+        background-color: black;
+        color: white;
+        padding: 5px;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        z-index: 2147483647;  
+      }
+    `;
+      document.head.appendChild(style);
+    });
+  }
+
+  public static async saveScreenshot(
+    ctx: PlaywrightCrawlingContext,
+    url: string,
+    options: ScreenshotOptions = {}
+  ): Promise<void> {
+    if (ctx.request.userData["matchingType"] === "new") {
+      return;
+    }
+
+    const page = ctx.page;
+
+    const startTime = Date.now();
+
+    await AbstractCrawlerDefinition.__attemptCookieConsent(page);
+    await AbstractCrawlerDefinition.__injectDateTime(page);
+    if (options.hasBlockedImages) {
+      await AbstractCrawlerDefinition.__insertMissingImagesMessage(page);
+    }
+
+    const currentViewportSize = page.viewportSize();
+    const currentScrollY = await page.evaluate(() => window.scrollY);
+    const totalViewedHeight =
+      currentScrollY + (currentViewportSize?.height ?? 0);
+
+    if (!options.disablePageResize) {
+      // Make screenshots more uniform
+      await page.setViewportSize(
+        options.customScreenshotResolution ?? { width: 1280, height: 1000 }
+      );
+    }
+
+    /**
+     * Inspired by:
+     * https://github.com/microsoft/playwright/blob/b5e36583f67745fddf32145fa2355e5f122c2903/packages/playwright-core/src/server/screenshotter.ts#L182-L200
+     */
+    const fullPageSize = await page
+      .mainFrame()
+      .waitForFunction(() => {
+        if (!document.body || !document.documentElement) return null;
+        return {
+          width: Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth,
+            document.body.offsetWidth,
+            document.documentElement.offsetWidth,
+            document.body.clientWidth,
+            document.documentElement.clientWidth
+          ),
+          height: Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight,
+            document.body.clientHeight,
+            document.documentElement.clientHeight
+          ),
+        };
+      })
+      .then((h) => h.jsonValue());
+
+    if (options.waitForNetwork) {
+      await page
+        .waitForLoadState("networkidle", {
+          timeout: options.waitForNetworkTimeout,
+        })
+        .catch(() => log.warning("Waited for networkidle but it timed out"));
+    }
+
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+
+    /**
+     * We are doing this rather than using the function `saveSnapshot` from crawlee utils
+     * because at the time of this writing that function was affected by an annoying bug that
+     * was causing all images to be saved with a double extension ".jpg.jpeg"
+     *
+     * https://github.com/apify/crawlee/issues/1980
+     */
+    const screenshotBuffer = await page.screenshot({
+      clip: {
+        x: 0,
+        y: 0,
+        width: fullPageSize?.width ?? 0,
+        height: totalViewedHeight,
+      },
+      fullPage: true,
+      quality: 40,
+      type: "jpeg",
+      scale: "css",
+      timeout: 60_000,
+    });
+    const screenshotName = `${crypto
+      .createHash("md5")
+      .update(url)
+      .digest("hex")}.jpg`;
+    await AbstractCrawlerDefinition._cloudBlobStorage
+      .uploadFromBuffer(screenshotBuffer, screenshotName, "image/jpeg")
+      .then(() => {
+        log.info(
+          `Uploaded screenshot of page: ${url}, with name ${screenshotName}`,
+          { timeElapsedSeconds: (Date.now() - startTime) / 1000 }
+        );
+      });
+
+    // Recover after the screenshot
+    if (currentViewportSize && !options.disablePageResize) {
+      await page.setViewportSize(currentViewportSize);
+    }
+    await page.evaluate(
+      (topScroll: number) => window.scrollTo({ top: topScroll }),
+      currentScrollY
+    );
+  }
+
+  /**
+   * Check for any issue in the product page before trying to scrape it.
+   * E.g. check for 404 Page not found, redirect to a category page, ...
+   *
+   * Overriding this method is discouraged. Use a new error handling strategy if you want to
+   * add behaviour here
+   */
+  async assertCorrectProductPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    for (const handler of this.__detailPageErrorAssertions) {
+      await handler.assertCorrectProductPage(ctx);
+    }
+  }
+
+  /**
+   * Overriding this method is discouraged. Use a new error handling strategy if you want to
+   * add behaviour here
+   *
+   * @param error
+   * @param ctx
+   */
+  handleCrawlDetailPageError(error: any, ctx: PlaywrightCrawlingContext) {
+    let wasHandled = false;
+    for (const handler of this.__detailPageErrorHandlers) {
+      try {
+        handler.handleCrawlDetailPageError(error, ctx);
+      } catch (e) {
+        continue;
+      }
+
+      wasHandled = true;
+      // At this point the error was handled, so we stop iterating through the handlers
+      break;
+    }
+
+    if (!wasHandled) {
+      throw error;
+    }
+  }
+
+  async handleDetailPage(
+    ctx: PlaywrightCrawlingContext,
+    additionalFields: Partial<DetailedProductInfo> = {}
+  ) {
+    log.info(`Looking at product with url ${ctx.page.url()}`);
+    let productDetails = null;
+
+    if (this.launchOptions?.shouldUseGenericCookieConsentLogic) {
+      await AbstractCrawlerDefinition.__attemptCookieConsent(ctx.page);
+    }
+    try {
+      await this.assertCorrectProductPage(ctx);
+
+      productDetails = await this.extractProductDetails(ctx.page);
+      productDetails = {
+        ...productDetails,
+        fetchedAt: new Date().toISOString(),
+        retailerDomain: extractDomainFromUrl(ctx.page.url()),
+      };
+
+      productDetails = mergeTwoObjectsPrioritiseNonNull(
+        additionalFields,
+        productDetails // if both have an attribute then prioritise this new data
+      );
+      await this._detailsDataset.pushData(productDetails);
+    } catch (e) {
+      this.handleCrawlDetailPageError(e, ctx);
+    } finally {
+      logProductScrapingInfo(ctx, productDetails);
+      try {
+        await AbstractCrawlerDefinition.saveScreenshot(
+          ctx,
+          productDetails ? productDetails.url : ctx.page.url(),
+          this.launchOptions?.screenshotOptions
+        );
+      } catch (saveScreenshotError) {
+        const pageUrl = ctx && ctx.page ? ctx.page.url() : null;
+        log.error("Error saving screenshot", {
+          url: pageUrl,
+          error: saveScreenshotError,
+        });
+      }
+    }
+  }
+
+  /**
+   * Get details about an individual product by looking at the product page.
+   *
+   * This method also saves to a crawlee `Dataset`. In the future it has to save to an external storage like firestore
+   */
+  async crawlDetailPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    return await this.handleDetailPage(ctx, ctx.request.userData);
+  }
+
+  /**
+   * Abstract method for creating a `ProductInfo` object by scraping an individual product (DETAIL) page.
+   *
+   * This method has to be implemented for each of the sources we want to scrape
+   * @param page
+   */
+  abstract extractProductDetails(page: Page): Promise<DetailedProductInfo>;
+
+  /**
+   * Entry point for the listing pages logic.
+   *
+   * We scroll to the bottom of the page and progressively add identified products. This way we address the issue of
+   * lazy loading web pages and various recycle views that could prevent us for getting a full picture of the products
+   * in the listing by only looking at one window of the page.
+   *
+   * @param ctx
+   */
+  async crawlListPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    if (!this.productCardSelector) {
+      log.info("No product card selector defined, skipping");
+      return;
+    }
+
+    await ctx.page.locator(this.productCardSelector).nth(0).waitFor();
+
+    await this.scrollToBottom(ctx);
+    await this.registerProductCards(ctx);
+
+    if (this.listingUrlSelector) {
+      await ctx.enqueueLinks({
+        selector: this.listingUrlSelector,
+        label: "LIST",
+      });
+    }
+  }
+
+  /**
+   * Convert a query string to a search url for the given website
+   * @param query the search query
+   * @param retailerDomain used as a base for the search url, in case a scraper
+   * can scrape multiple websites/countries (such as amazon.de, amazon.co.uk)
+   */
+  getSearchUrl(_: string, __: string): string {
+    throw new Error("Search function not implemented for the given website");
+  }
+
+  /**
+   * Extract urls from the current search result page and enqueue them for
+   * further product details scraping.
+   * NOTE: this does not care about pagination. We expect the product that
+   * we are searching for to be on the first page.
+   */
+  async crawlSearchPage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    if (!this.searchUrlSelector) {
+      log.info("No selector defined to get urls on search page, skipping");
+      return;
+    }
+
+    try {
+      if (await this.isEmptySearchResultPage(ctx.page)) {
+        log.info("Empty search result", { url: ctx.page.url() });
+        return;
+      }
+    } catch (error) {
+      log.warning("Cannot identify if the page has any search result or not", {
+        error,
+      });
+    }
+
+    await ctx.page.locator(this.searchUrlSelector).nth(0).waitFor();
+    await this.scrollToBottom(ctx);
+
+    log.debug("Enqueuing product urls from search page");
+    await ctx.enqueueLinks({
+      selector: this.searchUrlSelector,
+      label: "DETAIL",
+      limit: this.searchMaxUrls,
+    });
+  }
+
+  /** Override this to check for empty search result */
+  async isEmptySearchResultPage(_: Page): Promise<boolean> {
+    return false;
+  }
+
+  async crawlIntermediateCategoryPage(
+    _: PlaywrightCrawlingContext
+  ): Promise<void> {
+    throw new Error(
+      "Intermediate category crawling not implemented for the given website"
+    );
+  }
+
+  /**
+   * This method also assigns the `popularityIndex` property to products. The idea is that a product arrives here
+   * in the order it is found while scraping the listing page, so its popularity index is
+   * (the number of products we have already registered in the map before its arrival) + 1.
+   * Plus one so that we start counting from 1.
+   *
+   * @param url
+   * @param product
+   */
+  handleFoundProductFromCard(url: string, product: ListingProductInfo): number {
+    if (this.productInfos.has(url)) {
+      const existingPopularityIndex =
+        this.productInfos.get(url)!.popularityIndex;
+      if (existingPopularityIndex) {
+        return existingPopularityIndex;
+      }
+    }
+
+    product.popularityIndex = this.productInfos.size + 1;
+    this.productInfos.set(url, product);
+    return product.popularityIndex;
+  }
+
+  /**
+   * Performs one sweep through the page towards the bottom and
+   * registerProductCards.
+   *
+   * Define custom scroll strategy such as infiniteScroll with
+   * crawlerOptions.scrollToBottomStrategy
+   */
+  async scrollToBottom(ctx: PlaywrightCrawlingContext) {
+    await this.handleCookieConsent(ctx.page);
+
+    if (this.crawlerOptions.scrollToBottomStrategy) {
+      await this.crawlerOptions.scrollToBottomStrategy(
+        ctx,
+        async (ctx) => {
+          await this.registerProductCards(ctx);
+        },
+        this.crawlerOptions.dynamicProductCardLoading
+      );
+    } else {
+      // Default to version 1 for backward compatability.
+      // New scrapers should use the newest versions which also handle infinite
+      // scroll.
+      await scrollToBottomV1(
+        ctx,
+        async (ctx) => {
+          await this.registerProductCards(ctx);
+        },
+        this.crawlerOptions.dynamicProductCardLoading
+      );
+    }
+  }
+
+  async registerProductCards(ctx: PlaywrightCrawlingContext) {
+    const page = ctx.page;
+    const enqueueLinks = ctx.enqueueLinks;
+
+    if (!this.productCardSelector) {
+      log.info("Category crawling not enabled, skipping");
+      return;
+    }
+
+    const productCardSelector = this.productCardSelector;
+    const articlesLocator = page.locator(productCardSelector);
+    const articlesCount = await articlesLocator.count();
+    for (let j = 0; j < articlesCount; j++) {
+      const currentProductCard = articlesLocator.nth(j);
+
+      const currentProductInfo = await this.extractCardProductInfo(
+        page.url(),
+        currentProductCard
+      );
+
+      if (!currentProductInfo) {
+        // if category crawling is disabled for this scraper, we should not reach this point
+        // check that `productCardSelector` is undefined
+        log.error(
+          `Could not extract product info from card ${j} on page ${page.url()}`
+        );
+        continue;
+      }
+
+      if (currentProductInfo.url.startsWith("/")) {
+        const currentUrl = new URL(page.url());
+
+        currentProductInfo.url = `${currentUrl.protocol}//${currentUrl.host}${currentProductInfo.url}`;
+      }
+      currentProductInfo.url = new URL(currentProductInfo.url).href; // encode the url
+
+      // Skip already processed products
+      if (this.productInfos.has(currentProductInfo.url)) {
+        continue;
+      }
+
+      const pageNumber = ctx.request.userData.pageNumber;
+      if (pageNumber && this.categoryPageSize) {
+        currentProductInfo.popularityIndex =
+          (pageNumber - 1) * this.categoryPageSize + j + 1;
+      } else {
+        currentProductInfo.popularityIndex = this.handleFoundProductFromCard(
+          currentProductInfo.url,
+          currentProductInfo
+        );
+      }
+
+      currentProductInfo.retailerDomain = extractDomainFromUrl(
+        currentProductInfo.url
+      );
+      await enqueueLinks({
+        urls: [currentProductInfo.url],
+        label: "DETAIL",
+        userData: currentProductInfo,
+      });
+    }
+  }
+
+  /**
+   * Extracts the information about a product from a product card.
+   *
+   * It is specific to each source, and should be implemented in a specific class.
+   *
+   * @param categoryUrl
+   * @param productCard
+   */
+  abstract extractCardProductInfo(
+    categoryUrl: string,
+    productCard: Locator
+  ): Promise<ListingProductInfo | undefined>;
+
+  async extractSchemaOrgFromAttributes(
+    page: Page
+  ): Promise<{ [key: string]: any }> {
+    const schemaOrgProduct = await page.locator(
+      '//*[@itemtype="http://schema.org/Product"]'
+    );
+
+    const propsLocator = schemaOrgProduct.locator("//*[@itemprop]");
+
+    return await propsLocator.evaluateAll((nodes) => {
+      return nodes
+        .map((node) => {
+          let content = node.getAttribute("content");
+          let prop = node.getAttribute("itemprop") as string;
+
+          if (!content) {
+            content = node.textContent;
+          }
+          return {
+            [prop]: content,
+          };
+        })
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    });
+  }
+
+  /**
+   * Extract a property on the webpage.
+   *
+   * If `optional` is false, the method will auto-wait for the element to be present
+   * before trying extracting the property (or timeout). Default to true.
+   */
+  async extractProperty(
+    rootElement: Locator | Page,
+    path: string,
+    extractor: (node: Locator) => Promise<string | null | undefined>,
+    optional: boolean = true
+  ): Promise<string | undefined> {
+    const tag = await rootElement.locator(path);
+
+    const elementExists = (await tag.count()) > 0;
+    if (optional && !elementExists) {
+      return undefined;
+    }
+
+    const intermediateResult = await extractor(tag);
+    return intermediateResult !== null ? intermediateResult : undefined;
+  }
+
+  async extractImageFromSrcSet(node: Locator): Promise<string | null> {
+    const srcset = await node.getAttribute("srcset");
+    if (!srcset) {
+      return null;
+    }
+    return srcset.split(",")[0].split(" ")[0];
+  }
+
+  async extractSpecificationsFromTable(
+    specKeyLocator: Locator,
+    specValueLocator: Locator
+  ): Promise<Specification[]> {
+    const specKeys = await specKeyLocator
+      .allTextContents()
+      .then((texts) => texts.map((text) => text.trim()));
+
+    const specValues = await specValueLocator
+      .allTextContents()
+      .then((texts) => texts.map((text) => text.trim()));
+
+    if (specKeys.length !== specValues.length) {
+      log.error("Cannot extract specifications: key/value mismatch");
+      return [];
+    }
+
+    const specifications: Specification[] = [];
+    for (let i = 0; i < specKeys.length; i++) {
+      specifications.push({
+        key: specKeys[i],
+        value: specValues[i],
+      });
+    }
+    return specifications;
+  }
+
+  async handleCookieConsent(page: Page): Promise<void> {
+    if (this.crawlerOptions.cookieConsentSelector) {
+      await AbstractCrawlerDefinition.clickOverlayButton(
+        page,
+        this.crawlerOptions.cookieConsentSelector
+      );
+    } else {
+      await AbstractCrawlerDefinition.__attemptCookieConsent(page);
+    }
+  }
+
+  static async clickOverlayButton(
+    page: Page,
+    buttonSelector: string
+  ): Promise<boolean> {
+    const button = page.locator(buttonSelector).first();
+    const buttonVisible = await button.isVisible();
+    if (buttonVisible) {
+      await button.click();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Extract the category tree from a category page.
+   *
+   * @param startIndex set to 1 if the first breadcrumb is the homepage
+   */
+  async extractCategoryTree(
+    breadcrumbLocator: Locator,
+    startIndex: number = 0
+  ): Promise<Category[]> {
+    const breadcrumbCount = await breadcrumbLocator.count();
+    const categoryTree = [];
+    for (let i = startIndex; i < breadcrumbCount; i++) {
+      const name = await breadcrumbLocator
+        .nth(i)
+        .textContent()
+        .then((text) => text?.trim());
+      const url = await breadcrumbLocator
+        .nth(i)
+        .getAttribute("href")
+        .then((url) => {
+          if (url?.endsWith("/")) {
+            return url?.slice(0, -1);
+          }
+          return url;
+        });
+      if (!name || !url) {
+        log.error(`Could not extract category name or url from breadcrumb`);
+        continue;
+      }
+
+      categoryTree.push({
+        name,
+        url,
+      });
+    }
+
+    return categoryTree;
+  }
+
+  /**
+   * Extract the category tree from a category page.
+   * It will extract the category tree from the breadcrumb,
+   * and add the current category (url extracted from the current page) at the end.
+   *
+   * @param startIndex set to 1 if the first breadcrumb is the homepage
+   */
+  async extractCategoryTreeFromCategoryPage(
+    breadcrumbLocator: Locator,
+    startIndex: number = 0,
+    currentCategoryNameLocator: Locator
+  ): Promise<Category[]> {
+    const categoryTree = await this.extractCategoryTree(
+      breadcrumbLocator,
+      startIndex
+    );
+
+    const currentCategoryName = await currentCategoryNameLocator
+      .textContent()
+      .then((text) => text?.trim());
+    if (!currentCategoryName) {
+      throw new Error("Cannot extract category name of category page");
+    }
+    const currentCategoryUrl = breadcrumbLocator.page().url().split("?")[0];
+
+    categoryTree.push({
+      name: currentCategoryName,
+      url: currentCategoryUrl,
+    });
+    return categoryTree;
+  }
+
+  /** Override this if we need to normalize the product URL */
+  normalizeProductUrl(url: string): string {
+    return url;
+  }
+
+  async exploreHomepage(ctx: PlaywrightCrawlingContext): Promise<void> {
+    await playwrightUtils.infiniteScroll(ctx.page, { scrollDownAndUp: true });
+
+    const page = ctx.page;
+    // Get all <a> elements that are not descendants of <footer> or <nav>
+    const aTagLocators = await page
+      .locator(
+        "//a[not(ancestor::footer) and not(ancestor::nav) and not (ancestor::header)]"
+      )
+      .all();
+
+    const hrefs = await Promise.all(
+      aTagLocators.map((a) => a.getAttribute("href", { timeout: 5000 }))
+    );
+    // Filter out any null values and link to the same page:
+    let urls: string[] = hrefs
+      .filter((href): href is string => href !== null)
+      .filter((href) => !href.startsWith("#"));
+    // Filter out duplicate urls such as 2 <a> tag to the same product,
+    // one on the image and one on the product name.
+    // We still want to keep separate mentions of a product/brand urls though,
+    // such as a brand being shown as header banner and as a mention later.
+    const removeConsecutiveDuplicates = (list: string[]): string[] => {
+      return list.filter(
+        (item, index) => index === 0 || item !== list[index - 1]
+      );
+    };
+    urls = removeConsecutiveDuplicates(urls);
+    // Normalise the url
+    urls = urls.map((url) => normaliseUrl(url, ctx.page.url()));
+
+    log.info("Found urls on homepage", { nr_urls: urls.length, urls: urls });
+    const matchingUrls = await publishHomepageUrls(urls);
+    log.info("Found matching urls", {
+      nr_urls: matchingUrls.length,
+      urls: matchingUrls,
+    });
+  }
+
+  get router(): RouterHandler<PlaywrightCrawlingContext> {
+    return this._router;
+  }
+
+  get detailsDataset(): Dataset {
+    return this._detailsDataset;
+  }
+
+  static async openDatasets(
+    uniqueCrawlerKey?: string
+  ): Promise<[Dataset, Dataset]> {
+    // Open a new dataset with unique name (using uuidv4) so that
+    // each scraper instance has its own queue.
+    const detailsDataset = await Dataset.open(
+      "__CRAWLEE_PANPRICES_detailsDataset_" + (uniqueCrawlerKey ?? uuidv4())
+    );
+    const listingDataset = await Dataset.open(
+      "__CRAWLEE_PANPRICES_listingDataset_" + (uniqueCrawlerKey ?? uuidv4())
+    );
+
+    return [detailsDataset, listingDataset];
+  }
+}
+
+export type VariantCrawlingStrategy = "new_tabs" | "same_tab";
+
+export abstract class AbstractCrawlerDefinitionWithVariants extends AbstractCrawlerDefinition {
+  protected constructor(
+    options: CrawlerDefinitionOptions,
+    protected variantCrawlingStrategy: VariantCrawlingStrategy = "new_tabs"
+  ) {
+    super(options);
+    const crawlerDefinition = this;
+    this._router.addHandler("VARIANT", (_) =>
+      crawlerDefinition.crawlVariant(_)
+    );
+  }
+
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await this.handleCookieConsent(ctx.page);
+    await this.crawlDetailPageWithVariantsLogic(ctx);
+  }
+
+  async crawlDetailPageWithVariantsLogic(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    if (this.launchOptions?.ignoreVariants) {
+      return await this.crawlDetailPageNoVariantExploration(ctx);
+    }
+
+    const variantGroupUrl = ctx.page.url();
+
+    log.info("Starting variant exploration... from url: " + variantGroupUrl);
+    await this.exploreVariantsSpace(ctx, 0, [], variantGroupUrl);
+  }
+
+  /**
+   * Select a specific variant.
+   *
+   * The selection is defined by an array of the length equal to the number of parameters to set.
+   * Each element in the array is the index of the option to select for the parameter at the given index.
+   *
+   * Normally the parameters remain there between different variants. A combination may fail just
+   * because it is incompatible with previously selected parameters. In this case we retry the selection one more time
+   * after seeing the invalid variant message.
+   *
+   * @param ctx
+   */
+  async crawlVariant(ctx: PlaywrightCrawlingContext) {
+    const variantIndex = ctx.request.userData.variantIndex;
+    const variantGroupUrl = ctx.request.userData.variantGroupUrl;
+    try {
+      await this.crawlSingleDetailPage(ctx, variantGroupUrl, variantIndex);
+    } catch (error) {
+      if (error instanceof Error) log.warning(error.message);
+      // Ignore this variant and continue to scraper other variances
+    }
+  }
+
+  async crawlSingleDetailPage(
+    ctx: PlaywrightCrawlingContext,
+    variantGroupUrl: string,
+    variant: number
+  ): Promise<void> {
+    return await this.handleDetailPage(ctx, {
+      ...ctx.request.userData,
+      variantGroupUrl,
+      variant,
+    });
+  }
+
+  async crawlDetailPageNoVariantExploration(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    let isSelectionApplied = true;
+    let currentParamIndex = 0;
+    do {
+      let paramExists =
+        (await this.getOptionsCountForParamIndex(ctx, currentParamIndex)) > 0;
+      if (!paramExists) {
+        break;
+      }
+
+      let hasSelectedOption = await this.hasSelectedOptionForParamIndex(
+        ctx,
+        currentParamIndex
+      );
+      if (!hasSelectedOption) {
+        isSelectionApplied = false;
+        break;
+      }
+      currentParamIndex++;
+    } while (true);
+
+    if (!isSelectionApplied) {
+      const pageState = await this.getCurrentVariantState(ctx);
+      // When no parameters are selected, we ended up at the variantGroupUrl because of the hacky solution.
+      // Then we start exploring the variants space, but we stop after the first variant
+      await this.exploreVariantsSpace(
+        ctx,
+        0,
+        [],
+        ctx.page.url(),
+        0,
+        pageState,
+        1
+      );
+    } else {
+      // Avoid index 0, because that changes the URL to the variantGroupUrl. (HACKY Bygghemma solution)
+      await this.crawlSingleDetailPage(ctx, ctx.page.url(), 1);
+    }
+  }
+
+  async getCurrentVariantUrl(
+    page: Page,
+    _currentOption?: number[]
+  ): Promise<string> {
+    return Promise.resolve(page.url());
+  }
+
+  async recoverState(
+    ctx: PlaywrightCrawlingContext,
+    currentOption: number[],
+    variantGroupUrl: string
+  ) {
+    await ctx.page.goto(variantGroupUrl, { waitUntil: "domcontentloaded" });
+    // select the state previous to the change
+    for (let i = 0; i < currentOption.length; i++) {
+      await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+    }
+  }
+
+  /**
+   * Depth first exploration of the variants space.
+   *
+   * @param ctx
+   * @param parameterIndex
+   * @param currentOption
+   * @param variantGroupUrl
+   * @param exploredVariants
+   * @param pageState
+   * @param limit
+   */
+  async exploreVariantsSpace(
+    ctx: PlaywrightCrawlingContext,
+    parameterIndex: number,
+    currentOption: number[],
+    variantGroupUrl: string,
+    exploredVariants: number = 0,
+    pageState?: any,
+    limit?: number
+  ): Promise<[any, number]> {
+    if (!pageState) {
+      pageState = await this.getCurrentVariantState(ctx);
+    }
+
+    let optionsCount;
+    try {
+      optionsCount = await this.getOptionsCountForParamIndex(
+        ctx,
+        parameterIndex
+      );
+    } catch (e) {
+      log.warning("Failed to get options for param index: " + parameterIndex);
+      log.debug("Trying to recover by navigation to group url");
+      await this.handleCookieConsent(ctx.page);
+
+      await this.recoverState(ctx, currentOption, variantGroupUrl);
+      try {
+        optionsCount = await this.getOptionsCountForParamIndex(
+          ctx,
+          parameterIndex
+        );
+      } catch (e) {
+        log.error(JSON.stringify(e));
+        optionsCount = 0;
+      }
+    }
+    if (optionsCount === 0) {
+      let newPageState = {};
+      // We only expect state changes for products with variants
+      // If we crawl a "variant" but the parameter index is 0 then there are in fact no parameters => no variants
+      if (parameterIndex !== 0) {
+        newPageState = await this.waitForChanges(
+          ctx,
+          pageState,
+          10000,
+          currentOption
+        );
+
+        const url = await this.getCurrentVariantUrl(ctx.page, currentOption);
+        if (this.variantCrawlingStrategy === "new_tabs") {
+          log.debug(
+            `Exploring variants space, current option: \
+            currentOption, ${currentOption}, \
+            parameterIndex: ${parameterIndex}, \
+            url: ${url}`
+          );
+          await ctx.enqueueLinks({
+            urls: [url],
+            userData: {
+              ...ctx.request.userData,
+              variantIndex: exploredVariants,
+              variantGroupUrl: variantGroupUrl,
+              label: "VARIANT",
+            },
+          });
+        } else {
+          ctx.request.userData = {
+            ...ctx.request.userData,
+            variantIndex: exploredVariants,
+            variantGroupUrl: variantGroupUrl,
+          };
+          await this.crawlVariant(ctx);
+        }
+      } else {
+        ctx.request.userData = {
+          ...ctx.request.userData,
+          variantIndex: 0,
+          variantGroupUrl: variantGroupUrl,
+        };
+        await this.crawlVariant(ctx);
+      }
+
+      return [newPageState, 1];
+    }
+
+    let exploredSubBranches = 0;
+    for (let optionIndex = 0; optionIndex < optionsCount; optionIndex++) {
+      try {
+        await this.selectOptionForParamIndex(ctx, parameterIndex, optionIndex);
+      } catch (e) {
+        log.debug(
+          `Option ${optionIndex} for parameter ${parameterIndex} is not available`,
+          { error: e }
+        );
+        log.warning(
+          "Option became unavailable, switching to product group page"
+        );
+        await this.recoverState(ctx, currentOption, variantGroupUrl);
+        try {
+          await this.selectOptionForParamIndex(
+            ctx,
+            parameterIndex,
+            optionIndex
+          );
+        } catch (e) {
+          log.error(JSON.stringify(e));
+          continue;
+        }
+      }
+
+      const invalidVariant = await this.checkInvalidVariant(ctx, [
+        ...currentOption,
+        optionIndex,
+      ]);
+
+      if (invalidVariant) {
+        // select the state previous to the change
+        for (let i = 0; i < currentOption.length; i++) {
+          await this.selectOptionForParamIndex(ctx, i, currentOption[i]);
+        }
+        continue;
+      }
+      const [newPageState, exploredOnSubBranch] =
+        await this.exploreVariantsSpace(
+          ctx,
+          parameterIndex + 1,
+          [...currentOption, optionIndex],
+          variantGroupUrl,
+          exploredVariants,
+          pageState
+        );
+      exploredSubBranches += exploredOnSubBranch;
+      exploredVariants += exploredOnSubBranch;
+      if (limit && exploredVariants >= limit) {
+        return [newPageState, exploredVariants];
+      }
+      pageState = newPageState;
+    }
+    return [pageState, exploredSubBranches];
+  }
+
+  async getCurrentVariantState(ctx: PlaywrightCrawlingContext): Promise<any> {
+    return Promise.resolve({
+      url: ctx.page.url(),
+    });
+  }
+
+  /**
+   * Wait for the page state to change and return the new state.
+   * @param ctx
+   * @param currentState
+   * @param timeout
+   * @param _currentOption optional, added for specific use case in custom crawlers.
+   *
+   * Ex: for andlight we should not wait for state change if the current option is option number 0
+   */
+  async waitForChanges(
+    ctx: PlaywrightCrawlingContext,
+    currentState: any,
+    timeout: number = 1000, // ms,
+    _currentOption: number[] = []
+  ): Promise<any> {
+    log.debug("Wait for state to change, current state: ", currentState);
+    const startTime = Date.now();
+
+    let newState = {};
+    do {
+      if (Date.now() - startTime > timeout) {
+        log.warning("Timeout while waiting for state to change");
+        return currentState;
+      }
+      try {
+        newState = await this.getCurrentVariantState(ctx);
+      } catch (error) {
+        // Could be that the page changed while trying to extract the current state
+        // => ignore the error and just try again
+      }
+      await ctx.page.waitForTimeout(timeout / 10);
+    } while (
+      !newState ||
+      // expect changes in all keys
+
+      // @ts-ignore
+      Object.keys(newState).some((key) => newState[key] === currentState[key])
+    );
+
+    return newState;
+  }
+
+  abstract selectOptionForParamIndex(
+    _: PlaywrightCrawlingContext,
+    paramIndex: number,
+    optionIndex: number
+  ): Promise<void>;
+
+  abstract hasSelectedOptionForParamIndex(
+    _: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<boolean>;
+
+  abstract getOptionsCountForParamIndex(
+    _: PlaywrightCrawlingContext,
+    paramIndex: number
+  ): Promise<number>;
+
+  abstract checkInvalidVariant(
+    _: PlaywrightCrawlingContext,
+    currentOption: number[]
+  ): Promise<boolean>;
+}
+
+/**
+ * Crawler for products with variants, but the urls of the variants
+ * are available in the html and thus don't need complicated navigatons nor
+ * button clicking.
+ *
+ * See gigameubel.nl scraper for example.
+ */
+export abstract class AbstractCrawlerDefinitionWithSimpleVariants extends AbstractCrawlerDefinition {
+  override async crawlDetailPage(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<void> {
+    await this.handleCookieConsent(ctx.page);
+    // Add the variantGroupUrl property if it's the first time we get the product
+    if (!ctx.request.userData.variantGroupUrl)
+      ctx.request.userData = {
+        ...ctx.request.userData,
+        variantGroupUrl: ctx.page.url(),
+      };
+
+    await super.crawlDetailPage(ctx);
+
+    await ctx.enqueueLinks({
+      urls: await this.extractVariantUrls(ctx),
+      label: "DETAIL",
+      userData: ctx.request.userData,
+    });
+  }
+
+  abstract extractVariantUrls(
+    ctx: PlaywrightCrawlingContext
+  ): Promise<string[]>;
+}
+
+export abstract class AbstractCheerioCrawlerDefinition
+  implements CrawlerDefinition<CheerioCrawlingContext>
+{
+  protected readonly _router: RouterHandler<CheerioCrawlingContext>;
+  protected readonly _detailsDataset: Dataset;
+
+  protected constructor(options: CheerioCrawlerDefinitionOptions) {
+    this._router = createCheerioRouter();
+    this._router.addHandler("DETAIL", (ctx) => this.crawlDetailPage(ctx));
+
+    this._detailsDataset = options.detailsDataset;
+  }
+
+  async crawlDetailPage(ctx: CheerioCrawlingContext): Promise<void> {
+    log.info(`Looking at product with url ${ctx.request.url}`);
+    const productDetails = this.extractProductDetails(ctx);
+
+    const request = ctx.request;
+
+    await this._detailsDataset.pushData(<DetailedProductInfo>{
+      fetchedAt: new Date().toISOString(),
+      retailerDomain: extractDomainFromUrl(ctx.request.url),
+      ...request.userData,
+      ...productDetails,
+    });
+  }
+
+  abstract extractProductDetails(
+    ctx: CheerioCrawlingContext
+  ): DetailedProductInfo;
+
+  normalizeProductUrl(url: string): string {
+    return url;
+  }
+
+  get detailsDataset(): Dataset {
+    return this._detailsDataset;
+  }
+
+  get router(): RouterHandler<CheerioCrawlingContext> {
+    return this._router;
+  }
+}
+
+/**
+ * Log a canonical line summarise the result of scraping a product page.
+ * See https://stripe.com/blog/canonical-log-lines for why it's good to have
+ */
+function logProductScrapingInfo(
+  ctx: PlaywrightCrawlingContext,
+  productDetails: DetailedProductInfo | null
+) {
+  const proxy = ctx.proxyInfo
+    ? `${ctx.proxyInfo.hostname}:${ctx.proxyInfo.port}`
+    : null;
+  log.info("Scrape product finished", {
+    requestUrl: ctx.request.url,
+    productUrl: productDetails?.url || null,
+    proxy: proxy,
+    sessionId: ctx.session?.id || null,
+  });
+}
+
+export interface MatchingHomepageUrlResponse {
+  matching_urls: string[];
+}
+/** Publish urls found on homepage to persist in our database.
+ * Return a list of matching urls (mostly for debugging purpose).
+ */
+async function publishHomepageUrls(urls: string[]): Promise<string[]> {
+  const response = await fetch(
+    "https://europe-west1-panprices.cloudfunctions.net/shelf_analytics_classify_url",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        urls: urls,
+      }),
+    }
+  );
+  const responsebody = (await response.json()) as MatchingHomepageUrlResponse;
+
+  return responsebody.matching_urls;
+}

@@ -1,0 +1,84 @@
+[
+  {
+    "fetchedAt": "9/2/2022, 4:51:26 PM",
+    "retailerDomain": "https://www.k-rauta.se",
+    "jobId": "job_test_1",
+    "url": "https://www.k-rauta.se/produkt/matbord-kalmar-diameter-120-cm/6438313610830",
+    "brand": "CELLO",
+    "popularityIndex": 1,
+    "name": "Matbord Kalmar Diameter 120 Cm",
+    "label": "DETAIL",
+    "description": "Matbord Kalmar från Cello i teak. Ett runt matbord som kan matchas med passande stolar i serien Kalmar. Bordets mått: Höjd: 75cm, Diameter: ø120cm.  Teak är ett slitstarkt material som med tiden får en vacker patina och en ljusare silvergår ton. Vill man behålla en mörkare nyans rekommenderas att olja in teakmöblerna.",
+    "price": 319500,
+    "isDiscounted": false,
+    "currency": "SEK",
+    "images": [
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24882951",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24882952",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_25916828",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_25916827",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_25916826",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_25916825",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24882955",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24882953",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_25916829",
+      "https://public.keskofiles.com/f/btt/ASSET_JPEG_24882954"
+    ],
+    "sku": "502230659",
+    "gtin": "06438313610830",
+    "availability": "in_stock",
+    "categoryTree": [
+      {
+        "name": "Trädgård & fritid",
+        "url": "/kategori/tradgard-och-fritid"
+      },
+      {
+        "name": "Trädgårdsmöbler",
+        "url": "/kategori/tradgard-och-fritid/tradgardsmobler"
+      },
+      {
+        "name": "Matbord & stolar",
+        "url": "/kategori/tradgard-och-fritid/tradgardsmobler/matbord-och-stolar"
+      },
+      {
+        "name": "Utebord",
+        "url": "/kategori/tradgard-och-fritid/tradgardsmobler/matbord-och-stolar/utebord"
+      }
+    ],
+    "specifications": [
+      {
+        "key": "Vikt",
+        "value": "21 kg"
+      },
+      {
+        "key": "Höjd i cm",
+        "value": "75"
+      },
+      {
+        "key": "Bredd i cm",
+        "value": "120"
+      },
+      {
+        "key": "Färg",
+        "value": "Beige"
+      },
+      {
+        "key": "Stommaterial",
+        "value": "Trä"
+      },
+      {
+        "key": "Produktmaterial",
+        "value": "Trä"
+      },
+      {
+        "key": "Typ",
+        "value": "Middagsbord och stolar"
+      }
+    ],
+    "reviews": {
+      "reviewCount": 3,
+      "averageReview": 5,
+      "recentReviews": []
+    }
+  }
+]

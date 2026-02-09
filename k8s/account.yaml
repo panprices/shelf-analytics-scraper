@@ -1,0 +1,9 @@
+# Source: https://medium.com/google-cloud/mapping-kubernetes-service-accounts-to-gcp-iams-using-workload-identity-b53496d543e0
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: 1001106989087-compute@developer.gserviceaccount.com
+  name: crawlee-scraper
+  namespace: default
+
